@@ -46,9 +46,10 @@ const VehicleProfileCard = ({screen=false}) => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: 'red',
     borderRadius: 10,
     padding: 20,
+    // paddingHorizontal:70,
     // marginTop: 100,
     borderWidth: 1,
     borderColor:Colors.grey,

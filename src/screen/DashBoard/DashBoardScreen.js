@@ -14,10 +14,13 @@ const DashboardScreen = () => {
         onPress={() => navigation.openDrawer()} // Open the drawer
         style={styles.hamburgerButton}
       >
+        <View style={{ flexDirection:'row',alignItems:'center',gap:5}} >
         {/* <Image
            source={AppImages.hamburgerImage} // Path to your hamburger icon
           style={styles.hamburgerIcon}
         /> */}
+       {/* <Image source={AppImages.SplashScreenLogo} style={styles.parcalLogo} resizeMode='contain' /> */}
+       </View>
 
       </TouchableOpacity>
 
@@ -52,6 +55,10 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginTop: 20,
+  },
+  parcalLogo: {
+    width: 60,
+    height: 60,
   },
 });
 
