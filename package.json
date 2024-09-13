@@ -18,6 +18,7 @@
     "@reduxjs/toolkit": "^2.2.7",
     "axios": "^1.7.7",
     "css-tree": "^2.3.1",
+    "lodash": "^4.17.21",
     "patch-package": "^8.0.0",
     "postinstall-postinstall": "^2.1.0",
     "react": "18.3.1",

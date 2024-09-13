@@ -70,6 +70,8 @@ export default AppImages = {
     privacyPolicyImage: require('../assets/images/privacyPolicy.png'), 
     ledgerImage: require('../assets/images/ledger.png'), 
     backWhite: require('../assets/images/backWhite.png'), 
+    closeButton: require('../assets/images/close.png'), 
+
 
 
 
