@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-// Card Component
 const Card = ({ date, price, status }) => (
   <View style={styles.card}>
     <View style={{flexDirection:"row",justifyContent:'space-between'}}>
