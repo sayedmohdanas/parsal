@@ -136,7 +136,7 @@ import DrawerNavigator from './DrawerNavigaton';
 const Stack = createStackNavigator();
 
 const StackNavigator = () => (
-  <Stack.Navigator initialRouteName="Dashboards">
+  <Stack.Navigator initialRouteName="Login">
     <Stack.Screen name="Login" component={LoginScreen} />
     <Stack.Screen name="Otp" component={OtpScreen} />
     <Stack.Screen name="OwnerDetail" component={OwnerDetailScreen} />
@@ -150,8 +150,8 @@ const StackNavigator = () => (
     <Stack.Screen name="DriverMap" component={DriverMapScreen} />
     <Stack.Screen
       name="Dashboards"
-      component={DrawerNavigator} // Use DrawerNavigator for the Dashboard screen
-      options={{ headerShown: false }} // Hide header for Dashboard screen
+      component={DrawerNavigator} 
+      options={{ headerShown: false }} 
     />
   </Stack.Navigator>
 );

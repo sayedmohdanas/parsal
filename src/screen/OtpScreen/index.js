@@ -106,7 +106,7 @@ const OtpScreen = ({ navigation, route }) => {
               <TouchableOpacity onPress={() => {
                 // dispatch(setStatusPending());
                 // navigation.replace('Login');
-                navigation.replace('Login', { number: number });
+                navigation.navigate('Login', { number: number });
               }}>
                 <View style={[{ justifyContent: 'center', alignItems: "center" }, styles.buttonContainer]}>
                   <Text style={[styles.buttonText]}  >{`Change`}</Text>

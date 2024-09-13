@@ -3,6 +3,7 @@ import { SafeAreaView, StyleSheet } from 'react-native';
 import { Provider } from 'react-redux';
 import { NavigationContainer } from '@react-navigation/native';
 import store from './src/redux/store';
+import Toast from 'react-native-toast-message';
 import StackNavigator from './navigation/StackNavigation';
 
 
@@ -11,6 +12,7 @@ export default function App() {
     <Provider store={store}>
       <NavigationContainer>
         <StackNavigator />
+        <Toast ref={(ref) => Toast.setRef(ref)} />
       </NavigationContainer>
     </Provider>
   );

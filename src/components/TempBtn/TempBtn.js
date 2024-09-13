@@ -6,21 +6,22 @@ const PageButtons = ({ nextScreenName }) => {
   const navigation = useNavigation();
 
   return (
-    <View style={styles.buttonContainer}>
-      <TouchableOpacity 
-        style={styles.button} 
-        onPress={() => navigation.goBack()} // Navigate back
-      >
-        <Text style={styles.buttonText}>Prev Page</Text>
-      </TouchableOpacity>
+    null
+    // <View style={styles.buttonContainer}>
+    //   <TouchableOpacity 
+    //     style={styles.button} 
+    //     onPress={() => navigation.goBack()} // Navigate back
+    //   >
+    //     <Text style={styles.buttonText}>Prev Page</Text>
+    //   </TouchableOpacity>
 
-      <TouchableOpacity 
-        style={styles.button} 
-        onPress={() => navigation.navigate(nextScreenName, { screenName: nextScreenName })} // Pass screen name as prop
-      >
-        <Text style={styles.buttonText}>Next Page</Text>
-      </TouchableOpacity>
-    </View>
+    //   <TouchableOpacity 
+    //     style={styles.button} 
+    //     onPress={() => navigation.navigate(nextScreenName, { screenName: nextScreenName })} // Pass screen name as prop
+    //   >
+    //     <Text style={styles.buttonText}>Next Page</Text>
+    //   </TouchableOpacity>
+    // </View>
   );
 };
 

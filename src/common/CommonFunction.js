@@ -36,8 +36,8 @@ export const errorToast = (text1, text2 = '') => {
         position: 'top',
         autoHide: true,
         visibilityTime: 4000,
-     text1Style: { fontSize: responsiveFontSize(16) },
-     text2Style: { fontSize: responsiveFontSize(13) },
+     text1Style: { fontSize: 16 },
+     text2Style: { fontSize: 16 },
     });
 };
 

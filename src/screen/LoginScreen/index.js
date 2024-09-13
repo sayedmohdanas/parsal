@@ -24,7 +24,7 @@ const LoginScreen = ({ navigation ,route}) => {
   const [tdsDeclaration,setTdsDeclaration]=useState(false)
   const [countryCode, setCountryCode] = useState('IN');
   const [isPickerVisible, setIsPickerVisible] = useState(false);
-  const [number, setNumber] = useState('India')
+  const [number, setNumber] = useState('')
   const [flag, setFlag] = useState(flagImages.default); // State to store the flag image URL
   const [countryName, setCountryName] = useState('India'); // State to store t
   const [mobile, setMobile] = useState('9711825718');
@@ -150,19 +150,7 @@ const LoginScreen = ({ navigation ,route}) => {
 
 
               <View style={{ marginLeft: 5 }}>
-                {/* <CountryPicker
-                  countryCode={countryCode}
-                  withCallingCode={true}
-                  withCallingCodeButton={true}
-                  withFlag
-                  withFlagButton={false}
-                  withFilter
-                  withAlphaFilter
-                  onSelect={handleSelectCountry}
-                  visible={isPickerVisible}
-                  onClose={() => setIsPickerVisible(false)}
-                 
-                /> */}
+             
                 <Text style={{color:Colors.black,fontSize:15,fontWeight:600}}>+91</Text>
               </View>
               <View style={styles.inputContainer}>
@@ -170,6 +158,7 @@ const LoginScreen = ({ navigation ,route}) => {
                 <TextInput
                   placeholder='Enter your number'
                   style={styles.textInputstyle}
+                  maxLength={10}
                   placeholderTextColor={Colors.black}
                   onChangeText={(e) => {
                     setNumber(e)
@@ -225,8 +214,10 @@ const LoginScreen = ({ navigation ,route}) => {
             <View style={{ marginBottom: 10, justifyContent: "center", alignItems: 'center' }}>
               <CustomButton
                 buttonText={'LOGIN'}
-                onPress={() => {
+                disabled={number.length !== 10} 
+                  onPress={() => {
                   handleGetOtp()
+
                 }} />
             </View>
           </View>

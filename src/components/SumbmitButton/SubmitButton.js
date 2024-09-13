@@ -6,7 +6,7 @@ const SubmitCard = ({ onPress, isEnabled }) => {
   return (
     <View style={styles.card}>
       <TouchableOpacity
-        style={[styles.button, { backgroundColor: !isEnabled ? Colors.brandBlue : '#d3d3d3' }]}
+        style={[styles.button, { backgroundColor: isEnabled ? Colors.brandBlue : '#d3d3d3' }]}
         onPress={onPress}
         disabled={!isEnabled}
       >
