@@ -72,6 +72,9 @@ export default AppImages = {
     backWhite: require('../assets/images/backWhite.png'), 
     down: require('../assets/images/down.png'), 
     check: require('../assets/images/check.png'), 
+    next: require('../assets/images/rightIcon.png'),
+    previous: require('../assets/images/leftIcon.png'), 
+
 
 
 

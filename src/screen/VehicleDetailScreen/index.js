@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Alert, Image, Text, TouchableOpacity, ScrollView, Button, TextInput } from 'react-native';
+import { View, StyleSheet, Alert, Image, Text, TouchableOpacity, ScrollView, Button, TextInput, TouchableWithoutFeedback } from 'react-native';
 import CustomTextInput from '../../components/CustomTextInput/CustomTextInput';
 import ImagePicker from '../../components/ImagePickerComponent/ImagePicker';
 import SubmitCard from '../../components/SumbmitButton/SubmitButton';
@@ -12,6 +12,7 @@ import { addVehicle, setParentId, } from '../../redux/HitApis/HitApiSlice';
 import PageButtons from '../../components/TempBtn/TempBtn';
 import { useIsFocused } from '@react-navigation/native';
 import AppImages from '../../common/AppImages';
+import Colors from '../../common/Colors';
 
 const VehicleDetailScreen = ({ navigation }) => {
   const [vehicleNumber, setVehicleNumber] = useState('');
@@ -23,7 +24,7 @@ const VehicleDetailScreen = ({ navigation }) => {
   const [showVehicleBodyType, setShowVehicleBodyType] = useState(true);
   const [showEditOption, setShowEditOption] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [selectedFuelType,setSelectedFuelType] =useState("")
+  const [selectedFuelType,setSelectedFuelType] =useState(0)
 
   const dispatch = useDispatch();
   const vehicleOptions = [
@@ -31,7 +32,7 @@ const VehicleDetailScreen = ({ navigation }) => {
     { value: 2, label: '3W', image: AppImages.threeWheelerImage },
     { value: 1, label: '2W', image: AppImages.twoWheelerImage },
   ];
-  const partnerId = useSelector(state => state?.parsalPartner?.parentId)
+  const partnerId = useSelector(state => state?.parsalPartner?.partnerId)
 
   const bodyTypeOptions = [
     { value: 'Scooter', label: 'Scooter', image: AppImages.scooterImage },
@@ -39,7 +40,6 @@ const VehicleDetailScreen = ({ navigation }) => {
   ];
   const selectedVehicleModel = 'Toyota Corolla';
   const selectedVehicleColor = 'Blue';
-  // const selectedFuelType = { value: 1, label: 'Petrol' };
   const selectedVehicleName = 'Corolla';
   const selectedVehicleCapacity = 5;
 
@@ -57,7 +57,7 @@ const VehicleDetailScreen = ({ navigation }) => {
       vehicle_type: selectedVehicleType ? selectedVehicleType.value : 'v-type',
       vehicle_model: selectedVehicleModel,
       vehicle_color: selectedVehicleColor,
-      fuel_type: selectedFuelType ? selectedFuelType.value : null,
+      fuel_type: selectedFuelType === "Petrol" ? 2 : selectedFuelType === "EV" ? 1 : null,
       vehicle_name: selectedVehicleName,
       vehicle_capacity: selectedVehicleCapacity || 5,
       operational_city: selectedCity ? selectedCity : 'london',
@@ -121,8 +121,6 @@ const VehicleDetailScreen = ({ navigation }) => {
     setShowVehicleBodyType(false);
     setShowEditOption(true);
   };
-  console.log("Is visible: ", isVisible);
-
 
   const isEnabled = vehicleNumber && rcUploaded && selectedVehicleType && selectedBodyType;
 
@@ -216,22 +214,26 @@ const VehicleDetailScreen = ({ navigation }) => {
                       </View>
 
                     </View>
-                    <View>
+                    <View> 
                       <Heading text="Select the vehicle fuel type" isRequired={false} />  
+                      <TouchableWithoutFeedback onPress={toggleBottomSheet}>
                       <View style={styles.selectFuel}>
                         <TextInput
                         placeholder='Select the vehicle fuel type'
                         cursorColor={'transparent'}
+                        placeholderTextColor={'black'}
                         value={selectedFuelType}
+                        style={{color:Colors.black,fontSize:14,fontWeight:'400'}}
 
                         />
                         <TouchableOpacity
-                        onPress={toggleBottomSheet}
+                        // onPress={toggleBottomSheet}
                         >
                         <Image source={AppImages.down} style={{width:20,height:20}} resizeMode='contain'/>
 
                         </TouchableOpacity>
                         </View> 
+                        </TouchableWithoutFeedback>
 
                     </View>
                   </>
@@ -255,8 +257,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#fff',
-    // marginBottom:30
+    backgroundColor: Colors.homeBackground 
   },
   formContainer: {
     // flex: 1,
@@ -265,13 +266,10 @@ const styles = StyleSheet.create({
   cityDripDownCard: {
     padding: 8,
     borderRadius: 5,
-  
     backgroundColor: 'white',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    borderWidth: 0.2,
+    // borderWidth: 0.2,
     marginBottom: 16,
   },
   selectFuel: {
@@ -280,38 +278,33 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     justifyContent:'space-between',
     alignItems:'center',
-    backgroundColor: 'white',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    borderWidth: 0.2,
+    // backgroundColor: 'white',
+    backgroundColor: Colors.white,
     marginBottom: 90,
   },
   fullWidthCard: {
     height: 70,
     padding: 6,
-    borderWidth: 0.2,
     borderRadius: 5,
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    backgroundColor: Colors.white
   },
   fullWidthImage: {
-    width: 30,
-    height: 30,
+    width: 25,
+    height: 25,
     resizeMode: 'contain',
   },
   vehicleLabel: {
     fontSize: 18,
-    // fontWeight: 'bold',
     color: '#333',
     flex: 1,
     marginLeft: 16,
   },
   vehicleLabelBodyType: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '500',
     color: '#333',
     marginTop: 8,
   },
@@ -329,14 +322,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 10,
-    borderWidth: 0.25,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    backgroundColor: Colors.white
+  
   },
   selectedBodyTypeCard: {
-    backgroundColor: '#d0ebff',
+    // backgroundColor: 'red',
   },
   editButton: {
     fontSize: 16,

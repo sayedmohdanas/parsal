@@ -1,9 +1,11 @@
 // VehicleCard.js
 import React from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import Colors from '../../common/Colors';
+import { useNavigation } from '@react-navigation/native';
 
-const VehicleCard = ({ vehicle, onPress }) => {
+const VehicleCard = ({ vehicle, onPress }) => {  
+     const navigation= useNavigation()
     
     const hasDriver = vehicle?.driver?.driver_name;
     const formatVehicleNumber = (number) => {
@@ -15,6 +17,7 @@ const VehicleCard = ({ vehicle, onPress }) => {
     
 
     return (
+        <TouchableWithoutFeedback onPress={()=>navigation.navigate('Dashboards')} >
         <View style={styles.card}>
             <View style={styles.topSection}>
                 <View style={styles.leftSection}>
@@ -49,6 +52,7 @@ const VehicleCard = ({ vehicle, onPress }) => {
                 </View>
             )}
         </View>
+        </TouchableWithoutFeedback>
     );
 };
 
@@ -58,13 +62,15 @@ const styles = StyleSheet.create({
         padding: 16,
         borderRadius: 5,
         borderWidth: 0.2,
-        shadowColor: '#000',
+        // shadowColor: '#000',
         marginTop: 10,
+        backgroundColor:"white"
     },
     topSection: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginBottom: 40,
+        // backgroundColor:'aqua'
     },
     leftSection: {
         justifyContent: 'center',
@@ -91,17 +97,21 @@ const styles = StyleSheet.create({
     },
     rightSection: {
         justifyContent: 'center',
-        alignItems: 'flex-end',
+        alignItems: 'center',
         borderRadius: 50,
-        padding: 5,
+        // padding: 5,
         backgroundColor: '#FFA500',
-        height: 25,
-        marginTop: 5,
+        // height: 24,
+        // marginTop: 5,
+        marginVertical:10,
+        paddingHorizontal:8
     },
     status: {
-        fontSize: 14,
-        fontWeight: '600',
+        fontSize: 12,
+        // fontWeight: '400',
         color: 'white',
+        textAlign:"center",
+    
     },
     bottomSection: {
         position: 'absolute', // Absolute positioning

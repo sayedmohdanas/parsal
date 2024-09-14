@@ -12,17 +12,18 @@ const MyVehiclesScreen = ({ navigation }) => {
     const vehicleData = useSelector(state => state?.parsalPartner?.MyVehicle || []);
     const loading = useSelector(state => state?.parsalPartner?.loading || false);
     const error = useSelector(state => state?.parsalPartner?.error || null);
-    const partnerId = useSelector(state => state?.parsalPartner?.parentId);
+    const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
     const vehicleCount = vehicleData?.length;
    
     
-    const refreshData = async () => {
+    const refreshData = async () => {   
         try { 
              
-            await dispatch(getVehicle({ partnerId }));
+             await dispatch(getVehicle({ partnerId }));
+            if(vehicleCount){
             successToast(`Successfully loaded ${vehicleCount} vehicle${vehicleCount !== 1 ? 's' : ''}.`,);      
-            
-        } catch (error) {
+            }
+        } catch (error) { 
             Alert.alert('Error', error.message || 'An unexpected error occurred.');
 
             console.error(error); 
@@ -78,7 +79,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 16,
-        backgroundColor: '#fff',
+        backgroundColor: Colors.homeBackground
     },
     flatListContent: {
         paddingBottom: 80,

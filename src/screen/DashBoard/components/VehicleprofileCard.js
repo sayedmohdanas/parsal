@@ -2,8 +2,10 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import Colors from '../../../common/Colors';
 import { useNavigation } from '@react-navigation/native';
+import AppImages from '../../../common/AppImages';
+import PartnerAddressCard from '../screen/Profile/PartnerAddressCard';
 
-const VehicleProfileCard = ({screen=false}) => {
+const VehicleProfileCard = ({ screen = false }) => {
   const navigation = useNavigation();
 
   const formatVehicleNumber = (number) => {
@@ -19,26 +21,30 @@ const VehicleProfileCard = ({screen=false}) => {
 
   return (
     <View style={styles.card}>
-      <View style={styles.topSection}>
-        <Image source={AppImages.dhoniImage} style={styles.profileImage} />
-        
+      <View style={[styles.topSection, screen ? { justifyContent: '' } : {}]}>
+        <Image source={AppImages.profileImage} style={styles.profileImage} />
+
         <View style={styles.leftSection}>
-        <Text style={styles.name}>{vehicle.driver.driver_name}</Text>
+          <Text style={styles.name}>{vehicle.driver.driver_name}</Text>
 
           <View style={styles.contactContainer}>
             <Text style={styles.VType}>2 Wheeler</Text>
             <Text style={styles.VType}>
-            {formatVehicleNumber(vehicle.vehicle_number)}
-          </Text>
+              {formatVehicleNumber(vehicle.vehicle_number)}
+            </Text>
           </View>
         </View>
+      </View>
+
+
+      <View>
         {screen && (
-  <View style={styles.rightSection}>
-    <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-      <Text style={styles.status}>View Profile</Text>
-    </TouchableOpacity>
-  </View>
-)}
+          <View style={styles.rightSection}>
+            <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+              <Text style={styles.status}>View Profile</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </View>
   );
@@ -46,19 +52,25 @@ const VehicleProfileCard = ({screen=false}) => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: 'red',
-    borderRadius: 10,
-    padding: 20,
-    // paddingHorizontal:70,
-    // marginTop: 100,
-    borderWidth: 1,
-    borderColor:Colors.grey,
-    shadowColor: '#000',
+    backgroundColor: Colors.white,
+    borderRadius: 5,
+    padding: 10,
+    marginTop: 2,
+    width: '100%',
+    paddingHorizontal: 10,
+    borderBottomWidth: 2,
+    flexDirection:'row',
+    alignItems:'center',
+    justifyContent:'space-between',
+    marginVertical:8,
+    borderBottomColor: 'green'
   },
   topSection: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    
+
+
+    alignItems: 'center'
+
   },
   leftSection: {
     flexDirection: 'column',
@@ -70,7 +82,7 @@ const styles = StyleSheet.create({
   },
   contactContainer: {
     flexDirection: 'row',
-    alignItems: 'center',    
+    alignItems: 'center',
 
   },
   name: {

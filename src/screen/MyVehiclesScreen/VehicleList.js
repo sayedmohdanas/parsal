@@ -27,12 +27,13 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        height: '100%', // Ensure it takes up the full height of the container
+        height: '100%',
+       
     },
     emptyText: {
-        fontSize: 24, // Increase font size as needed
+        fontSize: 24, 
         fontWeight: 'bold',
-        color: '#333', // Adjust color as needed
+        color: '#333', 
     },
     flatListContent: {
         flexGrow: 1,

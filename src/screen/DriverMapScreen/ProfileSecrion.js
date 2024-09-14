@@ -216,7 +216,7 @@ const ProfileSection = () => {
             <View style={styles.mainContent}>
                 {/* Left Side (Profile) */}
                 <View style={styles.ProfileView}>
-                    <Image source={AppImages.dhoniImage} style={styles.profileImage} />
+                    <Image source={AppImages.profileImage} style={styles.profileImage} />
                     <Text style={styles.name}>Ms Dhoni</Text>
                 </View>
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import Colors from '../../../../common/Colors';
 
 // Card Component
 const Card = ({ date, price, status }) => (
@@ -37,7 +38,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: Colors.homeBackground
   },
   text: {
     fontSize: 24,
@@ -46,15 +47,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
+    backgroundColor: Colors.white,
+    borderRadius: 5,
     padding: 16,
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 2,
   },
   cardHeader: {
     marginBottom: 8,
@@ -64,7 +60,8 @@ const styles = StyleSheet.create({
     alignItems:'center'
   },
   NoMoreItemText:{
-    fontWeight:'bold'
+    fontWeight:'bold',
+    color:Colors.grey
   },
 
   headerText: {

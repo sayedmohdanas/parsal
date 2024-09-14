@@ -24,12 +24,13 @@ const LoginScreen = ({ navigation ,route}) => {
   const [tdsDeclaration,setTdsDeclaration]=useState(false)
   const [countryCode, setCountryCode] = useState('IN');
   const [isPickerVisible, setIsPickerVisible] = useState(false);
-  const [number, setNumber] = useState('')
+  const [number, setNumber] = useState('9918994021')
   const [flag, setFlag] = useState(flagImages.default); // State to store the flag image URL
   const [countryName, setCountryName] = useState('India'); // State to store t
   const [mobile, setMobile] = useState('9711825718');
   useEffect(() => {
     const pId = async () => {
+      // await AsyncStorage.removeItem('partner_id');
       const parent_id = await AsyncStorage.getItem('partner_id')
       console.log('parent id in login', parent_id)
       dispatch(setParentId(parent_id))
@@ -102,7 +103,7 @@ const LoginScreen = ({ navigation ,route}) => {
   return (
     <>
 
-      <View style={{ flex: 1, justifyContent: 'center' }}>
+      <View style={{ flex: 1, justifyContent: 'center', backgroundColor: Colors.homeBackground}}>
         <View >
           <View style={{ marginBottom: 80, justifyContent: "center", alignItems: 'center' }}>
             <View style={{ marginBottom: 20, justifyContent: 'center', alignItems: 'center' }}>
@@ -159,6 +160,7 @@ const LoginScreen = ({ navigation ,route}) => {
                   placeholder='Enter your number'
                   style={styles.textInputstyle}
                   maxLength={10}
+                  value={number}
                   placeholderTextColor={Colors.black}
                   onChangeText={(e) => {
                     setNumber(e)

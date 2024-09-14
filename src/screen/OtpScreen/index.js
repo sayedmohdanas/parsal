@@ -44,7 +44,7 @@ const OtpScreen = ({ navigation, route }) => {
   const handleDropdownClick = () => {
     setIsPickerVisible(!isPickerVisible);
   };
-  const partnerId = useSelector(state => state?.parsalPartner?.parentId);
+  const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
   const handleGetOtp = async () => {
     if (partnerId) {
       // Navigate to MyVehicles screen if partnerId exists
@@ -90,7 +90,7 @@ const OtpScreen = ({ navigation, route }) => {
   };
   return (
     <>
-      <View style={{ flex: 1, justifyContent: 'center' }}>
+      <View style={{ flex: 1, justifyContent: 'center' ,backgroundColor: Colors.homeBackground}}>
         <View >
           <View style={{ marginBottom: 80, justifyContent: "center", alignItems: 'center' }}>
             <View style={{ marginBottom: 20, justifyContent: 'center', alignItems: 'center' }}>

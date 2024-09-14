@@ -3,6 +3,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // For navigation
 import VehicleProfileCard from './components/VehicleprofileCard';
+import Colors from '../../common/Colors';
 
 const DashboardScreen = () => {
   const navigation = useNavigation();
@@ -36,8 +37,9 @@ const DashboardScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#f5f5f5',
+    // padding: 5,
+    paddingHorizontal:5,
+    backgroundColor: Colors.homeBackground
     
   },
   hamburgerButton: {

@@ -64,7 +64,7 @@ const CustomTextInput = ({  value,
           cursorColor={'transparent'}
           placeholderTextColor="transparent"
           keyboardType={type === 'number' ? 'numeric' : 'default'}
-          maxLength={maxLength} // Enforce maxLength at the TextInput level as well
+          maxLength={maxLength} 
         />
       </View>
     </View>
@@ -76,16 +76,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     padding: 16,
     paddingBottom:0,
-    borderRadius: 8,
-    // borderWidth:0.5,
     borderBottomWidth:1,
     borderColor: Colors.textInputBorderColor,
-
-    // shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    // shadowRadius: 4,
-    // elevation: 1,
   },
   inputContainer: {
     position: 'relative',
@@ -94,7 +88,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     color: '#333',
-    // backgroundColor: '#f9f9f9',
     marginLeft: 4,
   },
   input: {

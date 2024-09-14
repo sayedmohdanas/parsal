@@ -15,7 +15,7 @@ const DriverDetailScreen = ({ route }) => {
   const dispatch = useDispatch();
   const [name, setName] = useState('');
   const { v_id, onUpdate } = route.params;     
-  const partnerId = useSelector(state => state?.parsalPartner?.parentId);
+  const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
   const navigation = useNavigation();
   const [driverNumber, setDriverNumber] = useState('');
   const [driverProfilePic, setDriverProfilePic] = useState('');
@@ -32,11 +32,11 @@ const DriverDetailScreen = ({ route }) => {
         img_name: driverProfilePic ? 'profile.png' : '',
         img_src: driverProfilePic?.base64 || '',
       },
-      driving_licenese_pic: {
+      driving_license_pic: {
         img_name: licenseUploaded ? 'license.png' : '',
         img_src: licenseUploaded?.base64 || '',
       },
-      driving_licenese_number: driverNumber,
+      driving_license_number: driverNumber,
       current_lat: 40.712776,
       current_long: -74.005974,
       address: "789 Broadway, New York",
@@ -45,6 +45,7 @@ const DriverDetailScreen = ({ route }) => {
       working_status: isChecked ? 1 : 0
     };
     try {
+      console.log(payload)
       const resultAction = await dispatch(addDriverDetails(payload));
       if (addDriverDetails.fulfilled.match(resultAction)) {
         Alert.alert('Submitted', 'Your details have been submitted.');
@@ -137,18 +138,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.homeBackground,
   },
   card: {
     marginBottom: 16,
     flexDirection: 'row',
     paddingVertical: 16,
     borderRadius: 5,
-    borderWidth: 0.2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    backgroundColor:Colors.white,
+    // borderWidth: 0.2,
     alignItems: 'center',
   },
   formContainer: {

@@ -26,30 +26,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    
   },
   card: {
     width: '30%',
     height: 70,
     marginBottom: 16,
     borderRadius: 5,
-    // backgroundColor: '#f1f1f1',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 10,
-    // elevation: 1,
-    borderWidth:0.25,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    backgroundColor: Colors.white
   },
   selectedCard: {
     backgroundColor: '#007BFF',
   },
   image: {
-    width: 30,
-    height: 30,
-    marginBottom: 10,
+    width: 25,
+    height: 25,
+    marginBottom: 5,
   },
   text: {
     fontSize: 16,

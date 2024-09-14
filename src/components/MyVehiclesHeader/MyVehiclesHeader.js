@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import Colors from '../../common/Colors';
 
 const MyVehiclesHeader = () => {
   return (
@@ -24,6 +25,8 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     backgroundColor: '#f8f8f8',
     paddingHorizontal: 16,
+    borderBottomWidth:0.5,
+    borderBottomColor:Colors.grey
   },
   headerTitle: {
     fontSize: 18,

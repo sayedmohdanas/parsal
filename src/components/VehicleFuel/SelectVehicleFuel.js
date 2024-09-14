@@ -5,6 +5,7 @@ import Colors from '../../common/Colors';
 import AppImages from '../../common/AppImages';
 import BorderLine from '../../common/BorderLine.';
 import { errorToast, successToast } from '../../common/CommonFunction';
+import Heading from '../Heading/Heading';
 
 
 const data = [
@@ -16,7 +17,7 @@ const SelectVehicleFuel = ({ isVisible, setIsVisible, setSelectedFuelType }) => 
   const [selectedOption, setSelectedOption] = useState(null);
   const bottomSheetRef = useRef(null);
 
-  const snapPoints = ['32%'];
+  const snapPoints = ['34%'];
 
   const handleSelect = (value) => {
     setSelectedOption(value);
@@ -24,11 +25,12 @@ const SelectVehicleFuel = ({ isVisible, setIsVisible, setSelectedFuelType }) => 
 
   const handleContinue = () => {
     if (selectedOption) {
+      
       setSelectedFuelType(selectedOption);
-      // setSelectedOption('');
-      bottomSheetRef.current?.close(); // Close BottomSheet
+      setSelectedOption('');
+      bottomSheetRef.current?.close(); 
     } else {
-      errorToast('Selection Required', 'Please choose an option before proceeding.');
+      errorToast('Selection Required','Please choose an option before proceeding.');
     }
   };
 
@@ -49,7 +51,6 @@ const SelectVehicleFuel = ({ isVisible, setIsVisible, setSelectedFuelType }) => 
       index={-1} // Initial closed state
       snapPoints={snapPoints}
       onChange={(index) => {
-        console.log('BottomSheet index changed to:', index);
         if (index === -1) {
           setIsVisible(false); // Ensure visibility state is synced
         }
@@ -57,7 +58,7 @@ const SelectVehicleFuel = ({ isVisible, setIsVisible, setSelectedFuelType }) => 
       enablePanDownToClose
     >
       <View style={styles.sheetContent}>
-        <Text style={styles.sheetTitle}>Select the vehicle fuel type</Text>
+        <Heading text="Select the vehicle fuel type" isRequired={false} />  
         <BorderLine color='black' thickness={1} length='100%' margin={5} />
         {data.map(item => (
           <TouchableOpacity
@@ -71,10 +72,11 @@ const SelectVehicleFuel = ({ isVisible, setIsVisible, setSelectedFuelType }) => 
             )}
           </TouchableOpacity>
         ))}
-        <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
+       
+      </View>
+      <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
           <Text style={styles.continueButtonText}>Continue</Text>
         </TouchableOpacity>
-      </View>
     </BottomSheet>
   );
 };
@@ -83,6 +85,7 @@ const styles = StyleSheet.create({
   sheetContent: {
     flex: 1,
     padding: 5,
+    paddingHorizontal:15
   },
   sheetTitle: {
     fontSize: 18,
@@ -92,14 +95,14 @@ const styles = StyleSheet.create({
     padding: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    
   },
   selectedOption: {
     backgroundColor: Colors.lightGray, // Highlight selected option
   },
   optionText: {
     fontSize: 16,
+    color:Colors.grey
   },
   checkIcon: {
     width: 20,
@@ -109,7 +112,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.brandBlue,
     padding: 15,
     borderRadius: 5,
-    marginTop: 20,
+    marginTop: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },

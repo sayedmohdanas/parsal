@@ -31,9 +31,9 @@ export async function apiReq(
         return res(data);
       })
       .catch(error => {
-        console.error('In utils.js in catch, Err =>', error.message, error)
+        console.log('In utils.js in catch, Err =>', error.message, error)
         if (error && error.response && error.response.status === 401) {
-          clearUserData();
+          // clearUserData();
         }
         if (error && error.response && error.response.data) {
           if (!error.response.data.message) {
