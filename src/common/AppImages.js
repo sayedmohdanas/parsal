@@ -58,7 +58,7 @@ export default AppImages = {
     rideBike: require('../assets/images/ride-a-bike.png'),
     callImage:require('../assets/images/call.png'),
     cancelImage:require('../assets/images/cancel.png'),
-    dhoniImage:require('../assets/images/dhoni.png'),
+    // dhoniImage:require('../assets/images/dhoni.png'),
     hamburgerImage:require('../assets/images/more.png'),
     goback:require('../assets/images/back.png'),
     profileImage: require('../assets/images/profile.png'),

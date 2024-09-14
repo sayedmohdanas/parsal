@@ -13,6 +13,7 @@ import PageButtons from '../../components/TempBtn/TempBtn';
 import { useIsFocused } from '@react-navigation/native';
 import AppImages from '../../common/AppImages';
 import Colors from '../../common/Colors';
+import { successToast } from '../../common/CommonFunction';
 
 const VehicleDetailScreen = ({ navigation }) => {
   const [vehicleNumber, setVehicleNumber] = useState('');
@@ -46,6 +47,7 @@ const VehicleDetailScreen = ({ navigation }) => {
   const toggleBottomSheet = () => {
     setIsVisible(prev => !prev); 
   };
+console.log('partnerId',partnerId);
 
 
   const handleSubmit = async () => {
@@ -79,9 +81,12 @@ const VehicleDetailScreen = ({ navigation }) => {
     ) {
 
       try {
+        console.log('payload',payload);
+        
         const resultAction = await dispatch(addVehicle(payload));
         if (resultAction.meta.requestStatus === 'fulfilled') {
-          Alert.alert('Submitted');
+          // Alert.alert('Submitted');
+          successToast('Submitted',"Vehicle details have been submitted")
           navigation.navigate('MyVehicles');
         } else {
           Alert.alert('Error', resultAction.payload?.message || 'An error occurred while submitting.');
@@ -90,8 +95,9 @@ const VehicleDetailScreen = ({ navigation }) => {
         Alert.alert('Error', 'An unexpected error occurred.');
         console.error('here is error', error);
       }
+      successToast('Submitted',"Vehicle details have been submitted")
 
-      Alert.alert('Submitted', 'Vehicle details have been submitted.');
+      // Alert.alert('Submitted', 'Vehicle details have been submitted.');
 
     } else {
       Alert.alert('Error', 'Please fill  all fields.');

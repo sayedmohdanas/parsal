@@ -9,6 +9,7 @@ import Loading from '../../components/Loading/Loading';
 import { createPartner } from '../../redux/HitApis/HitApiSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { errorToast, successToast } from '../../common/CommonFunction';
+import Colors from '../../common/Colors';
 
 const OwnerDetailScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -19,8 +20,7 @@ const OwnerDetailScreen = ({ navigation }) => {
   const [selfieUploaded, setSelfieUploaded] = React.useState(null);
 
   const fullData = useSelector(state => state?.parsalPartner)
-  console.log('=================================aa===');
-  console.log(fullData?.parentId);
+
 
 
   const handleSubmit = async () => {
@@ -56,9 +56,9 @@ const OwnerDetailScreen = ({ navigation }) => {
       };
 
       try {
+      
         const resultAction = await dispatch(createPartner(payload));
         if (createPartner.fulfilled.match(resultAction)) {
-          console.log('partner id in success', resultAction?.payload?.partner_id)
           const partner_id = JSON.stringify(resultAction?.payload?.partner_id)
           await AsyncStorage.setItem('partner_id', partner_id);
           successToast('Submitted', 'Your details have been submitted.');
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.homeBackground,
   },
   formContainer: {
     flex: 1,

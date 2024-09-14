@@ -11,7 +11,7 @@ export const createPartner = createAsyncThunk(
     try {
       const response = await hitCreatePartner(credentials);
       const parent_id = await AsyncStorage.getItem('partner_id')
-      console.log('parent id in slice', parent_id)
+  
       return response;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -60,7 +60,7 @@ export const getVehicle = createAsyncThunk(
       const response = await hitMyVehicle(credentials);
       return response;
     } catch (error) {
-      errorToast('No Vehicles',error.message)
+      errorToast('No Vehicles', error.message)
       return rejectWithValue(error.message);
     }
   }
