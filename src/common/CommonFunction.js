@@ -15,14 +15,14 @@ import { useDispatch } from 'react-redux';
 //         });
 //     });
 // }
-export const successToast = (text1, text2 = '') => {
+export const successToast = (text1, text2 = '',visibilityTime=4000) => {
     Toast.show({
         type: 'success',
         text1: text1,
         text2: text2,
         position: 'top',
         autoHide: true,
-        visibilityTime: 4000,
+        visibilityTime: visibilityTime,
         text1Style: { fontSize: 16 },
         text2Style: { fontSize: 13},
     });

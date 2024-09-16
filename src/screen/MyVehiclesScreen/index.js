@@ -6,6 +6,7 @@ import { getVehicle } from '../../redux/HitApis/HitApiSlice';
 import Loading from '../../components/Loading/Loading';
 import VehicleList from './VehicleList';
 import { successToast } from '../../common/CommonFunction';
+import { useFocusEffect } from '@react-navigation/native';
 
 const MyVehiclesScreen = ({ navigation }) => {
     const dispatch = useDispatch();
@@ -20,8 +21,10 @@ const MyVehiclesScreen = ({ navigation }) => {
         try { 
              
              await dispatch(getVehicle({ partnerId }));
-            if(vehicleCount){
-            successToast(`Successfully loaded ${vehicleCount} vehicle${vehicleCount !== 1 ? 's' : ''}.`,);      
+             const updatedVehicleCount = vehicleData?.length;
+
+             if(updatedVehicleCount) {
+                successToast(`Successfully loaded ${updatedVehicleCount} vehicle${updatedVehicleCount !== 1 ? 's' : ''}.`);
             }
         } catch (error) { 
             Alert.alert('Error', error.message || 'An unexpected error occurred.');
@@ -30,12 +33,15 @@ const MyVehiclesScreen = ({ navigation }) => {
         }
     };
 
-    useEffect(() => {
-        if (partnerId) {
+    useFocusEffect(
+        React.useCallback(() => {
+            if (partnerId) {
+                refreshData();
+            }
+        }, [partnerId])
+    );
 
-            refreshData();  
-        }
-    }, [partnerId,dispatch]);
+
 
     const isEnabled = vehicleCount > 0;
 

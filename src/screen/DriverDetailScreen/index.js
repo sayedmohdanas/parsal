@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addDriverDetails } from '../../redux/HitApis/HitApiSlice';
 import { useNavigation } from '@react-navigation/native';
 import Colors from '../../common/Colors';
+import { successToast } from '../../common/CommonFunction';
 
 const DriverDetailScreen = ({ route }) => {
   const dispatch = useDispatch();
@@ -48,7 +49,9 @@ const DriverDetailScreen = ({ route }) => {
       console.log(payload)
       const resultAction = await dispatch(addDriverDetails(payload));
       if (addDriverDetails.fulfilled.match(resultAction)) {
-        Alert.alert('Submitted', 'Your details have been submitted.');
+        setTimeout(() => {
+          successToast(`Driver ${name} successfully added.`);
+      }, 1000);
 
         if (onUpdate) onUpdate(); 
         navigation.goBack();

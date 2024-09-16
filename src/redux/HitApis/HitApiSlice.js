@@ -10,6 +10,8 @@ export const createPartner = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await hitCreatePartner(credentials);
+      console.log(response,'response--------');
+      
       const parent_id = await AsyncStorage.getItem('partner_id')
   
       return response;

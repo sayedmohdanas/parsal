@@ -14,6 +14,7 @@ import { useIsFocused } from '@react-navigation/native';
 import AppImages from '../../common/AppImages';
 import Colors from '../../common/Colors';
 import { successToast } from '../../common/CommonFunction';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const VehicleDetailScreen = ({ navigation }) => {
   const [vehicleNumber, setVehicleNumber] = useState('');
@@ -34,6 +35,15 @@ const VehicleDetailScreen = ({ navigation }) => {
     { value: 1, label: '2W', image: AppImages.twoWheelerImage },
   ];
   const partnerId = useSelector(state => state?.parsalPartner?.partnerId)
+  useEffect(() => {
+    const pId = async () => {
+      // await AsyncStorage.removeItem('partner_id');
+      const parent_id = await AsyncStorage.getItem('partner_id')
+      console.log('parent id in login', parent_id)
+      dispatch(setParentId(parent_id))
+    }
+    pId()
+  }, [])
 
   const bodyTypeOptions = [
     { value: 'Scooter', label: 'Scooter', image: AppImages.scooterImage },
@@ -46,7 +56,8 @@ const VehicleDetailScreen = ({ navigation }) => {
 
   const toggleBottomSheet = () => {
     setIsVisible(prev => !prev); 
-  };
+  }; 
+
 console.log('partnerId',partnerId);
 
 
@@ -82,12 +93,16 @@ console.log('partnerId',partnerId);
 
       try {
         console.log('payload',payload);
+       
         
         const resultAction = await dispatch(addVehicle(payload));
-        if (resultAction.meta.requestStatus === 'fulfilled') {
+        // if (resultAction.meta.requestStatus === 'fulfilled') {
+          if (addVehicle.fulfilled.match(resultAction)) {
           // Alert.alert('Submitted');
           successToast('Submitted',"Vehicle details have been submitted")
+
           navigation.navigate('MyVehicles');
+        
         } else {
           Alert.alert('Error', resultAction.payload?.message || 'An error occurred while submitting.');
         }
@@ -102,6 +117,7 @@ console.log('partnerId',partnerId);
     } else {
       Alert.alert('Error', 'Please fill  all fields.');
     }
+  
   };
 
   const handleOptionEdit = () => {
