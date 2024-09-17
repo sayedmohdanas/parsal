@@ -6,6 +6,7 @@ const BorderLine = ({
     thickness = 2, 
     length = '100%', 
     margin = 10, 
+    
     orientation = 'horizontal'  // 'horizontal' or 'vertical'
 }) => {
     const isVertical = orientation === 'vertical';

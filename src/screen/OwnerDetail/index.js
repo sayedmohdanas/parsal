@@ -7,11 +7,12 @@ import SubmitCard from '../../components/SumbmitButton/SubmitButton';
 import PageButtons from '../../components/TempBtn/TempBtn';
 import Loading from '../../components/Loading/Loading';
 import { createPartner } from '../../redux/HitApis/HitApiSlice';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { errorToast, successToast } from '../../common/CommonFunction';
+import { errorToast, generateRandomPhoneNumber, successToast } from '../../common/CommonFunction';
 import Colors from '../../common/Colors';
 
-const OwnerDetailScreen = ({ navigation }) => {
+const OwnerDetailScreen = ({ navigation, route }) => {
+  const { partner_id, email } = route.params;
+
   const dispatch = useDispatch();
   const loading = useSelector((state) => state.parsalPartner.loading);
   const [name, setName] = React.useState('');
@@ -19,19 +20,15 @@ const OwnerDetailScreen = ({ navigation }) => {
   const [panCardUploaded, setPanCardUploaded] = React.useState(null);
   const [selfieUploaded, setSelfieUploaded] = React.useState(null);
 
-  const fullData = useSelector(state => state?.parsalPartner)
-
-
 
   const handleSubmit = async () => {
-    const generateRandomPhoneNumber = () => {
-      const randomPhoneNumber = '9' + Math.floor(Math.random() * 9000000000 + 1000000000);
-      return randomPhoneNumber;
-    };
 
     if (name && aadharCardUploaded && panCardUploaded && selfieUploaded) {
       const payload = {
+
+        partner_id: partner_id,
         partner_name: name,
+        email: email,
         phone: generateRandomPhoneNumber(),
         address: '123, Main Street, Springfield',
         admin_remark: 'I am a new partner with id 3',
@@ -56,23 +53,18 @@ const OwnerDetailScreen = ({ navigation }) => {
       };
 
       try {
-      
+
         const resultAction = await dispatch(createPartner(payload));
         if (createPartner.fulfilled.match(resultAction)) {
-          const partner_id = JSON.stringify(resultAction?.payload?.partner_id)
-          await AsyncStorage.setItem('partner_id', partner_id);
           successToast('Submitted', 'Your details have been submitted.');
-          // Alert.alert('Submitted', 'Your details have been submitted.');
           navigation.navigate('VehicleDetail');
         } else {
-          
-          // Alert.alert('Error', resultAction.payload?.message || 'An error occurred while submitting.');
           errorToast('Not Created', 'Something went wrong.');
 
         }
       } catch (error) {
         Alert.alert('Error', 'An unexpected error occurred.');
-        console.error('aa',error);
+        console.error('error', error);
       }
     } else {
       Alert.alert('Error', 'Please fill out all fields and upload all documents.');
@@ -83,6 +75,7 @@ const OwnerDetailScreen = ({ navigation }) => {
   const isEnabled = name && aadharCardUploaded && panCardUploaded && selfieUploaded;
 
   return (
+    <>
     <View style={styles.container}>
       <View style={styles.formContainer}>
         <CustomTextInput
@@ -121,10 +114,12 @@ const OwnerDetailScreen = ({ navigation }) => {
       <SubmitCard onPress={handleSubmit} isEnabled={isEnabled} />
 
       <PageButtons nextScreenName={'VehicleDetail'} />
-
-      {/* Show the Loading component */}
-      <Loading loading={loading} />
     </View>
+
+<Loading loading={loading} />
+
+</>
+
   );
 };
 

@@ -67,3 +67,8 @@ export const customToast = (text1, text2 = '', config = {}) => {
         ...config, // Any custom configurations can be passed here
     });
 }
+
+export   const generateRandomPhoneNumber = () => {
+    const randomPhoneNumber = '9' + Math.floor(Math.random() * 9000000000 + 1000000000);
+    return randomPhoneNumber;
+  };

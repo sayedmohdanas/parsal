@@ -19,11 +19,10 @@ const PartnerAddressCard = ({ address, mobileNumber, additionalData }) => {
 
 const styles = StyleSheet.create({
     card: {
-        backgroundColor: 'white',
-        borderRadius: 8,
+        backgroundColor: Colors.white,
         width:'100%',
         padding: 16,
-        margin: 5,
+        marginTop:12,
        backgroundColor:Colors.white
     },
     section: {

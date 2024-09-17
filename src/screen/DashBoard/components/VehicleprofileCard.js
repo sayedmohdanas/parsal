@@ -54,15 +54,16 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: Colors.white,
     borderRadius: 5,
-    padding: 10,
-    marginTop: 2,
+    padding: 16,
+    marginTop: 12,
+    // marginBottom:12,
     width: '100%',
-    paddingHorizontal: 10,
+    // paddingHorizontal: 10,
     borderBottomWidth: 2,
     flexDirection:'row',
     alignItems:'center',
     justifyContent:'space-between',
-    marginVertical:8,
+    // marginVertical:8,
     borderBottomColor: 'green'
   },
   topSection: {

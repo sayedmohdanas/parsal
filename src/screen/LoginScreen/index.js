@@ -1,101 +1,87 @@
-import { Alert, Image,  StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Alert, Image, StyleSheet, Text, TextInput, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import AppImages from '../../common/AppImages'
 import Colors from '../../common/Colors'
 import CustomButton from '../../components/CustomButton/CustomButton';
 import { errorToast, getItem, successToast } from '../../common/CommonFunction'
-import { EmailOtp } from '../../redux/HitApis/HitApisSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import Loading from '../../components/Loading/Loading'
-import CountryPicker from 'react-native-country-picker-modal';
 import CheckBox from 'react-native-check-box'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { setParentId } from '../../redux/HitApis/HitApiSlice'
+import { loginPartner,  } from '../../redux/HitApis/HitApiSlice'
 import flagImages from './FlagImages';
-// import Flag from 'react-native-svg-flagkit';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-const LoginScreen = ({ navigation ,route}) => {
+const LoginScreen = ({ navigation, route }) => {
   const dispatch = useDispatch()
   const user = useSelector((state) => state.parsal_store?.user);
-  const status = useSelector((state) => state?.parsal_store?.status);
-  const loading = useSelector((state) => state?.parsal_store?.loading);
-  const [termsAndConditions,setTermsAndConditions]=useState(false)
-  const [tdsDeclaration,setTdsDeclaration]=useState(false)
+  const status = useSelector((state) => state?.parsalPartner?.status);
+  const loading = useSelector((state) => state?.parsalPartner?.loading);
+  const [termsAndConditions, setTermsAndConditions] = useState(false)
+  const [tdsDeclaration, setTdsDeclaration] = useState(false)
   const [countryCode, setCountryCode] = useState('IN');
   const [isPickerVisible, setIsPickerVisible] = useState(false);
-  const [number, setNumber] = useState('9918994021')
-  const [flag, setFlag] = useState(flagImages.default); // State to store the flag image URL
-  const [countryName, setCountryName] = useState('India'); // State to store t
+  const [number, setNumber] = useState('')
+  const [flag, setFlag] = useState(flagImages.default);
+  const [countryName, setCountryName] = useState('India');
   const [mobile, setMobile] = useState('9711825718');
-  useEffect(() => {
-    const pId = async () => {
-      // await AsyncStorage.removeItem('partner_id');
-      const parent_id = await AsyncStorage.getItem('partner_id')
-      console.log('parent id in login', parent_id)
-      dispatch(setParentId(parent_id))
-    }
-    pId()
-  }, [])
+
+
+
+  // useEffect(() => {
+  //   const pId = async () => {
+  //     await AsyncStorage.removeItem('partner_id');
+  //   console.log('====================================');
+  //   console.log('jooi');
+  //   console.log('====================================');
+
+  //   }
+  //   pId()
+  // }, [])
   useEffect(() => {
     if (route.params?.number) {
       setNumber(route.params.number);
     }
   }, [route.params?.number]);
-  const handleLanguage = (value) => {
-    setSelectedOption(value);
-    console.log(value);
-  };
-  const getFlagImage = (code) => {
-    return  flagImages[code.toLowerCase()]  || flagImages.default;
-  };
-  useEffect(() => {
-    setFlag(getFlagImage(countryCode));
-  }, [countryCode])
-  const handleSelectCountry = (country) => {
-    setCountryCode(country.cca2);
-    setCountryName(country.name);
-  };
-  const handleDropdownClick = () => {
-    setIsPickerVisible(!isPickerVisible);
-  };
+
   const handleGetOtp = async () => {
-    navigation.navigate('Otp',{number:number})
-    // try {
-    //     if (number === '' || number == undefined || number === null) {
-    //         errorToast('Invalid Input', 'Please enter your email address.');
-    //         return;
-    //     }
-    //     const request = {
-    //         email: number,
-    //         mobile: mobile
-    //     };
-    //     dispatch(EmailOtp(request))
-    //     if (status === 'failed') {
-    //         errorToast('Issue!!', 'Something went wrong');
-    //     }
-    // } catch (error) {
-    //     console.log('Error in getting otp by email', error)
-    // }
+    try {
+      if (number === '' || number == undefined || number === null) {
+        errorToast('Invalid Input', 'Please enter your email address.');
+        return;
+      }
+      const request = {
+        email: number,
+        // mobile: mobile
+      };
+      dispatch(loginPartner(request))
+      if (status === 'failed') {
+        errorToast('Issue!!', 'Something went wrong');
+      }
+
+    } catch (error) {
+      console.log('Error in getting otp by email', error)
+    }
   }
   useEffect(() => {
     if (status === 'succeeded' && !loading) {
-      successToast('Success', `OTP has been sent successfully to ${mobile}`);
+      successToast('Success', `OTP has been sent successfully to ${number}`);
       // navigation.replace('OtpScreen', { number: number });
+      if (!loading) {
+        navigation.navigate('Otp', { number: number })
+      }
+
     }
   }, [status])
   const handleTermsPress = () => {
-    // Handle navigation to Terms and Conditions
     Alert.alert('Terms and Conditions clicked')
     console.log('Terms and Conditions clicked');
   };
   const handlePrivacyPress = () => {
-    // Handle navigation to Privacy Policy
     Alert.alert('Privacy Policy clicked')
     console.log('Privacy Policy clicked');
   };
   const handleTDSPress = () => {
-    // Handle navigation to TDS Declaration
     Alert.alert('TDS Declaration clicked')
     console.log('TDS Declaration clicked');
   };
@@ -103,40 +89,12 @@ const LoginScreen = ({ navigation ,route}) => {
   return (
     <>
 
-      <View style={{ flex: 1, justifyContent: 'center', backgroundColor: Colors.homeBackground}}>
+      <View style={{ flex: 1, justifyContent: 'center', backgroundColor: Colors.homeBackground }}>
         <View >
           <View style={{ marginBottom: 80, justifyContent: "center", alignItems: 'center' }}>
             <View style={{ marginBottom: 20, justifyContent: 'center', alignItems: 'center' }}>
               <Image source={AppImages.SplashScreenLogo} style={styles.parcalLogo} resizeMode='contain' />
             </View>
-  
-            {/* <View style={[mystyles.center]}>
-        <Image source={AppImages.EnterNumberScreenImg} style={styles.mainImg} resizeMode='contain' />
-    </View> */}
-
-    {/* change--section/// */}
-
-         {/* <View style={[{ flexDirection: 'row' }, styles.numberStyleContainer]}> */}
-              {/* <View style={[{ flexDirection: 'row' }, styles.numberContainer]}>
-                <View style={styles.flagContainer}>
-                <Image source={flag} style={styles.flag} resizeMode='contain' />
-                {/* <Flag id={countryCode.toLowerCase()} size={32} />  */}
-                {/* </View>
-                <Text style={styles.number}>{countryName}</Text>
-              </View> * */}
-{/* 
-              <TouchableOpacity onPress={() => {
-                // dispatch(setStatusPending());
-                // navigation.replace('EnterNumberScreen');
-                setIsPickerVisible(true)
-              }}>
-                <View style={[{ justifyContent: 'center', alignItems: "center" }, styles.buttonContainer]}>
-                  <Text style={[styles.buttonText]}>{`Change`}</Text>
-                </View>
-              </TouchableOpacity> */}
-            {/* </View>  */}
-
-            {/* /////////change country end */}
           </View>
 
 
@@ -151,15 +109,15 @@ const LoginScreen = ({ navigation ,route}) => {
 
 
               <View style={{ marginLeft: 5 }}>
-             
-                <Text style={{color:Colors.black,fontSize:15,fontWeight:600}}>+91</Text>
+
+                <Text style={{ color: Colors.black, fontSize: 15, fontWeight: 600 }}>+91</Text>
               </View>
               <View style={styles.inputContainer}>
 
                 <TextInput
                   placeholder='Enter your number'
                   style={styles.textInputstyle}
-                  maxLength={10}
+                  // maxLength={10}
                   value={number}
                   placeholderTextColor={Colors.black}
                   onChangeText={(e) => {
@@ -178,8 +136,8 @@ const LoginScreen = ({ navigation ,route}) => {
                 <CheckBox
                   style={styles.checkbox}
                   onClick={() => setTermsAndConditions(!termsAndConditions)}
-                   isChecked={termsAndConditions}
-                   checkBoxColor={Colors.brandBlue}
+                  isChecked={termsAndConditions}
+                  checkBoxColor={Colors.brandBlue}
                 />
                 <View style={styles.textWrapper}>
                   <Text style={styles.label}>
@@ -199,8 +157,8 @@ const LoginScreen = ({ navigation ,route}) => {
                 <CheckBox
                   style={styles.checkbox}
                   onClick={() => setTdsDeclaration(!tdsDeclaration)}
-                   isChecked={tdsDeclaration}
-                   checkBoxColor={Colors.brandBlue}
+                  isChecked={tdsDeclaration}
+                  checkBoxColor={Colors.brandBlue}
                 />
                 <View style={styles.textWrapper}>
                   <Text style={styles.label}>
@@ -216,8 +174,8 @@ const LoginScreen = ({ navigation ,route}) => {
             <View style={{ marginBottom: 10, justifyContent: "center", alignItems: 'center' }}>
               <CustomButton
                 buttonText={'LOGIN'}
-                disabled={number.length !== 10} 
-                  onPress={() => {
+                disabled={number.length <= 10}
+                onPress={() => {
                   handleGetOtp()
 
                 }} />
@@ -227,7 +185,7 @@ const LoginScreen = ({ navigation ,route}) => {
       </View>
 
 
-      {/* <Loading loading={loading} /> */}
+      <Loading loading={loading} />
 
     </>
   )
@@ -267,8 +225,8 @@ const styles = StyleSheet.create({
   textInputstyle: {
     marginLeft: 10,
     color: Colors.black,
-    fontWeight:'600',
-    fontSize:15
+    fontWeight: '600',
+    fontSize: 15
   },
   numberStyleContainer: {
     alignItems: 'center',
@@ -313,9 +271,9 @@ const styles = StyleSheet.create({
   },
   linkText: {
     fontSize: 15,
-    color:Colors.brandBlue,
+    color: Colors.brandBlue,
     marginHorizontal: -5,
-    lineHeight: 20, 
+    lineHeight: 20,
     textAlignVertical: 'center',
   },
   inputLabel: {
@@ -324,17 +282,17 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginLeft: 25,
   },
-  flagContainer:{
-  height:30,
-  width:30,
-  borderRadius:100,
-  backgroundColor:'white',
-  justifyContent:'center',
-  alignItems:'center'
+  flagContainer: {
+    height: 30,
+    width: 30,
+    borderRadius: 100,
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center'
   },
-  flag:{
-    height:20,
-    width:20
+  flag: {
+    height: 20,
+    width: 20
   }
 });
 

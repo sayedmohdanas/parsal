@@ -1,8 +1,51 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { hitAddDriverDetails, hitAddVehicle, hitCreatePartner, hitMyVehicle } from '../../config/api/api';
+import { hitAddDriverDetails, hitAddVehicle, hitCreatePartner, hitMyVehicle, hitPartnerLogin, hitPartnerVerifyOtp } from '../../config/api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
 import { errorToast } from '../../common/CommonFunction';
+
+
+
+
+
+// loginPartner.....
+
+export const loginPartner = createAsyncThunk(
+  'parsalPartner/loginPartner',
+  async (credentials, { rejectWithValue }) => {
+    try {
+      const response = await hitPartnerLogin(credentials);
+      console.log(response, 'response--------');
+
+      // const parent_id = await AsyncStorage.getItem('partner_id')
+
+      return response;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+// partnerOtpVerify...
+export const verifyPartnerOtp = createAsyncThunk(
+  'parsalPartner/verifyPartnerOtp',
+  async (credentials, { rejectWithValue }) => {
+    try {
+      const response = await hitPartnerVerifyOtp(credentials);
+      console.log(response, 'response--------');
+
+      // const parent_id = await AsyncStorage.getItem('partner_id')
+
+      return response;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+
+
+
 
 // Thunk for creating a partner and saving partner_id
 export const createPartner = createAsyncThunk(
@@ -10,10 +53,10 @@ export const createPartner = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await hitCreatePartner(credentials);
-      console.log(response,'response--------');
-      
-      const parent_id = await AsyncStorage.getItem('partner_id')
-  
+      console.log(response, 'response--------');
+
+      // const parent_id = await AsyncStorage.getItem('partner_id')
+
       return response;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -82,6 +125,7 @@ export const addDriverDetails = createAsyncThunk(
 );
 
 const initialState = {
+  user: null,
   partner: null,
   partnerId: null,
   vehicle: [],
@@ -104,6 +148,25 @@ const HitApiSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+
+      // login user
+      .addCase(loginPartner.pending, (state) => {
+        state.status = 'pending';
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(loginPartner.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.loading = false;
+        state.user = action.payload;
+        console.log(action.payload,'formhook')
+
+      })
+      .addCase(loginPartner.rejected, (state, action) => {
+        state.status = 'failed';
+        state.loading = false;
+        state.error = action.payload || 'Failed to create partner';
+      })
 
       // createPartner case to save partner info and partner_id
       .addCase(createPartner.pending, (state) => {

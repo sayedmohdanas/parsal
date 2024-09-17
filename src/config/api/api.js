@@ -1,5 +1,13 @@
-import {addDriverDetails, addVehicle, createPartner, MyVehicle } from "../url";
+import {addDriverDetails, addVehicle, createPartner, MyVehicle, partnerLogin ,partnerOtpVerify} from "../url";
 import { apiGet, apiPost } from "../utils";
+
+
+export const hitPartnerLogin = param => {
+    return apiPost(partnerLogin, param);
+};
+export const hitPartnerVerifyOtp = param => {
+    return apiPost(partnerOtpVerify, param);
+};
 
 export const hitCreatePartner = param => {
     return apiPost(createPartner, param);
