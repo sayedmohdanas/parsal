@@ -1,9 +1,24 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Image, Modal, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppImages from '../../../common/AppImages';
 import Colors from '../../../common/Colors';
+import { errorToast, successToast } from '../../../common/CommonFunction';
 
 const Menu = ({ navigation }) => {
+  const [logoutModalVisible, setLogoutModalVisible] = useState(false);
+
+
+  const handleLogout = async (navigation) => {
+    try {
+      await AsyncStorage.removeItem('partner_id');
+      successToast('Logged out successfully', 'You will be redirected to login.');
+      navigation.replace('Login'); // Navigate to the login screen
+    } catch (error) {
+      errorToast('Logout Failed', 'An error occurred during logout.');
+    }
+  };
+
   return (
     <>
       <View style={styles.header}>
@@ -55,6 +70,36 @@ const Menu = ({ navigation }) => {
           <Text style={styles.menuText}>Privacy Policy</Text>
         </TouchableOpacity>
       </View>
+
+      <View style={styles.logoutContainer}>
+        <TouchableOpacity onPress={() => setLogoutModalVisible(true)} style={styles.menuItem}>
+          <Image source={AppImages.logoutImage} style={styles.profileImage} resizeMode="contain" />
+          <Text style={styles.menuText}>Logout</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Logout Confirmation Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={logoutModalVisible}
+        onRequestClose={() => setLogoutModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>Are you sure you want to logout?</Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity onPress={() => setLogoutModalVisible(false)} style={styles.modalButton}>
+                <Text style={styles.modalButtonText}>No</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleLogout(navigation)} style={styles.modalButton}>
+                <Text style={styles.modalButtonText}>Yes</Text>
+              </TouchableOpacity>
+
+            </View>
+          </View>
+        </View>
+      </Modal>
     </>
   );
 };
@@ -92,9 +137,51 @@ const styles = StyleSheet.create({
   profileImage: {
     width: 35,
     height: 35,
-    borderRadius: 17.5,
+    borderRadius: 10,
     marginRight: 10,
     resizeMode: 'contain',
+  },
+  logoutContainer: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    right: 20,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: 300,
+    backgroundColor: 'white',
+    borderRadius: 5,
+    padding: 20,
+    alignItems: 'center',
+  },
+  modalText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    color: Colors.black
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  modalButton: {
+    flex: 1,
+    padding: 10,
+    marginHorizontal: 5,
+    borderRadius: 5,
+    backgroundColor: Colors.brandBlue,
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
 

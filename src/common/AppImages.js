@@ -74,6 +74,7 @@ export default AppImages = {
     check: require('../assets/images/check.png'), 
     next: require('../assets/images/rightIcon.png'),
     previous: require('../assets/images/leftIcon.png'), 
+    logoutImage:require('../assets/images/logout.png'), 
 
 
 
