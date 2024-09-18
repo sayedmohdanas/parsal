@@ -1,21 +1,21 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Alert, ScrollView } from 'react-native';
+import React, {useState} from 'react';
+import {View, Text, StyleSheet, Alert, ScrollView} from 'react-native';
 import CustomTextInput from '../../components/CustomTextInput/CustomTextInput';
 import ImagePicker from '../../components/ImagePickerComponent/ImagePicker';
 import SubmitCard from '../../components/SumbmitButton/SubmitButton';
 import CheckBox from 'react-native-check-box';
 import Heading from '../../components/Heading/Heading';
 import PageButtons from '../../components/TempBtn/TempBtn';
-import { useDispatch, useSelector } from 'react-redux';
-import { addDriverDetails } from '../../redux/HitApis/HitApiSlice';
-import { useNavigation } from '@react-navigation/native';
+import {useDispatch, useSelector} from 'react-redux';
+import {addDriverDetails} from '../../redux/HitApis/HitApiSlice';
+import {useNavigation} from '@react-navigation/native';
 import Colors from '../../common/Colors';
-import { successToast } from '../../common/CommonFunction';
+import {successToast} from '../../common/CommonFunction';
 
-const DriverDetailScreen = ({ route }) => {
+const DriverDetailScreen = ({route}) => {
   const dispatch = useDispatch();
   const [name, setName] = useState('');
-  const { v_id, onUpdate } = route.params;     
+  const {v_id, onUpdate} = route.params;
   const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
   const navigation = useNavigation();
   const [driverNumber, setDriverNumber] = useState('');
@@ -40,23 +40,22 @@ const DriverDetailScreen = ({ route }) => {
       driving_license_number: driverNumber,
       current_lat: 40.712776,
       current_long: -74.005974,
-      address: "789 Broadway, New York",
-      fcm_id: "example_fcm_id_token",
+      address: '789 Broadway, New York',
+      fcm_id: 'example_fcm_id_token',
       status: isChecked ? 1 : 0,
-      working_status: isChecked ? 1 : 0
+      working_status: isChecked ? 1 : 0,
     };
     try {
-      console.log(payload)
       const resultAction = await dispatch(addDriverDetails(payload));
       if (addDriverDetails.fulfilled.match(resultAction)) {
-        setTimeout(() => {
-          successToast(`Driver ${name} successfully added.`);
-      }, 1000);
-
-        if (onUpdate) onUpdate(); 
-        navigation.goBack();
+        successToast(`Driver ${name} successfully added.`);
+        navigation.navigate('MyVehicles');
       } else {
-        Alert.alert('Error', resultAction.payload?.message || 'An error occurred while submitting.');
+        Alert.alert(
+          'Error',
+          resultAction.payload?.message ||
+            'An error occurred while submitting.',
+        );
       }
     } catch (error) {
       Alert.alert('Error', 'An unexpected error occurred.');
@@ -66,26 +65,23 @@ const DriverDetailScreen = ({ route }) => {
 
   const isEnabled = name && driverNumber && licenseUploaded && isChecked;
 
-
   return (
     <View style={styles.container}>
       <ScrollView>
         <View style={styles.formContainer}>
-          <Heading
-            text="Driver Details"
-            isRequired={true}
-          />
+          <Heading text="Driver Details" isRequired={true} />
           <View style={styles.card}>
             <CheckBox
-              style={{ padding: 10 }}
+              style={{padding: 10}}
               onClick={() => setIsChecked(!isChecked)}
               isChecked={isChecked}
               checkBoxColor={Colors.brandBlue} // Set the checkbox color to blue
-              />
-            <Text style={styles.confirmationText}>I will be driving this vehicle</Text>
+            />
+            <Text style={styles.confirmationText}>
+              I will be driving this vehicle
+            </Text>
           </View>
 
-        
           <CustomTextInput
             value={name}
             onChangeText={setName}
@@ -94,23 +90,17 @@ const DriverDetailScreen = ({ route }) => {
             isRequired={true}
           />
 
-         
           <CustomTextInput
             value={driverNumber}
             onChangeText={setDriverNumber}
             placeholder="Driver Phone Number"
             label="Driver Phone Number"
             isRequired={true}
-            type="number" 
-            maxLength={10} 
+            type="number"
+            maxLength={10}
           />
 
-
-
-          <Heading
-            text=" Upload The Following"
-            isRequired={true}
-          />
+          <Heading text=" Upload The Following" isRequired={true} />
 
           <ImagePicker
             labelText="Driver Profile Pic"
@@ -125,14 +115,12 @@ const DriverDetailScreen = ({ route }) => {
             onImagePick={setLicenseUploaded}
             useCamera={false}
           />
-
         </View>
       </ScrollView>
 
       {/* Submit Button Card */}
       <SubmitCard onPress={handleSubmit} isEnabled={isEnabled} />
       <PageButtons nextScreenName={'Login'} />
-
     </View>
   );
 };
@@ -148,7 +136,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingVertical: 16,
     borderRadius: 5,
-    backgroundColor:Colors.white,
+    backgroundColor: Colors.white,
     // borderWidth: 0.2,
     alignItems: 'center',
   },

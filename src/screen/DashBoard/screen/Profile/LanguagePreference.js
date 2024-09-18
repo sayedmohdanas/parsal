@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 10,
     backgroundColor: Colors.white, 
-    borderWidth:0.5,
+    borderWidth:1,
     borderColor:Colors.brandBlue,// You can adjust the color here
     // borderRadius: 4,
   },

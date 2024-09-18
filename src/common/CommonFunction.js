@@ -72,3 +72,12 @@ export   const generateRandomPhoneNumber = () => {
     const randomPhoneNumber = '9' + Math.floor(Math.random() * 9000000000 + 1000000000);
     return randomPhoneNumber;
   };
+
+  export   const formatVehicleNumber = number => {
+    return number
+      .toUpperCase()
+      .replace(
+        /^([A-Z\d]{2})([A-Z\d]{2})([A-Z\d]{1,2})(\d{4})$/,
+        '$1-$2-$3-$4'
+      );
+  };

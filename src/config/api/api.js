@@ -10,6 +10,9 @@ export const hitPartnerVerifyOtp = param => {
 };
 
 export const hitCreatePartner = param => {
+    console.log('createPartner',createPartner);
+    console.log('param',param);
+
     return apiPost(createPartner, param);
 };
 

@@ -1,21 +1,35 @@
-import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import {
+  Image,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  Alert,
+} from 'react-native';
+import React, {useEffect, useState} from 'react';
 import AppImages from '../../common/AppImages';
-import { responsiveHeight, responsiveWidth } from '../../common/metrices';
+import {responsiveHeight, responsiveWidth} from '../../common/metrices';
 import Colors from '../../common/Colors';
 import CustomButton from '../../components/CustomButton/CustomButton';
-import { errorToast, generateRandomPhoneNumber, successToast } from '../../common/CommonFunction';
-import { useDispatch, useSelector } from 'react-redux';
+import {
+  errorToast,
+  generateRandomPhoneNumber,
+  successToast,
+} from '../../common/CommonFunction';
+import {useDispatch, useSelector} from 'react-redux';
 import Loading from '../../components/Loading/Loading';
-import { hitPartnerVerifyOtp } from '../../config/api/api';
+import {hitPartnerVerifyOtp} from '../../config/api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { setParentId } from '../../redux/HitApis/HitApiSlice';
+import {getVehicle, setParentId} from '../../redux/HitApis/HitApiSlice';
 
-const OtpScreen = ({ navigation, route }) => {
-  const { number } = route?.params;
+const OtpScreen = ({navigation, route}) => {
+  const {number} = route?.params;
   const dispatch = useDispatch();
-  const userOtp = useSelector((state) => state?.parsalPartner?.user?.otp);
-  const loading = useSelector((state) => state?.parsalPartner?.loading);
+  const userOtp = useSelector(state => state?.parsalPartner?.user?.otp);
+  const loading = useSelector(state => state?.parsalPartner?.loading);
   const [otp, setOtp] = useState('');
 
   // useEffect(() => {
@@ -27,6 +41,7 @@ const OtpScreen = ({ navigation, route }) => {
   // }, [dispatch]);
 
   const handleOtp = async () => {
+
     try {
       if (otp.length < 4) {
         errorToast('Invalid Input', 'Enter a Valid Otp');
@@ -42,15 +57,16 @@ const OtpScreen = ({ navigation, route }) => {
         phone: generateRandomPhoneNumber(),
       };
 
-      const response = await hitPartnerVerifyOtp(request)
+      const response = await hitPartnerVerifyOtp(request);
 
-      console.log('====================================');
-      console.log(response);
-      console.log('====================================');
       const partnerId = response?.partnerId;
-
+console.log('response',response);
       if (response.status === 2) {
-        if (response?.partner?.email != null || '' && response?.partner?.phone != null || '') {
+        if (
+          response?.partner?.email != null ||
+          ('' && response?.partner?.phone != null) ||
+          ''
+        ) {
           await AsyncStorage.setItem('partner_id', String(partnerId));
           dispatch(setParentId(partnerId));
 
@@ -58,8 +74,7 @@ const OtpScreen = ({ navigation, route }) => {
             partner_id: partnerId,
             email: number,
           });
-        }
-        else {
+        } else {
           await AsyncStorage.setItem('partner_id', String(partnerId));
           // Dispatch the setParentId action
           dispatch(setParentId(partnerId));
@@ -68,8 +83,7 @@ const OtpScreen = ({ navigation, route }) => {
             email: number,
           });
         }
-      }
-      else if (partnerId) {
+      } else if (partnerId) {
         // Save partnerId in AsyncStorage
         await AsyncStorage.setItem('partner_id', String(partnerId));
 
@@ -89,56 +103,85 @@ const OtpScreen = ({ navigation, route }) => {
     }
   };
 
-
   return (
     <>
-      <View style={{ flex: 1, justifyContent: 'center', backgroundColor: Colors.homeBackground }}>
-        <View >
-          <View style={{ marginBottom: 80, justifyContent: "center", alignItems: 'center' }}>
-            <View style={{ marginBottom: 20, justifyContent: 'center', alignItems: 'center' }}>
-              <Image source={AppImages.SplashScreenLogo} style={styles.parcalLogo} resizeMode='contain' />
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          backgroundColor: Colors.homeBackground,
+        }}>
+        <View>
+          <View
+            style={{
+              marginBottom: 80,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <View
+              style={{
+                marginBottom: 20,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <Image
+                source={AppImages.SplashScreenLogo}
+                style={styles.parcalLogo}
+                resizeMode="contain"
+              />
             </View>
             {/* <View style={[mystyles.center]}>
         <Image source={AppImages.EnterNumberScreenImg} style={styles.mainImg} resizeMode='contain' />
             </View> */}
-            <View style={[{ flexDirection: 'row' }, styles.numberStyleContainer]}>
-              <View style={[{ flexDirection: 'row' }, styles.numberContainer]}>
+            <View style={[{flexDirection: 'row'}, styles.numberStyleContainer]}>
+              <View style={[{flexDirection: 'row'}, styles.numberContainer]}>
                 <Text style={styles.number}>{number}</Text>
               </View>
-              <TouchableOpacity onPress={() => {
-                // dispatch(setStatusPending());
-                // navigation.replace('Login');
-                navigation.navigate('Login', { number: number });
-              }}>
-                <View style={[{ justifyContent: 'center', alignItems: "center" }, styles.buttonContainer]}>
-                  <Text style={[styles.buttonText]}  >{`Change`}</Text>
+              <TouchableOpacity
+                onPress={() => {
+                  // dispatch(setStatusPending());
+                  // navigation.replace('Login');
+                  navigation.navigate('Login', {number: number});
+                }}>
+                <View
+                  style={[
+                    {justifyContent: 'center', alignItems: 'center'},
+                    styles.buttonContainer,
+                  ]}>
+                  <Text style={[styles.buttonText]}>{`Change`}</Text>
                 </View>
               </TouchableOpacity>
             </View>
           </View>
-          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-            <View style={{ alignSelf: 'flex-start' }}>
+          <View style={{justifyContent: 'center', alignItems: 'center'}}>
+            <View style={{alignSelf: 'flex-start'}}>
               <Text style={styles.inputLabel}>ENTER OTP</Text>
             </View>
             <View style={[styles.numberInputContainer]}>
               <View style={styles.inputContainer}>
                 <TextInput
-                  placeholder='ENTER OTP'
+                  placeholder="ENTER OTP"
                   style={styles.textInputstyle}
                   value={otp}
                   placeholderTextColor={Colors.black}
-                  onChangeText={(e) => {
-                    setOtp(e)
+                  onChangeText={e => {
+                    setOtp(e);
                   }}
                 />
               </View>
             </View>
-            <View style={{ marginBottom: 10, justifyContent: "center", alignItems: 'center' }}>
+            <View
+              style={{
+                marginBottom: 10,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
               <CustomButton
                 buttonText={'VERIFY'}
                 onPress={() => {
-                  handleOtp()
-                }} />
+                  handleOtp();
+                }}
+              />
               <Text style={styles.resendBtn}>RESEND OTP</Text>
             </View>
           </View>
@@ -146,10 +189,9 @@ const OtpScreen = ({ navigation, route }) => {
       </View>
       <Loading loading={loading} />
     </>
-  )
-}
-export default OtpScreen
-
+  );
+};
+export default OtpScreen;
 
 const styles = StyleSheet.create({
   parcalLogo: {
@@ -180,7 +222,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.textInputBorderColor,
   },
   textInputstyle: {
-    // marginLeft: 10,  
+    // marginLeft: 10,
     color: Colors.black,
   },
   numberStyleContainer: {
@@ -194,7 +236,6 @@ const styles = StyleSheet.create({
     // borderRadius: 60,
   },
   numberContainer: {
-
     gap: 10,
   },
   buttonText: {
@@ -239,6 +280,6 @@ const styles = StyleSheet.create({
     color: Colors.brandBlue,
     fontSize: 17,
     fontWeight: '600',
-    marginTop: 10
-  }
+    marginTop: 10,
+  },
 });

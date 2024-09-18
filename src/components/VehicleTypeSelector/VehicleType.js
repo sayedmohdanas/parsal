@@ -13,7 +13,7 @@ const VehicleTypeSelector = ({ options, onSelect, selectedOption }) => {
           ]}
           onPress={() => onSelect(option.value)} // Passing only the value to the onSelect function
         >
-          <Image source={option?.image} style={styles.image} />
+          <Image resizeMode='contain' source={option?.image} style={styles.image} />
           <Text style={styles.text}>{option?.label}</Text>
         </TouchableOpacity>
       ))}
@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '30%',
-    height: 70,
+    // height: 30,
     marginBottom: 16,
     borderRadius: 5,
     alignItems: 'center',
@@ -42,12 +42,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#007BFF',
   },
   image: {
-    width: 25,
-    height: 25,
+    width: 20,
+    height: 20,
     marginBottom: 5,
   },
   text: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#000',
   },
 });

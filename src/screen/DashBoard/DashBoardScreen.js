@@ -1,13 +1,27 @@
 // src/screen/DashBoardScreen/DashBoardScreen.js
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native'; // For navigation
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native'; // For navigation
 import VehicleProfileCard from './components/VehicleprofileCard';
 import Colors from '../../common/Colors';
 
-const DashboardScreen = () => {
-  const navigation = useNavigation();
+const DashboardScreen = () => { 
+  const route = useRoute();
 
+  const navigation = useNavigation();
+  // const { data } = route?.params || {/}; 
+
+  // const { data } = route.params || {};
+
+ 
+  // useEffect(() => {
+  //   if (data) {
+  //     Alert.alert('Data Received', `Received data: ${JSON.stringify(data)}`);
+  //   } else {
+  //     Alert.alert('No Data', 'No data received');
+  //   }
+  //   console.log('Received data:', data);
+  // }, [data]);
   return (
     <View style={styles.container}>
       {/* Hamburger Menu Button */}

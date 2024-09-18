@@ -18,14 +18,14 @@ const styles = StyleSheet.create({
     alignItems: 'baseline', 
   },
   headinglabel: {
-    fontSize: 15,
+    fontSize: 14,
     color: 'black',
-    marginVertical: 20,
+    marginVertical: 14,
     fontWeight: '600',
   },
   redAsterisk: {
     color: 'red',
-    fontSize: 11,
+    fontSize: 8,
     transform: [{ translateY: -4 }],
     fontWeight: 'bold',
   },

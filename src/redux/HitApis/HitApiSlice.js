@@ -53,12 +53,13 @@ export const createPartner = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await hitCreatePartner(credentials);
-      console.log(response, 'response--------');
+
 
       // const parent_id = await AsyncStorage.getItem('partner_id')
 
       return response;
     } catch (error) {
+      console.log(error);
       return rejectWithValue(error.response.data);
     }
   }
@@ -105,7 +106,6 @@ export const getVehicle = createAsyncThunk(
       const response = await hitMyVehicle(credentials);
       return response;
     } catch (error) {
-      errorToast('No Vehicles', error.message)
       return rejectWithValue(error.message);
     }
   }
@@ -141,10 +141,11 @@ const HitApiSlice = createSlice({
   initialState,
   reducers: {
     setParentId(state, action) {
-      console.log('redux ====> called')
-      state.partnerId = action.payload; // Set parentId to the value provided in the action payload
-      console.log(action.payload, 'set in reux')
+      state.partnerId = action.payload; 
     },
+    setMyVehicleData(state,action){
+      state.MyVehicle = action.payload.vehicles;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -255,7 +256,7 @@ const HitApiSlice = createSlice({
   },
 });
 
-export const { setParentId } = HitApiSlice.actions;
+export const { setParentId,setMyVehicleData } = HitApiSlice.actions;
 
 
 export default HitApiSlice.reducer;

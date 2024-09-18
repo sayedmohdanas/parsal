@@ -12,7 +12,7 @@ import Colors from '../../common/Colors';
 
 const OwnerDetailScreen = ({ navigation, route }) => {
   const { partner_id, email } = route.params;
-
+console.log(route.params);
   const dispatch = useDispatch();
   const loading = useSelector((state) => state.parsalPartner.loading);
   const [name, setName] = React.useState('');
@@ -26,7 +26,7 @@ const OwnerDetailScreen = ({ navigation, route }) => {
     if (name && aadharCardUploaded && panCardUploaded && selfieUploaded) {
       const payload = {
 
-        partner_id: partner_id,
+        partnerId: partner_id,
         partner_name: name,
         email: email,
         phone: generateRandomPhoneNumber(),
@@ -40,12 +40,12 @@ const OwnerDetailScreen = ({ navigation, route }) => {
         ],
         partner_docs: [
           {
-            doc_id: '3',
+            doc_id: '1',
             img_name: 'aadhar.png',
             img_src: aadharCardUploaded?.base64 || '',
           },
           {
-            doc_id: '4',
+            doc_id: '2',
             img_name: 'pan.png',
             img_src: panCardUploaded?.base64 || '',
           }

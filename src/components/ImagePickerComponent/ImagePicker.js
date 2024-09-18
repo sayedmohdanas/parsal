@@ -90,6 +90,8 @@ const ImagePickerComponent = ({ labelText, uploaded, onImagePick, useCamera = fa
           ) : (
             <Image
                 source={AppImages.editPen}
+                resizeMode='contain'
+                style={{height:20,width:20}}
               // style={{
               //     position: 'absolute',
               //     height: responsiveHeight(35),
@@ -110,9 +112,9 @@ const ImagePickerComponent = ({ labelText, uploaded, onImagePick, useCamera = fa
 const styles = StyleSheet.create({
   card: {
 
-    marginBottom: 16,
+    marginBottom:12,
     flexDirection: 'row',
-    paddingVertical: 16,
+    paddingVertical: 12,
     borderRadius: 5,
     padding: 16,
     // borderWidth: 0.2,
