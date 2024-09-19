@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "230155478576",
+    "project_id": "parsal-partner",
+    "storage_bucket": "parsal-partner.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:230155478576:android:2b68ac1b4dc39e241beff5",
+        "android_client_info": {
+          "package_name": "com.parsalpartner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAP44DdhzWov0w1-EZG3LRWD2Iha21UfA8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,7 +1,8 @@
 // const API_BASE_URL = 'http://192.168.29.189:4000/'  
 
 // const API_BASE_URL = 'http://192.168.29.238:9292/' 
-const API_BASE_URL ='http://52.66.236.213:9292/'
+const API_BASE_URL =`http://192.168.29.244:5000/`
+// const API_BASE_URL ='http://52.66.236.213:9292/'
 // 
 const getEndpoint = text => {
   return API_BASE_URL + text;
