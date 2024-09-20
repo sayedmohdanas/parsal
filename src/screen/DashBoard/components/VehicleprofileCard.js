@@ -4,8 +4,9 @@ import Colors from '../../../common/Colors';
 import { useNavigation } from '@react-navigation/native';
 import AppImages from '../../../common/AppImages';
 import PartnerAddressCard from '../screen/Profile/PartnerAddressCard';
+import ProfileWithStatus from './ProfileWithStatus';
 
-const VehicleProfileCard = ({ screen = false }) => {
+const VehicleProfileCard = ({ screen = false,isOnline }) => {
   const navigation = useNavigation();
 
   const formatVehicleNumber = (number) => {
@@ -20,10 +21,14 @@ const VehicleProfileCard = ({ screen = false }) => {
   };
 
   return (
-    <View style={styles.card}>
+    <View style={[
+      styles.card,
+      { borderBottomColor: isOnline ? 'green' : 'red', borderBottomWidth: 2 } // Set border color based on online status
+    ]}>
+    {/* <View style={[isOnline?borderBottomColor:,styles.card]}> */}
       <View style={[styles.topSection, screen ? { justifyContent: '' } : {}]}>
-        <Image source={AppImages.profileImage} style={styles.profileImage} />
-
+        {/* <Image source={AppImages.profileImage} style={styles.profileImage} />+ */}
+         <ProfileWithStatus isOnline={isOnline}/>
         <View style={styles.leftSection}>
           <Text style={styles.name}>{vehicle.driver.driver_name}</Text>
 
@@ -59,7 +64,7 @@ const styles = StyleSheet.create({
     // marginBottom:12,
     width: '100%',
     // paddingHorizontal: 10,
-    borderBottomWidth: 2,
+    borderBottomWidth: 3,
     flexDirection:'row',
     alignItems:'center',
     justifyContent:'space-between',

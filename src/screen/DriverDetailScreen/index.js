@@ -10,7 +10,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {addDriverDetails} from '../../redux/HitApis/HitApiSlice';
 import {useNavigation} from '@react-navigation/native';
 import Colors from '../../common/Colors';
-import {successToast} from '../../common/CommonFunction';
+import {GetDriverCurrentLocation, successToast} from '../../common/CommonFunction';
 
 const DriverDetailScreen = ({route}) => {
   const dispatch = useDispatch();
@@ -24,6 +24,7 @@ const DriverDetailScreen = ({route}) => {
   const [isChecked, setIsChecked] = useState(false);
 
   const handleSubmit = async () => {
+    const { latitude, longitude } = await GetDriverCurrentLocation();
     const payload = {
       partner_id: partnerId,
       vehicle_id: v_id,
@@ -38,8 +39,8 @@ const DriverDetailScreen = ({route}) => {
         img_src: licenseUploaded?.base64 || '',
       },
       driving_license_number: driverNumber,
-      current_lat: 40.712776,
-      current_long: -74.005974,
+      current_lat: latitude,
+      current_long: longitude,
       address: '789 Broadway, New York',
       fcm_id: 'example_fcm_id_token',
       status: isChecked ? 1 : 0,

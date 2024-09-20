@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "230155478576",
-    "project_id": "parsal-partner",
-    "storage_bucket": "parsal-partner.appspot.com"
+    "project_number": "434348504493",
+    "project_id": "parsal-4c318",
+    "storage_bucket": "parsal-4c318.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:230155478576:android:2b68ac1b4dc39e241beff5",
+        "mobilesdk_app_id": "1:434348504493:android:54a39cff8603f105e8dd24",
         "android_client_info": {
           "package_name": "com.parsalpartner"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAP44DdhzWov0w1-EZG3LRWD2Iha21UfA8"
+          "current_key": "AIzaSyAmsh0RePOPCZtQER39s8bsie2NjIf9UhE"
         }
       ],
       "services": {

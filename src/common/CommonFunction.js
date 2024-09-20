@@ -2,6 +2,8 @@
 import Toast from 'react-native-toast-message';
 import { responsiveFontSize } from './metrices';
 import { useDispatch } from 'react-redux';
+import { PermissionsAndroid } from 'react-native';
+import Geolocation from 'react-native-geolocation-service';
 
 // export function setItem(key, data) {
 //     data = JSON.stringify(data);
@@ -15,7 +17,7 @@ import { useDispatch } from 'react-redux';
 //         });
 //     });
 // }
-export const successToast = (text1, text2 = '',visibilityTime=4000) => {
+export const successToast = (text1, text2 = '', visibilityTime = 4000) => {
     Toast.show({
         type: 'success',
         text1: text1,
@@ -24,7 +26,7 @@ export const successToast = (text1, text2 = '',visibilityTime=4000) => {
         autoHide: true,
         visibilityTime: visibilityTime,
         text1Style: { fontSize: 16 },
-        text2Style: { fontSize: 13},
+        text2Style: { fontSize: 13 },
     });
 };
 
@@ -36,8 +38,8 @@ export const errorToast = (text1, text2 = '') => {
         position: 'top',
         autoHide: true,
         visibilityTime: 4000,
-     text1Style: { fontSize: 16 },
-     text2Style: { fontSize: 16 },
+        text1Style: { fontSize: 16 },
+        text2Style: { fontSize: 16 },
     });
 };
 
@@ -68,16 +70,60 @@ export const customToast = (text1, text2 = '', config = {}) => {
     });
 }
 
-export   const generateRandomPhoneNumber = () => {
+export const generateRandomPhoneNumber = () => {
     const randomPhoneNumber = '9' + Math.floor(Math.random() * 9000000000 + 1000000000);
     return randomPhoneNumber;
-  };
+};
 
-  export   const formatVehicleNumber = number => {
+export const formatVehicleNumber = number => {
     return number
-      .toUpperCase()
-      .replace(
-        /^([A-Z\d]{2})([A-Z\d]{2})([A-Z\d]{1,2})(\d{4})$/,
-        '$1-$2-$3-$4'
-      );
-  };
+        .toUpperCase()
+        .replace(
+            /^([A-Z\d]{2})([A-Z\d]{2})([A-Z\d]{1,2})(\d{4})$/,
+            '$1-$2-$3-$4'
+        );
+};
+
+export async function requestLocationPermission() {
+    try {
+        const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+            {
+                title: 'Parsal Partner',
+                message: 'Parsal Partner access to your location',
+            }
+        );
+        console.log('Permission status:', granted); // Log the permission status
+
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+         
+        } else {
+            console.log("Location permission denied");
+            alert("Location permission denied");
+        }
+    } catch (err) {
+        console.warn(err);
+    }
+}
+
+export const GetDriverCurrentLocation = () => {
+    return new Promise((resolve, reject) => {
+        Geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude } = position.coords;
+                console.log('Latitude:', latitude, 'Longitude:', longitude);
+                resolve({ latitude, longitude });
+            },
+            (error) => {
+                console.error('Geolocation error:', error);
+                reject(`Error getting location: ${error.message}`);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 20000,
+                maximumAge: 1000,
+            }
+        );
+    });
+};
+

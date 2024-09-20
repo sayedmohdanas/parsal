@@ -9,28 +9,33 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import Colors from '../../common/Colors';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { formatVehicleNumber } from '../../common/CommonFunction';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const VehicleCard = ({vehicle, onPress}) => {
+const VehicleCard = ({ vehicle, onPress }) => {
   const navigation = useNavigation();
 
   const hasDriver = vehicle?.driver?.driver_name;
 
 
   return (
-    // <TouchableWithoutFeedback onPress={() => navigation.navigate('Dashboards', { data: vehicle })}>
-//     <TouchableWithoutFeedback 
-//   onPress={() => {
-//     console.log('Navigating with vehicle:', vehicle);  // Log vehicle before navigating
-//     navigation.navigate('Dashboards', { data: vehicle });
-//   }}
-// >
-<TouchableWithoutFeedback
+    <TouchableOpacity onPress={() => {
+
+      AsyncStorage.setItem("driver_data", JSON.stringify(vehicle))
+      navigation.navigate('Dashboards')
+    }}>
+      {/* <TouchableWithoutFeedback 
+  onPress={() => {
+    console.log('Navigating with vehicle:', vehicle);  // Log vehicle before navigating
+    navigation.navigate('Dashboards', { data: vehicle });
+  }}
+> */}
+      {/* <TouchableWithoutFeedback
   onPress={() => {
     navigation.navigate('Dashboards', { testParam: 'Hello World' });
   }}
-> 
+>  */}
       <View style={styles.card}>
         <View style={styles.topSection}>
           <View style={styles.leftSection}>
@@ -40,11 +45,11 @@ const VehicleCard = ({vehicle, onPress}) => {
               {formatVehicleNumber(vehicle?.vehicle_number) || 'N/A'}
             </Text>
             <View style={styles.contactContainer}>
-            <Text style={styles.name}>
-  {vehicle?.driver?.driver_name
-    ? `${vehicle.driver.driver_name.charAt(0).toUpperCase()}${vehicle.driver.driver_name.slice(1)},`
-    : 'No Driver Assigned'}
-</Text>
+              <Text style={styles.name}>
+                {vehicle?.driver?.driver_name
+                  ? `${vehicle.driver.driver_name.charAt(0).toUpperCase()}${vehicle.driver.driver_name.slice(1)},`
+                  : 'No Driver Assigned'}
+              </Text>
 
               <Text style={styles.contact}>
                 {vehicle?.driver?.phone || ' | N/A'}
@@ -70,7 +75,7 @@ const VehicleCard = ({vehicle, onPress}) => {
           </View>
         )}
       </View>
-    </TouchableWithoutFeedback>
+    </TouchableOpacity>
   );
 };
 

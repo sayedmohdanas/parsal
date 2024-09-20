@@ -16,7 +16,7 @@ const MyVehiclesScreen = ({navigation}) => {
   const vehicleCount = vehicleData?.length;
   const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
   const refreshData = async () => {
-    const res = await hitMyVehicle({partnerId: partnerId});
+    const res = await hitMyVehicle({partnerId: 88});
     dispatch(setMyVehicleData(res));
   };
 
@@ -52,6 +52,9 @@ const MyVehiclesScreen = ({navigation}) => {
   const onPress = () => {
     Alert.alert('Pay Fees Button Pressed');
   };
+  useEffect(()=>{
+    refreshData();
+  },[])
 
   return (
     <View style={styles.container}>

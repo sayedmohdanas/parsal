@@ -9,11 +9,12 @@ import MyVehiclesScreen from '../src/screen/MyVehiclesScreen';
 import MyVehiclesHeader from '../src/components/MyVehiclesHeader/MyVehiclesHeader';
 import DriverMapScreen from '../src/screen/DriverMapScreen/DriverMap';
 import DrawerNavigator from './DrawerNavigaton';
+import NotificationScreen from '../src/screen/NotificationScreeen';
 
 const Stack = createStackNavigator();
 
 const StackNavigator = () => (
-  <Stack.Navigator initialRouteName="Login">
+  <Stack.Navigator initialRouteName="MyVehicles">
     <Stack.Screen name="Login" component={LoginScreen} />
     <Stack.Screen name="Otp" component={OtpScreen} />
     <Stack.Screen name="OwnerDetail" component={OwnerDetailScreen} />
