@@ -9,13 +9,23 @@ import messaging from '@react-native-firebase/messaging';
 import NotificationModal from './src/components/CustomNotificationModal/NotificationModal';
 import firebase from '@react-native-firebase/app';
 import database from '@react-native-firebase/database';
+import { requestLocationPermission } from './src/common/CommonFunction';
 
 const TOPIC = 'MyNews';
 
 export default function App() {
   const [isModalVisible, setModalVisible] = useState(false);
-  const [notificationData, setNotificationData] = useState({ title: '', body: '' });
-
+  const [notificationData, setNotificationData] = useState({
+    title: '',
+    body: '',
+    drop_lat: '',
+    drop_long: '',
+    pickup_lat: '',
+    pickup_long: '',
+    vehicle_type: '',
+    cust_id:'',
+    driverId:''
+  }); console.log(notificationData, 'nootificationdata')
   // Initialize Firebase with Realtime Database URL
   if (!firebase.apps.length) {
     firebase.initializeApp({
@@ -39,8 +49,17 @@ export default function App() {
   }
 
   const handleNotification = (remoteMessage) => {
-    const { title, body } = remoteMessage.notification;
-    setNotificationData({ title, body });
+    // When handling the remote message
+    const { notification } = remoteMessage;
+    const { data } = remoteMessage;
+  console.log(remoteMessage,'remotemsg')
+    // Use optional chaining to avoid errors
+    const title = notification?.title || '';
+    const body = notification?.body || '';
+    const { drop_lat = '', drop_long = '', pickup_lat = '', pickup_long = '', vehicle_type = '',cust_id=" ",driverId="" } = data || {};
+  
+    // Update the notification data state
+    setNotificationData({ title, body, drop_lat, drop_long, pickup_lat, pickup_long, vehicle_type,cust_id,driverId });
     setModalVisible(true);
     // Alert.alert(
     //   title,
@@ -52,7 +71,8 @@ export default function App() {
     // );
   };
 
-  const handleAccept = () => {
+  const handleAccept = (res) => {
+    console.log(res)
     console.log('Accepted');
     setModalVisible(false);
   };
@@ -65,7 +85,7 @@ export default function App() {
   useEffect(() => {
     getToken();
     requestUserPermission();
-    
+
     messaging()
       .getInitialNotification()
       .then(async remoteMessage => {
@@ -100,6 +120,9 @@ export default function App() {
       unsubscribe;
     };
   }, []);
+  useEffect(()=>{
+    requestLocationPermission()
+  },[])
 
   return (
     <Provider store={store}>
@@ -112,6 +135,13 @@ export default function App() {
           onReject={handleReject}
           title={notificationData.title}
           body={notificationData.body}
+          drop_lat={notificationData.drop_lat}
+          drop_long={notificationData.drop_long}
+          pickup_lat={notificationData.pickup_lat}
+          pickup_long={notificationData.pickup_long}
+          vehicle_id={notificationData.vehicle_type}
+          cust_id={notificationData.cust_id}
+          goods_type_id={1}
           onClose={() => setModalVisible(false)}
         />
       </NavigationContainer>

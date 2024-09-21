@@ -6,7 +6,9 @@ import AppImages from '../../../common/AppImages';
 import PartnerAddressCard from '../screen/Profile/PartnerAddressCard';
 import ProfileWithStatus from './ProfileWithStatus';
 
-const VehicleProfileCard = ({ screen = false,isOnline }) => {
+const VehicleProfileCard = ({ screen = false,isOnline,vehicle_data }) => {
+  console.log(vehicle_data);
+  
   const navigation = useNavigation();
 
   const formatVehicleNumber = (number) => {
@@ -30,12 +32,12 @@ const VehicleProfileCard = ({ screen = false,isOnline }) => {
         {/* <Image source={AppImages.profileImage} style={styles.profileImage} />+ */}
          <ProfileWithStatus isOnline={isOnline}/>
         <View style={styles.leftSection}>
-          <Text style={styles.name}>{vehicle.driver.driver_name}</Text>
+          <Text style={styles.name}>{vehicle_data?.driver?.driver_name}</Text>
 
           <View style={styles.contactContainer}>
-            <Text style={styles.VType}>2 Wheeler</Text>
+            <Text style={styles.VType}>2 Wheeler </Text>
             <Text style={styles.VType}>
-              {formatVehicleNumber(vehicle.vehicle_number)}
+              {vehicle_data?.vehicle_number}
             </Text>
           </View>
         </View>

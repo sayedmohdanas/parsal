@@ -12,18 +12,23 @@ import Colors from '../../common/Colors';
 import { useNavigation } from '@react-navigation/native';
 import { formatVehicleNumber } from '../../common/CommonFunction';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch } from 'react-redux';
+import { setDriverId } from '../../redux/HitApis/HitApiSlice';
 
 const VehicleCard = ({ vehicle, onPress }) => {
   const navigation = useNavigation();
+  const dispatch = useDispatch()
 
   const hasDriver = vehicle?.driver?.driver_name;
 
 
   return (
     <TouchableOpacity onPress={() => {
+// console.log(vehicle);
 
       AsyncStorage.setItem("driver_data", JSON.stringify(vehicle))
       navigation.navigate('Dashboards')
+      dispatch(setDriverId(vehicle))
     }}>
       {/* <TouchableWithoutFeedback 
   onPress={() => {

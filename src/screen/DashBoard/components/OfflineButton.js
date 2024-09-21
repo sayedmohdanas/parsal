@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
   offlineButton: {
     backgroundColor: '#fff',
     borderWidth: 2,
-    borderColor: 'red',
+    borderColor: '#FF7F7F',
     paddingVertical: 13,
     paddingHorizontal: 60,
     width:'80%',
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   offlineButtonText: {
-    color: 'red',
+    color: '#FF7F7F',
     fontSize: 16,
     fontWeight: 'bold',
   },

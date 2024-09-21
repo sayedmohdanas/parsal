@@ -2,7 +2,7 @@
 import Toast from 'react-native-toast-message';
 import { responsiveFontSize } from './metrices';
 import { useDispatch } from 'react-redux';
-import { PermissionsAndroid } from 'react-native';
+import { PermissionsAndroid, Platform } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 
 // export function setItem(key, data) {
@@ -84,28 +84,37 @@ export const formatVehicleNumber = number => {
         );
 };
 
+// import { PermissionsAndroid, Alert } from 'react-native';
+// import Geolocation from '@react-native-community/geolocation';
+
+// Function to request location permission for Android
 export async function requestLocationPermission() {
     try {
         const granted = await PermissionsAndroid.request(
             PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
             {
-                title: 'Parsal Partner',
-                message: 'Parsal Partner access to your location',
+                title: 'Parsal Partner Location Permission',
+                message: 'Parsal Partner needs access to your location',
             }
         );
         console.log('Permission status:', granted); // Log the permission status
 
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-         
+            console.log('Location permission granted');
+            // After permission is granted, fetch the driver's location
+            return true;
         } else {
-            console.log("Location permission denied");
-            alert("Location permission denied");
+            console.log('Location permission denied');
+            Alert.alert('Permission Denied', 'Location permission denied');
+            return false;
         }
     } catch (err) {
         console.warn(err);
+        return false;
     }
 }
 
+// Function to get the driver's current location
 export const GetDriverCurrentLocation = () => {
     return new Promise((resolve, reject) => {
         Geolocation.getCurrentPosition(
@@ -127,3 +136,52 @@ export const GetDriverCurrentLocation = () => {
     });
 };
 
+// Call this function to first request permission and then get the location
+export async function fetchDriverLocation() {
+    const hasPermission = await requestLocationPermission();
+    if (hasPermission) {
+        try {
+            const location = await GetDriverCurrentLocation();
+            console.log('Driver location:', location);
+            // You can now use the location data (latitude, longitude)
+        } catch (error) {
+            console.log('Error fetching location:', error);
+        }
+    }
+}
+
+// export const GetDriverCurrentLocation2 = async () => {
+//     try {
+//         // For Android, we need to request location permission
+//         if (Platform.OS === 'android') {
+//             const granted = await PermissionsAndroid.request(
+//                 PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+//                 {
+//                     title: "Location Permission",
+//                     message: "This app needs access to your location",
+//                     buttonNeutral: "Ask Me Later",
+//                     buttonNegative: "Cancel",
+//                     buttonPositive: "OK"
+//                 }
+//             );
+//             if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+//                 throw new Error('Location permission denied');
+//             }
+//         }
+
+//         return new Promise((resolve, reject) => {
+//             Geolocation.getCurrentPosition(
+//                 (position) => {
+//                   addLocation(position.coords);
+//                 },
+//                 (error) => {
+//                   console.error(error);
+//                 },
+//                 { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+//               );
+//         });
+//     } catch (error) {
+//         console.error('Error requesting location permission:', error);
+//         throw new Error(`Error: ${error.message}`);
+//     }
+// };

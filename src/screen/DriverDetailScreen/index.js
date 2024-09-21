@@ -11,17 +11,21 @@ import {addDriverDetails} from '../../redux/HitApis/HitApiSlice';
 import {useNavigation} from '@react-navigation/native';
 import Colors from '../../common/Colors';
 import {GetDriverCurrentLocation, successToast} from '../../common/CommonFunction';
+import { getMessaging } from '@react-native-firebase/messaging';
 
 const DriverDetailScreen = ({route}) => {
   const dispatch = useDispatch();
   const [name, setName] = useState('');
   const {v_id, onUpdate} = route.params;
   const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
+  const registerSuccess = useSelector(state => state?.parsalPartner?.statuss);
   const navigation = useNavigation();
   const [driverNumber, setDriverNumber] = useState('');
   const [driverProfilePic, setDriverProfilePic] = useState('');
   const [licenseUploaded, setLicenseUploaded] = useState('');
   const [isChecked, setIsChecked] = useState(false);
+
+  console.log('registerUser status ==> ', registerSuccess)
 
   const handleSubmit = async () => {
     const { latitude, longitude } = await GetDriverCurrentLocation();
@@ -42,11 +46,17 @@ const DriverDetailScreen = ({route}) => {
       current_lat: latitude,
       current_long: longitude,
       address: '789 Broadway, New York',
-      fcm_id: 'example_fcm_id_token',
+      fcm_id: await getMessaging().getToken(),
+      // fcm_id: 'fcm token',
       status: isChecked ? 1 : 0,
       working_status: isChecked ? 1 : 0,
     };
+
+    console.log('payload', payload)
+
     try {
+      console.log(payload.fcm_id,'payload');
+      
       const resultAction = await dispatch(addDriverDetails(payload));
       if (addDriverDetails.fulfilled.match(resultAction)) {
         successToast(`Driver ${name} successfully added.`);

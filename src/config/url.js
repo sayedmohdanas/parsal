@@ -20,6 +20,7 @@ export const addVehicle = getEndpoint('partner/add-partner-vehicle');
 export const MyVehicle = getEndpoint('partner/vehiclesByPartnerId');
 export const addDriverDetails = getEndpoint('drivers/assign-driver-vehicles');
 export const updateWorkStatusurl = getEndpoint('drivers/update-location');
+export const placeOrder=getEndpoint('users/place-order');
 
 
 

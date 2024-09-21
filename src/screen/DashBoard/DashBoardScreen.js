@@ -89,28 +89,19 @@
 
 
 
-
-
-
-
-
-
-
-
-
-import Geolocation from 'react-native-geolocation-service';
-
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import VehicleProfileCard from './components/VehicleprofileCard';
 import Colors from '../../common/Colors';
 import OnlineButton from './components/OnlineButton';
 import OfflineButton from './components/OfflineButton';
-import { GetDriverCurrentLocation, requestLocationPermission } from '../../common/CommonFunction';
+import { GetDriverCurrentLocation, GetDriverCurrentLocation2, requestLocationPermission } from '../../common/CommonFunction';
 import { hitUpdateDriverStatus } from '../../config/api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const DashboardScreen = ({ route }) => {
+
+
 
   const [isOnline, setIsOnline] = useState(false); // Track online/offline state
   const navigation = useNavigation();
@@ -119,25 +110,29 @@ const DashboardScreen = ({ route }) => {
     try {
       const unparse_driver_data = await AsyncStorage.getItem("driver_data");
       const parse_data = JSON.parse(unparse_driver_data);
+      console.log(parse_data.driver_id,'parss---');
+
+      
       
       setIsOnline(prevStatus => !prevStatus);
-      
       if (!isOnline) {
-        console.log('parse_data?.id', parse_data);
-        
         const { latitude, longitude } = await GetDriverCurrentLocation();
-        console.log('Latitude:', latitude);
-        console.log('Longitude:', longitude);
-        
         const param = {
-          "driver_id": parse_data?.id,
+          "driver_id": parse_data?.driver_id,
           "current_lat": latitude,
           "current_long": longitude,
+          "working_status": 1
         };
-        console.log('param', param);
-        
         const res = await hitUpdateDriverStatus(param);
-        console.log(res);
+      } else {
+        const { latitude, longitude } = await GetDriverCurrentLocation();
+        const param = {
+          "driver_id": parse_data?.driver_id,
+          "current_lat": latitude,
+          "current_long": longitude,
+          "working_status": 0
+        };
+        const res = await hitUpdateDriverStatus(param);
       }
     } catch (error) {
       console.error(error);
@@ -145,12 +140,38 @@ const DashboardScreen = ({ route }) => {
   };
   
 
-  
+  const [driverData, setDriverData] = useState(null); 
   useEffect(() => {
-    requestLocationPermission()
-  
-  }, []);
-  
+    // Define an inner async function
+    const fetchDriverData = async () => {
+        try {
+            // Request location permission
+            const locationGranted = await requestLocationPermission();
+            if (!locationGranted) {
+                console.error('Location permission denied');
+                return;
+            }
+
+            // Fetch data from AsyncStorage
+            const unparsedDriverData = await AsyncStorage.getItem("driver_data");
+            if (unparsedDriverData) {
+                const parsedData = JSON.parse(unparsedDriverData);
+                setDriverData(parsedData); 
+                 console.log(parsedData,'dataaaa')
+                // Set the parsed data to state
+            } else {
+                console.warn("No driver data found in AsyncStorage");
+            }
+        } catch (error) {
+            console.error("Error fetching driver data:", error);
+        }
+    };
+
+    // Call the async function inside useEffect
+    fetchDriverData();
+}, []); // Empty dependency array ensures this runs only once
+
+  ;
   
 
   return (
@@ -166,7 +187,7 @@ const DashboardScreen = ({ route }) => {
       </TouchableOpacity>
 
       {/* Vehicle Profile Card or other dashboard content */}
-      <VehicleProfileCard screen={true} isOnline={isOnline} />
+      <VehicleProfileCard screen={true} isOnline={isOnline} vehicle_data={driverData} />
 
       {/* Bottom Toggle Buttons Section */}
       <View style={[

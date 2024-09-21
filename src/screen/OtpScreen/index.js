@@ -163,6 +163,7 @@ console.log('response',response);
                   placeholder="ENTER OTP"
                   style={styles.textInputstyle}
                   value={otp}
+                  keyboardType='numeric'
                   placeholderTextColor={Colors.black}
                   onChangeText={e => {
                     setOtp(e);

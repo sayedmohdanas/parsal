@@ -134,6 +134,7 @@ const initialState = {
   status: 'idle',
   error: null,
   loading: false,
+  driverId: null
 };
 
 const HitApiSlice = createSlice({
@@ -145,6 +146,9 @@ const HitApiSlice = createSlice({
     },
     setMyVehicleData(state,action){
       state.MyVehicle = action.payload.vehicles;
+    },
+    setDriverId(state, action){
+      state.driverId = action.payload
     }
   },
   extraReducers: (builder) => {
@@ -256,7 +260,7 @@ const HitApiSlice = createSlice({
   },
 });
 
-export const { setParentId,setMyVehicleData } = HitApiSlice.actions;
+export const { setParentId,setMyVehicleData, setDriverId } = HitApiSlice.actions;
 
 
 export default HitApiSlice.reducer;

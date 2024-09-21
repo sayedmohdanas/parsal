@@ -16,7 +16,7 @@ const MyVehiclesScreen = ({navigation}) => {
   const vehicleCount = vehicleData?.length;
   const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
   const refreshData = async () => {
-    const res = await hitMyVehicle({partnerId: 88});
+    const res = await hitMyVehicle({partnerId: partnerId});
     dispatch(setMyVehicleData(res));
   };
 

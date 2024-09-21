@@ -1,10 +1,30 @@
 {
   "project_info": {
     "project_number": "434348504493",
+    "firebase_url": "https://parsal-4c318-default-rtdb.firebaseio.com",
     "project_id": "parsal-4c318",
     "storage_bucket": "parsal-4c318.appspot.com"
   },
   "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:434348504493:android:a443126bc025e9e9e8dd24",
+        "android_client_info": {
+          "package_name": "com.parsal_customer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAmsh0RePOPCZtQER39s8bsie2NjIf9UhE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
     {
       "client_info": {
         "mobilesdk_app_id": "1:434348504493:android:54a39cff8603f105e8dd24",

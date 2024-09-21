@@ -194,64 +194,65 @@ const ProfileSection = () => {
     };
 
     return (
-        <View style={styles.profileContainer}>
-            {/* OTP Section */}
-            <View style={{width:'100%'}}>
-            <View style={styles.otpSection}>
-                <Text style={styles.otpLabel}>Enter OTP:</Text>
-                <TextInput
-                    style={styles.otpInput}
-                    value={otp}
-                    onChangeText={setOtp}
-                    placeholder="Enter OTP"
-                    keyboardType="numeric"
-                />
-                <TouchableOpacity style={styles.otpButton} onPress={handleOtpSubmit}>
-                    <Text style={styles.otpButtonText}>Submit OTP</Text>
-                </TouchableOpacity>
-                </View>
-                <BorderLine color="gray" thickness={3} length="100%" orientation="horizontal" />
-                </View>
+        null
+        // <View style={styles.profileContainer}>
+        //     {/* OTP Section */}
+        //     <View style={{width:'100%'}}>
+        //     <View style={styles.otpSection}>
+        //         <Text style={styles.otpLabel}>Enter OTP:</Text>
+        //         <TextInput
+        //             style={styles.otpInput}
+        //             value={otp}
+        //             onChangeText={setOtp}
+        //             placeholder="Enter OTP"
+        //             keyboardType="numeric"
+        //         />
+        //         <TouchableOpacity style={styles.otpButton} onPress={handleOtpSubmit}>
+        //             <Text style={styles.otpButtonText}>Submit OTP</Text>
+        //         </TouchableOpacity>
+        //         </View>
+        //         <BorderLine color="gray" thickness={3} length="100%" orientation="horizontal" />
+        //         </View>
 
-            <View style={styles.mainContent}>
-                {/* Left Side (Profile) */}
-                <View style={styles.ProfileView}>
-                    <Image source={AppImages.profileImage} style={styles.profileImage} />
-                    <Text style={styles.name}>Ms Dhoni</Text>
-                </View>
+        //     <View style={styles.mainContent}>
+        //         {/* Left Side (Profile) */}
+        //         <View style={styles.ProfileView}>
+        //             <Image source={AppImages.profileImage} style={styles.profileImage} />
+        //             <Text style={styles.name}>Ms Dhoni</Text>
+        //         </View>
 
-                {/* Centered View with Left-aligned Vertical Line */}
-                <View style={styles.centeredView}>
-                    <View style={styles.leftAligned}>
-                        <View style={styles.verticleLine}></View>
-                        <View style={styles.textContainer}>
-                            <Text style={styles.name}>Khurram Namar</Text>
-                            <Text style={styles.name}>Charbagh</Text>
-                        </View>
-                    </View>
-                </View>
+        //         {/* Centered View with Left-aligned Vertical Line */}
+        //         <View style={styles.centeredView}>
+        //             <View style={styles.leftAligned}>
+        //                 <View style={styles.verticleLine}></View>
+        //                 <View style={styles.textContainer}>
+        //                     <Text style={styles.name}>Khurram Namar</Text>
+        //                     <Text style={styles.name}>Charbagh</Text>
+        //                 </View>
+        //             </View>
+        //         </View>
 
-                {/* Right Side (Action Buttons) */}
-                <View style={styles.actions}>
-                    <TouchableOpacity style={styles.actionButton}>
-                        <Image source={AppImages.callImage} style={styles.iconImage} />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.actionButton}>
-                        <Image source={AppImages.cancelImage} style={styles.iconImage} />
-                    </TouchableOpacity>
-                </View>
-            </View>
+        //         {/* Right Side (Action Buttons) */}
+        //         <View style={styles.actions}>
+        //             <TouchableOpacity style={styles.actionButton}>
+        //                 <Image source={AppImages.callImage} style={styles.iconImage} />
+        //             </TouchableOpacity>
+        //             <TouchableOpacity style={styles.actionButton}>
+        //                 <Image source={AppImages.cancelImage} style={styles.iconImage} />
+        //             </TouchableOpacity>
+        //         </View>
+        //     </View>
 
-            {/* Bottom Section */}
-            <View style={styles.bottomSection}>
-                <View style={styles.itemDetails}>
-                    <Text style={styles.itemText}>Electrical Item</Text>
-                </View>
-                <View style={styles.weightDetails}>
-                    <Text style={styles.itemText}>1 kg</Text>
-                </View>
-            </View>
-        </View>
+        //     {/* Bottom Section */}
+        //     <View style={styles.bottomSection}>
+        //         <View style={styles.itemDetails}>
+        //             <Text style={styles.itemText}>Electrical Item</Text>
+        //         </View>
+        //         <View style={styles.weightDetails}>
+        //             <Text style={styles.itemText}>1 kg</Text>
+        //         </View>
+        //     </View>
+        // </View>
     );
 };
 
