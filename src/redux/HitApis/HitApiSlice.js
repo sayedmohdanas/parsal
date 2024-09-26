@@ -134,7 +134,9 @@ const initialState = {
   status: 'idle',
   error: null,
   loading: false,
-  driverId: null
+  driverId: null,
+  orderData:null,
+  update_order:null
 };
 
 const HitApiSlice = createSlice({
@@ -144,11 +146,17 @@ const HitApiSlice = createSlice({
     setParentId(state, action) {
       state.partnerId = action.payload; 
     },
+    setupdate_order(state, action) {
+      state.update_order = action.payload; 
+    },
     setMyVehicleData(state,action){
       state.MyVehicle = action.payload.vehicles;
     },
     setDriverId(state, action){
       state.driverId = action.payload
+    },
+    setOrderData(state,action){
+      state.orderData = action.payload
     }
   },
   extraReducers: (builder) => {
@@ -260,7 +268,7 @@ const HitApiSlice = createSlice({
   },
 });
 
-export const { setParentId,setMyVehicleData, setDriverId } = HitApiSlice.actions;
+export const { setParentId,setMyVehicleData, setDriverId,setOrderData ,setupdate_order} = HitApiSlice.actions;
 
 
 export default HitApiSlice.reducer;

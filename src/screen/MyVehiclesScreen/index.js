@@ -6,12 +6,15 @@ import Loading from '../../components/Loading/Loading';
 import VehicleList from './VehicleList';
 import {successToast} from '../../common/CommonFunction';
 import {hitMyVehicle} from '../../config/api/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const MyVehiclesScreen = ({navigation}) => {
+const MyVehiclesScreen = ({navigation}) => { 
   const dispatch = useDispatch();
   const vehicleData = useSelector(
     state => state?.parsalPartner?.MyVehicle || [],
   );
+  // const [partnerId,setParentId]=useState(null)
+  // const [partnerId,setPartnerId]=useState(null)
   const loading = useSelector(state => state?.parsalPartner?.loading || false);
   const vehicleCount = vehicleData?.length;
   const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
@@ -19,6 +22,18 @@ const MyVehiclesScreen = ({navigation}) => {
     const res = await hitMyVehicle({partnerId: partnerId});
     dispatch(setMyVehicleData(res));
   };
+  // useEffect(() => {
+  //   const pId = async () => {
+  //    const id=  await AsyncStorage.getItem('partner_id');
+  //     // id && navigation.navigate("MyVehicles")
+  //     setPartnerId(id)
+  //   console.log('=================;==================');
+  //   console.log('jooi====>',id);
+  //   console.log('====================================');
+
+  //   }
+  //   pId()
+  // }, [])
 
   // Use focus effect to call refreshData when screen gains focus
   useEffect(() => {

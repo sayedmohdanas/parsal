@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import AppImages from '../../common/AppImages';
 import ActionButton from './ActionButtons';
@@ -7,14 +7,23 @@ import ProfileSection from './ProfileSecrion';
 import { GetDriverCurrentLocation } from '../../common/CommonFunction';
 import MapViewDirections from 'react-native-maps-directions';
 import { useIsFocused } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
+import database from '@react-native-firebase/database';
+import Colors from '../../common/Colors';
 const DriverMapScreen = ({ route }) => {
   const [showButtons, setShowButtons] = useState(false);
-  const [latLOng, setLatLong] = useState({latitude:'',longitude:''})
-  const data = route.params
+  const [latLOng, setLatLong] = useState({ latitude: '', longitude: '' })
+  
+  const data = route?.params || {};
   const GOOGLE_API_KEY = 'AIzaSyAbwv5P-iff_vVB7TpstiQ1RI1kvktza48';
 
-  
-  // const { latitude, longitude } = await GetDriverCurrentLocation();
+  const orderData = useSelector(state => state?.parsalPartner?.orderData || null);
+  const update_order = useSelector(state => state?.parsalPartner?.update_order || null);
+// console.log('orderData',update_order?.is_arrived_pickup);
+
+  // console.log(orderData?.newOrder?.driver_id,'orderda---idddtafrommascreen')
+  const driverID = orderData?.newOrder?.driver_id
+
   const isFocused = useIsFocused();
 
   useEffect(() => {
@@ -24,30 +33,36 @@ const DriverMapScreen = ({ route }) => {
       try {
         const { latitude, longitude } = await GetDriverCurrentLocation();
         setLatLong({ latitude, longitude });
-        console.log({ latitude, longitude }, 'Location fetched');
+
+
+        database()
+          .ref(`/drivers/${driverID}/location`)
+          .set({
+            latitude,
+            longitude,
+            timestamp: database?.ServerValue.TIMESTAMP,
+          });
+
+        console.log({ latitude, longitude }, 'Location sent to Firebase');
       } catch (error) {
         console.error('Error fetching location:', error);
       }
     };
 
     if (isFocused) {
-      fetchLocation(); // Fetch location immediately when the screen is focused
-      intervalId = setInterval(fetchLocation, 300000); // Update every 3 seconds
+      fetchLocation();
+      intervalId = setInterval(fetchLocation, 5000);
     }
 
     return () => {
-      if (intervalId) clearInterval(intervalId); // Cleanup interval on unmount
+      if (intervalId) clearInterval(intervalId);
     };
   }, [isFocused]);
 
-  // useEffect to log latLong changes
-  useEffect(() => {
-    console.log('Updated latLong:', latLOng);
-  }, [latLOng]);
 
-  console.log('current lat long=>', latLOng)
 
-  console.log('data', data)
+
+
   const handleAccept = () => {
     setShowButtons(false);
     console.log('Request Accepted');
@@ -61,13 +76,13 @@ const DriverMapScreen = ({ route }) => {
     // latitude: Number(data.drop_lat),
     // longitude: Number(data.drop_long),
 
-    latitude: Number(latLOng.latitude ? latLOng.latitude : data.drop_lat),
-    longitude: Number(latLOng.longitude ? latLOng.longitude : data.drop_long),
+    latitude: Number(latLOng?.latitude ? latLOng?.latitude : data?.drop_lat),
+    longitude: Number(latLOng?.longitude ? latLOng?.longitude : data?.drop_long),
   };
 
   const destination = {
-    latitude: Number(data.picklat),
-    longitude: Number(data.pickLong),
+    latitude:update_order?.is_arrived_pickup ? Number(data?.drop_lat): Number(data?.picklat),
+    longitude:update_order?.is_arrived_pickup ?Number(data?.drop_long):  Number(data?.pickLong),
   };
   return (
     <View style={styles.container}>
@@ -82,8 +97,17 @@ const DriverMapScreen = ({ route }) => {
         {/* Marker for current location */}
         <Marker
           coordinate={origin}
-          image={AppImages.rideBike}
-        />
+        // image={AppImages.rideBike}
+        // style={{ width: 70, height: 70 }}
+
+        >
+          <Image
+            source={AppImages.rideBike}
+            style={{ width: 40, height: 40 }}
+             resizeMode="contain"
+          />
+        </Marker>
+
 
         {/* Marker for pickup location */}
         <Marker
@@ -96,7 +120,7 @@ const DriverMapScreen = ({ route }) => {
           destination={destination}
           apikey={GOOGLE_API_KEY}
           strokeWidth={4}
-          strokeColor="blue"
+          strokeColor={Colors.brandBlue}
         />
       </MapView>
       {showButtons ? (
@@ -105,7 +129,7 @@ const DriverMapScreen = ({ route }) => {
           <ActionButton title="Reject" color="red" onPress={handleReject} />
         </View>
       ) : (
-        <ProfileSection />
+        <ProfileSection  data={ orderData}/>
       )}
     </View>
   );

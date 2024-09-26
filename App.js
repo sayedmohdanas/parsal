@@ -10,6 +10,8 @@ import NotificationModal from './src/components/CustomNotificationModal/Notifica
 import firebase from '@react-native-firebase/app';
 import database from '@react-native-firebase/database';
 import { requestLocationPermission } from './src/common/CommonFunction';
+// import Sound from 'react-native-sound'
+import SoundPlayer from 'react-native-sound-player';
 
 const TOPIC = 'MyNews';
 
@@ -24,8 +26,14 @@ export default function App() {
     pickup_long: '',
     vehicle_type: '',
     cust_id:'',
-    driverId:''
+    driverId:'',
+    drop_address:'',
+    pickup_address:'',
+    expected_price:'',
+    expected_distance:'',
+    expected_time:'',
   }); console.log(notificationData, 'nootificationdata')
+  const [timer, setTimer] = useState(30); // Timer state
   // Initialize Firebase with Realtime Database URL
   if (!firebase.apps.length) {
     firebase.initializeApp({
@@ -56,19 +64,13 @@ export default function App() {
     // Use optional chaining to avoid errors
     const title = notification?.title || '';
     const body = notification?.body || '';
-    const { drop_lat = '', drop_long = '', pickup_lat = '', pickup_long = '', vehicle_type = '',cust_id=" ",driverId="" } = data || {};
-  
+            const { drop_lat = '', drop_long = '', pickup_lat = '', pickup_long = '', vehicle_type = '',cust_id=" ",driverId="",pickup_address='',drop_address='',expected_price='', expected_distance='',expected_time='' 
+             } = data || {};
+      console.log(data,'data')
     // Update the notification data state
-    setNotificationData({ title, body, drop_lat, drop_long, pickup_lat, pickup_long, vehicle_type,cust_id,driverId });
+    setNotificationData({ title, body, drop_lat, drop_long, pickup_lat, pickup_long, vehicle_type,cust_id,driverId,pickup_address,drop_address ,expected_price, expected_distance,expected_time });
     setModalVisible(true);
-    // Alert.alert(
-    //   title,
-    //   body,
-    //   [
-    //     { text: 'Reject', onPress: () => console.log('Rejected') },
-    //     { text: 'Accept', onPress: () => console.log('Accepted') }
-    //   ]
-    // );
+    setTimer(30); 
   };
 
   const handleAccept = (res) => {
@@ -81,6 +83,13 @@ export default function App() {
     console.log('Rejected');
     setModalVisible(false);
   };
+  const playNotificationSound = () => {
+    try {
+      SoundPlayer.playSoundFile('notification', 'mp3'); 
+    } catch (e) {
+      console.log('Cannot play the sound file', e);
+    }
+  };
 
   useEffect(() => {
     getToken();
@@ -92,6 +101,8 @@ export default function App() {
         if (remoteMessage) {
           console.log('getInitialNotification: Notification caused app to open from quit state');
           handleNotification(remoteMessage);
+          playNotificationSound();  
+
         }
       });
 
@@ -99,6 +110,7 @@ export default function App() {
       if (remoteMessage) {
         console.log('onNotificationOpenedApp: Notification caused app to open from background state');
         handleNotification(remoteMessage);
+        playNotificationSound();  
       }
     });
 
@@ -109,6 +121,7 @@ export default function App() {
     const unsubscribe = messaging().onMessage(async remoteMessage => {
       console.log(remoteMessage);
       handleNotification(remoteMessage);
+      playNotificationSound();  
     });
 
     messaging().subscribeToTopic(TOPIC)
@@ -141,8 +154,15 @@ export default function App() {
           pickup_long={notificationData.pickup_long}
           vehicle_id={notificationData.vehicle_type}
           cust_id={notificationData.cust_id}
+          driverId={notificationData?.driverId}
+          pickup_address={notificationData?.pickup_address}
+          drop_address={notificationData?.drop_address}
+          expected_distance={notificationData?.expected_distance}
+          expected_price={notificationData?.expected_price}
+          expected_time={notificationData?.expected_time}
           goods_type_id={1}
           onClose={() => setModalVisible(false)}
+          timer={timer}
         />
       </NavigationContainer>
     </Provider>

@@ -118,7 +118,7 @@ const LoginScreen = ({ navigation, route }) => {
                   placeholder='Enter your number'
                   style={styles.textInputstyle}
                   // maxLength={10}
-                  value={number}
+                  value={number.trim()}
                   placeholderTextColor={Colors.black}
                   onChangeText={(e) => {
                     setNumber(e)

@@ -113,6 +113,13 @@ export async function requestLocationPermission() {
         return false;
     }
 }
+export function generateNumericOTP(length = 6) {
+    let otp = '';
+    for (let i = 0; i < length; i++) {
+        otp += Math.floor(Math.random() * 10); // Generates a random digit from 0 to 9
+    }
+    return otp;
+}
 
 // Function to get the driver's current location
 export const GetDriverCurrentLocation = () => {

@@ -13,7 +13,7 @@ import DrawerNavigator from './DrawerNavigaton';
 const Stack = createStackNavigator();
 
 const StackNavigator = () => (
-  <Stack.Navigator initialRouteName="Login">
+  <Stack.Navigator initialRouteName="Login"> 
     <Stack.Screen name="Login" component={LoginScreen} />
     <Stack.Screen name="Otp" component={OtpScreen} />
     <Stack.Screen name="OwnerDetail" component={OwnerDetailScreen} />
