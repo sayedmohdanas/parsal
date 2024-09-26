@@ -56,7 +56,7 @@ const VehicleDetailScreen = ({navigation}) => {
       dispatch(setParentId(parent_id));
     };
     pId();
-  }, []);
+  }, [navigation]);
 
   const bodyTypeOptions = [
     {value: 'Scooter', label: 'Scooter', image: AppImages.scooterImage},

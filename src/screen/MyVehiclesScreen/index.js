@@ -17,23 +17,18 @@ const MyVehiclesScreen = ({navigation}) => {
   // const [partnerId,setPartnerId]=useState(null)
   const loading = useSelector(state => state?.parsalPartner?.loading || false);
   const vehicleCount = vehicleData?.length;
-  const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
+  // const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
   const refreshData = async () => {
+try {
+  const partnerIds=  await AsyncStorage.getItem('partner_id');
+    const partnerId =JSON.parse(partnerIds)
     const res = await hitMyVehicle({partnerId: partnerId});
     dispatch(setMyVehicleData(res));
+} catch (error) {
+  console.log(error)
+}
+    
   };
-  // useEffect(() => {
-  //   const pId = async () => {
-  //    const id=  await AsyncStorage.getItem('partner_id');
-  //     // id && navigation.navigate("MyVehicles")
-  //     setPartnerId(id)
-  //   console.log('=================;==================');
-  //   console.log('jooi====>',id);
-  //   console.log('====================================');
-
-  //   }
-  //   pId()
-  // }, [])
 
   // Use focus effect to call refreshData when screen gains focus
   useEffect(() => {
@@ -45,7 +40,7 @@ const MyVehiclesScreen = ({navigation}) => {
     };
   }, [navigation]);
 
-  //   Show success toast when vehicle data is loaded
+  //   Show success toast when vehicl e data is loaded
   useEffect(() => {
     if (vehicleCount > 0) {
       successToast(

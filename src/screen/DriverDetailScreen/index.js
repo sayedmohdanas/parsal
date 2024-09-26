@@ -12,6 +12,7 @@ import {useNavigation} from '@react-navigation/native';
 import Colors from '../../common/Colors';
 import {GetDriverCurrentLocation, successToast} from '../../common/CommonFunction';
 import { getMessaging } from '@react-native-firebase/messaging';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const DriverDetailScreen = ({route}) => {
   const dispatch = useDispatch();
@@ -28,6 +29,8 @@ const DriverDetailScreen = ({route}) => {
   console.log('registerUser status ==> ', registerSuccess)
 
   const handleSubmit = async () => {
+    await AsyncStorage.getItem('pa')
+    const partnerId=  await AsyncStorage.getItem('partner_id');
     const { latitude, longitude } = await GetDriverCurrentLocation();
     const payload = {
       partner_id: partnerId,
@@ -74,7 +77,7 @@ const DriverDetailScreen = ({route}) => {
     }
   };
 
-  const isEnabled = name && driverNumber && licenseUploaded && isChecked;
+  const isEnabled = name && driverNumber && licenseUploaded 
 
   return (
     <View style={styles.container}>

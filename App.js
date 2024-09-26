@@ -25,14 +25,14 @@ export default function App() {
     pickup_lat: '',
     pickup_long: '',
     vehicle_type: '',
-    cust_id:'',
-    driverId:'',
-    drop_address:'',
-    pickup_address:'',
-    expected_price:'',
-    expected_distance:'',
-    expected_time:'',
-  }); console.log(notificationData, 'nootificationdata')
+    cust_id: '',
+    driverId: '',
+    drop_address: '',
+    pickup_address: '',
+    expected_price: '',
+    expected_distance: '',
+    expected_time: '',
+  });
   const [timer, setTimer] = useState(30); // Timer state
   // Initialize Firebase with Realtime Database URL
   if (!firebase.apps.length) {
@@ -60,17 +60,15 @@ export default function App() {
     // When handling the remote message
     const { notification } = remoteMessage;
     const { data } = remoteMessage;
-  console.log(remoteMessage,'remotemsg')
     // Use optional chaining to avoid errors
     const title = notification?.title || '';
     const body = notification?.body || '';
-            const { drop_lat = '', drop_long = '', pickup_lat = '', pickup_long = '', vehicle_type = '',cust_id=" ",driverId="",pickup_address='',drop_address='',expected_price='', expected_distance='',expected_time='' 
-             } = data || {};
-      console.log(data,'data')
+    const { drop_lat = '', drop_long = '', pickup_lat = '', pickup_long = '', vehicle_type = '', cust_id = " ", driverId = "", pickup_address = '', drop_address = '', expected_price = '', expected_distance = '', expected_time = ''
+    } = data || {};
     // Update the notification data state
-    setNotificationData({ title, body, drop_lat, drop_long, pickup_lat, pickup_long, vehicle_type,cust_id,driverId,pickup_address,drop_address ,expected_price, expected_distance,expected_time });
+    setNotificationData({ title, body, drop_lat, drop_long, pickup_lat, pickup_long, vehicle_type, cust_id, driverId, pickup_address, drop_address, expected_price, expected_distance, expected_time });
     setModalVisible(true);
-    setTimer(30); 
+    setTimer(30);
   };
 
   const handleAccept = (res) => {
@@ -85,7 +83,7 @@ export default function App() {
   };
   const playNotificationSound = () => {
     try {
-      SoundPlayer.playSoundFile('notification', 'mp3'); 
+      SoundPlayer.playSoundFile('notification', 'mp3');
     } catch (e) {
       console.log('Cannot play the sound file', e);
     }
@@ -101,7 +99,7 @@ export default function App() {
         if (remoteMessage) {
           console.log('getInitialNotification: Notification caused app to open from quit state');
           handleNotification(remoteMessage);
-          playNotificationSound();  
+          playNotificationSound();
 
         }
       });
@@ -110,7 +108,7 @@ export default function App() {
       if (remoteMessage) {
         console.log('onNotificationOpenedApp: Notification caused app to open from background state');
         handleNotification(remoteMessage);
-        playNotificationSound();  
+        playNotificationSound();
       }
     });
 
@@ -121,7 +119,7 @@ export default function App() {
     const unsubscribe = messaging().onMessage(async remoteMessage => {
       console.log(remoteMessage);
       handleNotification(remoteMessage);
-      playNotificationSound();  
+      playNotificationSound();
     });
 
     messaging().subscribeToTopic(TOPIC)
@@ -133,9 +131,9 @@ export default function App() {
       unsubscribe;
     };
   }, []);
-  useEffect(()=>{
+  useEffect(() => {
     requestLocationPermission()
-  },[])
+  }, [])
 
   return (
     <Provider store={store}>
@@ -162,6 +160,7 @@ export default function App() {
           expected_time={notificationData?.expected_time}
           goods_type_id={1}
           onClose={() => setModalVisible(false)}
+          setModalVisible={setModalVisible}
           timer={timer}
         />
       </NavigationContainer>

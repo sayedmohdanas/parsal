@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import AppImages from '../../common/AppImages';
 import Colors from '../../common/Colors';
@@ -14,6 +14,10 @@ import { useNavigation } from '@react-navigation/native';
 import { SuccessToast } from 'react-native-toast-message';
 import { socketUrl } from '../../config/url';
 import Loading from '../../components/Loading/Loading';
+import OTPTextInput from 'react-native-otp-textinput';
+import { responsiveHeight, responsiveWidth } from '../../common/metrices';
+import OTPTextView from 'react-native-otp-textinput';
+
 
 const ProfileSection = () => {
     const navigation = useNavigation()
@@ -22,8 +26,14 @@ const ProfileSection = () => {
     const orderData = useSelector(state => state?.parsalPartner?.orderData || {});
     const update_order = useSelector(state => state?.parsalPartner?.update_order || null);
     console.log(orderData?.newOrder?.driver_id, 'driver_id===>')
-
+    let otpInput = useRef(null);
     const dispatch = useDispatch()
+
+    const handleTextChange = (text) => {
+        setOtp(text);
+    };
+
+    console.log(otp)
 
     useEffect(() => {
 
@@ -53,10 +63,10 @@ const ProfileSection = () => {
     const handleOtpSubmit = async () => {
 
         try {
-            // if (otp !== orderData?.otp || orderData?.Otp < 4) {
-            //     errorToast('Invalid Input', 'Incorrect Otp');
-            //     return;
-            // }
+            if (otp !== orderData?.otp || orderData?.Otp < 4) {
+                errorToast('Invalid Input', 'Incorrect Otp');
+                return;
+            }
             const payload = {
                 is_arrive_pickup: 1,
                 order_id: orderData?.newOrder?.id
@@ -82,39 +92,39 @@ const ProfileSection = () => {
                 "Cancel Order",
                 "Are you sure you want to cancel this order?",
                 [
-                  {
-                    text: "No", // Do nothing on "No"
-                    onPress: () => console.log("Cancel Pressed"),
-                    style: "cancel",
-                  },
-                  {
-                    text: "Yes",
-                    onPress: async() => {
-                      // Handle the order cancellation logic here
-                      successToast("Successfull", 'Order Cancel')
-                      dispatch(setupdate_order(null))
-                      const param = {
-                          order_id: orderData?.newOrder?.id
-                      }
-                      const res = await hitCancelOrder(param)
-                      if (res) {
-                          socket.emit("cancel_order", {
-                              userId: orderData?.newOrder?.cust_id,
-                              orderId: "order789",
-                              role: "driver",
-                              reason: "Customer requested cancellation",
-                          });
-                          navigation.goBack()
-                          console.log('Request cancelled');
-                      }
-          
-                      // Call API to cancel the order or update state
+                    {
+                        text: "No", // Do nothing on "No"
+                        onPress: () => console.log("Cancel Pressed"),
+                        style: "cancel",
                     },
-                  },
+                    {
+                        text: "Yes",
+                        onPress: async () => {
+                            // Handle the order cancellation logic here
+                            successToast("Successfull", 'Order Cancel')
+                            dispatch(setupdate_order(null))
+                            const param = {
+                                order_id: orderData?.newOrder?.id
+                            }
+                            const res = await hitCancelOrder(param)
+                            if (res) {
+                                socket.emit("cancel_order", {
+                                    userId: orderData?.newOrder?.cust_id,
+                                    orderId: "order789",
+                                    role: "driver",
+                                    reason: "Customer requested cancellation",
+                                });
+                                navigation.goBack()
+                                console.log('Request cancelled');
+                            }
+
+                            // Call API to cancel the order or update state
+                        },
+                    },
                 ],
                 { cancelable: false } // Prevent closing the alert by tapping outside
-              );
-            
+            );
+
         } catch (error) {
             Alert.alert('Error', 'Something wwent wrong')
             console.error(error)
@@ -122,24 +132,29 @@ const ProfileSection = () => {
             setLoadig(false)
         }
     };
-
+    console.log('otpp', otp)
     return (
         <>
             <View style={styles.profileContainer}>
 
                 {!update_order?.is_arrived_pickup &&
-                    <View style={{ width: '100%', }}>
+                    <View style={{}}>
                         <View style={styles.otpSection}>
-                            <Text style={styles.otpLabel}>Enter OTP:</Text>
-                            <TextInput
-                                style={styles.otpInput}
-                                value={otp}
-                                placeholderTextColor={'black'}
-                                onChangeText={setOtp}
-                                maxLength={6}
-                                placeholder="Enter OTP"
-                                keyboardType="numeric"
-                            />
+                            <View style={{
+
+                            }}>
+                                {/* <Text style={styles.otpLabel}>Enter OTP:</Text> */}
+                                <OTPTextView
+                                    ref={otpInput}
+                                    handleTextChange={handleTextChange}
+                                    inputCount={4}
+                                    containerStyle={styles.otpContainer}
+                                    textInputStyle={styles.otpInput}
+                                    inputCellLength={1}
+                                    tintColor={Colors.brandBlue}
+                                    offTintColor={Colors.textInputBorderColor}
+                                />
+                            </View>
                             <TouchableOpacity style={styles.otpButton} onPress={handleOtpSubmit}>
                                 <Text style={styles.otpButtonText}>Submit OTP</Text>
                             </TouchableOpacity>
@@ -157,7 +172,7 @@ const ProfileSection = () => {
                     <View style={styles.ProfileView}>
                         <Image source={AppImages.profileImage} style={styles.profileImage} resizeMode='contain' />
                         <View style={{ backgroundColor: 'red,', alignItems: 'center' }}>
-                            <Text style={styles.name}>kllu</Text>
+                            <Text style={styles.name}>Alex</Text>
                             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 3 }}>
                                 <Image source={AppImages.starImage} style={styles.starImg} />
                                 <Text style={{ color: 'grey', fontSize: 10 }}>4.9</Text>
@@ -197,7 +212,7 @@ const ProfileSection = () => {
                         </View>
                     </View>
 
-                    <Divider style={{ marginVertical: 5, marginHorizontal: 30 }} />
+                    <Divider style={{ marginVertical: 4, marginHorizontal: 30 }} />
                     <View style={{ flex: 1, flexDirection: "row", margin: 4 }}>
                         <View style={{ marginLeft: 10 }}>
 
@@ -212,9 +227,9 @@ const ProfileSection = () => {
 
                         </View>
                     </View>
-                    <Divider style={{ marginVertical: 5, marginHorizontal: 30 }} />
+                    <Divider style={{ marginVertical: 4, marginHorizontal: 30 }} />
 
-                    <View style={{ flex: 1, flexDirection: "row", margin: 4 }}>
+                    {/* <View style={{ flex: 1, flexDirection: "row", margin: 4 }}>
                         <View >
                             <Image source={AppImages.Bike} style={{ height: 50, width: 50, margin: 5 }} resizeMode='contain' />
                         </View>
@@ -225,12 +240,12 @@ const ProfileSection = () => {
                                 <Text style={{ color: "#C8C7CC", fontSize: 13, fontWeight: "400" }}>{"PRICE"}</Text>
                             </View>
                             <View style={{ flex: 1, flexDirection: "row", justifyContent: "space-evenly", alignItems: "flex-start" }}>
-                                <Text style={{ fontSize: 14, color: Colors.black, fontWeight: "600" }}>{orderData?.newOrder?.expected_distance + 'km'}</Text>
-                                <Text style={{ fontSize: 14, color: Colors.black, fontWeight: "600" }}>{parseInt(orderData?.newOrder?.expected_time) + 'min'}</Text>
-                                <Text style={{ fontSize: 14, color: Colors.black, fontWeight: "600" }}>{`₹ ${orderData?.newOrder?.paid_amount}`}</Text>
+                                <Text style={{ fontSize: 14, color: Colors.black, fontWeight: "500" }}>{orderData?.newOrder?.expected_distance + 'km'}</Text>
+                                <Text style={{ fontSize: 14, color: Colors.black, fontWeight: "500" }}>{parseInt(orderData?.newOrder?.expected_time) + 'min'}</Text>
+                                <Text style={{ fontSize: 14, color: Colors.black, fontWeight: "500" }}>{`₹ ${orderData?.newOrder?.paid_amount}`}</Text>
                             </View>
                         </View>
-                    </View>
+                    </View> */}
                 </View>
                 {/* </View> */}
 
@@ -258,11 +273,11 @@ const styles = StyleSheet.create({
     otpSection: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
         marginHorizontal: 15,
         marginTop: 3,
         marginBottom: 3,
-
+        // backgroundColor:'red'
     },
     button: {
         backgroundColor: Colors.grey,
@@ -279,8 +294,9 @@ const styles = StyleSheet.create({
     otpLabel: {
         fontSize: 16,
         fontWeight: 'bold',
-        marginRight: 10,
+        // marginRight: 10,
         color: 'black',
+        marginLeft: 25
     },
     otpInput: {
         borderWidth: 1,
@@ -293,8 +309,9 @@ const styles = StyleSheet.create({
     },
     otpButton: {
         backgroundColor: Colors.brandBlue,
-        padding: 10,
+        padding: 8,
         borderRadius: 5,
+        // marginTop:18
     },
     otpButtonText: {
         color: 'white',
@@ -316,9 +333,10 @@ const styles = StyleSheet.create({
 
     },
     profileImage: {
-        width: 40,
-        height: 40,
+        width: 38,
+        height: 38,
         borderRadius: 35,
+        marginLeft: 8
     },
     starImg: {
         height: 12,
@@ -393,6 +411,28 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '600',
         color: Colors.black,
+    },
+    otpContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginHorizontal: 20,
+    },
+    otpInput: {
+        borderWidth: 1,
+        borderRadius: 6,
+        borderColor: Colors.textInputBorderColor,
+        fontSize: 20,
+        color: Colors.brandBlue,
+        textAlign: 'center',
+        height: 40,
+        width: 40,
+        paddingVertical: 0, // Remove vertical padding
+        paddingHorizontal: 0, // Remove horizontal padding,
+        borderBottomWidth: 1
+    },
+    inputCell: {
+        borderBottomWidth: 1,
+        borderColor: Colors.textInputBorderColor,
     },
 });
 

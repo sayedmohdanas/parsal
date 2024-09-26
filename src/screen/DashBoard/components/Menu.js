@@ -11,7 +11,9 @@ const Menu = ({ navigation }) => {
 
   const handleLogout = async (navigation) => {
     try {
-      await AsyncStorage.removeItem('partner_id');
+      await AsyncStorage.removeItem('partner_id');        
+      await AsyncStorage.removeItem('partner_name');
+
       successToast('Logged out successfully', 'You will be redirected to login.');
       navigation.replace('Login'); // Navigate to the login screen
     } catch (error) {

@@ -13,7 +13,7 @@ const CustomTextInput = ({  value,
 
   const labelTop = labelAnimation.interpolate({
     inputRange: [0, 2],
-    outputRange: [6, -24], // Adjust these values as needed
+    outputRange: [6, -23], // Adjust these values as needed
   });
 
   const labelFontSize = labelAnimation.interpolate({
@@ -91,9 +91,9 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   input: {
-    height: 40,
+    // height: 45,
     fontSize: 16,
-    paddingVertical: 12,
+    // paddingVertical: 14,
     color: 'black',
   },
   redAsterisk: {

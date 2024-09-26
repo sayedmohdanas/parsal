@@ -10,14 +10,13 @@ import { setDriverId, setOrderData } from '../../redux/HitApis/HitApiSlice';
 import { io } from 'socket.io-client';
 import { generateNumericOTP, GetDriverCurrentLocation } from '../../common/CommonFunction';
 import { socketUrl } from '../../config/url';
-import MyCountDown from '../Timer/CountDownTimer';
 import BorderLine from '../../common/BorderLine.';
 import AppImages from '../../common/AppImages';
 import Loading from '../Loading/Loading';
 let socket;
-const NotificationModal = ({ isVisible, onAccept, driverId, onReject, title, body, pickup_address, drop_address, onClose, drop_lat, drop_long, pickup_lat, pickup_long, vehicle_id, cust_id, goods_type_id, expected_price,expected_distance,expected_time }) => {
+const NotificationModal = ({ setModalVisible, isVisible, onAccept, driverId, onReject, title, body, pickup_address, drop_address, onClose, drop_lat, drop_long, pickup_lat, pickup_long, vehicle_id, cust_id, goods_type_id, expected_price, expected_distance, expected_time }) => {
   const navigation = useNavigation()
-  const [loading,setLoading]=useState(false)
+  const [loading, setLoading] = useState(false)
   // const orderData = useSelector(state => state?.parsalPartner?.orderData || {});
   // const update_order = useSelector(state => state?.parsalPartner?.update_order || null);
   const dispatch = useDispatch()
@@ -25,19 +24,20 @@ const NotificationModal = ({ isVisible, onAccept, driverId, onReject, title, bod
   const goods_quantity = 1
   const pay_mode = 'cash'
   const payment_status = 'pending'
-//  console.log(orderData,'order-data-from-notification')
+  //  console.log(orderData,'order-data-from-notification')
   useEffect(() => {
 
     socket = io(socketUrl); // Replace with your server URL
-
-
-    socket.emit('registerUser', { userId:driverId, role:'driver' });
+    socket.emit('registerUser', { userId: driverId, role: 'driver' });
     // On successful connection
     socket.on('connect', () => {
       console.log('Connected to socket server');
     });
 
-
+    socket.on('order_accepted', (data) => {
+      console.log('Order accepted status received:');
+      setModalVisible(false)
+    });
     // Clean up when the component is unmounted
     return () => {
       if (socket) {
@@ -45,10 +45,10 @@ const NotificationModal = ({ isVisible, onAccept, driverId, onReject, title, bod
         console.log('Socket disconnected');
       }
     };
-  }, []);
+  }, [isVisible]);
 
   // const handleAccept = async () => {
-    
+
   //   const { latitude, longitude } = await GetDriverCurrentLocation();
 
   //   // Create payload
@@ -77,7 +77,7 @@ const NotificationModal = ({ isVisible, onAccept, driverId, onReject, title, bod
   //     // Pass the payload into the API call
   //     setLoading(true)
   //     const res = await hitlPaceOrder(payload); // Your API call function
-       
+
   //     if (res) {
   //       // Assuming `onAccept` is a callback for successful orders
   //       onAccept(res);
@@ -132,9 +132,9 @@ const NotificationModal = ({ isVisible, onAccept, driverId, onReject, title, bod
     try {
       // Show loading
       setLoading(true);
-  
+
       const { latitude, longitude } = await GetDriverCurrentLocation();
-  
+
       // Create payload
       const payload = {
         pickup_address,
@@ -154,26 +154,26 @@ const NotificationModal = ({ isVisible, onAccept, driverId, onReject, title, bod
         pay_mode,
         payment_status,
       };
-  
+
       // Pass the payload into the API call
       const res = await hitlPaceOrder(payload); // Your API call function
-  
+
       if (res) {
         // Assuming `onAccept` is a callback for successful orders
         onAccept(res);
-  
+
         // Emit the socket event after a successful API call
         if (socket && socket.connected) {
           const resWithOTP = {
             ...res,
             otp: generateNumericOTP(4),
           };
-  
+
           // Emit 'driver_accept' event and send the data
           socket.emit('driver_accept', resWithOTP, (acknowledgment) => {
             console.log('Data sent, acknowledgment:', acknowledgment);
           });
-  
+
           dispatch(setOrderData(resWithOTP));
           navigation.navigate("DriverMap", {
             picklat: payload.pickup_lat,
@@ -196,77 +196,77 @@ const NotificationModal = ({ isVisible, onAccept, driverId, onReject, title, bod
       setLoading(false);
     }
   };
-  
+
   return (
     <>
-    <Modal
-      transparent={true}
-      visible={isVisible}
-      animationType="slide"
-      onRequestClose={onClose}
-    >
-      <View style={styles.modalBackground}>
-        <View style={styles.modalContainer}>
-          <View style={styles.headerContainer}>
-            <Image
-              source={AppImages.SplashScreenLogo}
-              style={styles.parcalLogo}
-              resizeMode='contain'
-            />
-            <TouchableOpacity onPress={onReject} style={{ backgroundColor: Colors.grey, paddingHorizontal: 4, borderRadius: 5, elevation: 0.3, }}>
-              <Text style={styles.closeText}>X</Text>
-            </TouchableOpacity>
-          </View>
+      <Modal
+        transparent={true}
+        visible={isVisible}
+        animationType="slide"
+        onRequestClose={onClose}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <View style={styles.headerContainer}>
+              <Image
+                source={AppImages.SplashScreenLogo}
+                style={styles.parcalLogo}
+                resizeMode='contain'
+              />
+              <TouchableOpacity onPress={onReject} style={{ backgroundColor: Colors.grey, paddingHorizontal: 4, borderRadius: 5, elevation: 0.3, }}>
+                <Text style={styles.closeText}>X</Text>
+              </TouchableOpacity>
+            </View>
 
-          <Text style={styles.priceText}>₹{expected_price}</Text>
+            <Text style={styles.priceText}>₹{expected_price}</Text>
 
-          <View style={styles.ratingContainer}>
-            <Image source={AppImages.starImage} style={styles.starImg} />
-            <Text style={styles.ratingText}>4.9</Text>
-            <Text style={styles.payText}>{pay_mode}</Text>
-
-          </View>
-
-          <View style={styles.bodyContainer}>
-            <View style={{marginLeft:16, flexDirection:'row'}}>
-            {/* <Text style={styles.bodyText}> 2 min, 2.8 km distance</Text> */}
-            <Text style={styles.bodyText}> {`${expected_time},`}</Text>
-            <Text style={styles.kmText}> {`${expected_distance} km `}</Text>
-
+            <View style={styles.ratingContainer}>
+              <Image source={AppImages.starImage} style={styles.starImg} />
+              <Text style={styles.ratingText}>4.9</Text>
+              <Text style={styles.payText}>{pay_mode}</Text>
 
             </View>
 
+            <View style={styles.bodyContainer}>
+              <View style={{ marginLeft: 16, flexDirection: 'row' }}>
+                {/* <Text style={styles.bodyText}> 2 min, 2.8 km distance</Text> */}
+                <Text style={styles.bodyText}> {`${expected_time},`}</Text>
+                <Text style={styles.kmText}> {`${expected_distance} km `}</Text>
 
 
-            <View style={{
-              flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8
-            }}>
+              </View>
 
-              <View style={[styles.timelineContainer]}>
-                <View style={styles.greenCircle}></View>
-                <View style={styles.line}></View>
-                <View style={styles.redCircle}>
-                  <Image source={AppImages.location} style={styles.locImg} />
 
+
+              <View style={{
+                flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8
+              }}>
+
+                <View style={[styles.timelineContainer]}>
+                  <View style={styles.greenCircle}></View>
+                  <View style={styles.line}></View>
+                  <View style={styles.redCircle}>
+                    <Image source={AppImages.location} style={styles.locImg} />
+
+                  </View>
+                </View>
+                <View style={{}}>
+                  <Text style={[styles.addressText, { marginVertical: 0 }]}>{pickup_address}</Text>
+
+                  <Text style={styles.addressText}>{drop_address}</Text>
                 </View>
               </View>
-              <View style={{}}>
-                <Text style={[styles.addressText,{marginVertical:0}]}>{pickup_address}</Text>
-
-                <Text style={styles.addressText}>{drop_address}</Text>
-              </View>
             </View>
-          </View>
-          {/* <View style={styles.lineContainer}>
+            {/* <View style={styles.lineContainer}>
           </View> */}
 
-          <TouchableOpacity style={styles.roundButton} onPress={handleAccept}>
-            <Text style={styles.buttonText}>Accept</Text>
-          </TouchableOpacity>
+            <TouchableOpacity style={styles.roundButton} onPress={handleAccept}>
+              <Text style={styles.buttonText}>Accept</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </Modal>
-    <Loading loading={loading}/>
+      </Modal>
+      <Loading loading={loading} />
     </>
 
   );
@@ -330,10 +330,10 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: 'black'
   },
-  payText:{
-    fontSize: 12 ,
+  payText: {
+    fontSize: 12,
     color: 'black',
-    fontWeight:'500'
+    fontWeight: '500'
   },
   bodyContainer: {
     // alignItems: 'center',
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
 
   },
   kmText: {
-    fontWeight:'500',
+    fontWeight: '500',
     color: 'black',
 
   },
@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
     // paddingVertical:20,
     fontWeight: '500',
     // marginBottom: 10,
-    marginVertical:14,
+    marginVertical: 14,
     color: 'black',
 
 
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     // backgroundColor:'yellow',
-    marginTop:5
+    marginTop: 5
 
     // justifyContent:'flex-start',
   },

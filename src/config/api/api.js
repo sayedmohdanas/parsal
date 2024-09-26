@@ -22,11 +22,6 @@ export const hitAddVehicle = param => {
 };
 
 export const hitMyVehicle = param => {
-    console.log('====================================');
-    console.log(MyVehicle);
-    console.log(param);
-
-    console.log('====================================');
     return apiPost(MyVehicle, param);
 };
 

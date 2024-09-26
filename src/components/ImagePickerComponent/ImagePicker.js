@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
     marginBottom: 4,
-    fontWeight: '600'
+    fontWeight: '500'
   },
   redAsterisk: {
     color: 'red',

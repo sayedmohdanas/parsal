@@ -9,9 +9,9 @@ import {
   View,
   Alert,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import AppImages from '../../common/AppImages';
-import {responsiveHeight, responsiveWidth} from '../../common/metrices';
+import { responsiveHeight, responsiveWidth } from '../../common/metrices';
 import Colors from '../../common/Colors';
 import CustomButton from '../../components/CustomButton/CustomButton';
 import {
@@ -19,14 +19,14 @@ import {
   generateRandomPhoneNumber,
   successToast,
 } from '../../common/CommonFunction';
-import {useDispatch, useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Loading from '../../components/Loading/Loading';
-import {hitPartnerVerifyOtp} from '../../config/api/api';
+import { hitPartnerVerifyOtp } from '../../config/api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {getVehicle, setParentId} from '../../redux/HitApis/HitApiSlice';
+import { getVehicle, setParentId } from '../../redux/HitApis/HitApiSlice';
 
-const OtpScreen = ({navigation, route}) => {
-  const {number} = route?.params;
+const OtpScreen = ({ navigation, route }) => {
+  const { number } = route?.params;
   const dispatch = useDispatch();
   const userOtp = useSelector(state => state?.parsalPartner?.user?.otp);
   const loading = useSelector(state => state?.parsalPartner?.loading);
@@ -34,11 +34,12 @@ const OtpScreen = ({navigation, route}) => {
 
   // useEffect(() => {
   //   const pId = async () => {
-  //     const parent_id = await AsyncStorage.getItem('partner_id');
-  //     dispatch(setParentId(parent_id));
+  //   if(userOtp){
+  //     successToast(`${userOtp}`,`${userOtp} is the otp for mobile verification`)
+  //   }
   //   };
   //   pId();
-  // }, [dispatch]);
+  // }, []);
 
   const handleOtp = async () => {
 
@@ -60,7 +61,8 @@ const OtpScreen = ({navigation, route}) => {
       const response = await hitPartnerVerifyOtp(request);
 
       const partnerId = response?.partnerId;
-console.log('response',response);
+      console.log('response', response);
+      console.log('response-partner-name', response?.partner?.partner_name);
       if (response.status === 2) {
         if (
           response?.partner?.email != null ||
@@ -68,6 +70,7 @@ console.log('response',response);
           ''
         ) {
           await AsyncStorage.setItem('partner_id', String(partnerId));
+          await AsyncStorage.setItem('partner_name', String( response?.partner?.partner_name));
           dispatch(setParentId(partnerId));
 
           navigation.replace('MyVehicles', {
@@ -103,6 +106,7 @@ console.log('response',response);
     }
   };
 
+
   return (
     <>
       <View
@@ -133,19 +137,19 @@ console.log('response',response);
             {/* <View style={[mystyles.center]}>
         <Image source={AppImages.EnterNumberScreenImg} style={styles.mainImg} resizeMode='contain' />
             </View> */}
-            <View style={[{flexDirection: 'row'}, styles.numberStyleContainer]}>
-              <View style={[{flexDirection: 'row'}, styles.numberContainer]}>
+            <View style={[{ flexDirection: 'row' }, styles.numberStyleContainer]}>
+              <View style={[{ flexDirection: 'row' }, styles.numberContainer]}>
                 <Text style={styles.number}>{number}</Text>
               </View>
               <TouchableOpacity
                 onPress={() => {
                   // dispatch(setStatusPending());
                   // navigation.replace('Login');
-                  navigation.navigate('Login', {number: number});
+                  navigation.navigate('Login', { number: number });
                 }}>
                 <View
                   style={[
-                    {justifyContent: 'center', alignItems: 'center'},
+                    { justifyContent: 'center', alignItems: 'center' },
                     styles.buttonContainer,
                   ]}>
                   <Text style={[styles.buttonText]}>{`Change`}</Text>
@@ -153,8 +157,8 @@ console.log('response',response);
               </TouchableOpacity>
             </View>
           </View>
-          <View style={{justifyContent: 'center', alignItems: 'center'}}>
-            <View style={{alignSelf: 'flex-start'}}>
+          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ alignSelf: 'flex-start' }}>
               <Text style={styles.inputLabel}>ENTER OTP</Text>
             </View>
             <View style={[styles.numberInputContainer]}>
