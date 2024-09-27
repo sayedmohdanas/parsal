@@ -7,29 +7,37 @@ import {
   Image,
   StyleSheet,
   TouchableWithoutFeedback,
+  Alert,
 } from 'react-native';
 import Colors from '../../common/Colors';
 import { useNavigation } from '@react-navigation/native';
 import { formatVehicleNumber } from '../../common/CommonFunction';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch } from 'react-redux';
-import { setDriverId } from '../../redux/HitApis/HitApiSlice';
+import { getDriverDetails, setDriverId } from '../../redux/HitApis/HitApiSlice';
 
 const VehicleCard = ({ vehicle, onPress }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch()
 
   const hasDriver = vehicle?.driver?.driver_name;
-
-
-  return (
-    <TouchableOpacity onPress={() => {
-// console.log(vehicle);
+     const handleDriverDetails= async()=>{
 
       AsyncStorage.setItem("driver_data", JSON.stringify(vehicle))
+      console.log(vehicle?.driver_id);
+      const resultAction = await dispatch(getDriverDetails({ids:[vehicle?.driver_id]}));
+     console.log(resultAction,'ressssssss');
+     
+      // const response = getDriverDetails(vehicle?.driver?.driver_id)
+      // console.log(response)
       navigation.navigate('Dashboards')
+      // console.log('anas======>',vehicle);
+      
       dispatch(setDriverId(vehicle))
-    }}>
+     }
+
+  return (
+    <TouchableOpacity onPress={handleDriverDetails}>
       {/* <TouchableWithoutFeedback 
   onPress={() => {
     console.log('Navigating with vehicle:', vehicle);  // Log vehicle before navigating

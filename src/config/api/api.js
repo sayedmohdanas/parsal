@@ -1,4 +1,4 @@
-import { addDriverDetails, addVehicle, cancelOrderurl, createPartner, MyVehicle, partnerLogin, partnerOtpVerify, placeOrder, updateOrder, updateWorkStatusurl } from "../url";
+import { addDriverDetails, addVehicle, cancelOrderurl, createPartner, getDriverDetails, MyVehicle, partnerLogin, partnerOtpVerify, placeOrder, updateOrder, updateWorkStatusurl } from "../url";
 import { apiGet, apiPost } from "../utils";
 
 
@@ -29,6 +29,11 @@ export const hitAddDriverDetails = param => {
 
     return apiPost(addDriverDetails, param);
 };
+export const hitGetDriverDetails = param => {
+
+    return apiPost(getDriverDetails, param);
+};
+
 
 export const hitUpdateDriverStatus = param => {
     return apiPost(updateWorkStatusurl, param);

@@ -62,12 +62,15 @@ const StackNavigator = () => {
   useEffect(() => {
     const checkPartnerName = async () => {
       try {
+        // await AsyncStorage.removeItem('partner_id')
         const partnerName = await AsyncStorage.getItem('partner_name');
+        const partnerId=  await AsyncStorage.getItem('partner_id');
+
         console.log('====================================');
-        console.log(partnerName);
+        console.log(partnerName,partnerId);
         console.log('====================================');
 
-        if (partnerName === '-' || partnerName === null || !partnerName) {
+        if (partnerName === '-' || partnerName === null || !partnerName||!partnerId) {
           setInitialRoute('Login');
         } else {
           setInitialRoute('MyVehicles');

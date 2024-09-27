@@ -9,6 +9,7 @@ import { GetDriverCurrentLocation, GetDriverCurrentLocation2, requestLocationPer
 import { hitUpdateDriverStatus } from '../../config/api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ProfileSection from '../DriverMapScreen/ProfileSecrion';
+import { useSelector } from 'react-redux';
 const DashboardScreen = ({ route }) => {
 
 

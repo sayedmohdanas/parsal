@@ -1,7 +1,7 @@
 import React, {useEffect, useCallback, useState} from 'react';
 import {View, Text, TouchableOpacity, Alert, StyleSheet} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {getVehicle, setMyVehicleData} from '../../redux/HitApis/HitApiSlice'; // Ensure this is the correct path
+import {getVehicle, setMyVehicleData, setParentId} from '../../redux/HitApis/HitApiSlice'; // Ensure this is the correct path
 import Loading from '../../components/Loading/Loading';
 import VehicleList from './VehicleList';
 import {successToast} from '../../common/CommonFunction';
@@ -13,17 +13,18 @@ const MyVehiclesScreen = ({navigation}) => {
   const vehicleData = useSelector(
     state => state?.parsalPartner?.MyVehicle || [],
   );
-  // const [partnerId,setParentId]=useState(null)
-  // const [partnerId,setPartnerId]=useState(null)
+ 
   const loading = useSelector(state => state?.parsalPartner?.loading || false);
   const vehicleCount = vehicleData?.length;
-  // const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
+  const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
   const refreshData = async () => {
 try {
   const partnerIds=  await AsyncStorage.getItem('partner_id');
+    await dispatch(setParentId(partnerId));
+
     const partnerId =JSON.parse(partnerIds)
     const res = await hitMyVehicle({partnerId: partnerId});
-    dispatch(setMyVehicleData(res));
+        dispatch(setMyVehicleData(res));
 } catch (error) {
   console.log(error)
 }

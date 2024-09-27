@@ -4,7 +4,9 @@ import { responsiveFontSize } from './metrices';
 import { useDispatch } from 'react-redux';
 import { PermissionsAndroid, Platform } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
-
+import { API_BASE_URL } from '../config/url';
+import AppImages from './AppImages';
+export const IMAGE_FOLDER = 'partners_img/';
 // export function setItem(key, data) {
 //     data = JSON.stringify(data);
 //     // return AsyncStorage.setItem(key, data);
@@ -17,6 +19,20 @@ import Geolocation from 'react-native-geolocation-service';
 //         });
 //     });
 // }
+
+ export const getImageUrl = (partner_id, driver_id, profile_pic) => {  
+    console.log('====================================');
+    console.log(partner_id);
+    console.log(driver_id);
+    console.log(profile_pic);
+    console.log('====================================');
+    if (!partner_id || !driver_id || !profile_pic) {
+      return AppImages.profileImage; 
+    }
+    return `${API_BASE_URL}media/${IMAGE_FOLDER}${partner_id}/drivers/${driver_id}_${profile_pic}`;
+  };
+
+
 export const successToast = (text1, text2 = '', visibilityTime = 4000) => {
     Toast.show({
         type: 'success',

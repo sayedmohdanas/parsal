@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { hitAddDriverDetails, hitAddVehicle, hitCreatePartner, hitMyVehicle, hitPartnerLogin, hitPartnerVerifyOtp } from '../../config/api/api';
+import { hitAddDriverDetails, hitAddVehicle, hitCreatePartner, hitGetDriverDetails, hitMyVehicle, hitPartnerLogin, hitPartnerVerifyOtp } from '../../config/api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
 import { errorToast } from '../../common/CommonFunction';
@@ -32,10 +32,6 @@ export const verifyPartnerOtp = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await hitPartnerVerifyOtp(credentials);
-      console.log(response, 'response--------');
-
-      // const parent_id = await AsyncStorage.getItem('partner_id')
-
       return response;
     } catch (error) {
       return rejectWithValue(error);
@@ -44,19 +40,12 @@ export const verifyPartnerOtp = createAsyncThunk(
 );
 
 
-
-
-
 // Thunk for creating a partner and saving partner_id
 export const createPartner = createAsyncThunk(
   'parsalPartner/createPartner',
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await hitCreatePartner(credentials);
-
-
-      // const parent_id = await AsyncStorage.getItem('partner_id')
-
       return response;
     } catch (error) {
       console.log(error);
@@ -124,6 +113,18 @@ export const addDriverDetails = createAsyncThunk(
   }
 );
 
+export const getDriverDetails = createAsyncThunk(
+  'parsalPartner/getDriverDetails',
+  async (credentials, { rejectWithValue }) => {
+    try {
+      const response = await hitGetDriverDetails(credentials);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 const initialState = {
   user: null,
   partner: null,
@@ -131,6 +132,7 @@ const initialState = {
   vehicle: [],
   MyVehicle: [],
   driver: [],
+  driverData:null,
   status: 'idle',
   error: null,
   loading: false,
@@ -144,6 +146,9 @@ const HitApiSlice = createSlice({
   initialState,
   reducers: {
     setParentId(state, action) {
+      console.log('====================================');
+      console.log();
+      console.log('====================================');
       state.partnerId = action.payload; 
     },
     setupdate_order(state, action) {
@@ -261,6 +266,25 @@ const HitApiSlice = createSlice({
         state.driver = action.payload;
       })
       .addCase(addDriverDetails.rejected, (state, action) => {
+        state.status = 'failed';
+        state.loading = false;
+        state.error = action.payload || 'Failed to add driver details';
+      })
+
+
+      //  addDriverDetails cases
+       .addCase(getDriverDetails.pending, (state) => {
+        state.status = 'pending';
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getDriverDetails.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.loading = false;
+  
+        state.driverData = action.payload.drivers;
+      })
+      .addCase(getDriverDetails.rejected, (state, action) => {
         state.status = 'failed';
         state.loading = false;
         state.error = action.payload || 'Failed to add driver details';

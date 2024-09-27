@@ -31,9 +31,7 @@ const LoginScreen = ({ navigation, route }) => {
   // useEffect(() => {
   //   const pId = async () => {
   //     await AsyncStorage.removeItem('partner_id');
-  //   console.log('====================================');
-  //   console.log('jooi');
-  //   console.log('====================================');
+ 
 
   //   }
   //   pId()

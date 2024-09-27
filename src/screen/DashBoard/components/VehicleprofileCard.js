@@ -5,12 +5,13 @@ import { useNavigation } from '@react-navigation/native';
 import AppImages from '../../../common/AppImages';
 import PartnerAddressCard from '../screen/Profile/PartnerAddressCard';
 import ProfileWithStatus from './ProfileWithStatus';
+import { useSelector } from 'react-redux';
+import { getImageUrl } from '../../../common/CommonFunction';
 
 const VehicleProfileCard = ({ screen = false,isOnline,vehicle_data }) => {
-  console.log(vehicle_data);
-  
+  const driverProfile = useSelector(state => state?.parsalPartner?.driverData);
+  const partenrId = useSelector(state=>state?.parsalPartner?.partnerId)
   const navigation = useNavigation();
-
   const formatVehicleNumber = (number) => {
     return number
       .toUpperCase()
@@ -21,7 +22,13 @@ const VehicleProfileCard = ({ screen = false,isOnline,vehicle_data }) => {
     vehicle_number: 'UP32HK3432',
     driver: { driver_name: 'John Doe', phone: '1234567890' },
   };
+  const profileImageUrl = driverProfile && driverProfile?.length > 0
 
+  // ? getImageUrl(driverProfile[0].partner_id, driverProfile[0].id, driverProfile[0].profile_pic)
+  ? getImageUrl(driverProfile[0]?.partner_id, driverProfile[0
+    
+  ]?.id, driverProfile[0]?.profile_pic)
+  : AppImages.profileImage; 
   return (
     <View style={[
       styles.card,
@@ -30,10 +37,14 @@ const VehicleProfileCard = ({ screen = false,isOnline,vehicle_data }) => {
     {/* <View style={[isOnline?borderBottomColor:,styles.card]}> */}
       <View style={[styles.topSection, screen ? { justifyContent: '' } : {}]}>
         {/* <Image source={AppImages.profileImage} style={styles.profileImage} />+ */}
-         <ProfileWithStatus isOnline={isOnline}/>
+        <ProfileWithStatus 
+          isOnline={isOnline} 
+          profileImage={profileImageUrl}
+        />
         <View style={styles.leftSection}>
-          <Text style={styles.name}>{vehicle_data?.driver?.driver_name}</Text>
-
+        <Text style={styles.name}>
+  {driverProfile && driverProfile.length > 0 ? `${driverProfile[0].driver_name}` : 'No Driver Data'}
+</Text>
           <View style={styles.contactContainer}>
             <Text style={styles.VType}>2 Wheeler </Text>
             <Text style={styles.VType}>
