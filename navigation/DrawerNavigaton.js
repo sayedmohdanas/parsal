@@ -32,6 +32,7 @@ import PrivacyPolicyScreen from '../src/screen/DashBoard/screen/PrivacyPolicy/Pr
 import Menu from '../src/screen/DashBoard/components/Menu';
 import LedgerScreen from '../src/screen/DashBoard/screen/Ledger/LedgerScreen';
 import DriverMapScreen from '../src/screen/DriverMapScreen/DriverMap';
+import ProfileDetail from '../src/screen/DashBoard/screen/ProfileDetailScreen/ProfileDetailScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -48,6 +49,9 @@ const DrawerNavigator = () => (
     <Drawer.Screen name="Training" component={TrainingScreen} />
     <Drawer.Screen name="Notifications" component={NotificationsScreen} />
     <Drawer.Screen name="Profile" component={ProfileScreen} />
+    <Drawer.Screen name="ProfileDetail" component={ProfileDetail}options={{
+            headerTitle: 'Driver Name', 
+          }} />
     <Drawer.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
     <Drawer.Screen name="DriverMap" component={DriverMapScreen} />
 

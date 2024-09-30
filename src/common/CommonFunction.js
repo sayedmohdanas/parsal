@@ -19,8 +19,8 @@ export const IMAGE_FOLDER = 'partners_img/';
 //         });
 //     });
 // }
-
- export const getImageUrl = (partner_id, driver_id, profile_pic) => {  
+export const getImageUrl = (partner_id, driver_id, profile_pic) => {  
+    console.log("img_url",`${API_BASE_URL}media/${IMAGE_FOLDER}${partner_id}/drivers/${driver_id}_${profile_pic}` )
     console.log('====================================');
     console.log(partner_id);
     console.log(driver_id);

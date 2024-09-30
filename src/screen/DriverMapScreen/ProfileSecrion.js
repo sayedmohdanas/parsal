@@ -63,10 +63,10 @@ const ProfileSection = () => {
     const handleOtpSubmit = async () => {
 
         try {
-            if (otp !== orderData?.otp || orderData?.Otp < 4) {
-                errorToast('Invalid Input', 'Incorrect Otp');
-                return;
-            }
+                if (otp !== orderData?.otp || orderData?.Otp < 4) {
+                    errorToast('Invalid Input', 'Incorrect Otp');
+                    return;
+                }
             const payload = {
                 is_arrive_pickup: 1,
                 order_id: orderData?.newOrder?.id

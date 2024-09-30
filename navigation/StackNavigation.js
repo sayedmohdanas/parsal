@@ -52,6 +52,7 @@ import DrawerNavigator from './DrawerNavigaton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 import { ActivityIndicator, View } from 'react-native';
+import UpdateBankDetailsScreen from '../src/screen/UpdateBankDetails/UpdateBankDetailsScreen';
 
 const Stack = createStackNavigator();
 
@@ -63,6 +64,7 @@ const StackNavigator = () => {
     const checkPartnerName = async () => {
       try {
         // await AsyncStorage.removeItem('partner_id')
+        // await AsyncStorage.removeItem('partner_name')
         const partnerName = await AsyncStorage.getItem('partner_name');
         const partnerId=  await AsyncStorage.getItem('partner_id');
 
@@ -87,7 +89,7 @@ const StackNavigator = () => {
   }, []);
 
   // While loading, show a loading indicator
-  if (loading) {
+  if (loading) {http://192.168.29.244:5000/
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" />
@@ -102,6 +104,7 @@ const StackNavigator = () => {
         <Stack.Screen name="OwnerDetail" component={OwnerDetailScreen} />
         <Stack.Screen name="DriverDetail" component={DriverDetailScreen} />
         <Stack.Screen name="VehicleDetail" component={VehicleDetailScreen} />
+        <Stack.Screen name="UpdateBankDetails" component={UpdateBankDetailsScreen} />
         <Stack.Screen
           name="MyVehicles"
           component={MyVehiclesScreen}

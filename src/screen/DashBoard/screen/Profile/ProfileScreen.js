@@ -7,13 +7,17 @@ import AppImages from '../../../../common/AppImages';
 import { useNavigation } from '@react-navigation/native';
 import BankDetailCard from './ProfileBankDetail/BankDetail';
 import LanguagePreferenceCard from './LanguagePreference';
+import { useSelector } from 'react-redux';
 
 const ProfileScreen = () => {
   const navigation = useNavigation()
+  const driverProfile = useSelector(state => state?.parsalPartner?.driverData);
+
   return (
     <View style={styles.container}>
       <VehicleProfileCard screen={""} />
       <PartnerAddressCard
+      driverProfile={driverProfile}
         address="123 Main St, Apt 4B, Springfield"
         mobileNumber="+1234567890"
         additionalData="Additional information or notes here."

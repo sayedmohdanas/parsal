@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Colors from '../../../../common/Colors';
 
-const PartnerAddressCard = ({ address, mobileNumber, additionalData }) => {
+const PartnerAddressCard = ({ address, mobileNumber, additionalData,driverProfile }) => {
     return (
         <View style={styles.card}>
             <View style={styles.section}>
@@ -11,7 +11,7 @@ const PartnerAddressCard = ({ address, mobileNumber, additionalData }) => {
             </View>
             <View style={styles.section}>
                 <Text style={styles.label}>Mobile Number:</Text>
-                <Text style={styles.data}>{mobileNumber}</Text>
+                <Text style={styles.data}>{driverProfile[0]?.phone}</Text>
             </View>
         </View>
     );

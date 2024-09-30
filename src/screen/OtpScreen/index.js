@@ -65,10 +65,12 @@ const OtpScreen = ({ navigation, route }) => {
       console.log('response-partner-name', response?.partner?.partner_name);
       if (response.status === 2) {
         if (
-          response?.partner?.email != null ||
-          ('' && response?.partner?.phone != null) ||
-          ''
-        ) {
+          response?.partner?.email !== null &&
+          response?.partner?.phone !== null &&
+          response?.partner?.partner_name !== '-' &&
+          response?.partner?.email !== '-' &&
+          response?.partner?.phone !== '-'
+      ) {
           await AsyncStorage.setItem('partner_id', String(partnerId));
           await AsyncStorage.setItem('partner_name', String( response?.partner?.partner_name));
           dispatch(setParentId(partnerId));
