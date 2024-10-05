@@ -13,6 +13,7 @@ import { requestLocationPermission } from './src/common/CommonFunction';
 // import Sound from 'react-native-sound'
 import SoundPlayer from 'react-native-sound-player';
 
+
 const TOPIC = 'MyNews';
 
 export default function App() {
@@ -37,7 +38,7 @@ export default function App() {
     cust_name:'',
     goods_type_id:''
   });
-  const [timer, setTimer] = useState(30); // Timer state
+  const [timer, setTimer] = useState(15); // Timer state
   // Initialize Firebase with Realtime Database URL
   if (!firebase.apps.length) {
     firebase.initializeApp({
@@ -76,7 +77,7 @@ export default function App() {
     // Update the notification data state
     setNotificationData({ goods_type_id,title, body, drop_lat, drop_long, pickup_lat, pickup_long, vehicle_type, cust_id, driverId, pickup_address, drop_address, expected_price, expected_distance, expected_time ,cust_name,cust_mobile,vehicle_id});
     setModalVisible(true);
-    setTimer(30);
+    setTimer(15);
   };
 
   const handleAccept = (res) => {
@@ -142,6 +143,25 @@ export default function App() {
   useEffect(() => {
     requestLocationPermission()
   }, [])
+
+  useEffect(() => {
+    let interval;
+
+    if (isModalVisible && timer > 0) {
+      // Start countdown
+      interval = setInterval(() => {
+        setTimer(prevTimer => prevTimer - 1);
+      }, 1000); // Decrease the timer every second
+    }
+
+    if (timer === 0) {
+      setModalVisible(false); // Close the modal when timer reaches 0
+    }
+
+    return () => {
+      clearInterval(interval); // Clear interval when modal is closed or component unmounts
+    };
+  }, [isModalVisible, timer]);
 
   return (
     <Provider store={store}>
