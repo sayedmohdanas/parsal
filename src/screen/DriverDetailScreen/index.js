@@ -1,36 +1,58 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, Alert, ScrollView} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Alert, ScrollView } from 'react-native';
 import CustomTextInput from '../../components/CustomTextInput/CustomTextInput';
 import ImagePicker from '../../components/ImagePickerComponent/ImagePicker';
 import SubmitCard from '../../components/SumbmitButton/SubmitButton';
 import CheckBox from 'react-native-check-box';
 import Heading from '../../components/Heading/Heading';
 import PageButtons from '../../components/TempBtn/TempBtn';
-import {useDispatch, useSelector} from 'react-redux';
-import {addDriverDetails} from '../../redux/HitApis/HitApiSlice';
-import {useNavigation} from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { addDriverDetails } from '../../redux/HitApis/HitApiSlice';
+import { useNavigation } from '@react-navigation/native';
 import Colors from '../../common/Colors';
-import {GetDriverCurrentLocation, successToast} from '../../common/CommonFunction';
+import { GetDriverCurrentLocation, successToast } from '../../common/CommonFunction';
 import { getMessaging } from '@react-native-firebase/messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getPartner } from '../../config/url';
+import { hitGetPartner } from '../../config/api/api';
 
-const DriverDetailScreen = ({route}) => {
+const DriverDetailScreen = ({ route }) => {
+  const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
+//  console.log('partnerId===>',partnerId);
+ 
+
+  
   const dispatch = useDispatch();
   const [name, setName] = useState('');
-  const {v_id, onUpdate} = route.params;
-  const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
+  const { v_id, onUpdate } = route.params;
+  // const partneData = useSelector(state => state?.parsalPartner?.PartnerDetails?.partner);
   const registerSuccess = useSelector(state => state?.parsalPartner?.statuss);
   const navigation = useNavigation();
   const [driverNumber, setDriverNumber] = useState('');
   const [driverProfilePic, setDriverProfilePic] = useState('');
   const [licenseUploaded, setLicenseUploaded] = useState('');
   const [isChecked, setIsChecked] = useState(false);
+  const [partneData,setPartnerData]=useState([])
+console.log('partnerdata===>',partneData);
 
-  console.log('registerUser status ==> ', registerSuccess)
+useEffect(() => {
+  const fetchPartnerDetails = async () => {
+    try {
+      const response = await hitGetPartner({ partner_id: partnerId });
+      setPartnerData(response?.partner)
+      console.log('anas==>res==>', response);
+    } catch (error) {
+      console.error('Error fetching partner details:', error);
+    }
+  };
+
+  fetchPartnerDetails();
+}, [navigation]);
+
+
 
   const handleSubmit = async () => {
-    await AsyncStorage.getItem('pa')
-    const partnerId=  await AsyncStorage.getItem('partner_id');
+    const partnerId = await AsyncStorage.getItem('partner_id');
     const { latitude, longitude } = await GetDriverCurrentLocation();
     const payload = {
       partner_id: partnerId,
@@ -58,8 +80,8 @@ const DriverDetailScreen = ({route}) => {
     console.log('payload', payload)
 
     try {
-      console.log(payload.fcm_id,'payload');
-      
+      console.log(payload.fcm_id, 'payload');
+
       const resultAction = await dispatch(addDriverDetails(payload));
       if (addDriverDetails.fulfilled.match(resultAction)) {
         successToast(`Driver ${name} successfully added.`);
@@ -68,7 +90,7 @@ const DriverDetailScreen = ({route}) => {
         Alert.alert(
           'Error',
           resultAction.payload?.message ||
-            'An error occurred while submitting.',
+          'An error occurred while submitting.',
         );
       }
     } catch (error) {
@@ -77,7 +99,7 @@ const DriverDetailScreen = ({route}) => {
     }
   };
 
-  const isEnabled = name && driverNumber && licenseUploaded 
+  const isEnabled = name && driverNumber && licenseUploaded
 
   return (
     <View style={styles.container}>
@@ -86,11 +108,21 @@ const DriverDetailScreen = ({route}) => {
           <Heading text="Driver Details" isRequired={true} />
           <View style={styles.card}>
             <CheckBox
-              style={{padding: 10}}
-              onClick={() => setIsChecked(!isChecked)}
+              style={{ padding: 10 }}
+              onClick={() => {
+                setIsChecked(!isChecked);
+                if (!isChecked) {
+                  setName(partneData?.partner_name);
+                  setDriverNumber(partneData?.phone);
+                } else {
+                  setName('');
+                  setDriverNumber('');
+                }
+              }}
               isChecked={isChecked}
-              checkBoxColor={Colors.brandBlue} // Set the checkbox color to blue
+              checkBoxColor={Colors.brandBlue}
             />
+
             <Text style={styles.confirmationText}>
               I will be driving this vehicle
             </Text>

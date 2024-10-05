@@ -20,21 +20,47 @@ const VehicleCard = ({ vehicle, onPress }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch()
 
-  const hasDriver = vehicle?.driver?.driver_name;
-     const handleDriverDetails= async()=>{
+  // const hasDriver = vehicle?.driver?.driver_name;
+    //  const handleDriverDetails= async()=>{
 
-      AsyncStorage.setItem("driver_data", JSON.stringify(vehicle))
-      console.log(vehicle?.driver_id);
-      const resultAction = await dispatch(getDriverDetails({ids:[vehicle?.driver_id]}));
-     console.log(resultAction,'ressssssss');
+    //   AsyncStorage.setItem("driver_data", JSON.stringify(vehicle))
+    //   console.log(vehicle?.driver_id);
+    //   const resultAction = await dispatch(getDriverDetails({ids:[vehicle?.driver_id]}));
+    //  console.log(resultAction,'ressssssss');
      
-      // const response = getDriverDetails(vehicle?.driver?.driver_id)
-      // console.log(response)
-      navigation.navigate('Dashboards')
-      // console.log('anas======>',vehicle);
+    //   // const response = getDriverDetails(vehicle?.driver?.driver_id)
+    //   // console.log(response)
+    //   navigation.navigate('Dashboards')
+    //   // console.log('anas======>',vehicle);
       
-      dispatch(setDriverId(vehicle))
-     }
+    //   dispatch(setDriverId(vehicle))
+    //  }
+
+    const hasDriver = !!vehicle?.driver?.driver_name; // Check if driver_name exists and convert to a boolean
+
+    const handleDriverDetails = async () => {
+      // Store driver data in AsyncStorage
+      await AsyncStorage.setItem("driver_data", JSON.stringify(vehicle));
+      
+      // If vehicle has a driver, get driver details
+      if (hasDriver) {
+        console.log('anssssssssaaaaa======>>>>>>',vehicle?.driver_id);
+    
+        // Dispatch the action to fetch driver details
+        const resultAction = await dispatch(getDriverDetails({ ids: [vehicle?.driver_id] }));
+        console.log(resultAction, 'Driver details fetched');
+    
+        // Navigate to the Dashboard
+        navigation.navigate('Dashboards');
+      } else {
+        // If no driver, navigate to DriverDetail screen
+        onPress(vehicle?.id)
+        // navigation.navigate('DriverDetail', { vehicleId: vehicle?.id });
+      }
+    
+      // Optionally dispatch the driver ID to the store
+      dispatch(setDriverId(vehicle));
+    };
 
   return (
     <TouchableOpacity onPress={handleDriverDetails}>
@@ -53,8 +79,7 @@ const VehicleCard = ({ vehicle, onPress }) => {
         <View style={styles.topSection}>
           <View style={styles.leftSection}>
             <Text
-              style={styles.vehicleNumber}
-              onPress={() => onPress(vehicle?.id)}>
+              style={styles.vehicleNumber}>
               {formatVehicleNumber(vehicle?.vehicle_number) || 'N/A'}
             </Text>
             <View style={styles.contactContainer}>

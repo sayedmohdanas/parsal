@@ -9,7 +9,7 @@ import {
   View,
   Alert,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import AppImages from '../../common/AppImages';
 import { responsiveHeight, responsiveWidth } from '../../common/metrices';
 import Colors from '../../common/Colors';
@@ -24,6 +24,7 @@ import Loading from '../../components/Loading/Loading';
 import { hitPartnerVerifyOtp } from '../../config/api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getVehicle, setParentId } from '../../redux/HitApis/HitApiSlice';
+import OTPTextView from 'react-native-otp-textinput';
 
 const OtpScreen = ({ navigation, route }) => {
   const { number } = route?.params;
@@ -31,6 +32,13 @@ const OtpScreen = ({ navigation, route }) => {
   const userOtp = useSelector(state => state?.parsalPartner?.user?.otp);
   const loading = useSelector(state => state?.parsalPartner?.loading);
   const [otp, setOtp] = useState('');
+  let otpInput = useRef(null);
+
+
+
+
+
+
 
   // useEffect(() => {
   //   const pId = async () => {
@@ -40,7 +48,9 @@ const OtpScreen = ({ navigation, route }) => {
   //   };
   //   pId();
   // }, []);
-
+  const handleTextChange = (text) => {
+    setOtp(text);
+  };
   const handleOtp = async () => {
 
     try {
@@ -70,9 +80,9 @@ const OtpScreen = ({ navigation, route }) => {
           response?.partner?.partner_name !== '-' &&
           response?.partner?.email !== '-' &&
           response?.partner?.phone !== '-'
-      ) {
+        ) {
           await AsyncStorage.setItem('partner_id', String(partnerId));
-          await AsyncStorage.setItem('partner_name', String( response?.partner?.partner_name));
+          await AsyncStorage.setItem('partner_name', String(response?.partner?.partner_name));
           dispatch(setParentId(partnerId));
 
           navigation.replace('MyVehicles', {
@@ -120,7 +130,7 @@ const OtpScreen = ({ navigation, route }) => {
         <View>
           <View
             style={{
-              marginBottom: 80,
+              marginBottom: responsiveHeight(30),
               justifyContent: 'center',
               alignItems: 'center',
             }}>
@@ -161,30 +171,32 @@ const OtpScreen = ({ navigation, route }) => {
           </View>
           <View style={{ justifyContent: 'center', alignItems: 'center' }}>
             <View style={{ alignSelf: 'flex-start' }}>
-              <Text style={styles.inputLabel}>ENTER OTP</Text>
             </View>
             <View style={[styles.numberInputContainer]}>
               <View style={styles.inputContainer}>
-                <TextInput
-                  placeholder="ENTER OTP"
-                  style={styles.textInputstyle}
-                  value={otp}
-                  keyboardType='numeric'
-                  placeholderTextColor={Colors.black}
-                  onChangeText={e => {
-                    setOtp(e);
-                  }}
+
+                <OTPTextView
+                  ref={otpInput}
+                  handleTextChange={handleTextChange}
+                  inputCount={4}
+                  containerStyle={styles.otpContainer}
+                  textInputStyle={styles.otpInput}
+                  inputCellLength={1}
+                  tintColor={Colors.brandBlue}
+                  offTintColor={Colors.textInputBorderColor}
                 />
               </View>
             </View>
             <View
               style={{
+                marginTop: responsiveHeight(20),
                 marginBottom: 10,
                 justifyContent: 'center',
                 alignItems: 'center',
               }}>
               <CustomButton
                 buttonText={'VERIFY'}
+                disabled={otp.length < 4} // Ensure you're checking the length of the OTP strin
                 onPress={() => {
                   handleOtp();
                 }}
@@ -211,25 +223,21 @@ const styles = StyleSheet.create({
   },
   numberInputContainer: {
     flexDirection: 'row',
-    height: 55,
-    borderBottomWidth: 2,
-    marginHorizontal: 16,
+
+    paddingHorizontal: 15,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 10,
-    borderColor: Colors.textInputBorderColor,
+
     marginBottom: 20,
   },
   inputContainer: {
     flex: 1,
     marginLeft: 10,
-    //   borderLeftWidth: 1,
     height: 40,
     borderColor: Colors.textInputBorderColor,
   },
   textInputstyle: {
-    // marginLeft: 10,
     color: Colors.black,
   },
   numberStyleContainer: {
@@ -237,10 +245,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
     paddingHorizontal: 10,
-
     height: 40,
-    // backgroundColor: '#F6F1FF',
-    // borderRadius: 60,
+
   },
   numberContainer: {
     gap: 10,
@@ -288,5 +294,27 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '600',
     marginTop: 10,
+  },
+  otpContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginHorizontal: 20,
+  },
+  otpInput: {
+    borderWidth: 1,
+    borderRadius: 6,
+    borderColor: Colors.textInputBorderColor,
+    fontSize: 20,
+    color: Colors.brandBlue,
+    textAlign: 'center',
+    height: responsiveHeight(50),
+    width: responsiveWidth(50),
+    paddingVertical: 0,
+    paddingHorizontal: 0,
+    borderBottomWidth: 1
+  },
+  inputCell: {
+    borderBottomWidth: 1,
+    borderColor: Colors.textInputBorderColor,
   },
 });

@@ -63,8 +63,12 @@ const StackNavigator = () => {
   useEffect(() => {
     const checkPartnerName = async () => {
       try {
-        // await AsyncStorage.removeItem('partner_id')
-        // await AsyncStorage.removeItem('partner_name')
+        await AsyncStorage.removeItem('partner_id')
+        await AsyncStorage.removeItem('partner_name')
+        // await AsyncStorage.setItem('partner_name', JSON.stringify(24));
+        // await AsyncStorage.setItem('partner_name', 'Salman');
+
+
         const partnerName = await AsyncStorage.getItem('partner_name');
         const partnerId=  await AsyncStorage.getItem('partner_id');
 
@@ -74,6 +78,8 @@ const StackNavigator = () => {
 
         if (partnerName === '-' || partnerName === null || !partnerName||!partnerId) {
           setInitialRoute('Login');
+          // setInitialRoute('MyVehicles');
+
         } else {
           setInitialRoute('MyVehicles');
         }

@@ -33,6 +33,8 @@ import Menu from '../src/screen/DashBoard/components/Menu';
 import LedgerScreen from '../src/screen/DashBoard/screen/Ledger/LedgerScreen';
 import DriverMapScreen from '../src/screen/DriverMapScreen/DriverMap';
 import ProfileDetail from '../src/screen/DashBoard/screen/ProfileDetailScreen/ProfileDetailScreen';
+import SettingScreen from '../src/screen/DashBoard/screen/SettingScreen/SettingScreen';
+import LiveTripScreen from '../src/screen/DashBoard/screen/LiveTripScreen/LiveTrip';
 
 const Drawer = createDrawerNavigator();
 
@@ -41,7 +43,12 @@ const DrawerNavigator = () => (
     drawerContent={(props) => <Menu {...props} />} // Pass navigation props to your Menu
   >
     <Drawer.Screen name="Dashboard" component={DashboardScreen} />
-    <Drawer.Screen name="Earning" component={Earning} />
+    <Drawer.Screen name="Trip" component={LiveTripScreen} 
+       options={{headerShown: false}}
+    />
+    <Drawer.Screen name="Earning" component={Earning}
+     options={{headerShown: false}}
+    />
     <Drawer.Screen name="Ledger" component={LedgerScreen} />
 
     <Drawer.Screen name="Payments" component={PaymentsScreen} />
@@ -54,6 +61,10 @@ const DrawerNavigator = () => (
           }} />
     <Drawer.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
     <Drawer.Screen name="DriverMap" component={DriverMapScreen} />
+    <Drawer.Screen name="Setting" component={SettingScreen}
+       options={{headerShown: false}}
+    />
+
 
     {/* <Stack.Screen name="DriverMap" component={DriverMap} /> */}
 

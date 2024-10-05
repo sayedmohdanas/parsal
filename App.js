@@ -25,6 +25,7 @@ export default function App() {
     pickup_lat: '',
     pickup_long: '',
     vehicle_type: '',
+    vehicle_id: '',
     cust_id: '',
     driverId: '',
     drop_address: '',
@@ -32,6 +33,9 @@ export default function App() {
     expected_price: '',
     expected_distance: '',
     expected_time: '',
+    cust_mobile:'',
+    cust_name:'',
+    goods_type_id:''
   });
   const [timer, setTimer] = useState(30); // Timer state
   // Initialize Firebase with Realtime Database URL
@@ -60,13 +64,17 @@ export default function App() {
     // When handling the remote message
     const { notification } = remoteMessage;
     const { data } = remoteMessage;
+    console.log('remotemessage=========>>>>>',remoteMessage);
+    
     // Use optional chaining to avoid errors
     const title = notification?.title || '';
     const body = notification?.body || '';
-    const { drop_lat = '', drop_long = '', pickup_lat = '', pickup_long = '', vehicle_type = '', cust_id = " ", driverId = "", pickup_address = '', drop_address = '', expected_price = '', expected_distance = '', expected_time = ''
+    const {goods_type_id="", drop_lat = '',vehicle_id="",
+       drop_long = '', pickup_lat = '', pickup_long = '', vehicle_type = '', cust_id = " ",  cust_name = " ", cust_mobile = " ",driverId = "", pickup_address = '', drop_address = '', expected_price = '', expected_distance = '', expected_time = '',
+    
     } = data || {};
     // Update the notification data state
-    setNotificationData({ title, body, drop_lat, drop_long, pickup_lat, pickup_long, vehicle_type, cust_id, driverId, pickup_address, drop_address, expected_price, expected_distance, expected_time });
+    setNotificationData({ goods_type_id,title, body, drop_lat, drop_long, pickup_lat, pickup_long, vehicle_type, cust_id, driverId, pickup_address, drop_address, expected_price, expected_distance, expected_time ,cust_name,cust_mobile,vehicle_id});
     setModalVisible(true);
     setTimer(30);
   };
@@ -150,7 +158,9 @@ export default function App() {
           drop_long={notificationData.drop_long}
           pickup_lat={notificationData.pickup_lat}
           pickup_long={notificationData.pickup_long}
-          vehicle_id={notificationData.vehicle_type}
+          vehicle_id={notificationData.vehicle_id}
+          vehicle_type_id={notificationData?.vehicle_type}
+
           cust_id={notificationData.cust_id}
           driverId={notificationData?.driverId}
           pickup_address={notificationData?.pickup_address}
@@ -158,7 +168,9 @@ export default function App() {
           expected_distance={notificationData?.expected_distance}
           expected_price={notificationData?.expected_price}
           expected_time={notificationData?.expected_time}
-          goods_type_id={1}
+          goods_type_id={notificationData?.goods_type_id}
+          cust_name={notificationData?.cust_name}
+          cust_mobile={notificationData?.cust_mobile}
           onClose={() => setModalVisible(false)}
           setModalVisible={setModalVisible}
           timer={timer}

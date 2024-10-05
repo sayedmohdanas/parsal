@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { hitAddDriverDetails, hitAddVehicle, hitCreatePartner, hitGetDriverDetails, hitMyVehicle, hitPartnerLogin, hitPartnerVerifyOtp } from '../../config/api/api';
+import { hitAddDriverDetails, hitAddVehicle, hitCreatePartner, hitDriverEarning, hitGetDriverDetails, hitGetPartner, hitMyVehicle, hitPartnerLogin, hitPartnerVerifyOtp } from '../../config/api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
 import { errorToast } from '../../common/CommonFunction';
@@ -53,6 +53,24 @@ export const createPartner = createAsyncThunk(
     }
   }
 );
+
+
+// Thunk for get a partner and saving partner_id
+export const getPartner = createAsyncThunk(
+  'parsalPartner/getPartner',
+  async (credentials, { rejectWithValue }) => {
+    try {
+      const response = await hitGetPartner(credentials);
+      console.log('response=>', response)
+      return response;
+    } catch (error) {
+      console.log(error);
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+
 // Thunk for getting partner_id from AsyncStorage
 export const getPartnerId = createAsyncThunk(
   'parsalPartner/getPartnerId',
@@ -76,6 +94,7 @@ export const addVehicle = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await hitAddVehicle(credentials);
+      console.log('response in add vehicle ===>', response)
 
       return response;
     } catch (error) {
@@ -125,8 +144,22 @@ export const getDriverDetails = createAsyncThunk(
   }
 );
 
+
+export const getDriverEaningData = createAsyncThunk(
+  'parsalPartner/getDriverDetails',
+  async (credentials, { rejectWithValue }) => {
+    try {
+      const response = await hitDriverEarning(credentials);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 const initialState = {
   user: null,
+  PartnerDetails: null,
   partner: null,
   partnerId: null,
   vehicle: [],
@@ -138,7 +171,8 @@ const initialState = {
   loading: false,
   driverId: null,
   orderData:null,
-  update_order:null
+  update_order:null,
+  driverEarning:null
 };
 
 const HitApiSlice = createSlice({
@@ -149,10 +183,10 @@ const HitApiSlice = createSlice({
       console.log('====================================');
       console.log();
       console.log('====================================');
-      state.partnerId = action.payload; 
+      state.partnerId = action.payload;
     },
     setupdate_order(state, action) {
-      state.update_order = action.payload; 
+      state.update_order = action.payload;
     },
     setMyVehicleData(state,action){
       state.MyVehicle = action.payload.vehicles;
@@ -177,7 +211,7 @@ const HitApiSlice = createSlice({
         state.status = 'succeeded';
         state.loading = false;
         state.user = action.payload;
-        console.log(action.payload,'formhook')
+        console.log(action.payload, 'formhook')
 
       })
       .addCase(loginPartner.rejected, (state, action) => {
@@ -203,6 +237,26 @@ const HitApiSlice = createSlice({
         state.loading = false;
         state.error = action.payload || 'Failed to create partner';
       })
+
+      // createPartner case to save partner info and partner_id
+      .addCase(getPartner.pending, (state) => {
+        state.status = 'pending';
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getPartner.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.loading = false;
+        state.PartnerDetails = action.payload;
+        console.log('data after success ==>', action.payload)
+
+      })
+      .addCase(getPartner.rejected, (state, action) => {
+        state.status = 'failed';
+        state.loading = false;
+        state.error = action.payload || 'Failed to create partner';
+      })
+
 
       // getPartnerId case to retrieve partner_id from AsyncStorage
       .addCase(getPartnerId.pending, (state) => {
@@ -273,7 +327,7 @@ const HitApiSlice = createSlice({
 
 
       //  addDriverDetails cases
-       .addCase(getDriverDetails.pending, (state) => {
+      .addCase(getDriverDetails.pending, (state) => {
         state.status = 'pending';
         state.loading = true;
         state.error = null;
@@ -281,18 +335,37 @@ const HitApiSlice = createSlice({
       .addCase(getDriverDetails.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.loading = false;
-  
+
         state.driverData = action.payload.drivers;
       })
       .addCase(getDriverDetails.rejected, (state, action) => {
         state.status = 'failed';
         state.loading = false;
         state.error = action.payload || 'Failed to add driver details';
-      });
+      })
+
+
+      ///DriverEarning
+      // .addCase(getDriverEaningData.pending, (state) => {
+      //   state.status = 'pending';
+      //   state.loading = true;
+      //   state.error = null;
+      // })
+      // .addCase(getDriverEaningData.fulfilled, (state, action) => {
+      //   state.status = 'succeeded';
+      //   state.loading = false;
+
+      //   state.driverData = action.payload.drivers;
+      // })
+      // .addCase(getDriverEaningData.rejected, (state, action) => {
+      //   state.status = 'failed';
+      //   state.loading = false;
+      //   state.error = action.payload || 'Failed to add driver details';
+      // });
   },
 });
 
-export const { setParentId,setMyVehicleData, setDriverId,setOrderData ,setupdate_order} = HitApiSlice.actions;
+export const { setParentId, setMyVehicleData, setDriverId, setOrderData, setupdate_order } = HitApiSlice.actions;
 
 
 export default HitApiSlice.reducer;

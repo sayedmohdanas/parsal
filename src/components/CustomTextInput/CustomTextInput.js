@@ -1,6 +1,7 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Text, TextInput, StyleSheet, Animated } from 'react-native';
 import Colors from '../../common/Colors';
+import { responsiveFontSize } from '../../common/metrices';
 
 const CustomTextInput = ({  value, 
   onChangeText, 
@@ -13,42 +14,44 @@ const CustomTextInput = ({  value,
 
   const labelTop = labelAnimation.interpolate({
     inputRange: [0, 2],
-    outputRange: [6, -23], // Adjust these values as needed
+    outputRange: [6, -23], 
   });
 
   const labelFontSize = labelAnimation.interpolate({
     inputRange: [0, 1],
-    outputRange: [17, 15], // Adjust these values as needed
+    outputRange: [17, 15], 
   });
 
-  // const handleChange = (text) => {
-  //   onChangeText(text);
-  //   Animated.timing(labelAnimation, {
-  //     toValue: text.length > 0 ? 1 : 0,
-  //     duration: 200,
-  //     useNativeDriver: false,
-  //   }).start();
-  // };
 
 
   const handleChange = (text) => {
-    // Handle number-only input
     if (type === 'number') {
-      text = text.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+      text = text.replace(/[^0-9]/g, ''); 
     }
 
-    // Limit length
     if (maxLength && text.length > maxLength) {
       text = text.slice(0, maxLength);
     }
 
     onChangeText(text);
     Animated.timing(labelAnimation, {
-      toValue: text.length > 0 ? 1 : 0,
+      toValue: text?.length > 0 ? 1 : 0,
       duration: 200,
       useNativeDriver: false,
     }).start();
   };
+
+  const triggerLabelAnimation = (text) => {
+    Animated.timing(labelAnimation, {
+      toValue: text?.length > 0 ? 1 : 0,
+      duration: 200,
+      useNativeDriver: false,
+    }).start();
+  };
+  useEffect(() => {
+    // Trigger animation when value changes (such as when checkbox is checked)
+    triggerLabelAnimation(value);
+  }, [value]);
 
   return (
     <View style={styles.card}>
@@ -78,8 +81,8 @@ const styles = StyleSheet.create({
     paddingBottom:0,
     borderBottomWidth:1,
     borderColor: Colors.textInputBorderColor,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.1,
   },
   inputContainer: {
     position: 'relative',
@@ -91,9 +94,7 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   input: {
-    // height: 45,
-    fontSize: 16,
-    // paddingVertical: 14,
+    fontSize:responsiveFontSize(16),
     color: 'black',
   },
   redAsterisk: {

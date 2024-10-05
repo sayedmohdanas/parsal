@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
   fullSizeImage: {
     width: 250,
     height: 250,
-    borderRadius: 75,
+    borderRadius: 5,
     marginBottom: 10,
   },
 });

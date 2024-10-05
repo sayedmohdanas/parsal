@@ -7,6 +7,7 @@ import PartnerAddressCard from '../screen/Profile/PartnerAddressCard';
 import ProfileWithStatus from './ProfileWithStatus';
 import { useSelector } from 'react-redux';
 import { getImageUrl } from '../../../common/CommonFunction';
+import { responsiveFontSize, responsiveHeight, responsiveWidth } from '../../../common/metrices';
 
 const VehicleProfileCard = ({ screen = false,isOnline,vehicle_data }) => {
   const driverProfile = useSelector(state => state?.parsalPartner?.driverData);
@@ -44,12 +45,15 @@ const VehicleProfileCard = ({ screen = false,isOnline,vehicle_data }) => {
         />
         <View style={styles.leftSection}>
         <Text style={styles.name}>
-  {driverProfile && driverProfile.length > 0 ? `${driverProfile[0].driver_name}` : 'No Driver Data'}
+  {driverProfile && driverProfile.length > 0 
+    ? `${driverProfile[0].driver_name.charAt(0).toUpperCase()}${driverProfile[0].driver_name.slice(1)}`
+    : 'No Driver Data'}
 </Text>
           <View style={styles.contactContainer}>
             <Text style={styles.VType}>2 Wheeler </Text>
             <Text style={styles.VType}>
               {vehicle_data?.vehicle_number}
+              
             </Text>
           </View>
         </View>
@@ -59,7 +63,7 @@ const VehicleProfileCard = ({ screen = false,isOnline,vehicle_data }) => {
       <View>
         {screen && (
           <View style={styles.rightSection}>
-            <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+            <TouchableOpacity  onPress={() => navigation.navigate('Profile', { vehicle_data })}>
               <Text style={styles.status}>View Profile</Text>
             </TouchableOpacity>
           </View>
@@ -74,7 +78,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderRadius: 5,
     padding: 16,
-    marginTop: 12,
+    marginTop: responsiveHeight(12),
     // marginBottom:12,
     width: '100%',
     // paddingHorizontal: 10,
@@ -96,7 +100,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   vehicleNumber: {
-    fontSize: 18,
+    fontSize:  responsiveFontSize(18),
     fontWeight: 'bold',
     color: '#333',
   },
@@ -106,32 +110,32 @@ const styles = StyleSheet.create({
 
   },
   name: {
-    fontSize: 16,
+    fontSize:  responsiveFontSize(16),
     color: Colors.black,
-    marginTop: 4,
+    marginTop: responsiveHeight(4),
   },
   VType: {
-    fontSize: 16,
+    fontSize:  responsiveFontSize(16),
     color: '#777',
     marginTop: 4,
   },
   contact: {
-    fontSize: 16,
+    fontSize: responsiveFontSize(16),
     color: '#777',
-    marginTop: 4,
+    marginTop: responsiveHeight(4),
   },
   rightSection: {
     justifyContent: 'center',
     alignItems: 'center',
   },
   status: {
-    fontSize: 14,
+    fontSize: responsiveFontSize(14),
     fontWeight: '600',
     color: Colors.brandBlue,
   },
   profileImage: {
-    width: 35,
-    height: 35,
+    width: responsiveWidth(35),
+    height: responsiveHeight(35),
     borderRadius: 17.5,
     marginRight: 10,
   },

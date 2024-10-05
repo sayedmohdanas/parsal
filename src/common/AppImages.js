@@ -30,15 +30,27 @@ export default AppImages = {
     homeIcon: require('../assets/images/Home.png'),
     OrderIcon: require('../assets/images/Order.png'),
     UserIcon: require('../assets/images/User.png'),
-    PaymentIcon: require('../assets/images/Payment.png'),
+    EarningIcon: require('../assets/images/wallet-1.png'),
+    EarningIconB: require('../assets/images/wallet.png'),
+    SettingIcon: require('../assets/images/setting.png'),
+
+    SettingIconB: require('../assets/images/setting-1.png'),
+    TripIcon: require('../assets/images/trip.png'),
+    TripIconB: require('../assets/images/trip-1.png'),
     activeHome: require('../assets/images/activeHome.png'),
     activeOrder: require('../assets/images/activeOrder.png'),
     activeUser: require('../assets/images/activeUser.png'),
+    pickupIcon:require('../assets/images/PickedImg.png'),
+    dropupIcon:require('../assets/images/dropImg.png'),
+    borderIcon:require('../assets/images/borderImg.png'),
+
     TrackParsalImg: require('../assets/images/trackParsalImg.png'),
     emptyImage: require('../assets/images/emptyBoxImage.png'),
     boxbackgound: require('../assets/images/boxImageBackground.png'),
     searchIcon: require('../assets/images/searchIcon.png'),
     arrowRight: require('../assets/images/arrowRight.png'),
+    arrowLeft: require('../assets/images/arrowLeft.png'),
+    arrowUp: require('../assets/images/arrowUp.png'),
     infoCircle: require('../assets/images/info-circle.png'),
     man: require('../assets/images/man.png'),
     optionRightArrow: require('../assets/images/optionRightArrow.png'),
@@ -77,6 +89,7 @@ export default AppImages = {
     next: require('../assets/images/rightIcon.png'),
     previous: require('../assets/images/leftIcon.png'), 
     logoutImage:require('../assets/images/logout.png'), 
+    navigatationIcon:require('../assets/navigation-icon.png'), 
 
 
 

@@ -13,8 +13,16 @@ import { socketUrl } from '../../config/url';
 import BorderLine from '../../common/BorderLine.';
 import AppImages from '../../common/AppImages';
 import Loading from '../Loading/Loading';
+import * as Progress from 'react-native-progress';
+// import { AnimatedCircularProgress } from 'react-native-circular-progress';
+// import Svg from 'react-native-svg';
+
+
+
+import { responsiveFontSize, responsiveHeight, responsiveWidth } from '../../common/metrices';
+import Line from '../Line/Line';
 let socket;
-const NotificationModal = ({ setModalVisible, isVisible, onAccept, driverId, onReject, title, body, pickup_address, drop_address, onClose, drop_lat, drop_long, pickup_lat, pickup_long, vehicle_id, cust_id, goods_type_id, expected_price, expected_distance, expected_time }) => {
+const NotificationModal = ({ setModalVisible, isVisible, onAccept, driverId, onReject, title, body, pickup_address, drop_address, onClose, drop_lat, drop_long, pickup_lat, pickup_long, vehicle_id, cust_id, goods_type_id, expected_price, expected_distance, expected_time, cust_name, cust_mobile, vehicle_type_id, timer }) => {
   const navigation = useNavigation()
   const [loading, setLoading] = useState(false)
   // const orderData = useSelector(state => state?.parsalPartner?.orderData || {});
@@ -24,7 +32,6 @@ const NotificationModal = ({ setModalVisible, isVisible, onAccept, driverId, onR
   const goods_quantity = 1
   const pay_mode = 'cash'
   const payment_status = 'pending'
-  //  console.log(orderData,'order-data-from-notification')
   useEffect(() => {
 
     socket = io(socketUrl); // Replace with your server URL
@@ -47,87 +54,6 @@ const NotificationModal = ({ setModalVisible, isVisible, onAccept, driverId, onR
     };
   }, [isVisible]);
 
-  // const handleAccept = async () => {
-
-  //   const { latitude, longitude } = await GetDriverCurrentLocation();
-
-  //   // Create payload
-  //   const payload = {
-  //     pickup_address,
-  //     drop_address,
-  //     drop_lat,
-  //     drop_long,
-  //     pickup_lat,
-  //     pickup_long,
-  //     driver_lat: latitude,
-  //     driver_long: longitude,
-
-  //     vehicle_id,
-  //     cust_id: Number(cust_id),
-  //     driver_id: driverId,
-  //     goods_type_id,
-  //     order_date,
-  //     goods_quantity,
-  //     pay_mode,
-  //     payment_status,
-
-  //   };
-
-  //   try {
-  //     // Pass the payload into the API call
-  //     setLoading(true)
-  //     const res = await hitlPaceOrder(payload); // Your API call function
-
-  //     if (res) {
-  //       // Assuming `onAccept` is a callback for successful orders
-  //       onAccept(res);
-
-
-
-  //       // Now emit the socket event after a successful API call
-  //       if (socket && socket.connected) {
-  //         // const data = {
-  //         //   driverId: driverId, // Use actual driver ID
-  //         //   status: 'accepted',
-  //         //   orderId: res.orderId, // Include additional data if needed (e.g., order ID)
-  //         //   pickup_lat: payload.pickup_lat,
-  //         //   pickup_long: payload.pickup_long,
-  //         //   drop_lat: payload.drop_lat,
-  //         //   drop_long: payload.drop_long,
-  //         //   cust_id: Number(cust_id), 
-
-  //         // };
-  //         const resWithOTP = {
-  //           ...res,
-  //           otp: generateNumericOTP(4), 
-  //         };
-  //         // Emit 'driver_accept' event and send the data
-  //         socket.emit('driver_accept', resWithOTP, (acknowledgment) => {
-  //           console.log('Data sent, acknowledgment:', acknowledgment);
-
-  //         });
-
-  //         dispatch(setOrderData(resWithOTP))
-  //         navigation.navigate("DriverMap", {
-  //           picklat: payload.pickup_lat,
-  //           pickLong: payload.pickup_long,
-  //           drop_lat: payload.drop_lat,
-  //           drop_long: payload.drop_long,
-  //         });
-
-  //       } else {
-  //         console.error('Socket is not connected.');
-  //       }
-
-  //     } else {
-  //       Alert.alert('Error', 'Failed to accept order. Please try again.');
-  //       console.error('API Error:', res);
-  //     }
-  //   } catch (error) {
-  //     Alert.alert('Error', 'There was an issue processing your request.');
-  //     console.error('Error hitting API:', error);
-  //   }
-  // };
   const handleAccept = async () => {
     try {
       // Show loading
@@ -139,13 +65,14 @@ const NotificationModal = ({ setModalVisible, isVisible, onAccept, driverId, onR
       const payload = {
         pickup_address,
         drop_address,
+        vehicle_type_id: vehicle_type_id,
         drop_lat,
         drop_long,
         pickup_lat,
         pickup_long,
         driver_lat: latitude,
         driver_long: longitude,
-        vehicle_id,
+        vehicle_id: parseInt(vehicle_id),
         cust_id: Number(cust_id),
         driver_id: driverId,
         goods_type_id,
@@ -167,8 +94,11 @@ const NotificationModal = ({ setModalVisible, isVisible, onAccept, driverId, onR
           const resWithOTP = {
             ...res,
             otp: generateNumericOTP(4),
+            custName: cust_name,
+            custMobile: cust_mobile,
+            vehicle_type_id: vehicle_type_id
           };
-
+          console.log(resWithOTP, 'anas===>>>')
           // Emit 'driver_accept' event and send the data
           socket.emit('driver_accept', resWithOTP, (acknowledgment) => {
             console.log('Data sent, acknowledgment:', acknowledgment);
@@ -208,30 +138,70 @@ const NotificationModal = ({ setModalVisible, isVisible, onAccept, driverId, onR
         <View style={styles.modalBackground}>
           <View style={styles.modalContainer}>
             <View style={styles.headerContainer}>
-              <Image
+              {/* <Image
                 source={AppImages.SplashScreenLogo}
                 style={styles.parcalLogo}
                 resizeMode='contain'
-              />
-              <TouchableOpacity onPress={onReject} style={{ backgroundColor: Colors.grey, paddingHorizontal: 4, borderRadius: 5, elevation: 0.3, }}>
+              /> */}
+              <Text style={{ alignSelf: 'flex-start', fontSize: responsiveFontSize(16), color: '#232323', fontWeight: '600', lineHeight: 19.36 }} >New Order</Text>
+              {/* <TouchableOpacity onPress={onReject} style={{ backgroundColor: Colors.grey, paddingHorizontal: 4, borderRadius: 5, elevation: 0.3, }}>
                 <Text style={styles.closeText}>X</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
+              <BorderLine margin={10} thickness={0.5} />
             </View>
 
-            <Text style={styles.priceText}>₹{expected_price}</Text>
 
-            <View style={styles.ratingContainer}>
+           <View
+              style={{
+                backgroundColor: 'rgba(242, 242, 242, 0.8)',
+                alignSelf: 'center',
+                justifyContent: 'center', borderWidth: 2,
+                borderColor: Colors.brandBlue,
+                width: responsiveWidth(62),
+                height: responsiveHeight(62),
+                borderRadius: 50,
+                alignItems: 'center',
+                marginTop: responsiveHeight(24),
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 4,
+                elevation: 1
+              }}>
+              <Text style={{ color: Colors.brandBlue, fontSize: responsiveFontSize(34), fontWeight: '500', }}>{timer}</Text>
+            </View> 
+            <View>
+              {/* <Progress.Circle size={30} indeterminate={true} /> */}
+
+              {/* <Progress.Bar progress={0.3} width={200} /> */}
+              {/* <Progress.Pie progress={0.4} size={50} />
+              <Progress.CircleSnail color={['red', 'green', 'blue']} /> */}
+            </View>
+
+
+            {/* <Text style={styles.priceText}>₹{expected_price}</Text> */}
+            {/* <AnimatedCircularProgress
+             size={120}
+           width={15}
+            fill={100}
+  tintColor="#00e0ff"
+  onAnimationComplete={() => console.log('onAnimationComplete')}
+  backgroundColor="#3d5875" /> */}
+  
+
+            {/* <View style={styles.ratingContainer}>
               <Image source={AppImages.starImage} style={styles.starImg} />
               <Text style={styles.ratingText}>4.9</Text>
               <Text style={styles.payText}>{pay_mode}</Text>
 
-            </View>
+            </View> */}
 
             <View style={styles.bodyContainer}>
-              <View style={{ marginLeft: 16, flexDirection: 'row' }}>
+              <Text style={styles.priceText}>₹{expected_price}</Text>
+
+              <View style={{ marginLeft: responsiveHeight(0), flexDirection: 'row',marginTop:responsiveHeight(20), marginBottom:responsiveHeight(8) }}>
                 {/* <Text style={styles.bodyText}> 2 min, 2.8 km distance</Text> */}
                 <Text style={styles.bodyText}> {`${expected_time},`}</Text>
-                <Text style={styles.kmText}> {`${expected_distance} km `}</Text>
+                <Text style={styles.bodyText}> {`${expected_distance} km `}</Text>
 
 
               </View>
@@ -246,12 +216,14 @@ const NotificationModal = ({ setModalVisible, isVisible, onAccept, driverId, onR
                   <View style={styles.greenCircle}></View>
                   <View style={styles.line}></View>
                   <View style={styles.redCircle}>
-                    <Image source={AppImages.location} style={styles.locImg} />
-
+                    <View style={styles.blackCircle}></View>
+                    {/* //// <Image source={AppImages.location} style={styles.locImg} /> */}
                   </View>
                 </View>
-                <View style={{}}>
+                <View style={{ marginLeft: responsiveWidth(5) }}>
                   <Text style={[styles.addressText, { marginVertical: 0 }]}>{pickup_address}</Text>
+                  {/* <Text style={[styles.addressText, { marginVertical: 0 }]}>{"Mushahibganj Daulatganj Thakurganj 226003 "}</Text> */}
+                  {/* <Text style={[styles.addressText, { marginTop:responsiveHeight(22) }]}>{"Mushahibganj Daulatganj Thakurganj 226003 "}</Text> */}
 
                   <Text style={styles.addressText}>{drop_address}</Text>
                 </View>
@@ -260,9 +232,16 @@ const NotificationModal = ({ setModalVisible, isVisible, onAccept, driverId, onR
             {/* <View style={styles.lineContainer}>
           </View> */}
 
-            <TouchableOpacity style={styles.roundButton} onPress={handleAccept}>
-              <Text style={styles.buttonText}>Accept</Text>
-            </TouchableOpacity>
+            <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', marginBottom: responsiveHeight(20),  
+ }}>
+              <TouchableOpacity style={styles.roundButton} onPress={handleAccept}>
+                <Text style={[styles.buttonText, { color: Colors.white, }]}>Accept</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.rejectButton} onPress={onReject}>
+                <Text style={[styles.buttonText, { color: Colors.grey, }]}>Reject</Text>
+              </TouchableOpacity>
+
+            </View>
           </View>
         </View>
       </Modal>
@@ -276,22 +255,30 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     // backgroundColor: 'green',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 1
   },
   modalContainer: {
-    width: '85%',
+    width: '90%',
     backgroundColor: 'white',
-    borderRadius: 5,
+    borderRadius: 20,
     paddingHorizontal: 15,
     paddingVertical: 10,
     alignItems: 'flex-start',
   },
   headerContainer: {
-    flexDirection: 'row',
+    // flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
+    marginLeft: responsiveWidth(3),
+    marginTop: responsiveHeight(10)
   },
   parcalLogo: {
     width: 70,
@@ -303,8 +290,9 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   priceText: {
-    fontSize: 34,
-    fontWeight: 'bold',
+    fontSize: responsiveFontSize(30),
+    fontWeight: '700',
+    lineHeight: 36.31,
     color: 'black',
     // marginVertical: 10,
   },
@@ -337,16 +325,17 @@ const styles = StyleSheet.create({
   },
   bodyContainer: {
     // alignItems: 'center',
-    marginBottom: 10,
-    // paddingBottom:10,
-    // flexDirection: 'row',
-    // backgroundColor:'red',
-    // paddingHorizontal:40,
+    marginBottom: responsiveHeight(17),
+    marginLeft: responsiveWidth(10),
+    // borderTopWidth:1,
+    marginTop: responsiveHeight(15),
     paddingRight: 50,
-    // justifyContent:'flex-start'
   },
   bodyText: {
-    color: 'black',
+    fontSize: responsiveFontSize(14),
+    color: '#232323',
+    fontWeight: '500',
+    lineHeight: 16.94
 
   },
   kmText: {
@@ -355,19 +344,16 @@ const styles = StyleSheet.create({
 
   },
   addressText: {
-    // textAlign: 'center',
-    fontSize: 15,
-    // paddingVertical:20,
+    fontSize: responsiveFontSize(15),
     fontWeight: '500',
-    // marginBottom: 10,
     marginVertical: 14,
-    color: 'black',
+    color: '#232323',
+    lineHeight: 19.36
 
 
   },
   lineContainer: {
     width: '100%',
-    // flexDirection: 'row',
     justifyContent: 'center',
   },
   line: {
@@ -377,17 +363,30 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   roundButton: {
-    backgroundColor: '#3D40D1',
-    padding: 10,
-    borderRadius: 5, // Make it a circle
+    backgroundColor: '#232323',
+    padding: 12,
+    borderRadius: 30, // Make it a circle
     alignItems: 'center',
     justifyContent: 'center',
-    width: '100%',
+    width: '47%',
+    // marginTop: 10,
+  },
+  rejectButton: {
+    // backgroundColor: '#232323',
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#D8D8D8',
+    borderRadius: 30, // Make it a circle
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '47%',
     // marginTop: 10,
   },
   buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
+    // color: Colors.grey,
+    fontWeight: '400',
+    fontSize: responsiveFontSize(16),
+    lineHeight: 19.36
   },
 
   timelineContainer: {
@@ -395,7 +394,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     // backgroundColor:'yellow',
-    marginTop: 5
+    marginTop: 5,
 
     // justifyContent:'flex-start',
   },
@@ -404,20 +403,29 @@ const styles = StyleSheet.create({
     // backgroundColor: "red"
   },
   greenCircle: {
-    height: 10,
-    width: 10,
-    backgroundColor: 'green',
+    height: responsiveWidth(8),
+    width: responsiveWidth(8),
+    backgroundColor: Colors.brandBlue,
+    borderRadius: 20,
+  },
+  blackCircle: {
+    height: responsiveWidth(5),
+    width: responsiveWidth(5),
+    backgroundColor: Colors.black,
     borderRadius: 20,
   },
   redCircle: {
-    // height: 10,
-    // width: 10,
-    // backgroundColor: 'red',
-    // borderRadius: 20,
+    height: responsiveWidth(10),
+    width: responsiveWidth(10),
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderColor: '#D8D8D8',
+    borderWidth: 1.5,
+    borderRadius: 50
   },
   line: {
     borderLeftWidth: 1,
-    height: 55,
+    height: responsiveHeight(50),
     marginVertical: 1,
     borderStyle: 'dashed',
   },

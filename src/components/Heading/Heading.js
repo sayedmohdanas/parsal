@@ -1,5 +1,6 @@
 import React from 'react';
 import { Text, StyleSheet, View } from 'react-native';
+import { responsiveFontSize } from '../../common/metrices';
 
 const Heading = ({ text, isRequired = false }) => {
   return (
@@ -18,14 +19,14 @@ const styles = StyleSheet.create({
     alignItems: 'baseline', 
   },
   headinglabel: {
-    fontSize: 14,
+    fontSize: responsiveFontSize(14),
     color: 'black',
     marginVertical: 14,
     fontWeight: '600',
   },
   redAsterisk: {
     color: 'red',
-    fontSize: 8,
+    fontSize: responsiveFontSize(8),
     transform: [{ translateY: -4 }],
     fontWeight: 'bold',
   },

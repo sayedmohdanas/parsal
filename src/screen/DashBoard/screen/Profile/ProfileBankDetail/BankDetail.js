@@ -2,13 +2,15 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Colors from '../../../../../common/Colors';
 import BorderLine from '../../../../../common/BorderLine.';
-const BankDetailCard = () => {
+const BankDetailCard = ({bankAccount}) => {
+    console.log(bankAccount,'frombnkcard===>')
     return (
         <View style={styles.container}>
             <View style={styles.headerRow}>
                 <Text style={styles.heading}>Current Bank Details</Text>
                 <TouchableOpacity onPress={() => alert('Edit Details pressed')}>
-                    <Text style={styles.editText}>Edit Details</Text>
+                    <Text style={styles.editText}> {bankAccount ? 'Edit Bank Account' : 'Add Bank Account'}
+                    </Text>
                 </TouchableOpacity>
             </View>
 
@@ -22,7 +24,7 @@ const BankDetailCard = () => {
                         <Text style={styles.detail}>Account Number</Text>
                     </View>
                     <View style={{ flex: 1 }}>
-                        <Text style={styles.number}>:637467373637836</Text>
+                        <Text style={styles.number}>:{bankAccount?.account_no}</Text>
                     </View>
                 </View>
 
@@ -31,7 +33,7 @@ const BankDetailCard = () => {
                         <Text style={styles.detail}>IFSC Code</Text>
                     </View>
                     <View style={{ flex: 1 }}>
-                        <Text style={styles.number}>:UBin7486</Text>
+                        <Text style={styles.number}>:{bankAccount?.ifsc_code}</Text>
                     </View>
                 </View>
             </View>

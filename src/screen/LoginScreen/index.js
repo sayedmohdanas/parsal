@@ -12,7 +12,7 @@ import flagImages from './FlagImages';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-const LoginScreen = ({ navigation, route }) => {
+const LoginScreen = ({ navigation, route }) => { 
   const dispatch = useDispatch()
   const user = useSelector((state) => state.parsal_store?.user);
   const status = useSelector((state) => state?.parsalPartner?.status);
@@ -25,7 +25,6 @@ const LoginScreen = ({ navigation, route }) => {
   const [flag, setFlag] = useState(flagImages.default);
   const [countryName, setCountryName] = useState('India');
   const [mobile, setMobile] = useState('9711825718');
-
 
 
   // useEffect(() => {
@@ -172,7 +171,7 @@ const LoginScreen = ({ navigation, route }) => {
             <View style={{ marginBottom: 10, justifyContent: "center", alignItems: 'center' }}>
               <CustomButton
                 buttonText={'LOGIN'}
-                disabled={number.length <= 10}
+                disabled={!termsAndConditions || !tdsDeclaration || number.length <= 10}
                 onPress={() => {
                   handleGetOtp()
 

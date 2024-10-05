@@ -9,7 +9,7 @@ const ProfileDetail = ({ route, navigation }) => {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: driverName || 'Profile Detail', // Set driver name or fallback title
+      headerTitle: driverName ? driverName.charAt(0).toUpperCase() + driverName.slice(1) : 'Profile Detail',
       headerBackTitleVisible: false, // Hides text next to back button
   
       headerLeft: () => (

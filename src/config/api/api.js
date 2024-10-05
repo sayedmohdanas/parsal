@@ -1,4 +1,4 @@
-import { addDriverDetails, addVehicle, cancelOrderurl, createPartner, getDriverDetails, MyVehicle, partnerLogin, partnerOtpVerify, placeOrder, updateOrder, updateWorkStatusurl } from "../url";
+import { addBankAccount, addDriverDetails, addVehicle, cancelOrderurl, createPartner, driverEaring, getBankAccount, getDriverDetails, getPartner, MyVehicle, partnerLogin, partnerOtpVerify, placeOrder, updateOrder, updateWorkStatusurl } from "../url";
 import { apiGet, apiPost } from "../utils";
 
 
@@ -15,6 +15,12 @@ export const hitCreatePartner = param => {
 
     return apiPost(createPartner, param);
 };
+export const hitGetPartner = param => {
+    console.log('createPartner', getPartner);
+    console.log('param', param);
+
+    return apiPost(getPartner, param);
+};
 
 export const hitAddVehicle = param => {
 
@@ -26,6 +32,10 @@ export const hitMyVehicle = param => {
 };
 
 export const hitAddDriverDetails = param => {
+    console.log('====================================');
+    console.log(addDriverDetails);
+    console.log(param);
+    console.log('====================================');
 
     return apiPost(addDriverDetails, param);
 };
@@ -43,7 +53,6 @@ export const hitlPaceOrder = param => {
     console.log('====================================');
     console.log(placeOrder);
     console.log(param);
-
     console.log('====================================');
     return apiPost(placeOrder, param);
 };
@@ -64,6 +73,30 @@ export const hitCancelOrder = param => {
     return apiPost(cancelOrderurl, param);
 };
 
+export const hitAddBankAccount = param => {
+    console.log('====================================');
+    console.log(addBankAccount);
+    console.log(param);
+
+    console.log('====================================');
+    return apiPost(addBankAccount, param);
+};
+export const hitGetBankAccount = param => {
+    console.log('====================================');
+    console.log(getBankAccount);
+    console.log(param);
+
+    console.log('====================================');
+    return apiPost(getBankAccount, param);
+};
+export const hitDriverEarning = param => {
+    console.log('====================================');
+    console.log(driverEaring);
+    console.log(param);
+
+    console.log('====================================');
+    return apiPost(driverEaring, param);
+};
 
 
 

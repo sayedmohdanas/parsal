@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, Image, TextInput, TouchableOpacity,Linking, StyleSheet, Alert } from 'react-native';
 import AppImages from '../../common/AppImages';
 import Colors from '../../common/Colors';
 import BorderLine from '../../common/BorderLine.';
@@ -132,6 +132,19 @@ const ProfileSection = () => {
             setLoadig(false)
         }
     };
+    const handleAction = (type) => {
+        // Check if the phone number is available
+        if (orderData?.custMobile) {
+            const url = type === 'call' ? `tel:${orderData.custMobile}` : `sms:${orderData.custMobile}`;
+            
+            // Use Linking to open the appropriate app
+            Linking.openURL(url)
+                .catch(err => console.error(`Error opening ${type === 'call' ? 'dialer' : 'messaging app'}: `, err));
+        } else {
+            console.warn("Customer mobile number is not available.");
+        }
+    };
+    
     console.log('otpp', otp)
     return (
         <>
@@ -172,25 +185,24 @@ const ProfileSection = () => {
                     <View style={styles.ProfileView}>
                         <Image source={AppImages.profileImage} style={styles.profileImage} resizeMode='contain' />
                         <View style={{ backgroundColor: 'red,', alignItems: 'center' }}>
-                            <Text style={styles.name}>Alex</Text>
-                            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 3 }}>
+                            <Text style={styles.name}>{orderData?.custName}</Text>
+                            {/* <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 3 }}>
                                 <Image source={AppImages.starImage} style={styles.starImg} />
                                 <Text style={{ color: 'grey', fontSize: 10 }}>4.9</Text>
-                            </View>
+                            </View> */}
                         </View>
 
                     </View>
 
 
                     <View style={styles.actions}>
-
-                        <TouchableOpacity style={styles.actionButton}>
-                            <Image source={AppImages.messegeImage} style={styles.iconImage} />
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.actionButton}>
-                            <Image source={AppImages.callImage} style={styles.iconImage} />
-                        </TouchableOpacity>
+                    <TouchableOpacity style={styles.actionButton} onPress={() => handleAction('msg')}>
+    <Image source={AppImages.messegeImage} style={styles.iconImage} />
+</TouchableOpacity>
+                        <TouchableOpacity style={styles.actionButton} onPress={() => handleAction('call')}>
+    <Image source={AppImages.callImage} style={styles.iconImage} />
+</TouchableOpacity>
+                        
                     </View>
                 </View>
 
@@ -390,8 +402,8 @@ const styles = StyleSheet.create({
 
     },
     iconImage: {
-        width: 18,
-        height: 18,
+        width: 24,
+        height: 24,
     },
     bottomSection: {
         flexDirection: 'row',

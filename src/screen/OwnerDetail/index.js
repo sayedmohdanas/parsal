@@ -9,6 +9,7 @@ import Loading from '../../components/Loading/Loading';
 import { createPartner } from '../../redux/HitApis/HitApiSlice';
 import { errorToast, generateRandomPhoneNumber, successToast } from '../../common/CommonFunction';
 import Colors from '../../common/Colors';
+import { responsiveFontSize, responsiveHeight } from '../../common/metrices';
 
 const OwnerDetailScreen = ({ navigation, route }) => {
   const { partner_id, email } = route.params;
@@ -131,10 +132,10 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     flex: 1,
-    paddingBottom: 80,
+    paddingBottom: responsiveHeight(80),
   },
   headinglabel: {
-    fontSize: 18,
+    fontSize: responsiveFontSize(18),
     color: 'black',
     marginVertical: 20,
     fontWeight: '600',
