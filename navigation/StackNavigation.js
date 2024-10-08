@@ -53,6 +53,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 import { ActivityIndicator, View } from 'react-native';
 import UpdateBankDetailsScreen from '../src/screen/UpdateBankDetails/UpdateBankDetailsScreen';
+import RideCompleteScreen from '../src/screen/DashBoard/screen/RideCompleteScreen';
+import AmountCollectScreen from '../src/screen/DashBoard/screen/AmountCollectScreen';
+import DriverDashboard from '../src/screen/DashBoard/DriverDashboard';
+import LiveTripScreen from '../src/screen/DashBoard/screen/LiveTripScreen/LiveTrip';
+import Earning from '../src/screen/DriverEarning/DriverEarning';
 
 const Stack = createStackNavigator();
 
@@ -63,8 +68,8 @@ const StackNavigator = () => {
   useEffect(() => {
     const checkPartnerName = async () => {
       try {
-        await AsyncStorage.removeItem('partner_id')
-        await AsyncStorage.removeItem('partner_name')
+        // await AsyncStorage.removeItem('partner_id')
+        // await AsyncStorage.removeItem('partner_name')
         // await AsyncStorage.setItem('partner_name', JSON.stringify(24));
         // await AsyncStorage.setItem('partner_name', 'Salman');
 
@@ -77,25 +82,23 @@ const StackNavigator = () => {
         console.log('====================================');
 
         if (partnerName === '-' || partnerName === null || !partnerName||!partnerId) {
-          setInitialRoute('Login');
-          // setInitialRoute('MyVehicles');
+          setInitialRoute('Dashboards');
+          // setInitialRoute('DriverDashboard');
 
         } else {
-          setInitialRoute('MyVehicles');
+          setInitialRoute('Dashboards');
         }
       } catch (error) {
-        // Handle errors if needed
         setInitialRoute('Login');
       } finally {
-        setLoading(false); // Ensure loading state is set to false
+        setLoading(false); 
       }
     };
 
     checkPartnerName();
   }, []);
 
-  // While loading, show a loading indicator
-  if (loading) {http://192.168.29.244:5000/
+  if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" />
@@ -111,6 +114,14 @@ const StackNavigator = () => {
         <Stack.Screen name="DriverDetail" component={DriverDetailScreen} />
         <Stack.Screen name="VehicleDetail" component={VehicleDetailScreen} />
         <Stack.Screen name="UpdateBankDetails" component={UpdateBankDetailsScreen} />
+        <Stack.Screen name="rideComplete" component={RideCompleteScreen} />
+        <Stack.Screen name="AmountCollect" component={AmountCollectScreen} />
+        <Stack.Screen name="DriverDashboard" component={DriverDashboard}  options={{ headerShown: false }}/>
+        <Stack.Screen name="Trip" component={LiveTripScreen}   options={{ headerShown: false }}/>
+        <Stack.Screen name="Earning" component={Earning}
+     options={{headerShown: false}}
+    />
+
         <Stack.Screen
           name="MyVehicles"
           component={MyVehiclesScreen}
