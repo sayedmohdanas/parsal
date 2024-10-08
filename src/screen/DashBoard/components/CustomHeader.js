@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from '../../../common/metrices';
 import Colors from '../../../common/Colors';
 import AppImages from '../../../common/AppImages';
 import DateRangeSelector from './DataRangeSelectore';
+import { Switch } from 'react-native-switch';
+
 
 const CustomHeader = ({ screenName, selectedRange, setSelectedRange }) => {
+    const [isEnabled, setIsEnabled] = useState(true);
+
+
+
     const navigation = useNavigation();
     return (
         <View style={styles.headerContainer}>
@@ -17,7 +23,34 @@ const CustomHeader = ({ screenName, selectedRange, setSelectedRange }) => {
             />
 
             {/* Center: Screen Name */}
-            <Text style={styles.screenName}>{screenName}</Text>
+            {/* <Text style={styles.screenName}>{screenName}</Text> */}
+
+            <Switch
+
+                value={isEnabled}
+                onValueChange={(val) => setIsEnabled(val)}
+                disabled={false}
+                activeText={'Online'}
+                inActiveText={'Offline'}
+                circleSize={20}
+                circleBorderWidth={3}
+                backgroundActive={'green'}
+                backgroundInactive={'gray'}
+                circleActiveColor={'#30a566'}
+                circleInActiveColor={'#000000'}
+                renderInsideCircle={() => (
+                    <Image source={AppImages.Online} style={{ width: responsiveWidth(20), height: responsiveHeight(20) }} resizeMode='contain' />
+                )}
+                changeValueImmediately={true}
+                innerCircleStyle={{ alignItems: "center", justifyContent: "center" }}
+                outerCircleStyle={{}}
+                renderActiveText={true}
+                renderInActiveText={true}
+                switchLeftPx={4}
+                switchRightPx={4}
+                switchWidthMultiplier={4}
+                switchBorderRadius={30}
+            />
 
             {/* Right side: Placeholder (Optional) */}
             <View style={styles.placeholder} />

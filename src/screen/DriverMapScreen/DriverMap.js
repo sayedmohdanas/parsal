@@ -10,6 +10,7 @@ import { useIsFocused } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 import database from '@react-native-firebase/database';
 import Colors from '../../common/Colors';
+import { responsiveHeight, responsiveWidth } from '../../common/metrices';
 const DriverMapScreen = ({ route }) => {
   const [showButtons, setShowButtons] = useState(false);
   const [latLOng, setLatLong] = useState({ latitude: '', longitude: '' })
@@ -112,8 +113,8 @@ const DriverMapScreen = ({ route }) => {
 
         >
           <Image
-            source={AppImages.rideBike}
-            style={{ width: 40, height: 40 }}
+            source={AppImages.navArrow}
+            style={{ width: responsiveWidth(37), height: responsiveHeight(37) }}
              resizeMode="contain"
           />
         </Marker>

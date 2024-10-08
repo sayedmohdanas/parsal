@@ -56,6 +56,7 @@ useEffect(() => {
     const { latitude, longitude } = await GetDriverCurrentLocation();
     const payload = {
       partner_id: partnerId,
+      email:'dmy@gmail.com',
       vehicle_id: v_id,
       driver_name: name,
       phone: driverNumber,

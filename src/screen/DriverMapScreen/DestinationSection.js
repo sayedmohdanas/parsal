@@ -15,11 +15,14 @@ import { SuccessToast } from 'react-native-toast-message';
 import { socketUrl } from '../../config/url';
 import Loading from '../../components/Loading/Loading';
 import OTPTextInput from 'react-native-otp-textinput';
-import { responsiveHeight, responsiveWidth } from '../../common/metrices';
+import { responsiveFontSize, responsiveHeight, responsiveWidth } from '../../common/metrices';
 import OTPTextView from 'react-native-otp-textinput';
+import SlideButton from 'rn-slide-button';
 
 
 const DestinationSection = () => {
+    const [isSlid, setIsSlid] = useState(false);
+
     const navigation = useNavigation()
     const [loading, setLoadig] = useState(false)
     // const [otp, setOtp] = useState('');
@@ -28,7 +31,7 @@ const DestinationSection = () => {
     // console.log(orderData?.newOrder?.driver_id, 'driver_id===>')
     // let otpInput = useRef(null);
     // const dispatch = useDispatch()
-    const [address,setAddress]=useState('King Georges Medical University Shah Mina Rd, Chowk, Lucknow, Uttar Pradesh 226003 ')
+    const [address, setAddress] = useState('King Georges Medical University Shah Mina Rd, Chowk, Lucknow, Uttar Pradesh 226003 ')
 
     const handleOpenMap = () => {
         const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
@@ -39,10 +42,10 @@ const DestinationSection = () => {
     const handleOtpSubmit = async () => {
 
         try {
-                if (otp !== orderData?.otp || orderData?.Otp < 4) {
-                    errorToast('Invalid Input', 'Incorrect Otp');
-                    return;
-                }
+            if (otp !== orderData?.otp || orderData?.Otp < 4) {
+                errorToast('Invalid Input', 'Incorrect Otp');
+                return;
+            }
             const payload = {
                 is_arrive_pickup: 1,
                 order_id: orderData?.newOrder?.id
@@ -112,68 +115,60 @@ const DestinationSection = () => {
     return (
         <>
             <View style={styles.profileContainer}>
+                <View style={{ flex: 1, margin: 4 }}>
+                    <View style={{ marginLeft: responsiveWidth(14) }}>
+                        <Text style={{ color: '#000000', fontWeight: '500', fontSize: responsiveFontSize(16), fontWeight: '600', marginTop: responsiveHeight(8) }}>LOCATION</Text>
+                    </View>
 
-                {/* {!update_order?.is_arrived_pickup && */}
-                    <View style={{}}>
-                        <View style={styles.otpSection}>
-                            <View style={{
+                </View>
 
-                            }}>
-                                {/* <Text style={styles.otpLabel}>Enter OTP:</Text> */}
-                                {/* <OTPTextView
-                                    ref={otpInput}
-                                    handleTextChange={handleTextChange}
-                                    inputCount={4}
-                                    containerStyle={styles.otpContainer}
-                                    textInputStyle={styles.otpInput}
-                                    inputCellLength={1}
-                                    tintColor={Colors.brandBlue}
-                                    offTintColor={Colors.textInputBorderColor}
-                                /> */}
-                            </View>
-                            <TouchableOpacity style={styles.otpButton} onPress={handleOtpSubmit}>
-                                <Text style={styles.otpButtonText}>Submit OTP</Text>
+                <View style={{ width: "100%", flexDirection: "row", justifyContent: 'space-between', marginBottom: 15, }}>
+
+
+                    <View style={{ flex: 1, flexDirection: "row", paddingHorizontal: 20 }}>
+
+
+                        <Text style={{ color: Colors.black, fontSize: responsiveFontSize(14), fontWeight: '400', lineHeight: 16.96 }}>{address} </Text>
+
+
+                    </View>
+                    <View style={{ flex: 1, flexDirection: "row", alignItems: 'center', justifyContent: 'center' }}>
+                        <BorderLine orientation={"vertical"} thickness={1} />
+                        <View style={{marginLeft:responsiveWidth(3)}}>
+                            <TouchableOpacity onPress={handleOpenMap} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <Image source={AppImages.navigatationIcon} style={{ width: responsiveWidth(44), height: responsiveHeight(44), marginLeft: 5 }} />
                             </TouchableOpacity>
+                            <Text style={{
+                                fontSize: responsiveFontSize(9),
+                                fontWeight: "400",
+                                lineHeight: 9.68,
+                                color: '#000000',
+                                marginTop: responsiveHeight(6)
+                            }}>Navigate Now</Text>
                         </View>
-                        <BorderLine color="#1E0000" thickness={0.4} length="100%" orientation="horizontal" margin={4} />
-                    </View>
-                {/* } */}
 
-
-
-<View style={{ flex: 1,  margin: 4 }}>
-                        <View style={{ marginLeft: 14 }}>
-                            <Text style={{color:'red',fontWeight:'500',fontSize:16}}>LOCATION</Text>
-                        </View>
-            
                     </View>
 
-                <View style={{ width: "100%",flexDirection: "row",justifyContent:'space-between',marginBottom:15}}>
-                   
-
-                    <View style={{ flex: 1, flexDirection: "row",paddingHorizontal:20 }}>
-                      
-
-                     <Text style={{color:Colors.black,fontSize:14,fontWeight:'500',}}>{address} </Text>
-                        
-    
-                    </View>
-                    <View style={{ flex: 1, flexDirection: "row",alignItems:'center',justifyContent:'center' }}>
-                    <TouchableOpacity onPress={handleOpenMap} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                      <Image source={AppImages.navigatationIcon} style={{ width: 60, height:60, marginLeft: 5 }} />
-
-                      </TouchableOpacity>
-    
-                    </View>
-                  
                 </View>
                 {/* </View> */}
 
                 {/* Bottom Section */}
                 <View style={styles.bottomSection}>
-                    <TouchableOpacity style={styles.button} onPress={handleEndTrip}>
-                        <Text style={styles.buttonText}>End Trip</Text>
-                    </TouchableOpacity>
+                    < SlideButton title="End Trip"
+                        titleStyle={{ color: Colors.white, }}
+                        thumbStyle={{
+                            backgroundColor: '#EB5757', // Change the thumb color
+                            height: 50,
+                            // paddingLeft: 20,
+
+                            width: 70,
+                            borderRadius: 30,
+
+                        }}
+                        containerStyle={{ backgroundColor: isSlid ? 'red' : '#232323' }} // Set the background color here
+                        // onSlideComplete={handleSlideComplete} // Callback when sliding is complete
+                        underlayStyle={{ backgroundColor: '#F77B7B', }}
+                    />
                 </View>
             </View>
             <Loading loading={loading} />
@@ -183,12 +178,15 @@ const DestinationSection = () => {
 
 const styles = StyleSheet.create({
     profileContainer: {
+        padding: responsiveHeight(2),
         backgroundColor: Colors.white,
-        position: 'absolute',
-        bottom: 0,
-        width: '100%',
-        paddingBottom: 10,
-        paddingTop: 10
+        borderRadius: 20,
+        marginBottom: responsiveHeight(1),
+        elevation: 1,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
     },
     otpSection: {
         flexDirection: 'row',
@@ -206,7 +204,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingVertical:16
+        paddingVertical: 16
 
     },
     buttonText: {

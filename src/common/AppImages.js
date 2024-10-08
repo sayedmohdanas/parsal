@@ -37,6 +37,11 @@ export default AppImages = {
     SettingIconB: require('../assets/images/setting-1.png'),
     TripIcon: require('../assets/images/trip.png'),
     TripIconB: require('../assets/images/trip-1.png'),
+    messageIcon: require('../assets/images/message.png'),
+    crossIcon: require('../assets/images/cross.png'),
+    pickedIcon: require('../assets/images/picked.png'),
+
+
     activeHome: require('../assets/images/activeHome.png'),
     activeOrder: require('../assets/images/activeOrder.png'),
     activeUser: require('../assets/images/activeUser.png'),
@@ -89,7 +94,10 @@ export default AppImages = {
     next: require('../assets/images/rightIcon.png'),
     previous: require('../assets/images/leftIcon.png'), 
     logoutImage:require('../assets/images/logout.png'), 
-    navigatationIcon:require('../assets/navigation-icon.png'), 
+    navigatationIcon:require('../assets/images/navigation-icon.png'), 
+    navArrow:require('../assets/images/nav-arrow.png'),
+    Online:require('../assets/images/onlineIcon.png'),
+    redCross:require('../assets/images/red-cross.png'),
 
 
 

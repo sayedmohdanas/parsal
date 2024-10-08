@@ -1,63 +1,30 @@
 
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
-import BottomNav from '../../../../../navigation/BottomNav';
-import Colors from '../../../../common/Colors';
-import { responsiveFontSize, responsiveHeight, responsiveWidth } from '../../../../common/metrices';
-import CustomHeader from '../../components/CustomHeader';
 import MapView, { Marker } from 'react-native-maps';
-import { GetDriverCurrentLocation } from '../../../../common/CommonFunction';
 import { useNavigation } from '@react-navigation/native';
-import Loading from '../../../../components/Loading/Loading';
-import LiveTripCustomCard from '../../../DriverEarning/LiveTripCustomCard';
-import DriverArriveCard from '../../../DriverEarning/DriverArriveCard';
-import DestinationSection from '../../../DriverMapScreen/DestinationSection';
+// import LiveTripCustomCard from '../../../DriverEarning/LiveTripCustomCard';
+// import DestinationSection from '../../../DriverMapScreen/DestinationSection';
+import Colors from '../../common/Colors';
+import BottomNav from '../../../navigation/BottomNav';
+import CustomHeader from './components/CustomHeader';
+import Loading from '../../components/Loading/Loading';
+import DriverArriveCard from '../DriverEarning/DriverArriveCard';
+import { responsiveFontSize, responsiveHeight, responsiveWidth } from '../../common/metrices';
+import { GetDriverCurrentLocation } from '../../common/CommonFunction';
 
-const LiveTripScreen = () => {
+const DriverDashboard = () => {
     const navigation = useNavigation();
     const [selectedTrip, setSelectedTrip] = useState(1);
     const [driverLocation, setDriverLocation] = useState({ latitude: null, longitude: null });
     const [loading, setLoading] = useState(true);
 
 
-    const tripData = [
-        {
-            id: 1,
-            name: "Arshad",
-            pickUpAddress: "Nawabganj, Lucknow",
-            dropOffAddress: "Hazratganj, Lucknow",
-            itemDetails: "Electronics",
-            itemWeight: "5 kg",
-            statusDate: "17 Sep 2024",
-            phoneNumber: "9876543210",
-        },
-        {
-            id: 2,
-            name: "John",
-            pickUpAddress: "Indira Nagar, Lucknow",
-            dropOffAddress: "Gomti Nagar, Lucknow",
-            itemDetails: "Clothing",
-            itemWeight: "2 kg",
-            statusDate: "18 Sep 2024",
-            phoneNumber: "8765432109",
-        },
-        {
-            id: 3,
-            name: "Maria",
-            pickUpAddress: "Alambagh, Lucknow",
-            dropOffAddress: "K.D. Singh Babu Stadium, Lucknow",
-            itemDetails: "Books",
-            itemWeight: "3 kg",
-            statusDate: "19 Sep 2024",
-            phoneNumber: "7654321098",
-        },
-    ];
-
-
 
     useEffect(() => {
         const fetchDriverLocation = async () => {
             try {
+                // const { latitude, longitude } = await GetDriverCurrentLocation();
                 const { latitude, longitude } = await GetDriverCurrentLocation();
                 setDriverLocation({ latitude, longitude });
             } catch (error) {
@@ -83,10 +50,15 @@ const LiveTripScreen = () => {
                     <MapView
                         style={StyleSheet.absoluteFillObject}
                         initialRegion={{
+                             // Approximate center of India
+                            latitudeDelta: 0.1,  // Adjusted to show the whole country
+                            longitudeDelta: 0.1, 
+                            // latitude: 20.5937, // Approximate center of India
+                            // longitude: 78.9629,
                             latitude: driverLocation?.latitude || 37.78825, // Fallback values
                             longitude: driverLocation?.longitude || -122.4324,
-                            latitudeDelta: 0.0922,
-                            longitudeDelta: 0.0421,
+                            // latitudeDelta: 0.0922,
+                            // longitudeDelta: 0.0421,
                         }}
                     >
                         {/* Marker for the driver's current location */}
@@ -102,41 +74,36 @@ const LiveTripScreen = () => {
                     <View style={styles.content}>
                         <CustomHeader screenName={"Live Trips"} />
                         <View style={styles.tripContainer}>
-                            <TouchableOpacity onPress={() => handleCardClick(1)}>
-                                <View style={[styles.tripCard, selectedTrip === 1 && styles.selectedCard]}>
-                                    <Text style={styles.tripTime}>12:20 AM</Text>
-                                    <Text style={styles.tripName}>Arshad</Text>
+                            <View >
+                                <View style={[styles.tripCard]}>
+                                    <Text style={styles.tripTime}>Booking Count</Text>
+                                    <Text style={styles.tripName}>2</Text>
                                 </View>
-                            </TouchableOpacity>
+                            </View>
 
-                            <TouchableOpacity onPress={() => handleCardClick(2)}>
-                                <View style={[styles.tripCard, selectedTrip === 2 && styles.selectedCard]}>
-                                    <Text style={styles.tripTime}>01:15 AM</Text>
-                                    <Text style={styles.tripName}>John</Text>
+                            <View >
+                                <View style={[styles.tripCard]}>
+                                    <Text style={styles.tripTime}>Operator Bill</Text>
+                                    <Text style={styles.tripName}>₹ 160.50</Text>
                                 </View>
-                            </TouchableOpacity>
+                            </View>
 
-                            <TouchableOpacity onPress={() => handleCardClick(3)}>
-                                <View style={[styles.tripCard, selectedTrip === 3 && styles.selectedCard]}>
-                                    <Text style={styles.tripTime}>02:30 AM</Text>
-                                    <Text style={styles.tripName}>Maria</Text>
-                                </View>
-                            </TouchableOpacity>
+                        
                         </View>
                     </View>
 
                     {/* Card positioned just above bottom navigation */}
-                    {selectedTrip && (
+                    {/* {selectedTrip && (
                         <View style={styles.cardContainer}>
                             {tripData
                                 .filter(trip => trip.id === selectedTrip)
                                 .map(trip => (
-                                    <LiveTripCustomCard key={trip.id} trip={trip} />
-                                    // <DriverArriveCard key={trip.id} trip={trip} />
+                                    // <LiveTripCustomCard key={trip.id} trip={trip} />
+                                    <DriverArriveCard key={trip.id} trip={trip} />
                                     // <DestinationSection/>
                                 ))}
                         </View>
-                    )}
+                    )} */}
                 </>
             )}
 
@@ -160,7 +127,7 @@ const styles = StyleSheet.create({
     },
     tripContainer: {
         borderTopWidth: 1,
-        paddingHorizontal: responsiveWidth(5),
+        paddingHorizontal: 5,
         width: '100%',
         alignSelf: 'center',
         backgroundColor: Colors.white,
@@ -168,8 +135,8 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
     },
     tripCard: {
-        marginHorizontal: responsiveWidth(3),
-        padding: responsiveHeight(2),
+        marginHorizontal:3,
+        padding:2,
         borderRadius: 8,
         justifyContent: 'center',
         alignItems: 'center',
@@ -180,20 +147,26 @@ const styles = StyleSheet.create({
         borderBottomColor: Colors.brandBlue,
     },
     tripTime: {
-        fontSize: responsiveFontSize(16),
+        fontSize:12,
         color: Colors.black,
+        marginTop:10,
+        fontWeight:'400'
     },
     tripName: {
-        fontSize: responsiveFontSize(14),
-        color: Colors.grey,
-        marginTop: responsiveHeight(1),
+        fontSize:16,
+        fontWeight:'600',
+        
+        lineHeight:19.36
+,        color:'#000000',
+        marginTop:10,
+        marginBottom:8
     },
     cardContainer: {
         position: 'absolute',
-        bottom: responsiveHeight(96), // Adjust this value as needed to sit above the BottomNav
+        bottom:96,
         width: '100%',
-        paddingHorizontal: responsiveWidth(15),
-        zIndex: 10, // Ensure it's above the map
+        paddingHorizontal:15,
+        zIndex: 10, 
     },
     bottomNavContainer: {
         position: 'absolute',
@@ -203,4 +176,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default LiveTripScreen;
+export default DriverDashboard;

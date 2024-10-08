@@ -38,11 +38,11 @@ const VehicleProfileCard = ({ screen = false,isOnline,vehicle_data }) => {
     {/* <View style={[isOnline?borderBottomColor:,styles.card]}> */}
       <View style={[styles.topSection, screen ? { justifyContent: '' } : {}]}>
         {/* <Image source={AppImages.profileImage} style={styles.profileImage} />+ */}
-        <ProfileWithStatus 
+        {/* <ProfileWithStatus 
           isOnline={isOnline} 
           profileImage={profileImageUrl}
-          driverName={`${driverProfile[0]?.driver_name}`}
-        />
+          driverName={driverProfile &&`${driverProfile[0]?.driver_name}`}
+        /> */}
         <View style={styles.leftSection}>
         <Text style={styles.name}>
   {driverProfile && driverProfile.length > 0 

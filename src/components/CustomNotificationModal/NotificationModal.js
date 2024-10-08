@@ -151,7 +151,7 @@ const NotificationModal = ({ setModalVisible, isVisible, onAccept, driverId, onR
             </View>
 
 
-           <View
+            <View
               style={{
                 backgroundColor: 'rgba(242, 242, 242, 0.8)',
                 alignSelf: 'center',
@@ -168,7 +168,7 @@ const NotificationModal = ({ setModalVisible, isVisible, onAccept, driverId, onR
                 elevation: 1
               }}>
               <Text style={{ color: Colors.brandBlue, fontSize: responsiveFontSize(34), fontWeight: '500', }}>{timer}</Text>
-            </View> 
+            </View>
             <View>
               {/* <Progress.Circle size={30} indeterminate={true} /> */}
 
@@ -186,7 +186,7 @@ const NotificationModal = ({ setModalVisible, isVisible, onAccept, driverId, onR
   tintColor="#00e0ff"
   onAnimationComplete={() => console.log('onAnimationComplete')}
   backgroundColor="#3d5875" /> */}
-  
+
 
             {/* <View style={styles.ratingContainer}>
               <Image source={AppImages.starImage} style={styles.starImg} />
@@ -198,7 +198,7 @@ const NotificationModal = ({ setModalVisible, isVisible, onAccept, driverId, onR
             <View style={styles.bodyContainer}>
               <Text style={styles.priceText}>₹{expected_price}</Text>
 
-              <View style={{ marginLeft: responsiveHeight(0), flexDirection: 'row',marginTop:responsiveHeight(20), marginBottom:responsiveHeight(8) }}>
+              <View style={{ marginLeft: responsiveHeight(0), flexDirection: 'row', marginTop: responsiveHeight(20), marginBottom: responsiveHeight(8) }}>
                 {/* <Text style={styles.bodyText}> 2 min, 2.8 km distance</Text> */}
                 <Text style={styles.bodyText}> {`${expected_time},`}</Text>
                 <Text style={styles.bodyText}> {`${expected_distance} km `}</Text>
@@ -232,8 +232,12 @@ const NotificationModal = ({ setModalVisible, isVisible, onAccept, driverId, onR
             {/* <View style={styles.lineContainer}>
           </View> */}
 
-            <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', marginBottom: responsiveHeight(20),  
- }}>
+            <View style={{
+              width: '100%',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              marginBottom: responsiveHeight(20),
+            }}>
               <TouchableOpacity style={styles.roundButton} onPress={handleAccept}>
                 <Text style={[styles.buttonText, { color: Colors.white, }]}>Accept</Text>
               </TouchableOpacity>

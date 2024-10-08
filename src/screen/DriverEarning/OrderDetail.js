@@ -1,10 +1,7 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
-// import {  responsiveWidth } from '../../../common/metrices'
-import { mystyles } from '../../../common/Mystyle'
 import Line from '../../components/Line/Line'
 import AppImages from '../../common/AppImages'
-import { PARTNER_PROFILE_BASE_URL } from '../../../common/Constant'
 import { useNavigation } from '@react-navigation/native'
 import { responsiveFontSize, responsiveHeight, responsiveWidth, } from '../../common/metrices'
 import Colors from '../../common/Colors'
@@ -13,46 +10,46 @@ const OrderDetail = () => {
     const props = {
         parsalNumber: "ODR-123456",
         parsalName: "Electronics Package",
-        parsalStatusTextColor: "rgba(69, 184, 69, 0.1)", // Example: green color for delivered status
+        parsalStatusTextColor: "rgba(69, 184, 69, 0.1)",
         parsalStatusText: "Delivered",
-        textColor: "#45B845", // White text color for the status
+        textColor: "#45B845",
         citystart: "New York, NY",
         cityend: "Los Angeles, CA",
         partnerId: "partner123",
         driverId: "driver789",
-        profilePic: "profile.jpg", // Image file name for the driver profile
-        name: "Your Name", // Replaced with your name
+        profilePic: "profile.jpg",
+        name: "Your Name",
         vNo: "CA-5678-XZ",
         tripCost: "$120",
-        statestart:'Uttar Pradesh',
-        stateend:"America",
+        statestart: 'Uttar Pradesh',
+        stateend: "America",
         orderDetails: {
-          orderId: "ODR-123456",
-          items: [
-            { name: "Laptop", quantity: 1 },
-            { name: "Mobile Phone", quantity: 2 }
-          ],
-          shippingDetails: {
-            from: "New York, NY",
-            to: "Los Angeles, CA",
-            driverName: "Your Name", // Replaced with your name
-            vehicleNo: "CA-5678-XZ",
-            tripCost: "$120"
-          }
+            orderId: "ODR-123456",
+            items: [
+                { name: "Laptop", quantity: 1 },
+                { name: "Mobile Phone", quantity: 2 }
+            ],
+            shippingDetails: {
+                from: "New York, NY",
+                to: "Los Angeles, CA",
+                driverName: "Your Name",
+                vehicleNo: "CA-5678-XZ",
+                tripCost: "$120"
+            }
         }
-      };
-      
+    };
+
     const navigation = useNavigation()
     return (
         <TouchableOpacity >
             <View style={[styles.container]}>
-           
+
                 <View style={[styles.section1]}>
                     <View >
                         <Text style={[styles.parsalNumber]}>{props.parsalNumber}</Text>
                         <Text style={[styles.parsalName]}>{props.parsalName}</Text>
                     </View>
-                    <View style={[styles.parsalStatus,{ backgroundColor: props.parsalStatusTextColor ,justifyContent: 'center', alignItems: 'center', }]}>
+                    <View style={[styles.parsalStatus, { backgroundColor: props.parsalStatusTextColor, justifyContent: 'center', alignItems: 'center', }]}>
                         {/* <Text style={[styles.parsalStatusText, { color: props.textColor }]}>{props.parsalStatusText}</Text> */}
                         <Text style={[styles.parsalStatusText, { color: props.textColor }]}>₹ {500}</Text>
                     </View>
@@ -76,22 +73,7 @@ const OrderDetail = () => {
                             <Text style={[styles.stateend]}>{props.stateend}</Text>
                         </View>
                     </View>
-
-                    <View style={[styles.UserDetailMainContainer]}>
-                        <View style={styles.userDetail}>
-                        {/* <Image source={{ uri: `${PARTNER_PROFILE_BASE_URL}/${props.partnerId}/drivers/${props.driverId}_${props.profilePic}` }} style={styles.manStyle} /> */}
-                        <Image source={AppImages.profileImage} style={styles.manStyle} />
-                            <View style={styles.userNameAddress}>
-                                <Text style={[styles.name, { fontSize: responsiveFontSize(14) }]}>{props.name}</Text>
-                                <Text style={[styles.name, { color: 'grey', fontSize: responsiveFontSize(12) }]}>{props.vNo}</Text>
-                                <Text style={[styles.address]}>{props.address}</Text>
-                            </View>
-                        </View>
-
-                        <View>
-                            {/* <Text style={[styles.name]}>{props.tripCost}</Text> */}
-                        </View>
-                    </View>
+                    
                 </View>
             </View>
         </TouchableOpacity>
@@ -102,23 +84,21 @@ export default OrderDetail
 
 const styles = StyleSheet.create({
     container: {
-        height: responsiveHeight(165),
+        height: responsiveHeight(130),
         backgroundColor: Colors.white,
         marginHorizontal: responsiveWidth(16),
         borderRadius: 10,
-        paddingVertical: 14,
-        paddingHorizontal: 16,
-        marginVertical: 5,
+        paddingHorizontal:  responsiveWidth(16),
+        marginVertical:  responsiveHeight(5),
     },
     section1: {
-        flex: 1.1,
-        // backgroundColor: 'green',
+        flex: 0.5,
+        marginVertical: responsiveHeight(10),
         flexDirection: 'row',
         justifyContent: 'space-between'
     },
     section2: {
-        flex: 2,
-        // backgroundColor: 'orange'
+        flex: 1,
     },
     parsalNumber: {
         fontSize: responsiveFontSize(16),
@@ -131,12 +111,10 @@ const styles = StyleSheet.create({
         color: Colors.grey
     },
     parsalStatus: {
-        // backgroundColor: Colors.black,
         height: responsiveHeight(27),
-        borderWidth:1,
-        borderColor:"#45B845",
-        // paddingVertical: 10,
-        paddingHorizontal: 6,
+        borderWidth: 1,
+        borderColor: "#45B845",
+        paddingHorizontal: responsiveWidth(6),
         borderRadius: 10
     },
     parsalStatusText: {
@@ -147,17 +125,15 @@ const styles = StyleSheet.create({
     },
     LocationMainContainer: {
         flex: 1,
-        // backgroundColor: 'yellow',
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center'
     },
     UserDetailMainContainer: {
         flex: 1,
-        // backgroundColor: 'pink',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: 15,
+        marginTop:  responsiveHeight(15),
         alignItems: 'center'
     },
     fromLocation: {
@@ -178,7 +154,7 @@ const styles = StyleSheet.create({
         fontSize: responsiveFontSize(12),
         fontWeight: '500',
         color: Colors.grey,
-        marginTop: 1
+        marginTop: responsiveHeight(1)
     },
     rightArrowStyle: {
         height: responsiveHeight(24),
@@ -194,7 +170,7 @@ const styles = StyleSheet.create({
         fontSize: responsiveFontSize(12),
         fontWeight: '500',
         color: Colors.grey,
-        marginTop: 1
+        marginTop: responsiveHeight(1)
 
     },
     infoCircleStyle: {
@@ -202,8 +178,8 @@ const styles = StyleSheet.create({
         width: responsiveWidth(28),
     },
     manStyle: {
-        height: 35,
-        width: 35,
+        height:  responsiveHeight(35),
+        width: responsiveWidth(35),
         borderRadius: 35
     },
     userNameAddress: {
@@ -218,7 +194,7 @@ const styles = StyleSheet.create({
         fontSize: responsiveFontSize(10),
         fontWeight: '500',
         color: Colors.grey,
-        marginTop: 2
+        marginTop: responsiveHeight(2)
     },
     userDetail: {
         flexDirection: 'row',

@@ -1,32 +1,17 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity,Linking } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Linking } from 'react-native';
 import Colors from '../../common/Colors';
 import AppImages from '../../common/AppImages';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from '../../common/metrices';
 import Line from '../../components/Line/Line';
 import BorderLine from '../../common/BorderLine.';
+import DriverInformation from '../DashBoard/components/DriverInformation';
 
-const LiveTripCustomCard = ({trip}) => {
-    const makeCall = (phoneNumber) => {
-        Linking.openURL(`tel:${phoneNumber}`);
-    };
+const LiveTripCustomCard = ({ trip }) => {
+  
     return (
         <View style={[styles.UserDetailMainContainer]}>
-            <View style={styles.userDetail}>
-                <View style={{ justifyContent: 'center', flexDirection: 'row', alignItems: 'center' }}>
-
-                    <Image source={AppImages.profileImage} style={styles.manStyle} />
-                    <View style={{ marginLeft: responsiveHeight(6) }}>
-                        <Text style={[styles.name, { fontSize: responsiveFontSize(14), fontWeight: '500' }]}>{trip?.name}</Text>
-
-                        <Text style={[styles.name, { fontSize: responsiveFontSize(10), fontWeight: '500', color: Colors.grey, marginTop: responsiveHeight(3) }]}>{"Pickup Logistic"}</Text>
-                    </View>
-                </View>
-
-                <TouchableOpacity style={styles.callDetail} onPress={() => makeCall(trip?.phoneNumber)}>
-                    <Image source={AppImages.callImage} style={styles.manStyle} />
-                </TouchableOpacity>
-            </View>
+            <DriverInformation />
             <Line marginH={1} />
 
             <View style={styles.statusDetail}>
@@ -56,7 +41,7 @@ const LiveTripCustomCard = ({trip}) => {
                             Delivery
                         </Text>
                         <Text style={styles.dropAdressText}>
-                        {trip?.dropOffAddress}
+                            {trip?.dropOffAddress}
                         </Text>
                     </View>
                 </View>
@@ -68,7 +53,7 @@ const LiveTripCustomCard = ({trip}) => {
                 </View>
                 <View>
                     <Text>
-                       {trip?.itemWeight}
+                        {trip?.itemWeight}
                     </Text>
                 </View>
             </View>
@@ -83,7 +68,6 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.white,
         borderRadius: 20,
         marginBottom: responsiveHeight(1),
-        // paddingHorizontal: responsiveHeight(15)
     },
     userDetail: {
         flexDirection: 'row',
@@ -115,20 +99,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         paddingHorizontal: responsiveHeight(15)
-
-        // position: 'absolute',
-        // right: responsiveWidth(3),
-        // top: responsiveHeight(1),
     },
-    callDetail: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        // paddingHorizontal: responsiveHeight(15)
 
-        // position: 'absolute',
-        // right: responsiveWidth(3),
-        // top: responsiveHeight(1),
-    },
     statusText: {
         color: Colors.black,
         fontSize: responsiveFontSize(12),
@@ -180,9 +152,6 @@ const styles = StyleSheet.create({
         marginTop: responsiveHeight(12),
         paddingVertical: responsiveHeight(10),
         paddingHorizontal: responsiveHeight(15)
-
-
-
     }
     , itemName: {
         flexDirection: 'row',
@@ -204,8 +173,6 @@ const styles = StyleSheet.create({
     pickupIcon: {
         width: responsiveWidth(10),
         height: responsiveWidth(10),
-        // borderRadius: responsiveWidth(6),
-        // marginRight: responsiveWidth(3),
     },
 });
 
