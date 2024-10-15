@@ -1,81 +1,269 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, Modal, Alert } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Modal,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppImages from '../../../common/AppImages';
 import Colors from '../../../common/Colors';
-import { errorToast, successToast } from '../../../common/CommonFunction';
+import {
+  GetDriverCurrentLocation,
+  errorToast,
+  successToast,
+} from '../../../common/CommonFunction';
+import {useDispatch} from 'react-redux';
+import {setLogout} from '../../../redux/HitApis/HitApiSlice';
+import {
+  responsiveFontSize,
+  responsiveHeight,
+  responsiveWidth,
+} from '../../../common/metrices';
+import {
+  hitGetDriverDetails,
+  hitGetPartner,
+  hitUpdateDriverStatus,
+} from '../../../config/api/api';
+import {getimage} from '../../../config/url';
 
-const Menu = ({ navigation }) => {
+const Menu = ({navigation, owner = ''}) => {
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
-
-
-  const handleLogout = async (navigation) => {
+  const dispatch = useDispatch();
+  const toggleOnlineStatus = async () => {
     try {
-      await AsyncStorage.removeItem('partner_id');        
+      const unparse_driver_data = await AsyncStorage.getItem('user');
+      const parse_data = JSON.parse(unparse_driver_data);
+      setIsEnabled(prevStatus => !prevStatus);
+      if (!isEnabled) {
+        const {latitude, longitude} = await GetDriverCurrentLocation();
+        const param = {
+          driver_id: parse_data?.payload?.driver_id,
+          current_lat: latitude,
+          current_long: longitude,
+          working_status: 1,
+        };
+        const res = await hitUpdateDriverStatus(param);
+      } else {
+        const {latitude, longitude} = await GetDriverCurrentLocation();
+        const param = {
+          driver_id: parse_data?.payload?.driver_id,
+          current_lat: latitude,
+          current_long: longitude,
+          working_status: 0,
+        };
+        const res = await hitUpdateDriverStatus(param);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const handleLogout = async navigation => {
+    try {
+      const unparse_driver_data = await AsyncStorage.getItem('user');
+      const parse_data = JSON.parse(unparse_driver_data);
+      if (parse_data?.payload?.owner_type != 1) {
+        const {latitude, longitude} = await GetDriverCurrentLocation();
+        const param = {
+          driver_id: parse_data?.payload?.driver_id,
+          current_lat: latitude,
+          current_long: longitude,
+          working_status: 0,
+        };
+        const res = await hitUpdateDriverStatus(param);
+      }
+      await AsyncStorage.removeItem('partner_id');
       await AsyncStorage.removeItem('partner_name');
-
-      successToast('Logged out successfully', 'You will be redirected to login.');
+      await AsyncStorage.removeItem('user');
+      dispatch(setLogout());
+      successToast(
+        'Logged out successfully',
+        'You will be redirected to login.',
+      );
       navigation.replace('Login'); // Navigate to the login screen
     } catch (error) {
+      console.error(error);
       errorToast('Logout Failed', 'An error occurred during logout.');
     }
   };
+  const [user_details, setuser_details] = useState([]);
+  const get_user_details = async () => {
+    const user = await AsyncStorage.getItem('user');
+    const parsed_user = JSON.parse(user);
 
+    if (parsed_user?.payload?.owner_type == 0) {
+      hitGetDriverDetails({ids: [parsed_user?.payload?.driver_id]})
+        .then(res => {         
+          setuser_details(res?.drivers[0]);
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    } else {
+      hitGetPartner({
+        partner_id: parsed_user?.payload?.partner_id,
+      })
+        .then(res => {
+          console.log(res);
+          setuser_details(res?.partner);
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    }
+  };
+  useEffect(() => {
+    get_user_details();
+  }, []);
   return (
     <>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.closeDrawer()} style={styles.imageContainer}>
-          <Image source={AppImages.backWhite} style={styles.closeImage} resizeMode="contain" />
-        </TouchableOpacity>
+        {/* <TouchableOpacity onPress={() => navigation.closeDrawer()} style={styles.imageContainer}>
+          <Image source={AppImages.backWhite} style={styles.closeImage} />
+        </TouchableOpacity> */}
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          {/* <ProfileWithStatus /> */}
+          <Image
+            source={{
+              uri: user_details?.driver_name
+                ? getimage(
+                    'partners_img/' +
+                      user_details?.partner_id +
+                      '/drivers/' +
+                      user_details?.id +
+                      '_' +
+                      user_details?.profile_pic,
+                  )
+                : getimage(
+                    'partners_img/' +
+                      user_details?.id +
+                      '/' +
+                      user_details?.profile_pic,
+                  ),
+            }}
+            style={{
+              height: responsiveHeight(60),
+              width: responsiveHeight(60),
+              borderRadius: responsiveHeight(60),
+              marginRight: responsiveWidth(10),
+            }}
+          />
+          <View>
+            <Text
+              style={{
+                color: '#000000',
+                fontSize: responsiveFontSize(14),
+                fontWeight: '700',
+              }}>
+              {user_details?.driver_name?.toLocaleUpperCase() ||
+                user_details?.partner_name?.toLocaleUpperCase()}
+            </Text>
+            <Text
+              style={{
+                color: Colors.grey,
+                fontSize: responsiveFontSize(12),
+                fontWeight: '400',
+              }}>
+              {user_details?.phone}
+            </Text>
+          </View>
+        </View>
       </View>
-
       <View style={styles.menuContainer}>
-        <TouchableOpacity onPress={() => navigation.navigate('Earning')} style={styles.menuItem}>
-          <Image source={AppImages.earningImage} style={styles.profileImage} resizeMode="contain" />
+        {owner && (
+          <>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Trip')}
+              style={styles.menuItem}>
+              <Image
+                source={AppImages.dashboard}
+                style={styles.profileImage}
+                // style={{height: 30, width: 30}}
+                resizeMode="contain"
+              />
+              <Text style={styles.menuText}>DashBoard</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('MyVehicles')}
+              style={styles.menuItem}>
+              <Image
+                source={AppImages.MyVehcileIcon}
+                style={styles.profileImage}
+                resizeMode="contain"
+              />
+              <Text style={styles.menuText}>My Vehicles</Text>
+            </TouchableOpacity>
+          </>
+        )}
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Earning')}
+          style={styles.menuItem}>
+          <Image source={AppImages.earningImage} style={styles.profileImage} />
           <Text style={styles.menuText}>Earning</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => navigation.navigate('Ledger')} style={styles.menuItem}>
-          <Image source={AppImages.ledgerImage} style={styles.profileImage} resizeMode="contain" />
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Ledger')}
+          style={styles.menuItem}>
+          <Image source={AppImages.ledgerImage} style={styles.profileImage} />
           <Text style={styles.menuText}>Ledger</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => navigation.navigate('Payments')} style={styles.menuItem}>
-          <Image source={AppImages.paymentsImage} style={styles.profileImage} resizeMode="contain" />
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Payments')}
+          style={styles.menuItem}>
+          <Image source={AppImages.paymentsImage} style={styles.profileImage} />
           <Text style={styles.menuText}>Payments</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => navigation.navigate('Loans')} style={styles.menuItem}>
-          <Image source={AppImages.loansImage} style={styles.profileImage} resizeMode="contain" />
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Loans')}
+          style={styles.menuItem}>
+          <Image source={AppImages.loansImage} style={styles.profileImage} />
           <Text style={styles.menuText}>Loans</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => navigation.navigate('Training')} style={styles.menuItem}>
-          <Image source={AppImages.trainingImage} style={styles.profileImage} resizeMode="contain" />
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Training')}
+          style={styles.menuItem}>
+          <Image source={AppImages.trainingImage} style={styles.profileImage} />
           <Text style={styles.menuText}>Training</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => navigation.navigate('Notifications')} style={styles.menuItem}>
-          <Image source={AppImages.notificationsImage} style={styles.profileImage} resizeMode="contain" />
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Notifications')}
+          style={styles.menuItem}>
+          <Image
+            source={AppImages.notificationsImage}
+            style={styles.profileImage}
+          />
           <Text style={styles.menuText}>Notifications</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={styles.menuItem}>
-          <Image source={AppImages.profileImage} style={styles.profileImage} resizeMode="contain" />
-          <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Profile')}
+          style={styles.menuItem}>
+          <Image source={AppImages.profileImage} style={styles.profileImage} />
+          <View style={{alignItems: 'center', justifyContent: 'center'}}>
             <Text style={styles.menuText}>Profile</Text>
           </View>
         </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => navigation.navigate('PrivacyPolicy')} style={styles.menuItem}>
-          <Image source={AppImages.privacyPolicyImage} style={styles.profileImage} resizeMode="contain" />
+        <TouchableOpacity
+          onPress={() => navigation.navigate('PrivacyPolicy')}
+          style={styles.menuItem}>
+          <Image
+            source={AppImages.privacyPolicyImage}
+            style={styles.profileImage}
+          />
           <Text style={styles.menuText}>Privacy Policy</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.logoutContainer}>
-        <TouchableOpacity onPress={() => setLogoutModalVisible(true)} style={styles.menuItem}>
-          <Image source={AppImages.logoutImage} style={styles.profileImage} resizeMode="contain" />
+        <TouchableOpacity
+          onPress={() => setLogoutModalVisible(true)}
+          style={styles.menuItem}>
+          <Image
+            source={AppImages.logoutImage}
+            style={styles.profileImage}
+            resizeMode="contain"
+          />
           <Text style={styles.menuText}>Logout</Text>
         </TouchableOpacity>
       </View>
@@ -85,19 +273,23 @@ const Menu = ({ navigation }) => {
         animationType="slide"
         transparent={true}
         visible={logoutModalVisible}
-        onRequestClose={() => setLogoutModalVisible(false)}
-      >
+        onRequestClose={() => setLogoutModalVisible(false)}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalText}>Are you sure you want to logout?</Text>
+            <Text style={styles.modalText}>
+              Are you sure you want to logout?
+            </Text>
             <View style={styles.modalButtons}>
-              <TouchableOpacity onPress={() => setLogoutModalVisible(false)} style={styles.modalButton}>
+              <TouchableOpacity
+                onPress={() => setLogoutModalVisible(false)}
+                style={styles.modalButton}>
                 <Text style={styles.modalButtonText}>No</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleLogout(navigation)} style={styles.modalButton}>
+              <TouchableOpacity
+                onPress={() => handleLogout(navigation)}
+                style={styles.modalButton}>
                 <Text style={styles.modalButtonText}>Yes</Text>
               </TouchableOpacity>
-
             </View>
           </View>
         </View>
@@ -108,45 +300,45 @@ const Menu = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   header: {
-    backgroundColor: Colors.brandBlue,
-    paddingVertical: 20,
-    paddingHorizontal: 20,
+    backgroundColor: Colors.white,
+    paddingVertical: responsiveHeight(20),
+    paddingHorizontal: responsiveWidth(20),
   },
   imageContainer: {
     alignItems: 'flex-start',
   },
   closeImage: {
-    width: 30,
-    height: 30,
+    width: responsiveWidth(30),
+    height: responsiveHeight(30),
     resizeMode: 'contain',
   },
   menuContainer: {
     flex: 1,
-    paddingHorizontal: 20,
-    padding: 20,
+    paddingHorizontal: responsiveWidth(5),
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 15,
-    padding: 15,
+    paddingVertical: responsiveHeight(12),
+    padding: responsiveWidth(12),
+    // backgroundColor:'white',
   },
   menuText: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: responsiveFontSize(14),
+    fontWeight: '400',
     color: Colors.black,
   },
   profileImage: {
-    width: 35,
-    height: 35,
-    borderRadius: 10,
-    marginRight: 10,
+    width: responsiveWidth(30),
+    height: responsiveHeight(30),
+    borderRadius: 30,
+    marginRight: responsiveHeight(10),
     resizeMode: 'contain',
   },
   logoutContainer: {
     position: 'absolute',
     bottom: 20,
-    left: 20,
+    left: 10,
     right: 20,
   },
   modalContainer: {
@@ -156,17 +348,17 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    width: 300,
+    width: responsiveWidth(300),
     backgroundColor: 'white',
     borderRadius: 5,
     padding: 20,
     alignItems: 'center',
   },
   modalText: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: responsiveFontSize(16),
+    fontWeight: '500',
     marginBottom: 20,
-    color: Colors.black
+    color: Colors.black,
   },
   modalButtons: {
     flexDirection: 'row',

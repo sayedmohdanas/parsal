@@ -1,22 +1,51 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
+import Colors from '../../common/Colors';
 
-const VehicleTypeSelector = ({ options, onSelect, selectedOption }) => {
+const VehicleTypeSelector = ({options, onSelect, selectedOption}) => {
   return (
     <View style={styles.container}>
-      {options.map((option) => (
-        <TouchableOpacity
-          key={option?.value}
-          style={[
-            styles.card,
-            selectedOption?.value === option?.value && styles.selectedCard,
-          ]}
-          onPress={() => onSelect(option.value)} // Passing only the value to the onSelect function
-        >
-          <Image resizeMode='contain' source={option?.image} style={styles.image} />
-          <Text style={styles.text}>{option?.label}</Text>
-        </TouchableOpacity>
-      ))}
+      {options.map(option => {
+        return (
+          <TouchableOpacity
+            key={option?.vehicle_type_id}
+            style={[
+              styles.card,
+              selectedOption[0]?.vehicle_type_id == option?.vehicle_type_id &&
+                styles.selectedCard,
+            ]}
+            onPress={() => onSelect(option.vehicle_type_id)} // Passing only the value to the onSelect function
+          >
+            <Image
+              resizeMode="contain"
+              source={option?.vehicle_img}
+              style={[
+                styles.image,
+                {
+                  tintColor:
+                    selectedOption[0]?.vehicle_type_id ==
+                    option?.vehicle_type_id
+                      ? Colors.white
+                      : Colors.black,
+                },
+              ]}
+            />
+            <Text
+              style={[
+                styles.text,
+                {
+                  color:
+                    selectedOption[0]?.vehicle_type_id ==
+                    option?.vehicle_type_id
+                      ? Colors.white
+                      : Colors.black,
+                },
+              ]}>
+              {option?.vehicle_type_cat_name}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 };
@@ -26,7 +55,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    
   },
   card: {
     width: '30%',
@@ -36,14 +64,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 10,
-    backgroundColor: Colors.white
+    backgroundColor: Colors.white,
   },
   selectedCard: {
-    backgroundColor: '#007BFF',
+    backgroundColor: Colors.brandBlue,
+    // borderWidth: 2,
   },
   image: {
-    width: 20,
-    height: 20,
+    width: 30,
+    height: 30,
     marginBottom: 5,
   },
   text: {

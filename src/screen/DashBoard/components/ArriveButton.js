@@ -23,7 +23,7 @@ const ArriveButton = (props) => {
         : buttonStyle;
     
     const disabledTextStyle = disabled
-        ? { color: Colors.black } 
+        ? { color: Colors.white } 
         : textStyle;
 
     const buttonWidthSet = buttonWidth

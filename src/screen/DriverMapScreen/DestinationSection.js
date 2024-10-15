@@ -1,361 +1,384 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, Linking } from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
+import {
+  View,
+  Text,
+  Image,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Linking,
+} from 'react-native';
 import AppImages from '../../common/AppImages';
 import Colors from '../../common/Colors';
 import BorderLine from '../../common/BorderLine.';
 import CustomButton from '../../components/CustomButton/CustomButton';
-import { Divider } from 'react-native-paper';
-import { useDispatch, useSelector } from 'react-redux';
-import { hitCancelOrder, hitUpdateOrder } from '../../config/api/api';
-import { errorToast, successToast } from '../../common/CommonFunction';
-import { setOrderData, setupdate_order } from '../../redux/HitApis/HitApiSlice';
-import { io } from 'socket.io-client';
-import { useNavigation } from '@react-navigation/native';
-import { SuccessToast } from 'react-native-toast-message';
-import { socketUrl } from '../../config/url';
+import {Divider} from 'react-native-paper';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  hitCancelOrder,
+  hitUpdateDriverLocation,
+  hitUpdateOrder,
+} from '../../config/api/api';
+import {errorToast, successToast} from '../../common/CommonFunction';
+import {setOrderData, setupdate_order} from '../../redux/HitApis/HitApiSlice';
+import {io} from 'socket.io-client';
+import {useNavigation} from '@react-navigation/native';
+import {SuccessToast} from 'react-native-toast-message';
+import {socketUrl} from '../../config/url';
 import Loading from '../../components/Loading/Loading';
 import OTPTextInput from 'react-native-otp-textinput';
-import { responsiveFontSize, responsiveHeight, responsiveWidth } from '../../common/metrices';
+import {
+  responsiveFontSize,
+  responsiveHeight,
+  responsiveWidth,
+} from '../../common/metrices';
 import OTPTextView from 'react-native-otp-textinput';
 import SlideButton from 'rn-slide-button';
 
+const DestinationSection = ({details}) => {
+  const [isSlid, setIsSlid] = useState(false);
 
-const DestinationSection = () => {
-    const [isSlid, setIsSlid] = useState(false);
+  const navigation = useNavigation();
+  const [loading, setLoadig] = useState(false);
 
-    const navigation = useNavigation()
-    const [loading, setLoadig] = useState(false)
-    // const [otp, setOtp] = useState('');
-    // const orderData = useSelector(state => state?.parsalPartner?.orderData || {});
-    // const update_order = useSelector(state => state?.parsalPartner?.update_order || null);
-    // console.log(orderData?.newOrder?.driver_id, 'driver_id===>')
-    // let otpInput = useRef(null);
-    // const dispatch = useDispatch()
-    const [address, setAddress] = useState('King Georges Medical University Shah Mina Rd, Chowk, Lucknow, Uttar Pradesh 226003 ')
+  // const [otp, setOtp] = useState('');
+  // const orderData = useSelector(state => state?.parsalPartner?.orderData || {});
+  // const update_order = useSelector(state => state?.parsalPartner?.update_order || null);
+  // console.log(orderData?.newOrder?.driver_id, 'driver_id===>')
+  // let otpInput = useRef(null);
+  // const dispatch = useDispatch()
+  const [address, setAddress] = useState(details?.drop_address || 'N/A');
 
-    const handleOpenMap = () => {
-        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
-        Linking.openURL(mapUrl).catch(err => Alert.alert('Error', 'Failed to open the map.'));
+  // const handleOpenMap = () => {
+  // const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+  // Linking.openURL(mapUrl).catch(err => Alert.alert('Error', 'Failed to open the map.'));
+  // }
+
+  const handleOpenMap = (latitude, longitude) => {
+    const location = `${latitude},${longitude}`;
+    const url = Platform.select({
+      ios: `maps://app?daddr=${location}`, // For iOS devices
+      android: `google.navigation:q=${location}`, // For Android devices
+    });
+    if (url) {
+      Linking.openURL(url).catch(err =>
+        console.error('Error opening map: ', err),
+      );
+    }
+  };
+  const orderData = useSelector(state => state?.parsalPartner?.orderData || {});
+
+  
+  useEffect(() => {
+    socket = io(socketUrl);
+    return () => {
+      if (socket) {
+        // socket.disconnect();
+        console.log('Socket disconnected');
+      }
+    };
+  }, []);
+
+  const handleEndTrip = async () => {
+    const param = {
+      orderId: orderData?.newOrder?.id,
+      distance: 10,
+      time: 10,
     };
 
-
-    const handleOtpSubmit = async () => {
-
-        try {
-            if (otp !== orderData?.otp || orderData?.Otp < 4) {
-                errorToast('Invalid Input', 'Incorrect Otp');
-                return;
-            }
-            const payload = {
-                is_arrive_pickup: 1,
-                order_id: orderData?.newOrder?.id
-            };
-            const response = await hitUpdateOrder(payload)
-            if (response) {
-                socket.emit('driver_pickup', response, (acknowledgment) => {
-                    console.log('Data sent, acknowledgment:', acknowledgment);
-
-                });
-                dispatch(setupdate_order(response?.order))
-            }
-
-        } catch (error) {
-
+    hitUpdateDriverLocation(param)
+      .then(res => {
+        if (res) {
+          socket.emit(
+            'end_trip',
+            {
+              userId: orderData?.newOrder?.cust_id,
+            },           
+          );
+          navigation.navigate('AmountCollected');
         }
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
+  return (
+    <>
+      <View style={styles.profileContainer}>
+        <View style={{flex: 1, margin: 4}}>
+          <View style={{marginLeft: responsiveWidth(14)}}>
+            <Text
+              style={{
+                color: '#000000',
+                fontWeight: '500',
+                fontSize: responsiveFontSize(16),
+                fontWeight: '600',
+                marginTop: responsiveHeight(8),
+              }}>
+              LOCATION
+            </Text>
+          </View>
+        </View>
 
-    };
-    const handleEndTrip = async () => {
-        // try {
-        //     setLoadig(true)
-        //     Alert.alert(
-        //         "Cancel Order",
-        //         "Are you sure you want to cancel this order?",
-        //         [
-        //             {
-        //                 text: "No", // Do nothing on "No"
-        //                 onPress: () => console.log("Cancel Pressed"),
-        //                 style: "cancel",
-        //             },
-        //             {
-        //                 text: "Yes",
-        //                 onPress: async () => {
-        //                     // Handle the order cancellation logic here
-        //                     successToast("Successfull", 'Order Cancel')
-        //                     dispatch(setupdate_order(null))
-        //                     const param = {
-        //                         order_id: orderData?.newOrder?.id
-        //                     }
-        //                     const res = await hitCancelOrder(param)
-        //                     if (res) {
-        //                         socket.emit("cancel_order", {
-        //                             userId: orderData?.newOrder?.cust_id,
-        //                             orderId: "order789",
-        //                             role: "driver",
-        //                             reason: "Customer requested cancellation",
-        //                         });
-        //                         navigation.goBack()
-        //                         console.log('Request cancelled');
-        //                     }
-
-        //                     // Call API to cancel the order or update state
-        //                 },
-        //             },
-        //         ],
-        //         { cancelable: false } // Prevent closing the alert by tapping outside
-        //     );
-
-        // } catch (error) {
-        //     Alert.alert('Error', 'Something wwent wrong')
-        //     console.error(error)
-        // } finally {
-        //     setLoadig(false)
-        // }
-    };
-    // console.log('otpp', otp)
-    return (
-        <>
-            <View style={styles.profileContainer}>
-                <View style={{ flex: 1, margin: 4 }}>
-                    <View style={{ marginLeft: responsiveWidth(14) }}>
-                        <Text style={{ color: '#000000', fontWeight: '500', fontSize: responsiveFontSize(16), fontWeight: '600', marginTop: responsiveHeight(8) }}>LOCATION</Text>
-                    </View>
-
-                </View>
-
-                <View style={{ width: "100%", flexDirection: "row", justifyContent: 'space-between', marginBottom: 15, }}>
-
-
-                    <View style={{ flex: 1, flexDirection: "row", paddingHorizontal: 20 }}>
-
-
-                        <Text style={{ color: Colors.black, fontSize: responsiveFontSize(14), fontWeight: '400', lineHeight: 16.96 }}>{address} </Text>
-
-
-                    </View>
-                    <View style={{ flex: 1, flexDirection: "row", alignItems: 'center', justifyContent: 'center' }}>
-                        <BorderLine orientation={"vertical"} thickness={1} />
-                        <View style={{marginLeft:responsiveWidth(3)}}>
-                            <TouchableOpacity onPress={handleOpenMap} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <Image source={AppImages.navigatationIcon} style={{ width: responsiveWidth(44), height: responsiveHeight(44), marginLeft: 5 }} />
-                            </TouchableOpacity>
-                            <Text style={{
-                                fontSize: responsiveFontSize(9),
-                                fontWeight: "400",
-                                lineHeight: 9.68,
-                                color: '#000000',
-                                marginTop: responsiveHeight(6)
-                            }}>Navigate Now</Text>
-                        </View>
-
-                    </View>
-
-                </View>
-                {/* </View> */}
-
-                {/* Bottom Section */}
-                <View style={styles.bottomSection}>
-                    < SlideButton title="End Trip"
-                        titleStyle={{ color: Colors.white, }}
-                        thumbStyle={{
-                            backgroundColor: '#EB5757', // Change the thumb color
-                            height: 50,
-                            // paddingLeft: 20,
-
-                            width: 70,
-                            borderRadius: 30,
-
-                        }}
-                        containerStyle={{ backgroundColor: isSlid ? 'red' : '#232323' }} // Set the background color here
-                        // onSlideComplete={handleSlideComplete} // Callback when sliding is complete
-                        underlayStyle={{ backgroundColor: '#F77B7B', }}
-                    />
-                </View>
+        <View
+          style={{
+            width: '100%',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            marginBottom: 15,
+          }}>
+          <View style={{flex: 1, flexDirection: 'row', paddingHorizontal: 20}}>
+            <Text
+              style={{
+                color: Colors.black,
+                fontSize: responsiveFontSize(14),
+                fontWeight: '400',
+                lineHeight: 16.96,
+              }}>
+              {address}{' '}
+            </Text>
+          </View>
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <BorderLine orientation={'vertical'} thickness={1} />
+            <View style={{marginLeft: responsiveWidth(3)}}>
+              <TouchableOpacity
+                onPress={() =>
+                  handleOpenMap(
+                    details?.drop_lat || 26.846726,
+                    details?.drop_long || 80.928795,
+                  )
+                }
+                style={{flexDirection: 'row', alignItems: 'center'}}>
+                <Image
+                  source={AppImages.navigatationIcon}
+                  style={{
+                    width: responsiveWidth(44),
+                    height: responsiveHeight(44),
+                    marginLeft: 5,
+                  }}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+              <Text
+                style={{
+                  fontSize: responsiveFontSize(9),
+                  fontWeight: '400',
+                  lineHeight: 9.68,
+                  color: '#000000',
+                  marginTop: responsiveHeight(6),
+                }}>
+                Navigate Now
+              </Text>
             </View>
-            <Loading loading={loading} />
-        </>
-    );
+          </View>
+        </View>
+        {/* </View> */}
+
+        {/* Bottom Section */}
+        <View style={styles.bottomSection}>
+          <SlideButton
+            title="End Trip"
+            titleStyle={{color: Colors.white}}
+            thumbStyle={{
+              backgroundColor: '#EB5757', // Change the thumb color
+              height: 50,
+              // paddingLeft: 20,
+              width: 70,
+              borderRadius: 30,
+            }}
+            onReachedToEnd={() => {
+              handleEndTrip();
+              // navigation.navigate('AmountCollected');
+            }}
+            containerStyle={{backgroundColor: isSlid ? 'red' : '#232323'}} // Set the background color here
+            // onSlideComplete={handleSlideComplete} // Callback when sliding is complete
+            underlayStyle={{backgroundColor: '#F77B7B'}}
+          />
+        </View>
+      </View>
+      <Loading loading={loading} />
+    </>
+  );
 };
 
 const styles = StyleSheet.create({
-    profileContainer: {
-        padding: responsiveHeight(2),
-        backgroundColor: Colors.white,
-        borderRadius: 20,
-        marginBottom: responsiveHeight(1),
-        elevation: 1,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-    },
-    otpSection: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginHorizontal: 15,
-        marginTop: 3,
-        marginBottom: 3,
-        // backgroundColor:'red'
-    },
-    button: {
-        backgroundColor: Colors.brandBlue,
-        padding: 10,
-        borderRadius: 5,
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: 16
-
-    },
-    buttonText: {
-        color: '#ffffff',
-        fontSize: 16,
-    },
-    otpLabel: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        // marginRight: 10,
-        color: 'black',
-        marginLeft: 25
-    },
-    otpInput: {
-        borderWidth: 1,
-        borderColor: 'gray',
-        color: Colors.black,
-        padding: 7,
-        borderRadius: 8,
-        flex: 1,
-        marginRight: 10,
-    },
-    otpButton: {
-        backgroundColor: Colors.brandBlue,
-        padding: 8,
-        borderRadius: 5,
-        // marginTop:18
-    },
-    otpButtonText: {
-        color: 'white',
-        fontWeight: 'bold',
-    },
-    mainContent: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: 'green'
-
-    },
-    ProfileView: {
-        flex: 1,
-        backgroundColor: Colors.white,
-        justifyContent: 'flex-start',
-        gap: 5,
-        alignItems: 'center',
-        flexDirection: 'row',
-
-    },
-    profileImage: {
-        width: 38,
-        height: 38,
-        borderRadius: 35,
-        marginLeft: 8
-    },
-    starImg: {
-        height: 12,
-        width: 12,
-    },
-    name: {
-        fontSize: 14,
-        color: 'black',
-        marginTop: 5,
-    },
-    LocationName: {
-        fontSize: 14,
-        fontWeight: 'bold',
-        color: 'black',
-
-    },
-    centeredView: {
-        flex: 0.5,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: 30
-    },
-    leftAligned: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    verticleLine: {
-        height: 10,
-        width: 4,
-        backgroundColor: Colors.brandBlue,
-        marginRight: 10,
-    },
-    textContainer: {
-        justifyContent: 'space-between',
-        flex: 1,
-
-    },
-    actions: {
-        flexDirection: 'row',
-        marginVertical: 5,
-        marginHorizontal: 5,
-        gap: 10,
-    },
-    actionButton: {
-        backgroundColor: Colors.white,
-        padding: 10,
-        borderRadius: 40,
-        borderColor: "#f5f5f5",
-        borderWidth: 1,
-        elevation: 0.4
-
-    },
-    iconImage: {
-        width: 18,
-        height: 18,
-    },
-    bottomSection: {
-        flexDirection: 'row',
-        alignSelf: 'center',
-        alignItems: 'center',
-        width: '90%',
-    },
-    itemDetails: {
-        borderRightWidth: 2,
-        borderRightColor: Colors.brandBlue,
-        paddingRight: 10,
-    },
-    weightDetails: {
-        paddingLeft: 10,
-    },
-    itemText: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: Colors.black,
-    },
-    otpContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginHorizontal: 20,
-    },
-    otpInput: {
-        borderWidth: 1,
-        borderRadius: 6,
-        borderColor: Colors.textInputBorderColor,
-        fontSize: 20,
-        color: Colors.brandBlue,
-        textAlign: 'center',
-        height: 40,
-        width: 40,
-        paddingVertical: 0, // Remove vertical padding
-        paddingHorizontal: 0, // Remove horizontal padding,
-        borderBottomWidth: 1
-    },
-    inputCell: {
-        borderBottomWidth: 1,
-        borderColor: Colors.textInputBorderColor,
-    },
+  profileContainer: {
+    padding: responsiveHeight(2),
+    backgroundColor: Colors.white,
+    borderRadius: 20,
+    marginBottom: responsiveHeight(1),
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  otpSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 15,
+    marginTop: 3,
+    marginBottom: 3,
+    // backgroundColor:'red'
+  },
+  button: {
+    backgroundColor: Colors.brandBlue,
+    padding: 10,
+    borderRadius: 5,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 16,
+  },
+  buttonText: {
+    color: '#ffffff',
+    fontSize: 16,
+  },
+  otpLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    // marginRight: 10,
+    color: 'black',
+    marginLeft: 25,
+  },
+  otpInput: {
+    borderWidth: 1,
+    borderColor: 'gray',
+    color: Colors.black,
+    padding: 7,
+    borderRadius: 8,
+    flex: 1,
+    marginRight: 10,
+  },
+  otpButton: {
+    backgroundColor: Colors.brandBlue,
+    padding: 8,
+    borderRadius: 5,
+    // marginTop:18
+  },
+  otpButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  mainContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'green',
+  },
+  ProfileView: {
+    flex: 1,
+    backgroundColor: Colors.white,
+    justifyContent: 'flex-start',
+    gap: 5,
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  profileImage: {
+    width: 38,
+    height: 38,
+    borderRadius: 35,
+    marginLeft: 8,
+  },
+  starImg: {
+    height: 12,
+    width: 12,
+  },
+  name: {
+    fontSize: 14,
+    color: 'black',
+    marginTop: 5,
+  },
+  LocationName: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: 'black',
+  },
+  centeredView: {
+    flex: 0.5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 30,
+  },
+  leftAligned: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  verticleLine: {
+    height: 10,
+    width: 4,
+    backgroundColor: Colors.brandBlue,
+    marginRight: 10,
+  },
+  textContainer: {
+    justifyContent: 'space-between',
+    flex: 1,
+  },
+  actions: {
+    flexDirection: 'row',
+    marginVertical: 5,
+    marginHorizontal: 5,
+    gap: 10,
+  },
+  actionButton: {
+    backgroundColor: Colors.white,
+    padding: 10,
+    borderRadius: 40,
+    borderColor: '#f5f5f5',
+    borderWidth: 1,
+    elevation: 0.4,
+  },
+  iconImage: {
+    width: 18,
+    height: 18,
+  },
+  bottomSection: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    alignItems: 'center',
+    width: '90%',
+  },
+  itemDetails: {
+    borderRightWidth: 2,
+    borderRightColor: Colors.brandBlue,
+    paddingRight: 10,
+  },
+  weightDetails: {
+    paddingLeft: 10,
+  },
+  itemText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.black,
+  },
+  otpContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginHorizontal: 20,
+  },
+  otpInput: {
+    borderWidth: 1,
+    borderRadius: 6,
+    borderColor: Colors.textInputBorderColor,
+    fontSize: 20,
+    color: Colors.brandBlue,
+    textAlign: 'center',
+    height: 40,
+    width: 40,
+    paddingVertical: 0, // Remove vertical padding
+    paddingHorizontal: 0, // Remove horizontal padding,
+    borderBottomWidth: 1,
+  },
+  inputCell: {
+    borderBottomWidth: 1,
+    borderColor: Colors.textInputBorderColor,
+  },
 });
 
 export default DestinationSection;
-
-

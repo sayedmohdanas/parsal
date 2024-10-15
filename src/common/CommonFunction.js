@@ -1,10 +1,10 @@
 // import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
-import { responsiveFontSize } from './metrices';
-import { useDispatch } from 'react-redux';
-import { PermissionsAndroid, Platform } from 'react-native';
+import {responsiveFontSize} from './metrices';
+import {useDispatch} from 'react-redux';
+import {Alert, PermissionsAndroid, Platform} from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
-import { API_BASE_URL } from '../config/url';
+import {API_BASE_URL} from '../config/url';
 import AppImages from './AppImages';
 export const IMAGE_FOLDER = 'partners_img/';
 // export function setItem(key, data) {
@@ -19,85 +19,85 @@ export const IMAGE_FOLDER = 'partners_img/';
 //         });
 //     });
 // }
-export const getImageUrl = (partner_id, driver_id, profile_pic) => {  
-    console.log("img_url",`${API_BASE_URL}media/${IMAGE_FOLDER}${partner_id}/drivers/${driver_id}_${profile_pic}` )
-    console.log('====================================');
-    console.log(partner_id);
-    console.log(driver_id);
-    console.log(profile_pic);
-    console.log('====================================');
-    if (!partner_id || !driver_id || !profile_pic) {
-      return AppImages.profileImage; 
-    }
-    return `${API_BASE_URL}media/${IMAGE_FOLDER}${partner_id}/drivers/${driver_id}_${profile_pic}`;
-  };
-
+export const getImageUrl = (partner_id, driver_id, profile_pic) => {
+  console.log(
+    'img_url',
+    `${API_BASE_URL}media/${IMAGE_FOLDER}${partner_id}/drivers/${driver_id}_${profile_pic}`,
+  );
+  console.log('====================================');
+  console.log(partner_id);
+  console.log(driver_id);
+  console.log(profile_pic);
+  console.log('====================================');
+  if (!partner_id || !driver_id || !profile_pic) {
+    return AppImages.profileImage;
+  }
+  return `${API_BASE_URL}media/${IMAGE_FOLDER}${partner_id}/drivers/${driver_id}_${profile_pic}`;
+};
 
 export const successToast = (text1, text2 = '', visibilityTime = 4000) => {
-    Toast.show({
-        type: 'success',
-        text1: text1,
-        text2: text2,
-        position: 'top',
-        autoHide: true,
-        visibilityTime: visibilityTime,
-        text1Style: { fontSize: 16 },
-        text2Style: { fontSize: 13 },
-    });
+  Toast.show({
+    type: 'success',
+    text1: text1,
+    text2: text2,
+    position: 'top',
+    autoHide: true,
+    visibilityTime: visibilityTime,
+    text1Style: {fontSize: 16},
+    text2Style: {fontSize: 13},
+  });
 };
 
 export const errorToast = (text1, text2 = '') => {
-    Toast.show({
-        type: 'error',
-        text1: text1,
-        text2: text2,
-        position: 'top',
-        autoHide: true,
-        visibilityTime: 4000,
-        text1Style: { fontSize: 16 },
-        text2Style: { fontSize: 16 },
-    });
+  Toast.show({
+    type: 'error',
+    text1: text1,
+    text2: text2,
+    position: 'top',
+    autoHide: true,
+    visibilityTime: 4000,
+    text1Style: {fontSize: 16},
+    text2Style: {fontSize: 16},
+  });
 };
 
 export const infoToast = (text1, text2 = '') => {
-    Toast.show({
-        type: 'info',
-        text1: text1,
-        text2: text2,
-        position: 'top',
-        autoHide: true,
-        visibilityTime: 4000,
-        text1Style: { fontSize: responsiveFontSize(16) },
-        text2Style: { fontSize: responsiveFontSize(13) },
-    });
+  Toast.show({
+    type: 'info',
+    text1: text1,
+    text2: text2,
+    position: 'top',
+    autoHide: true,
+    visibilityTime: 4000,
+    text1Style: {fontSize: responsiveFontSize(16)},
+    text2Style: {fontSize: responsiveFontSize(13)},
+  });
 };
 
 export const customToast = (text1, text2 = '', config = {}) => {
-    Toast.show({
-        type: 'custom',
-        text1: text1,
-        text2: text2,
-        position: 'top',
-        autoHide: true,
-        visibilityTime: 4000,
-        text1Style: { fontSize: responsiveFontSize(16) },
-        text2Style: { fontSize: responsiveFontSize(13) },
-        ...config, // Any custom configurations can be passed here
-    });
-}
+  Toast.show({
+    type: 'custom',
+    text1: text1,
+    text2: text2,
+    position: 'top',
+    autoHide: true,
+    visibilityTime: 4000,
+    text1Style: {fontSize: responsiveFontSize(16)},
+    text2Style: {fontSize: responsiveFontSize(13)},
+    ...config, // Any custom configurations can be passed here
+  });
+};
 
 export const generateRandomPhoneNumber = () => {
-    const randomPhoneNumber = '9' + Math.floor(Math.random() * 9000000000 + 1000000000);
-    return randomPhoneNumber;
+  const randomPhoneNumber =
+    '9' + Math.floor(Math.random() * 9000000000 + 1000000000);
+  return randomPhoneNumber;
 };
 
 export const formatVehicleNumber = number => {
-    return number
-        .toUpperCase()
-        .replace(
-            /^([A-Z\d]{2})([A-Z\d]{2})([A-Z\d]{1,2})(\d{4})$/,
-            '$1-$2-$3-$4'
-        );
+  return number
+    .toUpperCase()
+    .replace(/^([A-Z\d]{2})([A-Z\d]{2})([A-Z\d]{1,2})(\d{4})$/, '$1-$2-$3-$4');
 };
 
 // import { PermissionsAndroid, Alert } from 'react-native';
@@ -105,72 +105,71 @@ export const formatVehicleNumber = number => {
 
 // Function to request location permission for Android
 export async function requestLocationPermission() {
-    try {
-        const granted = await PermissionsAndroid.request(
-            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-            {
-                title: 'Parsal Partner Location Permission',
-                message: 'Parsal Partner needs access to your location',
-            }
-        );
-        console.log('Permission status:', granted); // Log the permission status
+  try {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      {
+        title: 'Parsal Partner Location Permission',
+        message: 'Parsal Partner needs access to your location',
+      },
+    );
+    console.log('Permission status:', granted); // Log the permission status
 
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-            console.log('Location permission granted');
-            // After permission is granted, fetch the driver's location
-            return true;
-        } else {
-            console.log('Location permission denied');
-            Alert.alert('Permission Denied', 'Location permission denied');
-            return false;
-        }
-    } catch (err) {
-        console.warn(err);
-        return false;
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      console.log('Location permission granted');
+      // After permission is granted, fetch the driver's location
+      return true;
+    } else {
+      console.log('Location permission denied');
+      Alert.alert('Permission Denied', 'Location permission denied');
+      return false;
     }
+  } catch (err) {
+    console.warn(err);
+    return false;
+  }
 }
 export function generateNumericOTP(length = 6) {
-    let otp = '';
-    for (let i = 0; i < length; i++) {
-        otp += Math.floor(Math.random() * 10); // Generates a random digit from 0 to 9
-    }
-    return otp;
+  let otp = '';
+  for (let i = 0; i < length; i++) {
+    otp += Math.floor(Math.random() * 10); // Generates a random digit from 0 to 9
+  }
+  return otp;
 }
 
 // Function to get the driver's current location
 export const GetDriverCurrentLocation = () => {
-    return new Promise((resolve, reject) => {
-        Geolocation.getCurrentPosition(
-            (position) => {
-                const { latitude, longitude } = position.coords;
-                console.log('Latitude:', latitude, 'Longitude:', longitude);
-                resolve({ latitude, longitude });
-            },
-            (error) => {
-                console.error('Geolocation error:', error);
-                reject(`Error getting location: ${error.message}`);
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 20000,
-                maximumAge: 1000,
-            }
-        );
-    });
+  return new Promise((resolve, reject) => {
+    Geolocation.getCurrentPosition(
+      position => {
+        const {latitude, longitude} = position.coords;
+        resolve({latitude, longitude});
+      },
+      error => {
+        console.error('Geolocation error:', error);
+        reject(`Error getting location: ${error.message}`);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 30000, // Increase to 30 seconds
+        maximumAge: 1000,
+      },
+    );
+  });
 };
 
 // Call this function to first request permission and then get the location
 export async function fetchDriverLocation() {
-    const hasPermission = await requestLocationPermission();
-    if (hasPermission) {
-        try {
-            const location = await GetDriverCurrentLocation();
-            console.log('Driver location:', location);
-            // You can now use the location data (latitude, longitude)
-        } catch (error) {
-            console.log('Error fetching location:', error);
-        }
+  const hasPermission = await requestLocationPermission();
+  if (hasPermission) {
+    try {
+      const location = await GetDriverCurrentLocation();
+      console.log('Driver location:', location);
+      // You can now use the location data (latitude, longitude)
+    } catch (error) {
+      console.log('Error fetching location:', error);
     }
+  }
 }
 
 // export const GetDriverCurrentLocation2 = async () => {
@@ -208,3 +207,25 @@ export async function fetchDriverLocation() {
 //         throw new Error(`Error: ${error.message}`);
 //     }
 // };
+// Custom function to calculate distance between two coordinates using the Haversine formula
+export const calculateDistance = (origin, destination) => {
+  const toRadians = degree => (degree * Math.PI) / 180;
+
+  const R = 6371000; // Radius of the Earth in meters
+  const lat1 = toRadians(origin.latitude);
+  const lat2 = toRadians(destination.latitude);
+  const deltaLat = toRadians(destination.latitude - origin.latitude);
+  const deltaLon = toRadians(destination.longitude - origin.longitude);
+
+  const a =
+    Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+    Math.cos(lat1) *
+      Math.cos(lat2) *
+      Math.sin(deltaLon / 2) *
+      Math.sin(deltaLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  const distance = R * c; // Distance in meters
+  return distance;
+};

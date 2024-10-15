@@ -1,15 +1,30 @@
 // CustomNotificationModal.js
-import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal, Alert, Image } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Modal,
+  Alert,
+  Image,
+} from 'react-native';
 import Colors from '../../common/Colors';
-import { hitlPaceOrder, hitMyVehicle } from '../../config/api/api';
-import { useNavigation } from '@react-navigation/native';
+import {hitlPaceOrder, hitMyVehicle} from '../../config/api/api';
+import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useDispatch, useSelector } from 'react-redux';
-import { setDriverId, setOrderData } from '../../redux/HitApis/HitApiSlice';
-import { io } from 'socket.io-client';
-import { generateNumericOTP, GetDriverCurrentLocation } from '../../common/CommonFunction';
-import { socketUrl } from '../../config/url';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  setDriverId,
+  setOrderData,
+  setupdate_order,
+} from '../../redux/HitApis/HitApiSlice';
+import {io} from 'socket.io-client';
+import {
+  generateNumericOTP,
+  GetDriverCurrentLocation,
+} from '../../common/CommonFunction';
+import {socketUrl} from '../../config/url';
 import BorderLine from '../../common/BorderLine.';
 import AppImages from '../../common/AppImages';
 import Loading from '../Loading/Loading';
@@ -17,33 +32,60 @@ import * as Progress from 'react-native-progress';
 // import { AnimatedCircularProgress } from 'react-native-circular-progress';
 // import Svg from 'react-native-svg';
 
-
-
-import { responsiveFontSize, responsiveHeight, responsiveWidth } from '../../common/metrices';
+import {
+  responsiveFontSize,
+  responsiveHeight,
+  responsiveWidth,
+} from '../../common/metrices';
 import Line from '../Line/Line';
+import CircularProgressComponent from './CircularProgress';
 let socket;
-const NotificationModal = ({ setModalVisible, isVisible, onAccept, driverId, onReject, title, body, pickup_address, drop_address, onClose, drop_lat, drop_long, pickup_lat, pickup_long, vehicle_id, cust_id, goods_type_id, expected_price, expected_distance, expected_time, cust_name, cust_mobile, vehicle_type_id, timer }) => {
-  const navigation = useNavigation()
-  const [loading, setLoading] = useState(false)
+const NotificationModal = ({
+  setModalVisible,
+  isVisible,
+  onAccept,
+  driverId,
+  onReject,
+  title,
+  body,
+  pickup_address,
+  drop_address,
+  onClose,
+  drop_lat,
+  drop_long,
+  pickup_lat,
+  pickup_long,
+  vehicle_id,
+  cust_id,
+  goods_type_id,
+  expected_price,
+  expected_distance,
+  expected_time,
+  cust_name,
+  cust_mobile,
+  vehicle_type_id,
+  timer,
+}) => {
+  const navigation = useNavigation();
+  const [loading, setLoading] = useState(false);
   // const orderData = useSelector(state => state?.parsalPartner?.orderData || {});
   // const update_order = useSelector(state => state?.parsalPartner?.update_order || null);
-  const dispatch = useDispatch()
-  const order_date = new Date()
-  const goods_quantity = 1
-  const pay_mode = 'cash'
-  const payment_status = 'pending'
+  const dispatch = useDispatch();
+  const order_date = new Date();
+  const goods_quantity = 1;
+  const pay_mode = 'cash';
+  const payment_status = 'pending';
   useEffect(() => {
-
     socket = io(socketUrl); // Replace with your server URL
-    socket.emit('registerUser', { userId: driverId, role: 'driver' });
+    socket.emit('registerUser', {userId: driverId, role: 'driver'});
     // On successful connection
     socket.on('connect', () => {
       console.log('Connected to socket server');
     });
 
-    socket.on('order_accepted', (data) => {
+    socket.on('order_accepted', data => {
       console.log('Order accepted status received:');
-      setModalVisible(false)
+      setModalVisible(false);
     });
     // Clean up when the component is unmounted
     return () => {
@@ -57,9 +99,11 @@ const NotificationModal = ({ setModalVisible, isVisible, onAccept, driverId, onR
   const handleAccept = async () => {
     try {
       // Show loading
+      dispatch(setOrderData({}));
+      dispatch(setupdate_order({}));
       setLoading(true);
 
-      const { latitude, longitude } = await GetDriverCurrentLocation();
+      const {latitude, longitude} = await GetDriverCurrentLocation();
 
       // Create payload
       const payload = {
@@ -96,16 +140,15 @@ const NotificationModal = ({ setModalVisible, isVisible, onAccept, driverId, onR
             otp: generateNumericOTP(4),
             custName: cust_name,
             custMobile: cust_mobile,
-            vehicle_type_id: vehicle_type_id
+            vehicle_type_id: vehicle_type_id,
           };
-          console.log(resWithOTP, 'anas===>>>')
           // Emit 'driver_accept' event and send the data
-          socket.emit('driver_accept', resWithOTP, (acknowledgment) => {
+          socket.emit('driver_accept', resWithOTP, acknowledgment => {
             console.log('Data sent, acknowledgment:', acknowledgment);
           });
 
           dispatch(setOrderData(resWithOTP));
-          navigation.navigate("DriverMap", {
+          navigation.navigate('DriverMap', {
             picklat: payload.pickup_lat,
             pickLong: payload.pickup_long,
             drop_lat: payload.drop_lat,
@@ -133,8 +176,7 @@ const NotificationModal = ({ setModalVisible, isVisible, onAccept, driverId, onR
         transparent={true}
         visible={isVisible}
         animationType="slide"
-        onRequestClose={onClose}
-      >
+        onRequestClose={onClose}>
         <View style={styles.modalBackground}>
           <View style={styles.modalContainer}>
             <View style={styles.headerContainer}>
@@ -143,31 +185,25 @@ const NotificationModal = ({ setModalVisible, isVisible, onAccept, driverId, onR
                 style={styles.parcalLogo}
                 resizeMode='contain'
               /> */}
-              <Text style={{ alignSelf: 'flex-start', fontSize: responsiveFontSize(16), color: '#232323', fontWeight: '600', lineHeight: 19.36 }} >New Order</Text>
+              <Text
+                style={{
+                  alignSelf: 'flex-start',
+                  fontSize: responsiveFontSize(16),
+                  color: '#232323',
+                  fontWeight: '600',
+                  lineHeight: 19.36,
+                }}>
+                New Order
+              </Text>
               {/* <TouchableOpacity onPress={onReject} style={{ backgroundColor: Colors.grey, paddingHorizontal: 4, borderRadius: 5, elevation: 0.3, }}>
                 <Text style={styles.closeText}>X</Text>
               </TouchableOpacity> */}
               <BorderLine margin={10} thickness={0.5} />
             </View>
 
-
-            <View
-              style={{
-                backgroundColor: 'rgba(242, 242, 242, 0.8)',
-                alignSelf: 'center',
-                justifyContent: 'center', borderWidth: 2,
-                borderColor: Colors.brandBlue,
-                width: responsiveWidth(62),
-                height: responsiveHeight(62),
-                borderRadius: 50,
-                alignItems: 'center',
-                marginTop: responsiveHeight(24),
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.1,
-                shadowRadius: 4,
-                elevation: 1
-              }}>
-              <Text style={{ color: Colors.brandBlue, fontSize: responsiveFontSize(34), fontWeight: '500', }}>{timer}</Text>
+            <View style={{ alignSelf: 'center' }}
+            >
+              <CircularProgressComponent timer={timer} setModalVisible={setModalVisible} />
             </View>
             <View>
               {/* <Progress.Circle size={30} indeterminate={true} /> */}
@@ -176,7 +212,6 @@ const NotificationModal = ({ setModalVisible, isVisible, onAccept, driverId, onR
               {/* <Progress.Pie progress={0.4} size={50} />
               <Progress.CircleSnail color={['red', 'green', 'blue']} /> */}
             </View>
-
 
             {/* <Text style={styles.priceText}>₹{expected_price}</Text> */}
             {/* <AnimatedCircularProgress
@@ -187,7 +222,6 @@ const NotificationModal = ({ setModalVisible, isVisible, onAccept, driverId, onR
   onAnimationComplete={() => console.log('onAnimationComplete')}
   backgroundColor="#3d5875" /> */}
 
-
             {/* <View style={styles.ratingContainer}>
               <Image source={AppImages.starImage} style={styles.starImg} />
               <Text style={styles.ratingText}>4.9</Text>
@@ -196,22 +230,34 @@ const NotificationModal = ({ setModalVisible, isVisible, onAccept, driverId, onR
             </View> */}
 
             <View style={styles.bodyContainer}>
+            {expected_price&&( 
               <Text style={styles.priceText}>₹{expected_price}</Text>
-
-              <View style={{ marginLeft: responsiveHeight(0), flexDirection: 'row', marginTop: responsiveHeight(20), marginBottom: responsiveHeight(8) }}>
-                {/* <Text style={styles.bodyText}> 2 min, 2.8 km distance</Text> */}
+            )}
+              <View
+                style={{
+                  marginLeft: responsiveHeight(0),
+                  flexDirection: 'row',
+                  marginTop: responsiveHeight(20),
+                  marginBottom: responsiveHeight(8),
+                }}>
+                  {expected_time&&(
                 <Text style={styles.bodyText}> {`${expected_time},`}</Text>
-                <Text style={styles.bodyText}> {`${expected_distance} km `}</Text>
-
-
+                )}
+                {expected_distance &&(
+                <Text style={styles.bodyText}>
+                  {' '}
+                  {`${expected_distance} km `}
+                </Text>
+            )}
               </View>
 
-
-
-              <View style={{
-                flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8
-              }}>
-
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  paddingVertical: 8,
+                }}>
+                  {expected_price&&( 
                 <View style={[styles.timelineContainer]}>
                   <View style={styles.greenCircle}></View>
                   <View style={styles.line}></View>
@@ -220,8 +266,11 @@ const NotificationModal = ({ setModalVisible, isVisible, onAccept, driverId, onR
                     {/* //// <Image source={AppImages.location} style={styles.locImg} /> */}
                   </View>
                 </View>
-                <View style={{ marginLeft: responsiveWidth(5) }}>
-                  <Text style={[styles.addressText, { marginVertical: 0 }]}>{pickup_address}</Text>
+                  )}
+                <View style={{marginLeft: responsiveWidth(5)}}>
+                  <Text style={[styles.addressText, {marginVertical: 0}]}>
+                    {pickup_address}
+                  </Text>
                   {/* <Text style={[styles.addressText, { marginVertical: 0 }]}>{"Mushahibganj Daulatganj Thakurganj 226003 "}</Text> */}
                   {/* <Text style={[styles.addressText, { marginTop:responsiveHeight(22) }]}>{"Mushahibganj Daulatganj Thakurganj 226003 "}</Text> */}
 
@@ -232,26 +281,31 @@ const NotificationModal = ({ setModalVisible, isVisible, onAccept, driverId, onR
             {/* <View style={styles.lineContainer}>
           </View> */}
 
-            <View style={{
-              width: '100%',
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              marginBottom: responsiveHeight(20),
-            }}>
-              <TouchableOpacity style={styles.roundButton} onPress={handleAccept}>
-                <Text style={[styles.buttonText, { color: Colors.white, }]}>Accept</Text>
+            <View
+              style={{
+                width: '100%',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginBottom: responsiveHeight(20),
+              }}>
+              <TouchableOpacity
+                style={styles.roundButton}
+                onPress={handleAccept}>
+                <Text style={[styles.buttonText, {color: Colors.white}]}>
+                  Accept
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.rejectButton} onPress={onReject}>
-                <Text style={[styles.buttonText, { color: Colors.grey, }]}>Reject</Text>
+                <Text style={[styles.buttonText, {color: Colors.grey}]}>
+                  Reject
+                </Text>
               </TouchableOpacity>
-
             </View>
           </View>
         </View>
       </Modal>
       <Loading loading={loading} />
     </>
-
   );
 };
 const styles = StyleSheet.create({
@@ -263,10 +317,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     // backgroundColor: 'green',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 1
+    elevation: 1,
   },
   modalContainer: {
     width: '90%',
@@ -282,7 +336,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     marginLeft: responsiveWidth(3),
-    marginTop: responsiveHeight(10)
+    marginTop: responsiveHeight(10),
   },
   parcalLogo: {
     width: 70,
@@ -305,7 +359,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 10,
-    gap: 5
+    gap: 5,
   },
   starImg: {
     width: 15,
@@ -320,12 +374,12 @@ const styles = StyleSheet.create({
   ratingText: {
     color: 'grey',
     fontSize: 10,
-    color: 'black'
+    color: 'black',
   },
   payText: {
     fontSize: 12,
     color: 'black',
-    fontWeight: '500'
+    fontWeight: '500',
   },
   bodyContainer: {
     // alignItems: 'center',
@@ -339,22 +393,18 @@ const styles = StyleSheet.create({
     fontSize: responsiveFontSize(14),
     color: '#232323',
     fontWeight: '500',
-    lineHeight: 16.94
-
+    lineHeight: 16.94,
   },
   kmText: {
     fontWeight: '500',
     color: 'black',
-
   },
   addressText: {
     fontSize: responsiveFontSize(15),
     fontWeight: '500',
     marginVertical: 14,
     color: '#232323',
-    lineHeight: 19.36
-
-
+    lineHeight: 19.36,
   },
   lineContainer: {
     width: '100%',
@@ -390,7 +440,7 @@ const styles = StyleSheet.create({
     // color: Colors.grey,
     fontWeight: '400',
     fontSize: responsiveFontSize(16),
-    lineHeight: 19.36
+    lineHeight: 19.36,
   },
 
   timelineContainer: {
@@ -425,7 +475,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderColor: '#D8D8D8',
     borderWidth: 1.5,
-    borderRadius: 50
+    borderRadius: 50,
   },
   line: {
     borderLeftWidth: 1,
@@ -434,6 +484,5 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
   },
 });
-
 
 export default NotificationModal;

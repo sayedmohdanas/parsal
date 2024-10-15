@@ -17,11 +17,12 @@ const styles = StyleSheet.create({
   headingContainer: {
     flexDirection: 'row', 
     alignItems: 'baseline', 
+    margin:10
   },
   headinglabel: {
     fontSize: responsiveFontSize(14),
     color: 'black',
-    marginVertical: 14,
+    // marginVertical: 14,
     fontWeight: '600',
   },
   redAsterisk: {

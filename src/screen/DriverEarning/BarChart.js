@@ -1,109 +1,107 @@
-import { StyleSheet, View, Dimensions, Text } from 'react-native';
-import React from 'react';
-import {
-    BarChart as ChartKitBarChart
-} from "react-native-chart-kit";
 
-const BarChartComponent = () => {
-    const data = {
-        labels: ["1", "2", "3", "4", "5", "6", "7"], // Numeric labels
-        datasets: [
-            {
-                data: [99, 1000, 2000, 4000, 5000, 6000, 7000], // Sample data
-            }
-        ]
-    };
-
-    const chartConfig = {
-        backgroundColor: "#FFFFFF", // Set background color to white
-        backgroundGradientFrom: "#FFFFFF", // Gradient from white
-        backgroundGradientTo: "#FFFFFF", // Gradient to white
-        color: (opacity = 1) => `rgba(0, 0, 255, ${opacity})`, // Bar color set to blue
-        strokeWidth: 2, // Width of chart lines
-        barPercentage: 0.5,
-        useShadowColorFromDataset: false, // Remove shadow
-        propsForBackgroundLines: {
-            strokeWidth: 0, // Remove background grid lines
-        },
-        decimalPlaces: 0, // Disable decimal places in y-axis labels
-    };
-
-    const screenWidth = Dimensions.get('window').width; // Get screen width
-
-    return (
-        <View style={styles.container}>
-            <ChartKitBarChart
-                style={styles.graphStyle}
-                data={data}
-                width={screenWidth}
-                height={170}
-                yAxisLabel=""  // No prefix
-                yAxisSuffix="k" // Adds 'k' to the values
-                chartConfig={chartConfig}
-                verticalLabelRotation={0}
-            />
-            {/* <View style={styles.labelsContainer}>
-                <View style={styles.numbersContainer}>
-                    <Text style={styles.numberText}>1</Text>
-                    <Text style={styles.numberText}>2</Text>
-                    <Text style={styles.numberText}>3</Text>
-                    <Text style={styles.numberText}>4</Text>
-                    <Text style={styles.numberText}>5</Text>
-                    <Text style={styles.numberText}>6</Text>
-                    <Text style={styles.numberText}>7</Text>
-                </View>
-                <View style={styles.weekdaysContainer}>
-                    <Text style={styles.weekdayText}>M</Text>
-                    <Text style={styles.weekdayText}>T</Text>
-                    <Text style={styles.weekdayText}>W</Text>
-                    <Text style={styles.weekdayText}>T</Text>
-                    <Text style={styles.weekdayText}>F</Text>
-                    <Text style={styles.weekdayText}>S</Text>
-                    <Text style={styles.weekdayText}>S</Text>
-                </View>
-                
-            </View> */}
-        </View>
-    );
+import React, { useState, useEffect } from 'react';
+import { VictoryBar, VictoryChart, VictoryAxis } from 'victory-native';
+import { Alert, View } from 'react-native';
+import Line from '../../components/Line/Line';
+const getDayOfWeek = (dateString) => {
+  const date = new Date(dateString);
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  return days[date.getDay()];
 };
-
-export default BarChartComponent;
-
-const styles = StyleSheet.create({
-    container: {
-        alignItems: 'center', // Center the chart and labels
-    },
-    graphStyle: {
-        marginVertical: 4,
-        borderRadius: 16,
-    },
-    labelsContainer: {
-        flexDirection: 'column', // Stack labels in a column
-        alignItems: 'center', // Center align the columns
-        // marginTop: 10,
-        alignSelf:'flex-end' // Space between chart and labels
-    },
-    weekdaysContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '80%', // Full width for equal spacing
-    },
-    numbersContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '80%', // Full width for equal spacing
-        paddingTop: 5, // Space between weekdays and numbers
-    },
-    weekdayText: {
-        fontSize: 16,
-        color: 'black', // Customize the color of weekday text
-        flex: 1, // Allow equal spacing
-        textAlign: 'center', // Center align text
-    },
-    numberText: {
-        fontSize: 16,
-        color: 'black', // Customize the color of number text
-        flex: 1, // Allow equal spacing
-        textAlign: 'center', // Center align text
-    },
-});
+const isToday = (date) => {
+  const today = new Date();
+  const givenDate = new Date(date);
+  return (
+    today.getDate() === givenDate.getDate() &&
+    today.getMonth() === givenDate.getMonth() &&
+    today.getFullYear() === givenDate.getFullYear()
+  );
+};
+const aggregateEarningsByDay = (data) => {
+  const earnings = {
+    Mon: 0,
+    Tue: 0,
+    Wed: 0,
+    Thu: 0,
+    Fri: 0,
+    Sat: 0,
+    Sun: 0,
+  };
+  data.forEach((entry) => {
+    const day = getDayOfWeek(entry.order_date);
+    earnings[day] += entry.paid_amount;
+  });
+  return Object.keys(earnings).map((day) => ({
+    day,
+    value: earnings[day],
+  }));
+};
+const BarChart = ({ driverEarningData, selectedRange }) => {
+  const [chartData, setChartData] = useState([]);
+  useEffect(() => {
+    const filteredData = driverEarningData?.individual_paid_amounts || [];
+    const aggregatedData = aggregateEarningsByDay(filteredData);
+    const updatedData = aggregatedData.map((data) => {
+      let color = '#B1B2ED';
+      if (selectedRange === 'today' && data.day === getDayOfWeek(new Date())) {
+        color = '#3D40D1';
+      } else if (selectedRange === 'week') {
+        color = '#3D40D1';
+      }
+      return {
+        ...data,
+        color,
+      };
+    });
+    setChartData(updatedData);
+  }, [driverEarningData, selectedRange]);
+  if (!chartData.length) {
+    return null;
+  }
+  return (
+    <View>
+      <VictoryChart height={220} domainPadding={20}>
+        <VictoryAxis
+          style={{
+            axis: { stroke: '#232323' },
+            tickLabels: {
+              fontSize: 10,
+              padding: 5,
+              fill: '#777777',
+            },
+          }}
+          tickValues={['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']}
+          tickFormat={(t, index) => `${index + 1}\n${t}`}
+        />
+        <VictoryAxis
+          dependentAxis
+          tickFormat={(x) => `${x / 1000}k`}
+          style={{
+            axis: { stroke: 'transparent' },
+            grid: { stroke: '#D8D8D8', strokeDasharray: '0' },
+            tickLabels: {
+              fontSize: 10,
+              padding: 5,
+              fill: '#777777',
+              fontWeight: '500',
+            },
+          }}
+        />
+        <VictoryBar
+          data={chartData}
+          x="day"
+          y="value"
+          style={{
+            data: {
+              fill: ({ datum }) => datum.color, // Set the bar color based on the day's earnings
+              width: 25,
+            },
+          }}
+          cornerRadius={{ top: 2 }}
+        />
+      </VictoryChart>
+      <Line marginH={0} />
+    </View>
+  );
+};
+export default BarChart;

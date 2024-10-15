@@ -11,11 +11,11 @@
 // import { responsiveHeight, responsiveWidth } from '../../common/metrices';
 
 // const MyVehiclesScreen = ({ navigation }) => {
- 
+
 //   const dispatch = useDispatch();
 //   const vehicleData = useSelector(
 //     state => state?.parsalPartner?.MyVehicle || [],
-//   ); 
+//   );
 
 //   const vehicleCount = vehicleData?.length;
 //   // const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
@@ -39,17 +39,17 @@
 //       const partnerIds = await AsyncStorage.getItem('partner_id');
 //       const partnerId = JSON.parse(partnerIds);
 //       console.log('Partner ID:', partnerId);
-      
+
 //       setLoading(true);
-      
+
 //       await dispatch(setParentId(partnerId));
-  
+
 //       const res = await hitMyVehicle({ partnerId });
 //       console.log('MyVehicle Response:', res);
-  
+
 //       await dispatch(getPartner({ partner_id: partnerId }));
 //       console.log('Partner Response Dispatched');
-  
+
 //       dispatch(setMyVehicleData(res));
 //     } catch (error) {
 //       console.error('Error fetching data:', error);
@@ -57,7 +57,6 @@
 //       setLoading(false);  // Ensure loading state is turned off after the API call
 //     }
 //   };
-  
 
 //   // Use focus effect to call refreshData when screen gains focus
 //   useEffect(() => {
@@ -106,7 +105,6 @@
 
 //         </>
 //       )}
-
 
 //       <View style={styles.stickyButtonContainer}>
 //         {vehicleCount > 0 && (
@@ -215,51 +213,53 @@
 
 // export default MyVehiclesScreen;
 
-
-
-import React, { useEffect, useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity, Alert, StyleSheet } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { getPartner, getVehicle, setMyVehicleData, setParentId } from '../../redux/HitApis/HitApiSlice'; // Ensure this is the correct path
+import React, {useEffect, useCallback, useState} from 'react';
+import {View, Text, TouchableOpacity, Alert, StyleSheet} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  getPartner,
+  getVehicle,
+  setMyVehicleData,
+  setParentId,
+} from '../../redux/HitApis/HitApiSlice'; // Ensure this is the correct path
 import Loading from '../../components/Loading/Loading';
 import VehicleList from './VehicleList';
-import { successToast } from '../../common/CommonFunction';
-import { hitMyVehicle } from '../../config/api/api';
+import {successToast} from '../../common/CommonFunction';
+import {hitMyVehicle} from '../../config/api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '../../common/Colors';
-import { responsiveHeight, responsiveWidth } from '../../common/metrices';
+import {responsiveHeight, responsiveWidth} from '../../common/metrices';
 
-const MyVehiclesScreen = ({ navigation }) => {
+const MyVehiclesScreen = ({navigation}) => {
   const dispatch = useDispatch();
   const vehicleData = useSelector(
     state => state?.parsalPartner?.MyVehicle || [],
-  ); 
+  );
   const vehicleCount = vehicleData?.length;
   // const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
 
   const [loading, setLoading] = useState(false); // State to manage loading
-  
+
   const refreshData = async () => {
     try {
       const partnerIds = await AsyncStorage.getItem('partner_id');
-      console.log(partnerIds,'prent===>>>');
-      const partnerId =  JSON.parse(partnerIds)
-      console.log(partnerId,'partneriddddd===>>>>>>>>>>><<<<>>>');
-      
+      const partnerId = JSON.parse(partnerIds);
       await dispatch(setParentId(partnerId));
-
-      const res = await hitMyVehicle({ partnerId: partnerId });
-      dispatch(setMyVehicleData(res));
+      hitMyVehicle({partnerId: partnerId})
+        .then(res => {
+          dispatch(setMyVehicleData(res));
+        })
+        .catch(err => {
+          dispatch(setMyVehicleData([]));
+          console.error(err);
+        });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
- 
-  
   // Use focus effect to call refreshData when screen gains focus
   useEffect(() => {
-
     const unsubscribeFocus = navigation.addListener('focus', () => {
       refreshData();
     });
@@ -268,11 +268,14 @@ const MyVehiclesScreen = ({ navigation }) => {
     };
   }, []);
 
+
   // Show success toast when vehicle data is loaded
   useEffect(() => {
     if (vehicleCount > 0) {
       successToast(
-        `Successfully loaded ${vehicleCount} vehicle${vehicleCount !== 1 ? 's' : ''}.`,
+        `Successfully loaded ${vehicleCount} vehicle${
+          vehicleCount !== 1 ? 's' : ''
+        }.`,
       );
     }
   }, [vehicleCount]);
@@ -286,7 +289,7 @@ const MyVehiclesScreen = ({ navigation }) => {
   };
 
   const handleAddBankPress = () => {
-    navigation.navigate('UpdateBankDetails'); // Replace 'TargetScreen' with your desired screen name
+    navigation.navigate('AddBank'); // Replace 'TargetScreen' with your desired screen name
   };
 
   const onPress = () => {
@@ -304,7 +307,10 @@ const MyVehiclesScreen = ({ navigation }) => {
         <Loading loading={loading} />
       ) : (
         <>
-          <VehicleList vehicleData={vehicleData} handleCardPress={handleCardPress} />
+          <VehicleList
+            vehicleData={vehicleData}
+            handleCardPress={handleCardPress}
+          />
         </>
       )}
 
@@ -327,7 +333,7 @@ const MyVehiclesScreen = ({ navigation }) => {
               onPress={handleAddBankPress}>
               ADD Bank Account
             </Text>
-            <Text style={{ color: 'white' }}>➙</Text>
+            <Text style={{color: 'white'}}>➙</Text>
           </View>
         )}
 
@@ -347,7 +353,7 @@ const MyVehiclesScreen = ({ navigation }) => {
           <TouchableOpacity
             style={[
               styles.button,
-              { backgroundColor: vehicleCount > 0 ? '#3D40D1' : '#d3d3d3' },
+              {backgroundColor: vehicleCount > 0 ? '#3D40D1' : '#d3d3d3'},
             ]}
             onPress={onPress}
             disabled={vehicleCount === 0}>
@@ -373,7 +379,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderTopColor: '#d3d3d3',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
+    shadowOffset: {width: 0, height: -2},
     shadowOpacity: 0.1,
     elevation: 1,
     justifyContent: 'space-between',

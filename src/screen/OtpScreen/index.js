@@ -9,9 +9,9 @@ import {
   View,
   Alert,
 } from 'react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import AppImages from '../../common/AppImages';
-import { responsiveHeight, responsiveWidth } from '../../common/metrices';
+import {responsiveHeight, responsiveWidth} from '../../common/metrices';
 import Colors from '../../common/Colors';
 import CustomButton from '../../components/CustomButton/CustomButton';
 import {
@@ -19,26 +19,36 @@ import {
   generateRandomPhoneNumber,
   successToast,
 } from '../../common/CommonFunction';
-import { useDispatch, useSelector } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import Loading from '../../components/Loading/Loading';
-import { hitPartnerVerifyOtp } from '../../config/api/api';
+import {hitPartnerVerifyOtp} from '../../config/api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getVehicle, setParentId } from '../../redux/HitApis/HitApiSlice';
+import {
+  getVehicle,
+  setLogout,
+  setOwner,
+  setParentId,
+} from '../../redux/HitApis/HitApiSlice';
 import OTPTextView from 'react-native-otp-textinput';
 
-const OtpScreen = ({ navigation, route }) => {
-  const { number } = route?.params;
+const OtpScreen = ({navigation, route}) => {
+  const {number} = route?.params;
   const dispatch = useDispatch();
   const userOtp = useSelector(state => state?.parsalPartner?.user?.otp);
+  const user = useSelector(state => state?.parsalPartner?.user);
+
   const loading = useSelector(state => state?.parsalPartner?.loading);
   const [otp, setOtp] = useState('');
   let otpInput = useRef(null);
 
-
-
-
-
-
+  useEffect(() => {
+    const pId = async () => {
+      if (user) {
+        console.log('user========>>>>', user);
+      }
+    };
+    pId();
+  }, [navigation]);
 
   // useEffect(() => {
   //   const pId = async () => {
@@ -48,11 +58,13 @@ const OtpScreen = ({ navigation, route }) => {
   //   };
   //   pId();
   // }, []);
-  const handleTextChange = (text) => {
+  const handleTextChange = async text => {
     setOtp(text);
   };
-  const handleOtp = async () => {
 
+  const handleOtp = async () => {
+    const owner_type = user?.payload?.owner_type;
+    const id = user?.payload?.partner_id;
     try {
       if (otp.length < 4) {
         errorToast('Invalid Input', 'Enter a Valid Otp');
@@ -67,12 +79,29 @@ const OtpScreen = ({ navigation, route }) => {
         email: number,
         phone: generateRandomPhoneNumber(),
       };
+      // if (owner_type) {
+      console.log('user', user);
+      await AsyncStorage.setItem('user', JSON.stringify(user));
+
+      // }
+      if (owner_type == 0) {
+        // await AsyncStorage.setItem('user', JSON.stringify(user));
+        await AsyncStorage.setItem('owner_type', JSON.stringify(owner_type));
+        // await dispatch(setOwner(owner_type))
+        navigation.replace('DriverDashboard');
+
+        return;
+      } else if (owner_type == 1 || owner_type == 2) {
+        await AsyncStorage.setItem('owner_type', JSON.stringify(owner_type));
+        await AsyncStorage.setItem('partner_id', JSON.stringify(id));
+
+        //  await dispatch(setOwner(owner_type))
+        navigation.replace('OwnerDashboard');
+        return;
+      }
 
       const response = await hitPartnerVerifyOtp(request);
-
       const partnerId = response?.partnerId;
-      console.log('response', response);
-      console.log('response-partner-name', response?.partner?.partner_name);
       if (response.status === 2) {
         if (
           response?.partner?.email !== null &&
@@ -81,12 +110,12 @@ const OtpScreen = ({ navigation, route }) => {
           response?.partner?.email !== '-' &&
           response?.partner?.phone !== '-'
         ) {
-          await AsyncStorage.setItem('partner_id', String(partnerId));
-          await AsyncStorage.setItem('partner_name', String(response?.partner?.partner_name));
-          dispatch(setParentId(partnerId));
+          // await AsyncStorage.setItem('partner_id', String(partnerId));
+          // await AsyncStorage.setItem('partner_name', String(response?.partner?.partner_name));
+          // dispatch(setParentId(partnerId));
 
           navigation.replace('MyVehicles', {
-            partner_id: partnerId,
+            // partner_id: partnerId,
             email: number,
           });
         } else {
@@ -118,6 +147,64 @@ const OtpScreen = ({ navigation, route }) => {
     }
   };
 
+  // const handleOtp = async () => {
+  //   try {
+  //     // OTP validation
+  //     if (otp.length < 4) {
+  //       errorToast('Invalid Input', 'Enter a Valid OTP');
+  //       return;
+  //     }
+  //     if (otp !== userOtp) {
+  //       errorToast('Invalid Input', 'Incorrect OTP');
+  //       return;
+  //     }
+
+  //     const request = {
+  //       email: number,
+  //       phone: generateRandomPhoneNumber(),
+  //     };
+
+  //     const response = await hitPartnerVerifyOtp(request);
+
+  //     // if (!response || response.status !== 2) {
+  //     //   console.error('PartnerId not found in the response');
+  //     //   return;
+  //     // }
+
+  //     const partnerId = response.partnerId;
+  //     const ownerType = user? user?.payload?.owner_type :"newUser";
+
+  //     if (user) {
+  //       await AsyncStorage.setItem('user', JSON.stringify(user));
+
+  //       if (ownerType !== undefined && ownerType !== null) {
+  //         await AsyncStorage.setItem('owner_type', JSON.stringify(ownerType));
+  //       } else {
+  //         console.error('Invalid owner_type: cannot store undefined/null in AsyncStorage');
+  //         return;
+  //       }
+  //     }
+
+  //     if (ownerType === 0) {
+  //       navigation.replace('DriverDashboard', { driverId: '12' });
+  //       if (response.partner?.partner_name) {
+  //         await AsyncStorage.setItem('partner_name', String(response.partner.partner_name));
+  //       }
+  //     } else if (ownerType === 1) {
+  //       await AsyncStorage.setItem('user_role', 'owner');
+  //       navigation.replace('OwnerDashboard', { ownerId: '12' });
+  //     } else {
+
+  //       if (response.partner?.email && response.partner?.phone && response.partner?.partner_name !== '-') {
+  //         navigation.replace('MyVehicles', { email: number });
+  //       } else {
+  //         navigation.replace('OwnerDetail', { email: number });
+  //       }
+  //     }
+  //   } catch (err) {
+  //     console.error('Error in OTP screen', err);
+  //   }
+  // };
 
   return (
     <>
@@ -149,19 +236,20 @@ const OtpScreen = ({ navigation, route }) => {
             {/* <View style={[mystyles.center]}>
         <Image source={AppImages.EnterNumberScreenImg} style={styles.mainImg} resizeMode='contain' />
             </View> */}
-            <View style={[{ flexDirection: 'row' }, styles.numberStyleContainer]}>
-              <View style={[{ flexDirection: 'row' }, styles.numberContainer]}>
+            <View style={[{flexDirection: 'row'}, styles.numberStyleContainer]}>
+              <View style={[{flexDirection: 'row'}, styles.numberContainer]}>
                 <Text style={styles.number}>{number}</Text>
               </View>
               <TouchableOpacity
                 onPress={() => {
                   // dispatch(setStatusPending());
                   // navigation.replace('Login');
-                  navigation.navigate('Login', { number: number });
+                  dispatch(setLogout());
+                  navigation.navigate('Login', {number: number});
                 }}>
                 <View
                   style={[
-                    { justifyContent: 'center', alignItems: 'center' },
+                    {justifyContent: 'center', alignItems: 'center'},
                     styles.buttonContainer,
                   ]}>
                   <Text style={[styles.buttonText]}>{`Change`}</Text>
@@ -169,12 +257,10 @@ const OtpScreen = ({ navigation, route }) => {
               </TouchableOpacity>
             </View>
           </View>
-          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-            <View style={{ alignSelf: 'flex-start' }}>
-            </View>
+          <View style={{justifyContent: 'center', alignItems: 'center'}}>
+            <View style={{alignSelf: 'flex-start'}}></View>
             <View style={[styles.numberInputContainer]}>
               <View style={styles.inputContainer}>
-
                 <OTPTextView
                   ref={otpInput}
                   handleTextChange={handleTextChange}
@@ -184,6 +270,7 @@ const OtpScreen = ({ navigation, route }) => {
                   inputCellLength={1}
                   tintColor={Colors.brandBlue}
                   offTintColor={Colors.textInputBorderColor}
+                  autoFocus={true}
                 />
               </View>
             </View>
@@ -246,7 +333,6 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingHorizontal: 10,
     height: 40,
-
   },
   numberContainer: {
     gap: 10,
@@ -307,11 +393,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: Colors.brandBlue,
     textAlign: 'center',
-    height: responsiveHeight(50),
+    height: responsiveHeight(55),
     width: responsiveWidth(50),
     paddingVertical: 0,
     paddingHorizontal: 0,
-    borderBottomWidth: 1
+    borderBottomWidth: 1,
   },
   inputCell: {
     borderBottomWidth: 1,

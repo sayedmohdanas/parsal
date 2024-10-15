@@ -3,12 +3,9 @@ import { View, Text, TouchableOpacity, StyleSheet, Alert, Image } from 'react-na
 import ImagePicker from 'react-native-image-crop-picker';
 import AppImages from '../../common/AppImages';
 import Colors from '../../common/Colors';
-
+import { responsiveFontSize, responsiveHeight, responsiveWidth } from '../../common/metrices';
 const uplodedImage = require('../../assets/images/uploded.png');
-
-
 const ImagePickerComponent = ({ labelText, uploaded, onImagePick, useCamera = false }) => {
-
   const pickImage = async () => {
     try {
       const response = useCamera
@@ -19,7 +16,6 @@ const ImagePickerComponent = ({ labelText, uploaded, onImagePick, useCamera = fa
           cropping: true,
           includeBase64: true
         })
-
       // if (response) {
       //    const imagePath = response.path;
       // const base64Data = `data:${response.mime};base64,${response.data}`;
@@ -30,9 +26,7 @@ const ImagePickerComponent = ({ labelText, uploaded, onImagePick, useCamera = fa
         // const base64Data = response.data;
         // const base64Data = response.data;
         const base64Data = `data:${response.mime};base64,${response.data}`;
-
         const imagePath = response.path;
-
         // Pass the image data including base64
         onImagePick({
           uri: imagePath,
@@ -45,8 +39,6 @@ const ImagePickerComponent = ({ labelText, uploaded, onImagePick, useCamera = fa
       console.error(error);
     }
   };
-
-
   return (
     <View style={styles.card}>
       <View style={styles.uploadContainer}>
@@ -58,7 +50,6 @@ const ImagePickerComponent = ({ labelText, uploaded, onImagePick, useCamera = fa
           {uploaded &&
             <View style={styles.uplodedIConView}>
               <Image source={uplodedImage} style={styles.image} />
-
               <Text style={styles.uploadedText}>Uploaded</Text>
             </View>
           }
@@ -74,33 +65,31 @@ const ImagePickerComponent = ({ labelText, uploaded, onImagePick, useCamera = fa
             }}>
               <Image
                 source={AppImages.cameraImage}
-              style={{
+                style={{
                   // position: 'absolute',
-                  height: 16,
-                  width:16,
+                  height: responsiveWidth(16),
+                  width: responsiveWidth(16),
                   // right: responsiveWidth(43),
                   // top: responsiveHeight(27)
-              }}
-              resizeMode='contain'
+                }}
+                resizeMode='contain'
               />
               <Text style={styles.uploadButtonText}>Upload</Text>
             </View>
-
-
           ) : (
             <Image
-                source={AppImages.editPen}
-                resizeMode='contain'
-                style={{height:20,width:20}}
-              // style={{
-              //     position: 'absolute',
-              //     height: responsiveHeight(35),
-              //     width: responsiveWidth(42),
-              //     right: responsiveWidth(43),
-              //     top: responsiveHeight(27)
-              // }}
-              // resizeMode='contain'
-              />
+              source={AppImages.editPen}
+              resizeMode='contain'
+              style={{ height: 20, width: 20 }}
+            // style={{
+            //     position: 'absolute',
+            //     height: responsiveHeight(35),
+            //     width: responsiveWidth(42),
+            //     right: responsiveWidth(43),
+            //     top: responsiveHeight(27)
+            // }}
+            // resizeMode='contain'
+            />
             // <Text style={styles.editButtonText}>Edit</Text>
           )}
         </TouchableOpacity>
@@ -108,23 +97,15 @@ const ImagePickerComponent = ({ labelText, uploaded, onImagePick, useCamera = fa
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   card: {
-
-    marginBottom:12,
+    marginBottom: responsiveHeight(12),
     flexDirection: 'row',
-    paddingVertical: 12,
+    paddingVertical: responsiveHeight(12),
     borderRadius: 5,
     padding: 16,
-    // borderWidth: 0.2,
     backgroundColor: Colors.white,
-    // shadowColor: '#000',
-    // shadowOffset: { width: 0, height: 2 },
-    // shadowOpacity: 0.1,
-    // shadowRadius: 2,
     alignItems: 'center',
-
   },
   uploadContainer: {
     flexDirection: 'row',
@@ -135,43 +116,36 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   uploadLabel: {
-    fontSize: 16,
+    fontSize: responsiveFontSize(15),
     color: '#333',
-    marginBottom: 4,
+    marginBottom: responsiveHeight(4),
     fontWeight: '500'
   },
   redAsterisk: {
     color: 'red',
   },
   uploadButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 15,
+    paddingVertical: responsiveHeight(10),
+    paddingHorizontal: responsiveWidth(15),
     borderRadius: 4,
   },
   uploadButtonText: {
     color: Colors.brandBlue,
-    fontSize: 16,
-    // fontWeight:'600'
-    fontWeight:'300'
-
+    fontSize: responsiveFontSize(16),
   },
   editButtonText: {
     color: 'blue',
-    fontSize: 16,
+    fontSize: responsiveFontSize(16),
   },
   uplodedIConView: {
     flexDirection: 'row',
     alignItems: 'center'
-
-
   },
   uploadedText: {
     color: 'green',
-    fontSize: 16,
+    fontSize: responsiveFontSize(14),
     fontWeight: '500',
-    marginLeft: 5,
-
+    marginLeft: responsiveWidth(5),
   },
 });
-
 export default ImagePickerComponent;

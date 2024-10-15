@@ -1,32 +1,34 @@
 import React from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import {View, Text, StyleSheet, Alert} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
 import CustomTextInput from '../../components/CustomTextInput/CustomTextInput';
 import ImagePicker from '../../components/ImagePickerComponent/ImagePicker';
 import SubmitCard from '../../components/SumbmitButton/SubmitButton';
 import PageButtons from '../../components/TempBtn/TempBtn';
 import Loading from '../../components/Loading/Loading';
-import { createPartner } from '../../redux/HitApis/HitApiSlice';
-import { errorToast, generateRandomPhoneNumber, successToast } from '../../common/CommonFunction';
+import {createPartner, setParentId} from '../../redux/HitApis/HitApiSlice';
+import {
+  errorToast,
+  generateRandomPhoneNumber,
+  successToast,
+} from '../../common/CommonFunction';
 import Colors from '../../common/Colors';
-import { responsiveFontSize, responsiveHeight } from '../../common/metrices';
+import {responsiveFontSize, responsiveHeight} from '../../common/metrices';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const OwnerDetailScreen = ({ navigation, route }) => {
-  const { partner_id, email } = route.params;
-console.log(route.params);
+const OwnerDetailScreen = ({navigation, route}) => {
+  const {partner_id, email} = route.params;
+  console.log('===>?', route.params);
   const dispatch = useDispatch();
-  const loading = useSelector((state) => state.parsalPartner.loading);
+  const loading = useSelector(state => state.parsalPartner.loading);
   const [name, setName] = React.useState('');
   const [aadharCardUploaded, setAadharCardUploaded] = React.useState(null);
   const [panCardUploaded, setPanCardUploaded] = React.useState(null);
   const [selfieUploaded, setSelfieUploaded] = React.useState(null);
 
-
   const handleSubmit = async () => {
-
     if (name && aadharCardUploaded && panCardUploaded && selfieUploaded) {
       const payload = {
-
         partnerId: partner_id,
         partner_name: name,
         email: email,
@@ -37,7 +39,7 @@ console.log(route.params);
           {
             img_name: 'profile.png',
             img_src: selfieUploaded?.base64 || '',
-          }
+          },
         ],
         partner_docs: [
           {
@@ -49,78 +51,93 @@ console.log(route.params);
             doc_id: '2',
             img_name: 'pan.png',
             img_src: panCardUploaded?.base64 || '',
-          }
-        ]
+          },
+        ],
       };
 
       try {
-
         const resultAction = await dispatch(createPartner(payload));
+        // console.log('logresult========?>>>>>>>>>>',resultAction?.meta?.arg?.partnerId,'llllllll');
+        const partnerId = JSON.parse(resultAction?.meta?.arg?.partnerId);
         if (createPartner.fulfilled.match(resultAction)) {
+          let owner_type = 1;
+          let user = {
+            payload: {
+              owner_type: 1,
+              partner_id: partnerId,
+            },
+          };
+          console.log('user', user);
           successToast('Submitted', 'Your details have been submitted.');
-          navigation.navigate('VehicleDetail');
+          await AsyncStorage.setItem('partner_id', String(partnerId));
+          await dispatch(setParentId(partnerId));
+          await AsyncStorage.setItem('user', JSON.stringify(user));
+          await AsyncStorage.setItem('owner_type', JSON.stringify(owner_type));
+          navigation.replace('OwnerDashboard');
+          successToast('Submitted', 'Your details have been submitted.');
+          // navigation.navigate('VehicleDetail');
         } else {
           errorToast('Not Created', 'Something went wrong.');
-
         }
       } catch (error) {
         Alert.alert('Error', 'An unexpected error occurred.');
         console.error('error', error);
       }
     } else {
-      Alert.alert('Error', 'Please fill out all fields and upload all documents.');
+      Alert.alert(
+        'Error',
+        'Please fill out all fields and upload all documents.',
+      );
     }
   };
 
-
-  const isEnabled = name && aadharCardUploaded && panCardUploaded && selfieUploaded;
+  const isEnabled =
+    name && aadharCardUploaded && panCardUploaded && selfieUploaded;
 
   return (
     <>
-    <View style={styles.container}>
-      <View style={styles.formContainer}>
-        <CustomTextInput
-          value={name}
-          onChangeText={setName}
-          placeholder="Name"
-          label="Name"
-          isRequired={true}
-        />
+      <View style={styles.container}>
+        <View style={styles.formContainer}>
+          <CustomTextInput
+            value={name}
+            onChangeText={setName}
+            placeholder="Name"
+            label="Name"
+            isRequired={true}
+          />
 
-        <Text style={styles.headinglabel}>
-          Upload the following<Text style={styles.redAsterisk}>*</Text>
-        </Text>
-        <ImagePicker
-          labelText="Owner Aadhar Card"
-          uploaded={aadharCardUploaded}
-          onImagePick={setAadharCardUploaded}
-          useCamera={false}
-        />
+          <Text style={styles.headinglabel}>
+            Upload the following<Text style={styles.redAsterisk}>*</Text>
+          </Text>
+          <ImagePicker
+            labelText="Owner Aadhar Card"
+            uploaded={aadharCardUploaded}
+            onImagePick={setAadharCardUploaded}
+            useCamera={false}
+          />
 
-        <ImagePicker
-          labelText="Owner PAN Card"
-          uploaded={panCardUploaded}
-          onImagePick={setPanCardUploaded}
-          useCamera={false}
-        />
+          <ImagePicker
+            labelText="Owner PAN Card"
+            uploaded={panCardUploaded}
+            onImagePick={setPanCardUploaded}
+            useCamera={false}
+          />
 
-        <ImagePicker
-          labelText="Owner Selfie"
-          uploaded={selfieUploaded}
-          onImagePick={setSelfieUploaded}
-          useCamera={false}
-        />
+          <ImagePicker
+            labelText="Owner Selfie"
+            uploaded={selfieUploaded}
+            onImagePick={setSelfieUploaded}
+            useCamera={false}
+          />
+        </View>
+
+        <SubmitCard onPress={handleSubmit} isEnabled={isEnabled} />
+
+        <PageButtons nextScreenName={'VehicleDetail'} />
       </View>
 
-      <SubmitCard onPress={handleSubmit} isEnabled={isEnabled} />
-
-      <PageButtons nextScreenName={'VehicleDetail'} />
-    </View>
-
-<Loading loading={loading} />
-
-</>
-
+      <Loading loading={loading} />
+    </>
   );
 };
 
@@ -146,5 +163,3 @@ const styles = StyleSheet.create({
 });
 
 export default OwnerDetailScreen;
-
-

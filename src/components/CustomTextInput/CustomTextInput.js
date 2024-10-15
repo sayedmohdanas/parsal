@@ -1,38 +1,32 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, TextInput, StyleSheet, Animated } from 'react-native';
 import Colors from '../../common/Colors';
-import { responsiveFontSize } from '../../common/metrices';
-
-const CustomTextInput = ({  value, 
-  onChangeText, 
-  placeholder, 
-  label, 
-  isRequired, 
-  type = 'text',  // Default to 'text' if type is not provided
+import { responsiveFontSize, responsiveHeight } from '../../common/metrices';
+const CustomTextInput = ({ value,
+  onChangeText,
+  placeholder,
+  label,
+  isRequired,
+  type = 'text',
+  autoCapitalize,
+  isUpperCase = false,  // Default to 'text' if type is not provided
   maxLength }) => {
   const labelAnimation = useRef(new Animated.Value(0)).current;
-
   const labelTop = labelAnimation.interpolate({
     inputRange: [0, 2],
-    outputRange: [6, -23], 
+    outputRange: [6, -23],
   });
-
   const labelFontSize = labelAnimation.interpolate({
     inputRange: [0, 1],
-    outputRange: [17, 15], 
+    outputRange: [17, 15],
   });
-
-
-
   const handleChange = (text) => {
     if (type === 'number') {
-      text = text.replace(/[^0-9]/g, ''); 
+      text = text.replace(/[^0-9]/g, '');
     }
-
     if (maxLength && text.length > maxLength) {
       text = text.slice(0, maxLength);
     }
-
     onChangeText(text);
     Animated.timing(labelAnimation, {
       toValue: text?.length > 0 ? 1 : 0,
@@ -40,7 +34,6 @@ const CustomTextInput = ({  value,
       useNativeDriver: false,
     }).start();
   };
-
   const triggerLabelAnimation = (text) => {
     Animated.timing(labelAnimation, {
       toValue: text?.length > 0 ? 1 : 0,
@@ -49,10 +42,8 @@ const CustomTextInput = ({  value,
     }).start();
   };
   useEffect(() => {
-    // Trigger animation when value changes (such as when checkbox is checked)
     triggerLabelAnimation(value);
   }, [value]);
-
   return (
     <View style={styles.card}>
       <View style={styles.inputContainer}>
@@ -62,24 +53,25 @@ const CustomTextInput = ({  value,
         <TextInput
           style={styles.input}
           value={value}
-          onChangeText={handleChange}
+          onChangeText={(text) => handleChange(isUpperCase ? text.toUpperCase() : text)}
           placeholder={placeholder}
           cursorColor={'transparent'}
           placeholderTextColor="transparent"
           keyboardType={type === 'number' ? 'numeric' : 'default'}
-          maxLength={maxLength} 
+          maxLength={maxLength}
+          autoCapitalize={autoCapitalize}
         />
       </View>
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   card: {
-    marginBottom: 16,
-    padding: 16,
-    paddingBottom:0,
-    borderBottomWidth:1,
+    marginBottom: responsiveHeight(12),
+    // padding: 16,
+    paddingVertical:20,
+    paddingBottom: 0,
+    borderBottomWidth: 1,
     borderColor: Colors.textInputBorderColor,
     // shadowOffset: { width: 0, height: 2 },
     // shadowOpacity: 0.1,
@@ -94,12 +86,11 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   input: {
-    fontSize:responsiveFontSize(16),
+    fontSize: responsiveFontSize(16),
     color: 'black',
   },
   redAsterisk: {
     color: 'red',
   },
 });
-
 export default CustomTextInput;

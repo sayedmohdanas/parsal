@@ -6,6 +6,7 @@ import AppImages from '../../common/AppImages';
 import BorderLine from '../../common/BorderLine.';
 import { errorToast, successToast } from '../../common/CommonFunction';
 import Heading from '../Heading/Heading';
+import { responsiveFontSize, responsiveHeight, responsiveWidth } from '../../common/metrices';
 
 
 const data = [
@@ -84,12 +85,13 @@ const SelectVehicleFuel = ({ isVisible, setIsVisible, setSelectedFuelType }) => 
 const styles = StyleSheet.create({
   sheetContent: {
     flex: 1,
-    padding: 5,
-    paddingHorizontal:15
+    // padding: 5,
+    // paddingVertical:responsiveHeight(10),
+    paddingHorizontal: responsiveWidth(15)
   },
   sheetTitle: {
-    fontSize: 18,
-    marginBottom: 5,
+    fontSize: responsiveFontSize(16),
+    marginBottom: responsiveHeight(5),
   },
   option: {
     padding: 10,
@@ -98,11 +100,13 @@ const styles = StyleSheet.create({
     
   },
   selectedOption: {
-    backgroundColor: Colors.lightGray, // Highlight selected option
+    backgroundColor: Colors.lightGray,
+    // Highlight selected option
   },
   optionText: {
-    fontSize: 16,
-    color:Colors.grey
+    fontSize: responsiveFontSize(14),
+    color:Colors.grey,
+    fontWeight:'600' 
   },
   checkIcon: {
     width: 20,
@@ -112,12 +116,13 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.brandBlue,
     padding: 15,
     borderRadius: 5,
-    marginTop: 10,
+    marginTop: responsiveHeight(10),
     justifyContent: 'center',
     alignItems: 'center',
   },
   continueButtonText: {
-    fontSize: 16,
+    fontSize: responsiveFontSize(16),
+    fontWeight:'600',
     color: 'white',
   },
 });

@@ -15,7 +15,7 @@ const UpdateBankDetailsScreen = ({ navigation }) => {
   const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
   const [loading, setLoading] = useState(false);
 
-  console.log(partnerId, 'partnerId=====>>>>>');
+  console.log(partnerId, 'partnerId=====>>>>>'); 
 
   // Function to pick an image or use the camera
   const pickImage = async (useCamera = false) => {

@@ -5,6 +5,7 @@ import Colors from '../../../common/Colors';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from '../../../common/metrices';
 
 const RideCompleteScreen = () => {
+    
     return (
         <View style={styles.container}>
             <Text style={styles.earningsTop}>₹850.25</Text>
@@ -37,7 +38,7 @@ const RideCompleteScreen = () => {
                 <Text style={styles.cashAmount}>₹850.55</Text>
             </View>
 
-            <Text style={styles.yourRidesText}>Your Rides</Text>
+            {/* <Text style={styles.yourRidesText}>Your Rides</Text>
             <View style={styles.yourRidesCard}>
                 <View>
                     <View style={styles.row}>
@@ -78,7 +79,7 @@ const RideCompleteScreen = () => {
                         <Text style={styles.cancelledText}>Cancelled</Text>
                     </View>
                 </View>
-            </View>
+            </View> */}
         </View>
     );
 };

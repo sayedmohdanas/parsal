@@ -24,8 +24,15 @@ import PageButtons from '../../components/TempBtn/TempBtn';
 import {useIsFocused} from '@react-navigation/native';
 import AppImages from '../../common/AppImages';
 import Colors from '../../common/Colors';
-import {successToast} from '../../common/CommonFunction';
+import {errorToast, successToast} from '../../common/CommonFunction';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  responsiveFontSize,
+  responsiveHeight,
+  responsiveWidth,
+} from '../../common/metrices';
+import {hitGetAllVehicleTypeApi} from '../../config/api/api';
+import {getimage} from '../../config/url';
 
 const VehicleDetailScreen = ({navigation}) => {
   const [vehicleNumber, setVehicleNumber] = useState('');
@@ -76,9 +83,10 @@ const VehicleDetailScreen = ({navigation}) => {
       partner_id: partnerId,
       driver_id: null,
       vehicle_number: vehicleNumber,
-      vehicle_type_id: selectedVehicleType
-        ? selectedVehicleType.value
-        : 'v-type',
+      vehicle_type_id: vehicle_sub_cat[0]?.vehicle_type_id,
+      //  selectedVehicleType
+      //   ? selectedVehicleType.value
+      //   : 'v-type',
       vehicle_model: selectedVehicleModel,
       vehicle_color: selectedVehicleColor,
       fuel_type:
@@ -108,8 +116,6 @@ const VehicleDetailScreen = ({navigation}) => {
       payload.vehicle_model
     ) {
       try {
-        console.log('payload', payload);
-
         const resultAction = await dispatch(addVehicle(payload));
         // if (resultAction.meta.requestStatus === 'fulfilled') {
         if (addVehicle.fulfilled.match(resultAction)) {
@@ -118,11 +124,7 @@ const VehicleDetailScreen = ({navigation}) => {
 
           navigation.navigate('MyVehicles');
         } else {
-          Alert.alert(
-            'Error',
-            resultAction.payload?.message ||
-              'An error occurred while submitting.',
-          );
+          errorToast('Error', 'An error occurred while submitting.');
         }
       } catch (error) {
         Alert.alert('Error', 'An unexpected error occurred.');
@@ -163,9 +165,64 @@ const VehicleDetailScreen = ({navigation}) => {
     setShowEditOption(true);
   };
 
-  const isEnabled =
-    vehicleNumber && rcUploaded && selectedVehicleType && selectedBodyType;
 
+  // console.log(JSON.stringify(groupedVehicles, null, 2));
+  const [all_vehicle_type, setall_vehicle_type] = useState([]);
+  useEffect(() => {
+    hitGetAllVehicleTypeApi()
+      .then(res => {
+        const groupedVehicles = res?.data?.reduce((acc, vehicle) => {
+          // Check if there's already an entry for the current vehicle_type_id
+          let existingGroup = acc.find(
+            group => group.vehicle_type_id === vehicle.vehicle_type_id,
+          );
+
+          // If not, create a new group for this vehicle_type_id
+          if (!existingGroup) {
+            existingGroup = {
+              vehicle_type_id: vehicle.vehicle_type_id,
+              vehicle_type_cat_name: vehicle.vehicle_type_cat_name,
+              vehicle_img:
+                vehicle.vehicle_type_id == 1
+                  ? AppImages.two_wheels
+                  : vehicle?.vehicle_type_id == 3
+                  ? AppImages.three_wheels
+                  : AppImages.four_wheels,
+              vehicle_cat_name: vehicle.vehicle_cat_name, // Optional: you can remove if it's not needed
+              list: [],
+            };
+            acc.push(existingGroup);
+          }
+
+          // Add the vehicle to the appropriate group's list
+          existingGroup.list.push({
+            id: vehicle.id,
+            vehicle_cat_name: vehicle.vehicle_cat_name,
+            vehicle_capacity: vehicle.vehicle_capacity,
+            vehicle_pic: vehicle.vehicle_pic,
+            loading_time: vehicle.loading_time,
+            is_open: vehicle.is_open,
+            status: vehicle.status,
+          });
+
+          return acc;
+        }, []);
+        setall_vehicle_type(groupedVehicles);
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  }, []);
+  const [vehicle_sub_cat, setvehicle_sub_cat] = useState([]);
+  const handleVehicleSelectlive = (id, arr) => {
+    const sub_cat = arr.filter(item => {
+      return item?.vehicle_type_id == id;
+    });
+    setvehicle_sub_cat(sub_cat);
+  };
+  const [selected_vehicle, setselected_vehicle] = useState(1);
+  const isEnabled =
+  vehicleNumber && rcUploaded && vehicle_sub_cat && selected_vehicle;
   return (
     <>
       <View style={styles.container}>
@@ -178,6 +235,7 @@ const VehicleDetailScreen = ({navigation}) => {
             placeholder="Vehicle Number"
             label="Vehicle Number"
             isRequired={true}
+            autoCapitalize="characters"
           />
 
           <ImagePicker
@@ -196,7 +254,48 @@ const VehicleDetailScreen = ({navigation}) => {
             />
           </View>
           <Heading text="Select Vehicle Type" isRequired={false} />
-          {showVehicleOptions ? (
+          <VehicleTypeSelector
+            options={all_vehicle_type}
+            selectedOption={vehicle_sub_cat}
+            onSelect={item => {
+              handleVehicleSelectlive(item, all_vehicle_type);
+            }}
+          />
+          <View style={{flexDirection: 'row', flex: 1, width: '100%'}}>
+            {vehicle_sub_cat[0]?.list?.length > 0 &&
+              vehicle_sub_cat[0]?.list?.map(item => {
+                return (
+                  <>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setselected_vehicle(item?.id);
+                      }}
+                      style={[
+                        styles.fullWidthCard,
+                        selected_vehicle == item?.id
+                          ? styles.selected_vehicle
+                          : null,
+                      ]}>
+                      <Image
+                        source={{uri: getimage('common/' + item?.vehicle_pic)}}
+                        style={styles.fullWidthImage}
+                        resizeMode="contain"
+                      />
+                      <Text style={styles.vehicleLabel}>
+                        {item.vehicle_cat_name}
+                      </Text>
+                      {/* <TouchableOpacity
+                       >
+                        <View style={{padding: 3}}>
+                          <Image source={AppImages.editPen} />
+                        </View>
+                      </TouchableOpacity> */}
+                    </TouchableOpacity>
+                  </>
+                );
+              })}
+          </View>
+          {/* {showVehicleOptions ? (
             <VehicleTypeSelector
               options={vehicleOptions}
               selectedOption={
@@ -211,7 +310,7 @@ const VehicleDetailScreen = ({navigation}) => {
                   <Image
                     source={selectedVehicleType.image}
                     style={styles.fullWidthImage}
-                    resizeMode='contain'
+                    resizeMode="contain"
                   />
                   <Text style={styles.vehicleLabel}>
                     {selectedVehicleType.label}
@@ -240,7 +339,7 @@ const VehicleDetailScreen = ({navigation}) => {
                         onPress={() => handleBodyTypeSelect(option.value)}>
                         <Image
                           source={option.image}
-                          resizeMode='contain'
+                          resizeMode="contain"
                           style={styles.fullWidthImage}
                         />
                         <Text style={styles.vehicleLabelBodyType}>
@@ -257,7 +356,7 @@ const VehicleDetailScreen = ({navigation}) => {
                           <Image
                             source={selectedBodyType.image}
                             style={styles.fullWidthImage}
-                            resizeMode='contain'
+                            resizeMode="contain"
                           />
                           <Text style={styles.vehicleLabel}>
                             {selectedBodyType.label}
@@ -271,41 +370,41 @@ const VehicleDetailScreen = ({navigation}) => {
                           )}
                         </View>
                       </View>
-                      <View>
-                        <Heading
-                          text="Select the vehicle fuel type"
-                          isRequired={false}
-                        />
-                        <TouchableWithoutFeedback onPress={toggleBottomSheet}>
-                          <View style={styles.selectFuel}>
-                            <TextInput
-                              placeholder="Select the vehicle fuel type"
-                              cursorColor={'transparent'}
-                              placeholderTextColor={'black'}
-                              value={selectedFuelType}
-                              style={{
-                                color: Colors.black,
-                                fontSize: 14,
-                                fontWeight: '400',
-                              }}
-                            />
-                            <TouchableOpacity
-                            // onPress={toggleBottomSheet}
-                            >
-                              <Image
-                                source={AppImages.down}
-                                style={{width: 16, height: 16}}
-                                resizeMode="contain"
-                              />
-                            </TouchableOpacity>
-                          </View>
-                        </TouchableWithoutFeedback>
-                      </View>
+
                     </>
                   )
                 )}
               </View>
             )
+          )} */}
+          {vehicle_sub_cat[0]?.list?.length > 0 && (
+            <View>
+              <Heading text="Select the vehicle fuel type" isRequired={false} />
+              <TouchableWithoutFeedback onPress={toggleBottomSheet}>
+                <View style={styles.selectFuel}>
+                  <TextInput
+                    placeholder="Select the vehicle fuel type"
+                    cursorColor={'transparent'}
+                    placeholderTextColor={'black'}
+                    value={selectedFuelType}
+                    style={{
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: '400',
+                    }}
+                  />
+                  <TouchableOpacity
+                  // onPress={toggleBottomSheet}
+                  >
+                    <Image
+                      source={AppImages.down}
+                      style={{width: 16, height: 16}}
+                      resizeMode="contain"
+                    />
+                  </TouchableOpacity>
+                </View>
+              </TouchableWithoutFeedback>
+            </View>
           )}
         </ScrollView>
         <SubmitCard onPress={handleSubmit} isEnabled={isEnabled} />
@@ -326,9 +425,10 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: Colors.homeBackground,
   },
+  selected_vehicle: {borderWidth: 1, borderColor: Colors.brandBlue},
   formContainer: {
     // flex: 1,
-    paddingBottom: 100,
+    paddingBottom: responsiveHeight(100),
   },
   cityDripDownCard: {
     padding: 8,
@@ -337,7 +437,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     // borderWidth: 0.2,
-    marginBottom: 8,
+    marginBottom: responsiveHeight(8),
   },
   selectFuel: {
     padding: 8,
@@ -347,36 +447,42 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     // backgroundColor: 'white',
     backgroundColor: Colors.white,
-    marginBottom: 90,
+    marginBottom: responsiveHeight(90),
   },
   fullWidthCard: {
-    height: 70,
+    paddingVertical: responsiveHeight(20),
     padding: 6,
     borderRadius: 5,
+    // alignItems: 'center',
+    // flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
+    flex: 1,
+    marginHorizontal: responsiveWidth(5),
     flexDirection: 'row',
-    justifyContent: 'space-between',
     backgroundColor: Colors.white,
   },
   fullWidthImage: {
-    width: 25,
-    height: 25,
+    width: responsiveFontSize(30),
+    height: responsiveFontSize(30),
     // resizeMode: 'contain',
+    marginLeft: 8,
   },
   vehicleLabel: {
-    fontSize: 16,
+    fontSize: responsiveFontSize(16),
     color: '#333',
     flex: 1,
-    marginLeft: 16,
+    marginLeft: responsiveWidth(16),
+    fontWeight: '500',
   },
   vehicleLabelBodyType: {
-    fontSize: 14,
+    fontSize: responsiveFontSize(14),
     fontWeight: '500',
     color: '#333',
-    marginTop: 6,
+    marginTop: responsiveHeight(6),
   },
   bodyTypeCardFullWidth: {
-    height: 90,
+    height: responsiveHeight(90),
     padding: 6,
     alignItems: 'center',
     flexDirection: 'row',
@@ -384,7 +490,7 @@ const styles = StyleSheet.create({
   },
   bodyTypeCard: {
     width: '49%',
-    height: 80,
+    height: responsiveHeight(80),
     borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
@@ -395,10 +501,10 @@ const styles = StyleSheet.create({
     // backgroundColor: 'red',
   },
   editButton: {
-    fontSize: 16,
+    fontSize: responsiveFontSize(16),
     marginRight: 5,
     color: '#007BFF',
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
 });
 
