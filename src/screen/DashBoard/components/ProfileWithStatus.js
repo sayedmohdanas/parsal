@@ -138,7 +138,7 @@ import { View, Image, StyleSheet, Modal, TouchableWithoutFeedback } from 'react-
 import { useNavigation } from '@react-navigation/native';
 import AppImages from '../../../common/AppImages'; // Import your default images
 
-const ProfileWithStatus = ({ isOnline, profileImage, driverName }) => {
+const ProfileWithStatus = ({ isOnline, profileImage, name }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
 
@@ -152,7 +152,7 @@ const ProfileWithStatus = ({ isOnline, profileImage, driverName }) => {
     setModalVisible(false); // Close the modal before navigating
     navigation.navigate('ProfileDetail', {
       profileImage: profileImage || AppImages.profileImage,
-      driverName,
+      name,
     });
   };
 

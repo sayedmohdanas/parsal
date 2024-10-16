@@ -19,6 +19,7 @@ export default AppImages = {
   verified: require('../assets/images/verified.png'),
   location: require('../assets/images/location.png'),
   Bell: require('../assets/images/bell.png'),
+  notificationIcon: require('../assets/images/notification.png'),
   arrowDown: require('../assets/images/arrow-down.png'),
   ParsalPlusImg: require('../assets/images/parsalPlusImg.png'),
   truck: require('../assets/images/truck.png'),

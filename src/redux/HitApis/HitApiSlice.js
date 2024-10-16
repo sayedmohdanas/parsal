@@ -11,7 +11,7 @@ import {
   hitPartnerVerifyOtp,
 } from '../../config/api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {Alert} from 'react-native';
+import {Alert, LogBox} from 'react-native';
 import {errorToast} from '../../common/CommonFunction';
 
 // loginPartner.....
@@ -168,6 +168,8 @@ const initialState = {
   update_order: null,
   driverEarning: null,
   owner: null,
+  driverDetail:null,
+  ownerDetail:null,
 };
 
 const HitApiSlice = createSlice({
@@ -194,7 +196,14 @@ const HitApiSlice = createSlice({
     },
     setLogout(state,action){
       state.status = 'logout'
-    }
+    },
+    setDriverDetail(state,action){
+      state.driverDetail = action.payload
+    },
+    setOwnerDetail(state,action){
+    state.ownerDetail = action.payload
+     
+    },
   },
   extraReducers: builder => {
     builder
@@ -205,7 +214,7 @@ const HitApiSlice = createSlice({
         state.error = null;
       })
       .addCase(loginPartner.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+       state.status = 'succeeded';
         state.loading = false;
         state.user = action.payload;
         state.owner = action.payload?.payload?.owner_type
@@ -362,7 +371,9 @@ export const {
   setOrderData,
   setupdate_order,
   setOwner,
-  setLogout
+  setLogout,
+  setDriverDetail,
+  setOwnerDetail
 } = HitApiSlice.actions;
 
 export default HitApiSlice.reducer;

@@ -229,6 +229,7 @@ import {hitMyVehicle} from '../../config/api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '../../common/Colors';
 import {responsiveHeight, responsiveWidth} from '../../common/metrices';
+import CustomHeader from '../DashBoard/components/CustomHeader';
 
 const MyVehiclesScreen = ({navigation}) => {
   const dispatch = useDispatch();
@@ -302,6 +303,10 @@ const MyVehiclesScreen = ({navigation}) => {
   }, []);
 
   return (
+    <>
+            <CustomHeader screenName={"My Vehicles"}/>
+
+  
     <View style={styles.container}>
       {loading ? (
         <Loading loading={loading} />
@@ -362,6 +367,7 @@ const MyVehiclesScreen = ({navigation}) => {
         </View>
       </View>
     </View>
+    </>
   );
 };
 
@@ -373,6 +379,7 @@ const styles = StyleSheet.create({
   },
   stickyButtonContainer: {
     position: 'absolute',
+    justifyContent: 'space-between',
     bottom: 0,
     left: 0,
     right: 0,
@@ -382,7 +389,6 @@ const styles = StyleSheet.create({
     shadowOffset: {width: 0, height: -2},
     shadowOpacity: 0.1,
     elevation: 1,
-    justifyContent: 'space-between',
   },
   button: {
     paddingVertical: 16,

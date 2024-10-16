@@ -75,6 +75,11 @@ import DriverMapScreen from '../src/screen/DriverMapScreen/DriverMap';
 import AmountCollectScreen from '../src/screen/DashBoard/screen/AmountCollectScreen';
 import UpdateBankDetailsScreen from '../src/screen/UpdateBankDetails/UpdateBankDetailsScreen';
 import RideCompleteScreen from '../src/screen/DashBoard/screen/RideCompleteScreen';
+import ProfileScreen from '../src/screen/DashBoard/screen/Profile/ProfileScreen';
+import ProfileDetail from '../src/screen/DashBoard/screen/ProfileDetailScreen/ProfileDetailScreen';
+import { Alert } from 'react-native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Driver Drawer
 const DriverDrawer = createDrawerNavigator();
@@ -86,49 +91,47 @@ const DriverDrawerNavigator = () => {
       <DriverDrawer.Screen
         name="Trip"
         component={LiveTripScreen}
-        options={{headerShown: false}}
+        options={{ headerShown: false }}
       />
       <DriverDrawer.Screen
         name="Earning"
         component={Earning}
-        options={{headerShown: false}}
+        options={{ headerShown: false }}
       />
       <DriverDrawer.Screen name="MyVehicles" component={MyVehiclesScreen} />
       <DriverDrawer.Screen name="DriverMap" component={DriverMapScreen} />
       <DriverDrawer.Screen name="AmountCollected" component={AmountCollectScreen} />
       <DriverDrawer.Screen name="RideCompleteScreen" component={RideCompleteScreen} />
 
-      
+
     </DriverDrawer.Navigator>
   );
 };
 
 // Owner Drawer
 const OwnerDrawer = createDrawerNavigator();
+//     <Drawer.
 
 const OwnerDrawerNavigator = () => {
   return (
-    <OwnerDrawer.Navigator drawerContent={props => <Menu {...props} owner={1} />}>
+    <OwnerDrawer.Navigator 
+    drawerContent={props => <Menu {...props} owner={1} />}>
       {/* Include direct screen components for the owner */}
-      <OwnerDrawer.Screen
-        name="Trip"
-        component={LiveTripScreen}
-        options={{headerShown: false}}
-      />
+      <OwnerDrawer.Screen name="Trip" component={LiveTripScreen} options={{ headerShown: false }} />
+      <OwnerDrawer.Screen name="MyVehicles" component={MyVehiclesScreen} options={{ headerShown: false }} />
+      <OwnerDrawer.Screen name="Earning"component={Earning} options={{ headerShown: false }}/>
+          <OwnerDrawer.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} />
+          <OwnerDrawer.Screen name="ProfileDetail" component={ProfileDetail}options={{
+            headerTitle: 'Driver Name',
+          }} />
       <OwnerDrawer.Screen name="AddBank" component={UpdateBankDetailsScreen} />
-      <OwnerDrawer.Screen name="MyVehicles" component={MyVehiclesScreen} />
       <DriverDrawer.Screen name="DriverMap" component={DriverMapScreen} />
       <DriverDrawer.Screen name="AmountCollected" component={AmountCollectScreen} />
       <DriverDrawer.Screen name="RideCompleteScreen" component={RideCompleteScreen} />
-      <OwnerDrawer.Screen
-        name="Earning"
-        component={Earning}
-        options={{headerShown: false}}
-      />
       {/* Add other owner-specific screens here */}
     </OwnerDrawer.Navigator>
   );
 };
 
 // Export both navigators
-export {OwnerDrawerNavigator, DriverDrawerNavigator};
+export { OwnerDrawerNavigator, DriverDrawerNavigator };

@@ -8,11 +8,16 @@ import ProfileWithStatus from './ProfileWithStatus';
 import { useSelector } from 'react-redux';
 import { getImageUrl } from '../../../common/CommonFunction';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from '../../../common/metrices';
+import { getimage } from '../../../config/url';
 
 const VehicleProfileCard = ({ screen = false,isOnline,vehicle_data }) => {
-  const driverProfile = useSelector(state => state?.parsalPartner?.driverData);
+  const driverProfile = useSelector(state => state?.parsalPartner?.ownerDetail);
   const partenrId = useSelector(state=>state?.parsalPartner?.partnerId)
   const navigation = useNavigation();
+  const name = driverProfile
+    ? driverProfile.driver_name?.toLocaleUpperCase() || driverProfile.partner_name?.toLocaleUpperCase()
+    : 'No Driver Data';
+  console.log(driverProfile,'anasdhee===>>>>>')
   const formatVehicleNumber = (number) => {
     return number
       .toUpperCase()
@@ -25,11 +30,20 @@ const VehicleProfileCard = ({ screen = false,isOnline,vehicle_data }) => {
   };
   const profileImageUrl = driverProfile && driverProfile?.length > 0
 
-  // ? getImageUrl(driverProfile[0].partner_id, driverProfile[0].id, driverProfile[0].profile_pic)
-  ? getImageUrl(driverProfile[0]?.partner_id, driverProfile[0
-    
-  ]?.id, driverProfile[0]?.profile_pic)
-  : AppImages.profileImage; 
+  ? getimage(
+    'partners_img/' +
+    driverProfile?.partner_id +
+      '/drivers/' +
+      driverProfile?.id +
+      '_' +
+      driverProfile?.profile_pic,
+  )
+: getimage(
+    'partners_img/' +
+    driverProfile?.id +
+      '/' +
+      driverProfile?.profile_pic,
+  )
   return (
     <View style={[
       styles.card,
@@ -38,16 +52,15 @@ const VehicleProfileCard = ({ screen = false,isOnline,vehicle_data }) => {
     {/* <View style={[isOnline?borderBottomColor:,styles.card]}> */}
       <View style={[styles.topSection, screen ? { justifyContent: '' } : {}]}>
         {/* <Image source={AppImages.profileImage} style={styles.profileImage} />+ */}
-        {/* <ProfileWithStatus 
+        <ProfileWithStatus 
           isOnline={isOnline} 
           profileImage={profileImageUrl}
-          driverName={driverProfile &&`${driverProfile[0]?.driver_name}`}
-        /> */}
+          name={name}
+        />
         <View style={styles.leftSection}>
         <Text style={styles.name}>
-  {driverProfile && driverProfile.length > 0 
-    ? `${driverProfile[0].driver_name.charAt(0).toUpperCase()}${driverProfile[0].driver_name.slice(1)}`
-    : 'No Driver Data'}
+        {name}
+
 </Text>
           <View style={styles.contactContainer}>
             <Text style={styles.VType}>2 Wheeler </Text>

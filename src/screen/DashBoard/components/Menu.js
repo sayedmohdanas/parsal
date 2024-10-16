@@ -16,7 +16,7 @@ import {
   successToast,
 } from '../../../common/CommonFunction';
 import {useDispatch} from 'react-redux';
-import {setLogout} from '../../../redux/HitApis/HitApiSlice';
+import {setDriverDetail, setLogout, setOwnerDetail} from '../../../redux/HitApis/HitApiSlice';
 import {
   responsiveFontSize,
   responsiveHeight,
@@ -97,6 +97,7 @@ const Menu = ({navigation, owner = ''}) => {
       hitGetDriverDetails({ids: [parsed_user?.payload?.driver_id]})
         .then(res => {         
           setuser_details(res?.drivers[0]);
+          dispatch(setDriverDetail(res?.drivers[0]))
         })
         .catch(err => {
           console.log(err);
@@ -108,6 +109,8 @@ const Menu = ({navigation, owner = ''}) => {
         .then(res => {
           console.log(res);
           setuser_details(res?.partner);
+          dispatch(setOwnerDetail(res?.partner))
+
         })
         .catch(err => {
           console.error(err);

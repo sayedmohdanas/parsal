@@ -1,6 +1,6 @@
-import React, {useCallback, useEffect, useState} from 'react';
-import {View, Text, Image, StyleSheet, TouchableOpacity} from 'react-native';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
   responsiveFontSize,
   responsiveHeight,
@@ -8,17 +8,17 @@ import {
 } from '../../../common/metrices';
 import Colors from '../../../common/Colors';
 import AppImages from '../../../common/AppImages';
-import {Switch} from 'react-native-switch';
-import {useSelector} from 'react-redux';
+import { Switch } from 'react-native-switch';
+import { useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {GetDriverCurrentLocation} from '../../../common/CommonFunction';
+import { GetDriverCurrentLocation } from '../../../common/CommonFunction';
 import {
   hitGetDriverDetails,
   hitGetPartner,
   hitUpdateDriverStatus,
 } from '../../../config/api/api';
 
-const CustomHeader = ({screenName, selectedRange, setSelectedRange}) => {
+const CustomHeader = ({ screenName, selectedRange, setSelectedRange }) => {
   const owner = useSelector(state => state?.parsalPartner?.owner);
   const [check_owner, setcheck_owner] = useState();
   const navigation = useNavigation();
@@ -28,17 +28,17 @@ const CustomHeader = ({screenName, selectedRange, setSelectedRange}) => {
       const parse_data = JSON.parse(unparse_driver_data);
       setIsEnabled(prevStatus => !prevStatus);
       if (!isEnabled) {
-        const {latitude, longitude} = await GetDriverCurrentLocation();
+        const { latitude, longitude } = await GetDriverCurrentLocation();
         const param = {
           driver_id: parse_data?.payload?.driver_id,
           current_lat: latitude,
           current_long: longitude,
           working_status: 1,
         };
-        console.log('param',param);
+        console.log('param', param);
         const res = await hitUpdateDriverStatus(param);
       } else {
-        const {latitude, longitude} = await GetDriverCurrentLocation();
+        const { latitude, longitude } = await GetDriverCurrentLocation();
         const param = {
           driver_id: parse_data?.payload?.driver_id,
           current_lat: latitude,
@@ -94,7 +94,7 @@ const CustomHeader = ({screenName, selectedRange, setSelectedRange}) => {
     const parsed_user = JSON.parse(user);
 
     if (parsed_user?.payload?.owner_type == 0) {
-      hitGetDriverDetails({ids: [parsed_user?.payload?.driver_id]})
+      hitGetDriverDetails({ ids: [parsed_user?.payload?.driver_id] })
         .then(res => {
           setuser_details(res?.drivers[0]);
         })
@@ -129,7 +129,7 @@ const CustomHeader = ({screenName, selectedRange, setSelectedRange}) => {
       <TouchableOpacity
         onPress={() => navigation.openDrawer()}
         style={styles.profilePic}>
-        <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
           <Image
             source={AppImages.hamburgerImage} // Replace with your profile pic URL
             style={styles.profilePic}
@@ -176,7 +176,7 @@ const CustomHeader = ({screenName, selectedRange, setSelectedRange}) => {
               />
             )}
             changeValueImmediately={true}
-            innerCircleStyle={{alignItems: 'center', justifyContent: 'center'}}
+            innerCircleStyle={{ alignItems: 'center', justifyContent: 'center' }}
             outerCircleStyle={{
               borderWidth: 1,
               borderColor: '#D8D8D8',
@@ -191,15 +191,24 @@ const CustomHeader = ({screenName, selectedRange, setSelectedRange}) => {
           />
         </>
       ) : (
-        <Text style={styles.screenName}>{screenName}</Text>
+        <View style={{}}>
+          <Text style={styles.screenName}>{screenName}</Text>
+        </View>
       )}
-      <View style={styles.placeholder} />
+      {/* <TouchableOpacity style={styles.placeholder} /> */}
       {/* {screenName === 'Earning' ? (
         <DateRangeSelector
           setSelectedRange={setSelectedRange}
           selectedRange={selectedRange}
         />
       ) : null} */}
+
+      <TouchableOpacity>
+
+        <Image source={AppImages.notificationIcon} style={{ width: responsiveWidth(24), height: responsiveHeight(24) }} />
+
+      </TouchableOpacity>
+
     </View>
   );
 };
@@ -219,6 +228,7 @@ const styles = StyleSheet.create({
     height: responsiveHeight(25),
     width: responsiveHeight(25),
     tintColor: 'black',
+    // flex:1
     // borderRadius: responsiveHeight(20),
   },
   screenName: {
@@ -226,10 +236,14 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#000000',
     textAlign: 'center',
-    flex: 1, // Ensures that the text is centered
+    // marginLeft:responsiveWidth(35)
+    // flex: 1,
+    // backgroundColor:'yellow'
   },
   placeholder: {
-    width: responsiveWidth(40), // Matches the profile pic width for balance
+    // flex:1,
+    // width: responsiveWidth(40),
+    // backgroundColor:'green' // Matches the profile pic width for balance
   },
   hamburgerButton: {
     position: 'absolute',
