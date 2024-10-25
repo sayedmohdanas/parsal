@@ -52,8 +52,8 @@ const OwnerDrawerNavigator = () => {
   return (
     <OwnerDrawer.Navigator
       drawerContent={props => <Menu {...props} owner={1} />}>
-      <OwnerDrawer.Screen name="Help" component={HelpAndSupportChat} />
       <OwnerDrawer.Screen name="Trip" component={LiveTripScreen} options={{ headerShown: false }} />
+      <OwnerDrawer.Screen name="Help" component={HelpAndSupportChat} />
       <OwnerDrawer.Screen name="MyVehicles" component={MyVehiclesScreen} options={{ headerShown: false }} />
       <OwnerDrawer.Screen name="Earning" component={Earning} options={{ headerShown: false }} />
       <OwnerDrawer.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} />
