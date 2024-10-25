@@ -13,6 +13,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {useDispatch} from 'react-redux';
 import {hitDriverEarning} from '../../config/api/api';
+import BorderLine from '../../common/BorderLine.';
+import {responsiveFontSize, responsiveHeight} from '../../common/metrices';
 
 const DriverDashboard = () => {
   const navigation = useNavigation();
@@ -57,6 +59,7 @@ const DriverDashboard = () => {
       const param = {
         driver_id: parsedUser?.payload?.driver_id,
         filter: 'today',
+        customDate: {start: new Date(), end: ''},
       };
 
       const res = await hitDriverEarning(param);
@@ -117,7 +120,12 @@ const DriverDashboard = () => {
                   </Text>
                 </View>
               </View>
-
+              <BorderLine
+                color={'#D8D8D8'}
+                orientation="vertical"
+                length="65%"
+                thickness={0.4}
+              />
               <View>
                 <View style={[styles.tripCard]}>
                   <Text style={styles.tripTime}>Operator Bill</Text>
@@ -171,6 +179,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderColor: '#D8D8D8',
     paddingHorizontal: 5,
+    alignItems: 'center',
     width: '100%',
     alignSelf: 'center',
     backgroundColor: Colors.white,
@@ -190,19 +199,19 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.brandBlue,
   },
   tripTime: {
-    fontSize: 12,
+    fontSize: responsiveFontSize(12),
     color: Colors.grey,
-    marginTop: 10,
-    fontWeight: '400',
+    marginTop: responsiveHeight(8),
+    fontWeight: '700',
   },
   tripName: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
 
     // lineHeight: 10.36,
     color: '#000000',
-    marginTop: 6,
-    marginBottom: 8,
+    marginTop: 4,
+    marginBottom: 4,
   },
   cardContainer: {
     position: 'absolute',

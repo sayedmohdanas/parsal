@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -15,8 +15,8 @@ import {
   errorToast,
   successToast,
 } from '../../../common/CommonFunction';
-import {useDispatch} from 'react-redux';
-import {setDriverDetail, setLogout, setOwnerDetail} from '../../../redux/HitApis/HitApiSlice';
+import {useDispatch, useSelector} from 'react-redux';
+import {setLogout,setloginuserdetails,setwalletBalance,} from '../../../redux/HitApis/HitApiSlice';
 import {
   responsiveFontSize,
   responsiveHeight,
@@ -25,41 +25,15 @@ import {
 import {
   hitGetDriverDetails,
   hitGetPartner,
+  hitGetWalletBalanceApi,
   hitUpdateDriverStatus,
 } from '../../../config/api/api';
 import {getimage} from '../../../config/url';
+import {useFocusEffect} from '@react-navigation/native';
 
 const Menu = ({navigation, owner = ''}) => {
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const dispatch = useDispatch();
-  const toggleOnlineStatus = async () => {
-    try {
-      const unparse_driver_data = await AsyncStorage.getItem('user');
-      const parse_data = JSON.parse(unparse_driver_data);
-      setIsEnabled(prevStatus => !prevStatus);
-      if (!isEnabled) {
-        const {latitude, longitude} = await GetDriverCurrentLocation();
-        const param = {
-          driver_id: parse_data?.payload?.driver_id,
-          current_lat: latitude,
-          current_long: longitude,
-          working_status: 1,
-        };
-        const res = await hitUpdateDriverStatus(param);
-      } else {
-        const {latitude, longitude} = await GetDriverCurrentLocation();
-        const param = {
-          driver_id: parse_data?.payload?.driver_id,
-          current_lat: latitude,
-          current_long: longitude,
-          working_status: 0,
-        };
-        const res = await hitUpdateDriverStatus(param);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
   const handleLogout = async navigation => {
     try {
       const unparse_driver_data = await AsyncStorage.getItem('user');
@@ -89,15 +63,30 @@ const Menu = ({navigation, owner = ''}) => {
     }
   };
   const [user_details, setuser_details] = useState([]);
+  const store_data = useSelector(state => state?.parsalPartner);
+  const [parse_data, setparsed_data] = useState([]);
   const get_user_details = async () => {
     const user = await AsyncStorage.getItem('user');
     const parsed_user = JSON.parse(user);
-
+    setparsed_data(parsed_user);
     if (parsed_user?.payload?.owner_type == 0) {
       hitGetDriverDetails({ids: [parsed_user?.payload?.driver_id]})
-        .then(res => {         
+        .then(res => {
           setuser_details(res?.drivers[0]);
-          dispatch(setDriverDetail(res?.drivers[0]))
+          dispatch(setloginuserdetails(res?.drivers[0]));
+          const param = {driver_id: parsed_user?.payload?.partner_id}
+            
+            // parsed_user?.payload?.driver_id};
+          hitGetWalletBalanceApi(param)
+            .then(res => {
+              dispatch(setwalletBalance(res));
+            })
+            .catch(err => {
+              console.error(err);
+            })
+            .finally(() => {
+              console.log();
+            });
         })
         .catch(err => {
           console.log(err);
@@ -107,19 +96,34 @@ const Menu = ({navigation, owner = ''}) => {
         partner_id: parsed_user?.payload?.partner_id,
       })
         .then(res => {
-          console.log(res);
           setuser_details(res?.partner);
-          dispatch(setOwnerDetail(res?.partner))
-
+          dispatch(setloginuserdetails(res?.partner));
+          if (parsed_user?.payload?.owner_type == 2) {
+            const param = {driver_id: parsed_user?.payload?.partner_id}
+              
+              // parsed_user?.payload?.driver_id};
+            hitGetWalletBalanceApi(param)
+              .then(res => {
+                dispatch(setwalletBalance(res));
+              })
+              .catch(err => {
+                console.error(err);
+              })
+              .finally(() => {
+                console.log();
+              });
+          }
         })
         .catch(err => {
           console.error(err);
         });
     }
   };
-  useEffect(() => {
-    get_user_details();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      get_user_details();
+    }, []), // Empty dependency array to run only when the page is focused
+  );
   return (
     <>
       <View style={styles.header}>
@@ -175,6 +179,33 @@ const Menu = ({navigation, owner = ''}) => {
         </View>
       </View>
       <View style={styles.menuContainer}>
+        {parse_data?.payload?.owner_type == 1 ||
+          parse_data?.payload?.owner_type == 2 && (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Wallet')}
+              style={styles.menuItem}>
+              <Image
+                source={AppImages.wallet_menu}
+                style={styles.profileImage}
+              />
+                        {/* <Image source={AppImages.ledgerImage} style={styles.profileImage} /> */}
+
+              <Text style={styles.menuText}>Wallet Balance</Text>
+              <View style={{flex: 1}}>
+                <Text
+                  style={{
+                    fontSize: responsiveFontSize(20),
+                    color: Colors.grey,
+                    fontWeight: '800',
+                    textAlign: 'right',
+                  }}>
+                  {'₹' +
+                    (store_data.wallet_balance?.new_wallet_balance || 0).toFixed(2) +
+                    ''}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
         {owner && (
           <>
             <TouchableOpacity
@@ -206,12 +237,14 @@ const Menu = ({navigation, owner = ''}) => {
           <Image source={AppImages.earningImage} style={styles.profileImage} />
           <Text style={styles.menuText}>Earning</Text>
         </TouchableOpacity>
+
         <TouchableOpacity
-          onPress={() => navigation.navigate('Ledger')}
+          // onPress={() => navigation.navigate('Ledger')}
           style={styles.menuItem}>
           <Image source={AppImages.ledgerImage} style={styles.profileImage} />
           <Text style={styles.menuText}>Ledger</Text>
         </TouchableOpacity>
+
         <TouchableOpacity
           onPress={() => navigation.navigate('Payments')}
           style={styles.menuItem}>
@@ -327,14 +360,14 @@ const styles = StyleSheet.create({
     // backgroundColor:'white',
   },
   menuText: {
-    fontSize: responsiveFontSize(14),
+    fontSize: responsiveFontSize(15),
     fontWeight: '400',
     color: Colors.black,
   },
   profileImage: {
     width: responsiveWidth(30),
     height: responsiveHeight(30),
-    borderRadius: 30,
+    // borderRadius: 30,
     marginRight: responsiveHeight(10),
     resizeMode: 'contain',
   },

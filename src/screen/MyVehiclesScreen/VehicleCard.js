@@ -20,27 +20,11 @@ import {getDriverDetails, setDriverId} from '../../redux/HitApis/HitApiSlice';
 const VehicleCard = ({vehicle, onPress}) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-
-  // const hasDriver = vehicle?.driver?.driver_name;
-  //  const handleDriverDetails= async()=>{
-
-  //   AsyncStorage.setItem("driver_data", JSON.stringify(vehicle))
-  //   console.log(vehicle?.driver_id);
-  // const resultAction = await dispatch(getDriverDetails({ids:[vehicle?.driver_id]}));
-  //  console.log(resultAction,'ressssssss');
-
-  //   // const response = getDriverDetails(vehicle?.driver?.driver_id)
-  //   // console.log(response)
-  //   navigation.navigate('Dashboards')
-  //   // console.log('anas======>',vehicle);
-
-  //   dispatch(setDriverId(vehicle))
-  //  }
-
   const hasDriver = !!vehicle?.driver?.driver_name; // Check if driver_name exists and convert to a boolean
 
   const handleDriverDetails = async () => {
     // Store driver data in AsyncStorage
+    // Alert.alert('hiiii')
     await AsyncStorage.setItem('driver_data', JSON.stringify(vehicle));
 
     // If vehicle has a driver, get driver details
@@ -54,8 +38,12 @@ const VehicleCard = ({vehicle, onPress}) => {
       // console.log(resultAction, 'Driver details fetched');
 
       // // Navigate to the Dashboard
-      // navigation.navigate('Dashboards');
-    } else {
+      if (vehicle) {
+        navigation.navigate('UpdateDriver', { vehicle: { ...vehicle } });
+      } else {
+        console.log('Vehicle data is undefined or null');
+      }    } else {
+      
       // If no driver, navigate to DriverDetail screen
       onPress(vehicle?.id);
       // navigation.navigate('DriverDetail', { vehicleId: vehicle?.id });
@@ -66,18 +54,10 @@ const VehicleCard = ({vehicle, onPress}) => {
   };
 
   return (
-    <TouchableHighlight underlayColor={'none'} onPress={handleDriverDetails}>
-      {/* <TouchableWithoutFeedback 
-  onPress={() => {
-    console.log('Navigating with vehicle:', vehicle);  // Log vehicle before navigating
-    navigation.navigate('Dashboards', { data: vehicle });
-  }}
-> */}
-      {/* <TouchableWithoutFeedback
-  onPress={() => {
-    navigation.navigate('Dashboards', { testParam: 'Hello World' });
-  }}
->  */}
+    <TouchableHighlight underlayColor={'none'}
+     onPress={handleDriverDetails}
+    >
+  
       <View style={styles.card}>
         <View style={styles.topSection}>
           <View style={styles.leftSection}>
@@ -98,10 +78,16 @@ const VehicleCard = ({vehicle, onPress}) => {
               </Text>
             </View>
           </View>
-          {hasDriver && (
+          {hasDriver ? (
             <View style={styles.rightSection}>
               <Text style={styles.status}>Verifying</Text>
             </View>
+          ) : (
+            <TouchableOpacity
+              onPress={handleDriverDetails}
+              style={styles.addDriver}>
+              <Text style={styles.status}>Add Driver</Text>
+            </TouchableOpacity>
           )}
         </View>
 
@@ -172,6 +158,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     // paddingVertical:4,
     backgroundColor: '#FFAE42',
+    // height: 24,
+    // marginTop: 5,
+    marginVertical: 10,
+    // paddingHorizontal:10
+  },
+  addDriver: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    // paddingVertical:4,
+    backgroundColor: Colors.brandBlue,
     // height: 24,
     // marginTop: 5,
     marginVertical: 10,

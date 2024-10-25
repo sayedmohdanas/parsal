@@ -55,7 +55,7 @@ const CustomTextInput = ({ value,
           value={value}
           onChangeText={(text) => handleChange(isUpperCase ? text.toUpperCase() : text)}
           placeholder={placeholder}
-          cursorColor={'transparent'}
+          // cursorColor={'transparent'}
           placeholderTextColor="transparent"
           keyboardType={type === 'number' ? 'numeric' : 'default'}
           maxLength={maxLength}

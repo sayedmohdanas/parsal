@@ -89,9 +89,29 @@ export const customToast = (text1, text2 = '', config = {}) => {
 };
 
 export const generateRandomPhoneNumber = () => {
-  const randomPhoneNumber =
-    '9' + Math.floor(Math.random() * 9000000000 + 1000000000);
+  const randomPhoneNumber = '9' + Math.floor(Math.random() * 1000000000);
   return randomPhoneNumber;
+};
+export const timeAgo = (date) => {
+  const now = new Date();
+  const past = new Date(date);
+  const seconds = Math.floor((now - past) / 1000);
+  const intervals = {
+      year: 31536000,
+      month: 2592000,
+      week: 604800,
+      day: 86400,
+      hr: 3600,
+      min: 60,
+      sec: 1,
+  };
+  for (let key in intervals) {
+      const interval = Math.floor(seconds / intervals[key]);
+      if (interval >= 1) {
+          return `${interval} ${key}${interval > 1 ? 's' : ''} ago`;
+      }
+  }
+  return 'just now';
 };
 
 export const formatVehicleNumber = number => {

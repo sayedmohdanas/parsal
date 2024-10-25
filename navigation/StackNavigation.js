@@ -62,7 +62,7 @@
 //         <Stack.Screen name="OwnerDetail" component={OwnerDetailScreen} />
 //         <Stack.Screen name="DriverDetail" component={DriverDetailScreen} />
 //         <Stack.Screen name="VehicleDetail" component={VehicleDetailScreen} />
-//         <Stack.Screen name="UpdateBankDetails" component={UpdateBankDetailsScreen} />
+//         <Stack.Screen name="UpdateBannkDetails" component={UpdateBankDetailsScreen} />
 //         <Stack.Screen name="rideComplete" component={RideCompleteScreen} />
 //         <Stack.Screen name="AmountCollect" component={AmountCollectScreen} />
 //         <Stack.Screen name="DriverDashboard" component={DriverDashboard}  options={{ headerShown: false }}/>
@@ -103,6 +103,12 @@ import {DriverDrawerNavigator, OwnerDrawerNavigator} from './DrawerNavigaton';
 import Loading from '../src/components/Loading/Loading';
 import {setOwner} from '../src/redux/HitApis/HitApiSlice';
 import {useDispatch} from 'react-redux';
+import TermsAndCondition from '../src/screen/TermsAndCondition/TermsAndCondition';
+import Earning from '../src/screen/DriverEarning/DriverEarning';
+import UpdateDriver from '../src/screen/MyVehiclesScreen/UpdateDriver';
+import ProfileDetail from '../src/screen/DashBoard/screen/ProfileDetailScreen/ProfileDetailScreen';
+import Notification from '../src/screen/DashBoard/screen/Notification/Notification';
+import MyVehiclesScreen from '../src/screen/MyVehiclesScreen';
 
 const Stack = createStackNavigator();
 
@@ -115,37 +121,24 @@ const StackNavigator = () => {
   useEffect(() => {
     const checkUserStatus = async () => {
       setLoading(true);
-
       try {
         const user = await AsyncStorage.getItem('user');
-        console.log('Stored user data:', user); // Log the raw data
         if (!user) {
-          console.log('No user found, navigating to Login');
           setInitialRoute('Login');
         } else {
           if (user.startsWith('{')) {
-            // Check if it's a valid JSON string
             try {
               const parsedUser = JSON.parse(user);
-        
-              // Attempt to parse the user
               const ownerType = parsedUser?.payload?.owner_type;
-        
               if (ownerType === 0) {
-                // console.log(ownerType,'oooooooooooo')
-                // dispatch(setOwner(0));
-
                 setInitialRoute('DriverDashboard');
-              } else if (ownerType === 1) {
-                // dispatch(setOwner(1));
-
+              } else if (ownerType == 1 || ownerType == 2) {
                 setInitialRoute('OwnerDashboard');
               } else {
                 setInitialRoute('Login');
               }
             } catch (jsonError) {
-              console.error('Error parsing user data as JSON:', jsonError);
-              setInitialRoute('Login'); // Fallback to Login if parsing fails
+              setInitialRoute('Login');
             }
           } else {
             console.log('Invalid user data format, navigating to Login');
@@ -159,9 +152,26 @@ const StackNavigator = () => {
         setLoading(false);
       }
     };
-
     checkUserStatus();
   }, []);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   if (loading) {
     return <Loading loading={loading} />;
@@ -171,9 +181,17 @@ const StackNavigator = () => {
     <Stack.Navigator initialRouteName={initialRoute}>
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Otp" component={OtpScreen} />
+      <Stack.Screen name="TermsCondition" component={TermsAndCondition} />
       <Stack.Screen name="OwnerDetail" component={OwnerDetailScreen} />
       <Stack.Screen name="DriverDetail" component={DriverDetailScreen} />
       <Stack.Screen name="VehicleDetail" component={VehicleDetailScreen} />
+      <Stack.Screen name="UpdateDriver" component={UpdateDriver} />
+      <Stack.Screen name="ProfileDetail" component={ProfileDetail} />
+      <Stack.Screen name="Notification" component={Notification} />
+      <Stack.Screen name="MyVehicles" component={MyVehiclesScreen}  options={{headerShown: false}} />
+
+
+      
       <Stack.Screen
         name="DriverDashboard"
         component={DriverDrawerNavigator} // Driver's drawer

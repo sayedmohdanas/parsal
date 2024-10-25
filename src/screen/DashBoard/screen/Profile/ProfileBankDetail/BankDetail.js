@@ -22,26 +22,26 @@ const BankDetailCard = ({ bankAccount }) => {
             {bankAccount ? (
                     <>
             <Line marginH={1} />
-          
-            <View style={styles.contentContainer}>
-               
-                        <View style={styles.detailContainer}>
-                            <View style={{ flex: 1 }}>
-                                <Text style={styles.detail}>Account Number</Text>
-                            </View>
-                            <View style={{ flex: 1 }}>
-                                <Text style={styles.number}>: {bankAccount?.account_no}</Text>
-                            </View>
-                        </View>
 
-                        <View style={styles.detailContainer}>
-                            <View style={{ flex: 1 }}>
-                                <Text style={styles.detail}>IFSC Code</Text>
-                            </View>
-                            <View style={{ flex: 1 }}>
+            <View style={styles.contentContainer}>
+
+                <View style={styles.detailContainer}>
+                    <View style={{ flex: 1 }}>
+                        <Text style={styles.detail}>Account Number</Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                                <Text style={styles.number}>: {bankAccount?.account_no}</Text>
+                    </View>
+                </View>
+
+                <View style={styles.detailContainer}>
+                    <View style={{ flex: 1 }}>
+                        <Text style={styles.detail}>IFSC Code</Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
                                 <Text style={styles.number}>: {bankAccount?.ifsc_code}</Text>
-                            </View>
-                        </View>
+                    </View>
+                </View>
                 
             </View>
             </>
@@ -53,11 +53,11 @@ const BankDetailCard = ({ bankAccount }) => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        width: '100%',
-        backgroundColor: Colors.white,
+        container: {
+            width: '100%',
+            backgroundColor: Colors.white,
         marginTop: responsiveHeight(12),
-    },
+        },
     headerRow: {
         paddingHorizontal: Spacing.medium,
         paddingVertical: Spacing.small,
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     editText: {
         fontSize: FontSizes.semiLarge,
         fontWeight: Fonts.medium,
-        color: Colors.brandBlue,
+        color: Colors.brandBlue, 
     },
     contentContainer: {
         width: '85%',

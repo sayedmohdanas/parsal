@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
         color: Colors.grey
     },
     data: {
-
+        
         fontSize: FontSizes.semiLarge,
         color: Colors.black
     },

@@ -16,10 +16,10 @@ const ProfileScreen = () => {
   const navigation = useNavigation()
   const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
   const [bankAccount, setBankAcccount] = useState({})
-  let Owner_type = 1
-  const partneData = useSelector(state => state?.parsalPartner?.ownerDetail);
+   let Owner_type = 1
+  const partneData = useSelector(state => state?.parsalPartner?.logindriverdetails);
 
-  const driverProfile = useSelector(state => state?.parsalPartner?.driverDetail);
+  const driverProfile = useSelector(state => state?.parsalPartner?.logindriverdetails);
   useEffect(() => {
     console.log('profile-data====>>>>', partneData);
 
@@ -38,27 +38,27 @@ const ProfileScreen = () => {
   return (
     <>
       <CustomHeader screenName={"Profile"} />
-      <View style={styles.container}>
+    <View style={styles.container}>
 
 
-        <VehicleProfileCard screen={""} />
-        <PartnerAddressCard
-          profile={partneData}
-          address="123 Main St, Apt 4B, Springfield"
-          mobileNumber="+1234567890"
-          additionalData="Additional information or notes here."
-        />
+        <VehicleProfileCard screen={""} />  
+      <PartnerAddressCard
+        profile={partneData}
+        address="123 Main St, Apt 4B, Springfield"
+        mobileNumber="+1234567890"
+        additionalData="Additional information or notes here."
+      />
         <BankDetailCard bankAccount={bankAccount} />
         {Owner_type != 0 && (
-          <View style={{ marginTop: responsiveHeight(12), backgroundColor: Colors.white, padding: 16, borderRadius: 5, width: '100%', justifyContent: 'space-between', flexDirection: 'row' }}>
-            <Text style={{ color: 'black', fontWeight: '600', fontSize: responsiveFontSize(16) }}>My Vehicle</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('MyVehicles')}>
-              <Image source={AppImages.next} style={{ width: responsiveWidth(30), height: responsiveHeight(30) }} resizeMode='contain' />
-            </TouchableOpacity>
-          </View>
-        )}
-        <LanguagePreferenceCard />
+      <View style={{ marginTop: responsiveHeight(12), backgroundColor: Colors.white, padding: 16, borderRadius: 5, width: '100%', justifyContent: 'space-between', flexDirection: 'row' }}>
+        <Text style={{ color: 'black', fontWeight: '600', fontSize: responsiveFontSize(16) }}>My Vehicle</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('MyVehicles')}>
+          <Image source={AppImages.next} style={{ width: responsiveWidth(30), height: responsiveHeight(30) }} resizeMode='contain' />
+        </TouchableOpacity>
       </View>
+      )}
+      <LanguagePreferenceCard />
+    </View>
     </>
 
   );

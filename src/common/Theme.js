@@ -4,15 +4,18 @@ import { responsiveFontSize, responsiveHeight ,responsiveWidth} from './metrices
 
 export const Fonts = {
   regular: '400',
+  semilarge:'500',
   medium: '600',
   bold: '700',
 };
 
 export const FontSizes = {
+  xsmall:responsiveFontSize(12),
   small: responsiveFontSize(12),
   medium: responsiveFontSize(14),
   semiLarge:responsiveFontSize(16),
   large: responsiveFontSize(18),
+  xlarge:responsiveFontSize(20)
 };
 
 export const LineHeights = {

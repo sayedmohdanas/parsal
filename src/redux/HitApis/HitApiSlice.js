@@ -170,6 +170,9 @@ const initialState = {
   owner: null,
   driverDetail:null,
   ownerDetail:null,
+  loginuserdetails: null,
+  logindriverdetails: null,
+  wallet_balance: 0,
 };
 
 const HitApiSlice = createSlice({
@@ -204,6 +207,15 @@ const HitApiSlice = createSlice({
     state.ownerDetail = action.payload
      
     },
+    setlogindriverdetails(state, action) {
+      state.logindriverdetails = action.payload;
+    },
+    setloginuserdetails(state, action) {
+      state.loginuserdetails = action.payload;
+    },
+    setwalletBalance(state, action) {
+      state.wallet_balance = action.payload;
+    },
   },
   extraReducers: builder => {
     builder
@@ -214,7 +226,7 @@ const HitApiSlice = createSlice({
         state.error = null;
       })
       .addCase(loginPartner.fulfilled, (state, action) => {
-       state.status = 'succeeded';
+        state.status = 'succeeded';
         state.loading = false;
         state.user = action.payload;
         state.owner = action.payload?.payload?.owner_type
@@ -373,7 +385,10 @@ export const {
   setOwner,
   setLogout,
   setDriverDetail,
-  setOwnerDetail
+  setOwnerDetail,
+  setloginuserdetails,
+  setlogindriverdetails,
+  setwalletBalance
 } = HitApiSlice.actions;
 
 export default HitApiSlice.reducer;

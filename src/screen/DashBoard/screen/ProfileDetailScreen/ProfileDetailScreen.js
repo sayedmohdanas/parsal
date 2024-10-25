@@ -5,11 +5,11 @@ import AppImages from '../../../../common/AppImages';
 
 
 const ProfileDetail = ({ route, navigation }) => {
-  const { profileImage, driverName } = route.params;    
+  const { image, name ,status} = route.params;    
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: driverName ? driverName.charAt(0).toUpperCase() + driverName.slice(1) : 'Profile Detail',
+      headerTitle: name ? name.charAt(0).toUpperCase() + name.slice(1) : 'Profile Detail',
       headerBackTitleVisible: false, // Hides text next to back button
   
       headerLeft: () => (
@@ -23,20 +23,32 @@ const ProfileDetail = ({ route, navigation }) => {
           <Image
             source={AppImages.editPen}
             resizeMode='contain'
-            style={{ height: 20, width: 20, marginRight: 10 }} // Adjust margin as needed
+            style={{ height: 20, width: 20, marginRight: 10 }} 
           />
         </TouchableOpacity>
       ),
     });
-  }, [navigation, driverName]);
+  }, [navigation, name]);
 
   return (
     <View style={styles.container}>
      <Image 
-        // source={profileImage ? { uri: profileImage } : require('../../../common/AppImages/profile.png')} 
-        source={profileImage ? { uri: profileImage } : require('../../../../assets/images/profile.png')} 
+    
+        source={image ? { uri: image } : require('../../../../assets/images/profile.png')} 
+        // source={image ? image: require('../../../../assets/images/profile.png')} 
         style={styles.fullSizeImage} 
       /> 
+      {/* {status === 1 ? (
+        <Image
+        source={image ? image: require('../../../../assets/images/profile.png')} 
+          style={styles.fullSizeImage}
+        />
+      ) : (
+        <Image
+        source={image ? { uri: image } : require('../../../../assets/images//profile.png')} 
+        style={styles.fullSizeImage}
+        />
+      )} */}
     </View>
   );
 };

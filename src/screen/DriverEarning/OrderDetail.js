@@ -11,6 +11,7 @@ import {
 import Colors from '../../common/Colors';
 
 const OrderDetail = ({orderDetails}) => {
+  const navigation =useNavigation()
   const props = {
     parsalNumber: 'ODR-123456',
     parsalName: 'Electronics Package',
@@ -42,8 +43,13 @@ const OrderDetail = ({orderDetails}) => {
       },
     },
   };
+
   return (
-    <TouchableOpacity>
+    <TouchableOpacity
+      onPress={()=>navigation.navigate('orderinfo',{
+        id:orderDetails?.order_id
+      })}
+    >
       <View style={[styles.container]}>
         <View style={[styles.section1]}>
           <View>
@@ -67,17 +73,16 @@ const OrderDetail = ({orderDetails}) => {
             </Text>
           </View>
         </View>
-        <Line marginH={1} />
+
+        <View style={{marginVertical: 5}}>
+          <Line marginH={1} />
+        </View>
         <View style={[styles.section2]}>
-          <View style={[styles.LocationMainContainer]}>
+          <View style={[styles.LocationMainContainer, {}]}>
             <View style={[styles.fromLocation]}>
               <Text style={[styles.citystart]}>
-                {`${orderDetails?.pickup_address
-                  .split(' ')
-                  .slice(0, 2)
-                  .join(' ')}...`}
+                {`${orderDetails?.pickup_address?.slice(0, 45)}...`}
               </Text>
-              <Text style={[styles.statestart]}>{orderDetails?.pickup_address?.slice(0,10)}</Text>
             </View>
 
             <Image
@@ -88,13 +93,13 @@ const OrderDetail = ({orderDetails}) => {
 
             <View style={[styles.toLocation]}>
               <Text style={[styles.cityend]}>
-                {/* {`${props.cityend.split(' ').slice(0, 2).join(' ')}...`} */}
+                {/* {`${props.cityend.split(' ').slice(0, 2).join(' ')}...`}
                 {`${orderDetails?.drop_address
                   .split(' ')
                   .slice(0, 2)
-                  .join(' ')}...`}
+                  .join(' ')}...`} */}
+                {`${orderDetails?.drop_address?.slice(0, 45)}...`}
               </Text>
-              <Text style={[styles.stateend]}>{orderDetails?.drop_address?.slice(0,10)}</Text>
             </View>
           </View>
         </View>
@@ -107,7 +112,7 @@ export default OrderDetail;
 
 const styles = StyleSheet.create({
   container: {
-    height: responsiveHeight(130),
+    height: responsiveHeight(115),
     backgroundColor: Colors.white,
     marginHorizontal: responsiveWidth(16),
     borderRadius: 10,
@@ -132,7 +137,7 @@ const styles = StyleSheet.create({
     color: Colors.black,
   },
   parsalName: {
-    fontSize: responsiveFontSize(12),
+    fontSize: responsiveFontSize(10),
     fontWeight: '400',
     color: Colors.grey,
   },
@@ -152,8 +157,6 @@ const styles = StyleSheet.create({
   LocationMainContainer: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
   },
   UserDetailMainContainer: {
     flex: 1,
@@ -171,7 +174,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   citystart: {
-    fontSize: responsiveFontSize(12),
+    fontSize: responsiveFontSize(10),
     fontWeight: '500',
     color: Colors.black,
   },
@@ -182,12 +185,12 @@ const styles = StyleSheet.create({
     marginTop: responsiveHeight(1),
   },
   rightArrowStyle: {
-    height: responsiveHeight(16),
-    width: responsiveWidth(16),
+    height: responsiveHeight(12),
+    width: responsiveWidth(12),
     marginTop: responsiveHeight(10),
   },
   cityend: {
-    fontSize: responsiveFontSize(12),
+    fontSize: responsiveFontSize(10),
     fontWeight: '500',
     color: Colors.black,
   },

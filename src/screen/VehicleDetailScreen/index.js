@@ -83,7 +83,8 @@ const VehicleDetailScreen = ({navigation}) => {
       partner_id: partnerId,
       driver_id: null,
       vehicle_number: vehicleNumber,
-      vehicle_type_id: vehicle_sub_cat[0]?.vehicle_type_id,
+      vehicle_type_id: selected_vehicle,
+      //vehicle_sub_cat[0]?.vehicle_type_id,
       //  selectedVehicleType
       //   ? selectedVehicleType.value
       //   : 'v-type',
@@ -163,9 +164,7 @@ const VehicleDetailScreen = ({navigation}) => {
     setSelectedBodyType(selectedOption);
     setShowVehicleBodyType(false);
     setShowEditOption(true);
-  };
-
-
+  }
   // console.log(JSON.stringify(groupedVehicles, null, 2));
   const [all_vehicle_type, setall_vehicle_type] = useState([]);
   useEffect(() => {
@@ -183,7 +182,7 @@ const VehicleDetailScreen = ({navigation}) => {
               vehicle_type_id: vehicle.vehicle_type_id,
               vehicle_type_cat_name: vehicle.vehicle_type_cat_name,
               vehicle_img:
-                vehicle.vehicle_type_id == 1
+                vehicle.vehicle_type_id == 2
                   ? AppImages.two_wheels
                   : vehicle?.vehicle_type_id == 3
                   ? AppImages.three_wheels
@@ -222,7 +221,8 @@ const VehicleDetailScreen = ({navigation}) => {
   };
   const [selected_vehicle, setselected_vehicle] = useState(1);
   const isEnabled =
-  vehicleNumber && rcUploaded && vehicle_sub_cat && selected_vehicle;
+    vehicleNumber && rcUploaded && vehicle_sub_cat && selected_vehicle;
+    console.log('selected_vehicle',selected_vehicle);
   return (
     <>
       <View style={styles.container}>

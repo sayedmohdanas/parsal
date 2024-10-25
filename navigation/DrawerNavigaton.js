@@ -80,6 +80,12 @@ import ProfileDetail from '../src/screen/DashBoard/screen/ProfileDetailScreen/Pr
 import { Alert } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import OrderInfo from '../src/screen/DashBoard/screen/OrderInfo/OrderInfoScreen';
+import Notification from '../src/screen/DashBoard/screen/Notification/Notification';
+import ChatScreen from '../src/screen/DashBoard/Chat/ChatScreen';
+import WalletScreen from '../src/screen/DashBoard/screen/Wallet/WalletScreen';
+import AddCashScreen from '../src/screen/DashBoard/screen/Wallet/AddCachScreen';
+import HelpAndSupportChat from '../src/screen/DashBoard/screen/HelpAndSupport/HelpAndSupportChat';
 
 // Driver Drawer
 const DriverDrawer = createDrawerNavigator();
@@ -99,6 +105,15 @@ const DriverDrawerNavigator = () => {
         options={{ headerShown: false }}
       />
       <DriverDrawer.Screen name="MyVehicles" component={MyVehiclesScreen} />
+      <OwnerDrawer.Screen name="orderinfo" component={OrderInfo} options={{ headerShown: false }} />
+      <OwnerDrawer.Screen name="Notification" component={Notification} options={{ headerShown: false }} />
+      <OwnerDrawer.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} />
+      <OwnerDrawer.Screen name="Wallet" component={WalletScreen}  options={{ headerShown: false }} />
+      <OwnerDrawer.Screen name="AddCash" component={AddCashScreen}  />
+      <OwnerDrawer.Screen name="Help" component={HelpAndSupportChat} options={{ headerShown: false }} />
+
+
+
       <DriverDrawer.Screen name="DriverMap" component={DriverMapScreen} />
       <DriverDrawer.Screen name="AmountCollected" component={AmountCollectScreen} />
       <DriverDrawer.Screen name="RideCompleteScreen" component={RideCompleteScreen} />
@@ -118,13 +133,19 @@ const OwnerDrawerNavigator = () => {
     drawerContent={props => <Menu {...props} owner={1} />}>
       {/* Include direct screen components for the owner */}
       <OwnerDrawer.Screen name="Trip" component={LiveTripScreen} options={{ headerShown: false }} />
+          <OwnerDrawer.Screen name="Help" component={HelpAndSupportChat}  />
       <OwnerDrawer.Screen name="MyVehicles" component={MyVehiclesScreen} options={{ headerShown: false }} />
       <OwnerDrawer.Screen name="Earning"component={Earning} options={{ headerShown: false }}/>
           <OwnerDrawer.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} />
+          <OwnerDrawer.Screen name="orderinfo" component={OrderInfo} options={{ headerShown: false }} />
           <OwnerDrawer.Screen name="ProfileDetail" component={ProfileDetail}options={{
             headerTitle: 'Driver Name',
           }} />
       <OwnerDrawer.Screen name="AddBank" component={UpdateBankDetailsScreen} />
+      <OwnerDrawer.Screen name="Wallet" component={WalletScreen}   options={{ headerShown: false }}/>
+      <OwnerDrawer.Screen name="AddCash" component={AddCashScreen}  />
+      <OwnerDrawer.Screen name="Notification" component={Notification} options={{ headerShown: false }} />
+      <OwnerDrawer.Screen name="Chat" component={ChatScreen} options={{ headerShown: false }} />
       <DriverDrawer.Screen name="DriverMap" component={DriverMapScreen} />
       <DriverDrawer.Screen name="AmountCollected" component={AmountCollectScreen} />
       <DriverDrawer.Screen name="RideCompleteScreen" component={RideCompleteScreen} />

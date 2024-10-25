@@ -3,7 +3,7 @@ import { View, StyleSheet } from 'react-native';
 
 const BorderLine = ({ 
     color = 'black', 
-    thickness = 2, 
+    thickness = 1.5, 
     length = '100%', 
     margin = 10, 
     

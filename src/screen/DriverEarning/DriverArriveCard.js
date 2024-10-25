@@ -136,7 +136,12 @@ const DriverArriveCard = ({trip, isReachedPickup}) => {
       <DriverInformation />
 
       <View style={styles.chatButtonContainer}>
-        <TouchableOpacity style={styles.chatButton}>
+        <TouchableOpacity style={styles.chatButton}
+         onPress={() => {
+          // Navigate to the Chat screen or handle chat functionality here
+          navigation.navigate('Chat'); // Replace 'ChatScreen' with your actual chat screen name
+        }}
+        >
           <Image
             source={AppImages.messageIcon}
             style={styles.icon}

@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-// import ArriveButton from './path-to-your/ArriveButton'; // Adjust the import path
 import {
   responsiveHeight,
   responsiveFontSize,
@@ -21,7 +20,12 @@ const AmountCollectScreen = () => {
   );
   const [visible, setvisible] = useState(false);
   const orderData = useSelector(state => state?.parsalPartner?.orderData || {});
+
   const navigation = useNavigation();
+  const store_data = useSelector(state => state);
+  const driver_details = useSelector(
+    state => state?.parsalPartner?.logindriverdetails,
+  );
   useEffect(() => {
     socket = io(socketUrl);
 
@@ -36,6 +40,8 @@ const AmountCollectScreen = () => {
     socket.on('complete_transaction_by_user_ack', data => {
       const param = {
         orderId: orderData?.newOrder?.id,
+        partner_id: store_data?.parsalPartner?.loginuserdetails?.partner_id || store_data?.parsalPartner?.loginuserdetails?.id,
+        vehicle_type_id: driver_details?.vehicle_type_id,
       };
       hitCreateTransaction(param)
         .then(res => {
@@ -61,13 +67,16 @@ const AmountCollectScreen = () => {
   const Complete_Order = () => {
     const param = {
       orderId: orderData?.newOrder?.id,
+      partner_id: store_data?.parsalPartner?.loginuserdetails?.partner_id || store_data?.parsalPartner?.loginuserdetails?.id,
+      vehicle_type_id: driver_details?.vehicle_type_id,
     };
     hitCreateTransaction(param)
       .then(res => {
         if (res) {
-          socket.emit('order_completed', {
-            userId: orderData?.newOrder?.cust_id,
-          });
+          // socket.emit('order_completed', {
+          //   userId: orderData?.newOrder?.cust_id,
+          // });
+          socket.emit("complete_transaction_by_user", { userId: orderData?.newOrder?.cust_id});
           navigation.navigate('Earning');
         }
       })

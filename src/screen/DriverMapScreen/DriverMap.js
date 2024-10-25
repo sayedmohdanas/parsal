@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Image, StyleSheet, View} from 'react-native';
 import MapView, {Circle, Marker} from 'react-native-maps';
 import AppImages from '../../common/AppImages';
@@ -54,7 +54,6 @@ const DriverMapScreen = ({route}) => {
           longitude,
           timestamp: database?.ServerValue.TIMESTAMP,
         });
-        console.log({latitude, longitude}, 'Location sent to Firebase');
       } catch (error) {
         console.error('Error fetching location:', error);
       }
@@ -78,10 +77,8 @@ const DriverMapScreen = ({route}) => {
   };
 
   const origin = {
-    latitude: Number(latLOng?.latitude ? latLOng?.latitude : data?.drop_lat),
-    longitude: Number(
-      latLOng?.longitude ? latLOng?.longitude : data?.drop_long,
-    ),
+    latitude: Number(latLOng?.latitude),
+    longitude: Number(latLOng?.longitude),
   };
 
   const destination = {
@@ -101,9 +98,44 @@ const DriverMapScreen = ({route}) => {
       setReached(false); // Set reached to false otherwise
     }
   }, [origin, destination]);
+  const mapRef = useRef(null);
+
+  useEffect(() => {
+    if (mapRef.current && origin && destination) {
+      // Calculate the midpoint between source and destination
+      const midLat = (origin.latitude + destination.latitude) / 2;
+      const midLong = (origin.longitude + destination.longitude) / 2;
+
+      // Calculate the latitude and longitude deltas to cover both points
+      const latDelta = Math.abs(origin.latitude - destination.latitude) + 0.05;
+      const longDelta =
+        Math.abs(origin.longitude - destination.longitude) + 0.05;
+
+      // Focus on the region
+      mapRef.current.animateToRegion(
+        {
+          latitude: midLat,
+          longitude: midLong,
+          latitudeDelta: latDelta,
+          longitudeDelta: longDelta,
+        },
+        1000, // Animation duration in ms
+      );
+    }
+  }, [origin, destination]);
   return (
     <View style={styles.container}>
-      <MapView style={styles.map} initialRegion={mapRegion}>
+      <MapView
+        ref={mapRef}
+        style={styles.map}
+        initialRegion={{
+          latitude: (origin.latitude + destination.latitude) / 2, // midpoint
+          longitude: (origin.longitude + destination.longitude) / 2, // midpoint
+          latitudeDelta:
+            Math.abs(origin.latitude - destination.latitude) + 0.05,
+          longitudeDelta:
+            Math.abs(origin.longitude - destination.longitude) + 0.05,
+        }}>
         {/* Marker for current location */}
         <Marker coordinate={origin}>
           <Image
@@ -170,7 +202,7 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     position: 'absolute',
-    bottom: 40,
+    bottom: 15,
     width: '100%',
     paddingHorizontal: 15,
     zIndex: 10,

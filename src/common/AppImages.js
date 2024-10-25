@@ -40,6 +40,7 @@ export default AppImages = {
   TripIconB: require('../assets/images/trip-1.png'),
   messageIcon: require('../assets/images/message.png'),
   crossIcon: require('../assets/images/cross.png'),
+  trashIcon: require('../assets/images/trash.png'),
   pickedIcon: require('../assets/images/picked.png'),
 
   activeHome: require('../assets/images/activeHome.png'),
@@ -102,6 +103,8 @@ export default AppImages = {
   dropbtn: require('../assets/images/dropbtn.png'),
   checked: require('../assets/images/checked.png'),
   MyVehcileIcon: require('../assets/images/box-truck.png'),
+  fuelIcon: require('../assets/images/fuel.png'),
+  // rcIcon: require('../assets/images/rc.png'),
 
   driversList: require('../assets/images/drivers.png'),
   dashboard: require('../assets/images/dashboard.png'),
@@ -109,5 +112,12 @@ export default AppImages = {
   two_wheels: require('../assets/images/motorcycle.png'),
   three_wheels: require('../assets/images/car.png'),
   four_wheels: require('../assets/images/van.png'),
+  four_wheels: require('../assets/images/van.png'),
+  readIcon: require('../assets/images/read-message.png'),
+  unreadIcon: require('../assets/images/unread-message.png'),
+  wallet_menu: require('../assets/images/wallet_menu.png'),
+  my_wallet: require('../assets/images/my_wallet.png'),
+  transectionList:require('../assets/images/transectionList.png'),
+  walltetBackground:require('../assets/images/walletBackground.png'),
 
 };

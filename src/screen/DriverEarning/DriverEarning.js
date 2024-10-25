@@ -4,7 +4,6 @@ import {
   Text,
   Image,
   StyleSheet,
-  Dimensions,
   TouchableOpacity,
   FlatList,
   ImageBackground,
@@ -29,55 +28,57 @@ import BarChart from './BarChart';
 import DriverDetails from './DriversDetail';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import Line from '../../components/Line/Line';
+import {errorToast} from '../../common/CommonFunction';
+import Loading from '../../components/Loading/Loading';
+import { useSelector } from 'react-redux';
+
 
 const Earning = () => {
   const [selectedRange, setSelectedRange] = useState('week'); // date range
   const [totalEarnings, setTotalEarnings] = useState(0);
   const [dateRange, setDateRange] = useState({start: '', end: ''});
+  const [loading, setLoading] = useState(false); // State for loading
+
   const navigation = useNavigation();
   useEffect(() => {
     getEarningData();
   }, [selectedRange]);
+
   // Function to get earning data
   const getEarningData = async () => {
+    setLoading(true); // Start loading
+
     let startDate, endDate;
     if (selectedRange === 'today') {
-      startDate = moment().format('DD MMM');
-      endDate = startDate;
+      startDate = new Date(); // Use today's date as JavaScript Date object
+      endDate = null; // No end date for 'today'
     } else if (selectedRange === 'week') {
-      startDate = moment().subtract(6, 'days').format('DD MMM');
-      endDate = moment().format('DD MMM');
+      startDate = new Date(); // Today's date as end of the week
+      endDate = new Date(); // Clone today's date for start calculation
+      startDate.setDate(startDate.getDate() - 6); // Subtract 6 days to get start of the week
     }
+
     setDateRange({start: startDate, end: endDate});
+    setLoading(false); // Stop loading
+
   };
-  const dateData = [
-    {date: '12 jun 2025', profiles: [1, 2]},
-    {date: '18 jun 2025', profiles: [3, 4]},
-    {date: '14 jun 2025', profiles: [5, 6]},
-  ];
-  const [currentDateIndex, setCurrentDateIndex] = useState(0);
-  const handlePrevDate = () => {
-    setCurrentDateIndex(prevIndex =>
-      prevIndex > 0 ? prevIndex - 1 : dateData.length - 1,
-    );
-  };
-  const handleNextDate = () => {
-    setCurrentDateIndex(prevIndex =>
-      prevIndex < dateData.length - 1 ? prevIndex + 1 : 0,
-    );
-  };
+
+  
+
   const [driver_todays_earning, setdriver_todays_earning] = useState([]);
   const [login_user, setlogin_user] = useState();
   const get_data = async driver_id => {
+    setLoading(true); // Start loading
+
     const user = await AsyncStorage.getItem('user');
     const parsedUser = JSON.parse(user);
     setlogin_user(parsedUser?.payload);
     if (parsedUser?.payload?.owner_type == 0) {
       const param = {
         driver_id: parsedUser?.payload?.driver_id,
-        // '115',
-        filter: selectedRange,
-        //   'today',
+        filter:selectedRange,
+        customDate:dateRange
       };
       hitDriverEarning(param)
         .then(res => {
@@ -89,11 +90,16 @@ const Earning = () => {
         })
         .catch(err => {
           console.error(err);
+        }).finally(() => {
+          setLoading(false); 
         });
+  ;
     } else {
       const param = {
         driver_id: driver_id,
         filter: selectedRange,
+        customDate:dateRange
+
       };
       hitDriverEarning(param)
         .then(res => {
@@ -105,12 +111,15 @@ const Earning = () => {
         })
         .catch(err => {
           console.error(err);
-        });
+        }).finally(() => {
+          setLoading(false); 
+        });;
     }
   };
   const [partner_riders, setpartner_riders] = useState([]);
   const [selectedDriver, setSelectedDriver] = useState();
   const get_driver_list = async () => {
+    setLoading(true); // Start loading
     const user = await AsyncStorage.getItem('user');
     const parsedUser = JSON.parse(user);
     if (parsedUser?.payload?.owner_type != 0) {
@@ -125,20 +134,12 @@ const Earning = () => {
         })
         .catch(err => {
           console.error(err);
-        });
+        }) .finally(() => {
+          setLoading(false); 
+        });;
     }
   };
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     const user = await AsyncStorage.getItem('user');
-  //     const parsedUser = JSON.parse(user);
-  //     if (parsedUser?.payload?.owner_type == 0) {
-  //       await get_data(); // Ensure to await if get_data is a promise
-  //     }
-  //   };
-  //   fetchData(); // Call the async function
-  //   get_driver_list(); // Call this function normally
-  // }, []);
+
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
@@ -154,7 +155,7 @@ const Earning = () => {
       return () => {
         // Cleanup logic here if necessary
       };
-    }, [selectedRange]), // The dependency array can be adjusted as needed
+    }, [selectedRange,dateRange]), // The dependency array can be adjusted as needed
   );
   const renderItem = useMemo(() => {
     return ({item}) => {
@@ -175,6 +176,83 @@ const Earning = () => {
       );
     };
   }, [selectedDriver]);
+  // const formatDateForDisplay = (date) => {
+  // console.log('data',date);
+  //   return date ? date.toDateString() : ''; // Format the date when needed
+  // };
+  const formatDateForDisplay = date => {
+    if (date != null && date) {
+      const options = {day: '2-digit', month: 'short', year: 'numeric'};
+      const formattedDate = date?.toLocaleDateString('en-GB', options);
+      // Replace spaces with hyphens
+      return formattedDate.replace(/ /g, '-');
+    }
+  };
+
+  const handlePrevDate = () => {
+    const currentStartDate = new Date(dateRange.start);
+
+    if (selectedRange === 'week') {
+      // Calculate previous week range
+      const prevWeek = calculateWeekRange(currentStartDate, false);
+      setDateRange(prevWeek);
+    } else if (selectedRange === 'today') {
+      // Calculate previous day
+      const prevDay = calculateDayRange(currentStartDate, false);
+      setDateRange(prevDay);
+    }
+  };
+  const calculateDayRange = (startDate, next = true) => {
+    const start = new Date(startDate);
+    const offset = next ? 1 : -1; // Forward or backward by 1 day
+    start.setDate(start.getDate() + offset);
+
+    return {start: start, end: ''}; // Only start date for 'today'
+  };
+  const calculateWeekRange = (startDate, next = true) => {
+    const start = new Date(startDate);
+    const offset = next ? 7 : -7; // Forward or backward by 7 days
+    start.setDate(start.getDate() + offset);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 6); // End of the week
+
+    return {start: start, end: end};
+  };
+  const handleNextDate = () => {
+    const currentStartDate = new Date(dateRange.start);
+    const today = new Date(); // Today's date
+
+    if (selectedRange === 'week') {
+      // Calculate next week range
+      const nextWeek = calculateWeekRange(currentStartDate, true);
+
+      // Check if the next week's end date exceeds today
+      if (nextWeek.end > today) {
+        // Prevent updating to next week if it exceeds today
+        // Alert.alert("Cannot go to the next week; it exceeds today's date.")
+        errorToast("Cannot go to the next week; it exceeds today's date.");
+        return;
+      }
+
+      setDateRange(nextWeek);
+    } else if (selectedRange === 'today') {
+      // Calculate next day
+      const nextDay = calculateDayRange(currentStartDate, true);
+
+      // Check if the next day's start date exceeds today
+      if (nextDay.start > today) {
+        // Prevent updating to next day if it exceeds today
+        errorToast("Cannot go to the next day; it exceeds today's date.");
+
+        return;
+      }
+
+      setDateRange(nextDay);
+    }
+  };
+// useEffect(()=>{
+//   get_data()
+// },[dateRange])
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: Colors.homeBackground}}>
       <View>
@@ -184,22 +262,21 @@ const Earning = () => {
           selectedRange={selectedRange}
         />
       </View>
-
       <View style={styles.container}>
-        <View style={{alignSelf:'center',marginTop:responsiveHeight(16)}}>
-
-      <DateRangeSelector selectedRange={selectedRange} setSelectedRange={setSelectedRange} />
+      {loading ? (
+        <Loading loading={loading} /> 
+      ) : (
+        <>
+        <View style={{alignSelf: 'center', marginTop: responsiveHeight(14)}}>
+          <DateRangeSelector
+            selectedRange={selectedRange}
+            setSelectedRange={setSelectedRange}
+          />
         </View>
-
         {driver_todays_earning?.individual_paid_amounts && (
-          <View
-            style={[
-              styles.earningDisplay,
-              {justifyContent: 'center', },
-            ]}>
+          <View style={[styles.earningDisplay, {justifyContent: 'center'}]}>
             <View style={{justifyContent: 'center', alignItems: 'center'}}>
               {/* <Text style={styles.totalEarningText}>{'Total Earning'}</Text> */}
-              
               {/* <DateRangeSelector selectedRange={selectedRange}  setSelectedRange={setSelectedRange}/> */}
               <Text style={styles.earningAmount}>
                 ₹
@@ -226,40 +303,41 @@ const Earning = () => {
             </View>
           </View>
         )}
+        <View style={styles.earningChart}>
+          <TouchableOpacity style={styles.navButton} onPress={handlePrevDate}>
+            <Image
+              source={AppImages.arrowLeft}
+              style={styles.arrowImage}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+          <Text style={styles.dateText}>
+            {formatDateForDisplay(dateRange.start)}{' '}
+            {formatDateForDisplay(dateRange.end) && '-'}{' '}
+            {formatDateForDisplay(dateRange.end)}
+          </Text>
+          <TouchableOpacity style={styles.navButton} onPress={handleNextDate}>
+            <Image
+              source={AppImages.arrowRight}
+              style={styles.arrowImage}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+        </View>
         {/* Bar Chart */}
         {driver_todays_earning?.total_paid_amount && (
-          <BarChart driverEarningData={driver_todays_earning} selectedRange={selectedRange} />
+          <BarChart
+            driverEarningData={driver_todays_earning}
+            selectedRange={selectedRange}
+          />
         )}
         {/* Order List Section */}
         <View style={[styles.orderListContainer, {flex: 1}]}>
-        <View style={styles.earningChart}>
-                  <TouchableOpacity
-                    style={styles.navButton}
-                    onPress={handlePrevDate}>
-                    <Image
-                      source={AppImages.arrowLeft}
-                      style={styles.arrowImage}
-                      resizeMode="contain"
-                    />
-                  </TouchableOpacity>
-                  <Text style={styles.dateText}>
-                    {dateRange.start} - {dateRange.end}
-                  </Text>
-                  <TouchableOpacity
-                    style={styles.navButton}
-                    onPress={handleNextDate}>
-                    <Image
-                      source={AppImages.arrowRight}
-                      style={styles.arrowImage}
-                      resizeMode="contain"
-                    />
-                  </TouchableOpacity>
-                </View>
-                {/* <Line marginH={0}/> */}
-                {/* <BorderLine thickness={0.}/> */}
-        {driver_todays_earning?.individual_paid_amounts && (
-                  <Text style={styles.orderListHeadign}>{'Order List '}</Text>
-                )}
+          {/* <Line marginH={0}/> */}
+          {/* <BorderLine thickness={0.}/> */}
+          {driver_todays_earning?.individual_paid_amounts && (
+            <Text style={styles.orderListHeadign}>{'Order List '}</Text>
+          )}
           <FlatList
             ListHeaderComponent={() => (
               <>
@@ -297,6 +375,8 @@ const Earning = () => {
                       alignItems: 'center',
                       alignSelf: 'center',
                       paddingVertical: 30,
+
+                      marginTop: responsiveHeight(110),
                     }}>
                     <ImageBackground
                       source={AppImages.boxbackgound}
@@ -315,12 +395,14 @@ const Earning = () => {
                 {login_user?.owner_type != 0 &&
                   driver_todays_earning?.individual_paid_amounts && (
                     <View style={{marginLeft: 20}}>
-                      <FlatList
-                        data={partner_riders}
-                        horizontal
-                        renderItem={renderRieder}
-                        keyExtractor={(item, index) => index.toString()}
-                      />
+                      {partner_riders?.length > 1 && (
+                        <FlatList
+                          data={partner_riders}
+                          horizontal
+                          renderItem={renderRieder}
+                          keyExtractor={(item, index) => index.toString()}
+                        />
+                      )}
                     </View>
                   )}
               </>
@@ -331,6 +413,8 @@ const Earning = () => {
             contentContainerStyle={{flexGrow: 1}}
           />
         </View>
+        </>
+      )}
       </View>
     </SafeAreaView>
   );
@@ -340,7 +424,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    // Colors.homeBackground,
   },
   sliderContainer: {
     justifyContent: 'space-between',
@@ -384,7 +467,6 @@ const styles = StyleSheet.create({
     padding: responsiveHeight(10),
     paddingHorizontal: responsiveHeight(30),
     flexDirection: 'row',
-    // marginBottom: responsiveHeight(30),
   },
   earningChart: {
     justifyContent: 'space-between',
@@ -392,7 +474,7 @@ const styles = StyleSheet.create({
     paddingTop: responsiveHeight(10),
     paddingHorizontal: responsiveHeight(50),
     flexDirection: 'row',
-    marginBottom: responsiveHeight(16),
+    // marginBottom: responsiveHeight(16),
   },
   navButton: {
     justifyContent: 'center',
@@ -499,10 +581,9 @@ const styles = StyleSheet.create({
     color: Colors.black,
   },
   graphStyle: {
-    // Define your custom styles here
     width: '100%',
     height: 200,
-    backgroundColor: 'lightgray', // Just an example
+    backgroundColor: 'lightgray',
   },
 });
 

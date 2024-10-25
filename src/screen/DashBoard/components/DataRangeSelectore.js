@@ -14,7 +14,7 @@ const DateRangeSelector = ({selectedRange, setSelectedRange}) => {
   const [value, setValue] = useState();
 
   return (
-    <View>
+    // <View>
       <Dropdown
         style={styles.dropdown}
         placeholderStyle={styles.placeholderStyle}
@@ -40,7 +40,7 @@ const DateRangeSelector = ({selectedRange, setSelectedRange}) => {
           </View>
         )}
       />
-    </View>
+    // </View>
   );
 };
 
@@ -61,7 +61,10 @@ const styles = StyleSheet.create({
   },
   selectedTextStyle: {
     fontSize: responsiveFontSize(11),
-    color: Colors.grey, // Item text color
+    color: Colors.grey,
+    fontWeight:'700'
+    
+    // Item text color
   },
   iconStyle: {
     width: 20,

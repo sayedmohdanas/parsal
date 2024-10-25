@@ -11,7 +11,7 @@ import { responsiveFontSize, responsiveHeight, responsiveWidth } from '../../../
 import { getimage } from '../../../config/url';
 
 const VehicleProfileCard = ({ screen = false,isOnline,vehicle_data }) => {
-  const driverProfile = useSelector(state => state?.parsalPartner?.ownerDetail);
+  const driverProfile = useSelector(state => state?.parsalPartner?.logindriverdetails);
   const partenrId = useSelector(state=>state?.parsalPartner?.partnerId)
   const navigation = useNavigation();
   const name = driverProfile

@@ -151,7 +151,7 @@ const ProfileWithStatus = ({ isOnline, profileImage, name }) => {
   const handleImagePress = () => {
     setModalVisible(false); // Close the modal before navigating
     navigation.navigate('ProfileDetail', {
-      profileImage: profileImage || AppImages.profileImage,
+      image: profileImage || AppImages.profileImage,
       name,
     });
   };

@@ -9,7 +9,7 @@ import {
 import Colors from '../../../common/Colors';
 import AppImages from '../../../common/AppImages';
 import { Switch } from 'react-native-switch';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GetDriverCurrentLocation } from '../../../common/CommonFunction';
 import {
@@ -17,6 +17,7 @@ import {
   hitGetPartner,
   hitUpdateDriverStatus,
 } from '../../../config/api/api';
+import { setlogindriverdetails } from '../../../redux/HitApis/HitApiSlice';
 
 const CustomHeader = ({ screenName, selectedRange, setSelectedRange }) => {
   const owner = useSelector(state => state?.parsalPartner?.owner);
@@ -89,6 +90,7 @@ const CustomHeader = ({ screenName, selectedRange, setSelectedRange }) => {
     }, []), // Empty dependency array means this runs on every focus
   );
   const [user_details, setuser_details] = useState([]);
+  const dispatch = useDispatch();
   const get_user_details = async () => {
     const user = await AsyncStorage.getItem('user');
     const parsed_user = JSON.parse(user);
@@ -97,6 +99,7 @@ const CustomHeader = ({ screenName, selectedRange, setSelectedRange }) => {
       hitGetDriverDetails({ ids: [parsed_user?.payload?.driver_id] })
         .then(res => {
           setuser_details(res?.drivers[0]);
+          dispatch(setlogindriverdetails(res?.drivers[0]));
         })
         .catch(err => {
           console.log(err);
@@ -106,7 +109,33 @@ const CustomHeader = ({ screenName, selectedRange, setSelectedRange }) => {
         partner_id: parsed_user?.payload?.partner_id,
       })
         .then(res => {
-          setuser_details(res?.partner);
+          let userDetails = res?.partner;
+
+          if (parsed_user?.payload?.owner_type == 2) {
+            hitGetDriverDetails({ids: [parsed_user?.payload?.driver_id]})
+              .then(driverRes => {
+                const driverDetails = driverRes?.drivers[0];
+
+                if (driverDetails) {
+                  // Add the working_status object to the user details
+                  userDetails = {
+                    ...userDetails,
+                    working_status: driverDetails.working_status,
+                    vehicle_type_id: driverDetails?.vehicle_type_id,
+                  };
+                }
+                // Update user details with the new object
+                dispatch(setlogindriverdetails(userDetails));
+
+                setuser_details(userDetails);
+              })
+              .catch(err => {
+                console.log(err);
+              });
+          } else {
+            // If owner_type is not 2, just set the partner details
+            setuser_details(userDetails);
+          }
         })
         .catch(err => {
           console.error(err);
@@ -117,101 +146,105 @@ const CustomHeader = ({ screenName, selectedRange, setSelectedRange }) => {
     get_user_details();
   }, [isEnabled]);
   const [isEnabled, setIsEnabled] = useState(
-    user_details?.working_status === 0 ? false : true,
+    user_details?.working_status == 0 ? false : true,
   );
   // Update isEnabled whenever user_details changes
   useEffect(() => {
     setIsEnabled(user_details?.working_status == 0 ? false : true);
   }, [user_details]);
-
   return (
-    <View style={styles.headerContainer}>
-      <TouchableOpacity
-        onPress={() => navigation.openDrawer()}
-        style={styles.profilePic}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-          <Image
-            source={AppImages.hamburgerImage} // Replace with your profile pic URL
-            style={styles.profilePic}
-          />
-        </View>
-      </TouchableOpacity>
+    <>
+      <View style={styles.headerContainer}>
+        <TouchableOpacity
+          onPress={() => navigation.openDrawer()}
+          style={styles.profilePic}>
+          <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
+            <Image
+              source={AppImages.hamburgerImage} // Replace with your profile pic URL
+              style={styles.profilePic}
+            />
+          </View>
+        </TouchableOpacity>
 
-      {/* Center: Screen Name or Switch */}
-      {check_owner != 1 ? (
-        <>
-          <Switch
-            value={isEnabled}
-            onValueChange={val => {
-              //   setIsEnabled(val);
-              toggleOnlineStatus();
-            }}
-            disabled={false}
-            activeText={'Online'}
-            inActiveText={'Offline'}
-            circleSize={20}
-            barHeight={30}
-            activeTextStyle={{
-              color: Colors.brandBlue,
-              fontSize: responsiveFontSize(12),
-              fontWeight: '600',
-            }}
-            inactiveTextStyle={{
-              color: Colors.grey,
-              fontSize: responsiveFontSize(12),
-              fontWeight: '600',
-            }}
-            circleBorderWidth={3}
-            backgroundActive={'white'}
-            backgroundInactive={'white'}
-            renderInsideCircle={() => (
-              <Image
-                source={isEnabled ? AppImages.Online : AppImages.OfflineButton}
-                style={{
-                  width: responsiveWidth(15),
-                  height: responsiveHeight(15),
-                  padding: 10,
-                }}
-                resizeMode="contain"
-              />
-            )}
-            changeValueImmediately={true}
-            innerCircleStyle={{ alignItems: 'center', justifyContent: 'center' }}
-            outerCircleStyle={{
-              borderWidth: 1,
-              borderColor: '#D8D8D8',
-              borderRadius: 30,
-            }}
-            renderActiveText={true}
-            renderInActiveText={true}
-            switchLeftPx={90}
-            switchRightPx={90}
-            switchWidthMultiplier={4.5}
-            switchBorderRadius={30}
-          />
-        </>
-      ) : (
-        <View style={{}}>
+        {/* Center: Screen Name or Switch */}
+        {check_owner != 1 ? (
+          <>
+            <Switch
+              value={isEnabled}
+              onValueChange={val => {
+                //   setIsEnabled(val);
+                toggleOnlineStatus();
+              }}
+              disabled={false}
+              activeText={'ONLINE'}
+              inActiveText={'OFFLINE'}
+              circleSize={20}
+              barHeight={30}
+              activeTextStyle={{
+                color: Colors.brandBlue,
+                fontSize: responsiveFontSize(12),
+                fontWeight: '500',
+              }}
+              inactiveTextStyle={{
+                color: Colors.grey,
+                fontSize: responsiveFontSize(12),
+                fontWeight: '500',
+              }}
+              circleBorderWidth={3}
+              backgroundActive={'white'}
+              backgroundInactive={'white'}
+              renderInsideCircle={() => (
+                <Image
+                  source={
+                    isEnabled ? AppImages.Online : AppImages.OfflineButton
+                  }
+                  style={{
+                    width: responsiveWidth(15),
+                    height: responsiveHeight(15),
+                    padding: 10,
+                  }}
+                  resizeMode="contain"
+                />
+              )}
+              changeValueImmediately={true}
+              innerCircleStyle={{
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              outerCircleStyle={{
+                borderWidth: 1,
+                borderColor: '#D8D8D8',
+                borderRadius: 30,
+              }}
+              renderActiveText={true}
+              renderInActiveText={true}
+              switchLeftPx={90}
+              switchRightPx={90}
+              switchWidthMultiplier={4.5}
+              switchBorderRadius={30}
+            />
+          </>
+        ) : (
           <Text style={styles.screenName}>{screenName}</Text>
-        </View>
-      )}
-      {/* <TouchableOpacity style={styles.placeholder} /> */}
-      {/* {screenName === 'Earning' ? (
+        )}
+        {/* <View style={styles.placeholder} /> */}
+        {/* {screenName === 'Earning' ? (
         <DateRangeSelector
           setSelectedRange={setSelectedRange}
           selectedRange={selectedRange}
         />
       ) : null} */}
-
-      <TouchableOpacity>
+          
+      <TouchableOpacity onPress={()=>navigation.navigate('Notification')}>
 
         <Image source={AppImages.notificationIcon} style={{ width: responsiveWidth(24), height: responsiveHeight(24) }} />
 
       </TouchableOpacity>
 
     </View>
-  );
-};
+    </>
+  )
+}
 
 export default CustomHeader;
 
@@ -223,6 +256,8 @@ const styles = StyleSheet.create({
     height: responsiveHeight(60),
     backgroundColor: Colors.white,
     paddingHorizontal: responsiveWidth(16),
+    borderBlockColor: '£D8D8D8',
+    borderBottomWidth: 0.5,
   },
   profilePic: {
     height: responsiveHeight(25),
@@ -242,7 +277,7 @@ const styles = StyleSheet.create({
   },
   placeholder: {
     // flex:1,
-    // width: responsiveWidth(40),
+    width: responsiveWidth(40),
     // backgroundColor:'green' // Matches the profile pic width for balance
   },
   hamburgerButton: {
@@ -251,4 +286,4 @@ const styles = StyleSheet.create({
     zIndex: 1,
     flexDirection: 'row',
   },
-});
+})

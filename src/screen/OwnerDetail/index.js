@@ -18,7 +18,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const OwnerDetailScreen = ({navigation, route}) => {
   const {partner_id, email} = route.params;
-  console.log('===>?', route.params);
   const dispatch = useDispatch();
   const loading = useSelector(state => state.parsalPartner.loading);
   const [name, setName] = React.useState('');
@@ -31,7 +30,8 @@ const OwnerDetailScreen = ({navigation, route}) => {
       const payload = {
         partnerId: partner_id,
         partner_name: name,
-        email: email,
+        // email: email,
+        email: email.replaceAll(' ', ''),
         phone: generateRandomPhoneNumber(),
         address: '123, Main Street, Springfield',
         admin_remark: 'I am a new partner with id 3',
@@ -67,7 +67,7 @@ const OwnerDetailScreen = ({navigation, route}) => {
               partner_id: partnerId,
             },
           };
-          console.log('user', user);
+
           successToast('Submitted', 'Your details have been submitted.');
           await AsyncStorage.setItem('partner_id', String(partnerId));
           await dispatch(setParentId(partnerId));

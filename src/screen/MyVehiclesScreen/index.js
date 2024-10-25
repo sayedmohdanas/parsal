@@ -271,15 +271,15 @@ const MyVehiclesScreen = ({navigation}) => {
 
 
   // Show success toast when vehicle data is loaded
-  useEffect(() => {
-    if (vehicleCount > 0) {
-      successToast(
-        `Successfully loaded ${vehicleCount} vehicle${
-          vehicleCount !== 1 ? 's' : ''
-        }.`,
-      );
-    }
-  }, [vehicleCount]);
+  // useEffect(() => {
+  //   if (vehicleCount > 0) {
+  //     successToast(
+  //       `Successfully loaded ${vehicleCount} vehicle${
+  //         vehicleCount !== 1 ? 's' : ''
+  //       }.`,
+  //     );
+  //   }
+  // }, [vehicleCount]);
 
   // Handle card press
   const handleCardPress = vehicleId => {
@@ -379,7 +379,6 @@ const styles = StyleSheet.create({
   },
   stickyButtonContainer: {
     position: 'absolute',
-    justifyContent: 'space-between',
     bottom: 0,
     left: 0,
     right: 0,
@@ -389,6 +388,7 @@ const styles = StyleSheet.create({
     shadowOffset: {width: 0, height: -2},
     shadowOpacity: 0.1,
     elevation: 1,
+    justifyContent: 'space-between',
   },
   button: {
     paddingVertical: 16,

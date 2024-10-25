@@ -57,11 +57,12 @@ const LoginScreen = ({ navigation, route }) => {
       successToast('Success', `OTP has been sent successfully to ${number}`);
       // navigation.replace('OtpScreen', { number: number });
       if (!loading) {
-        navigation.navigate('Otp', { number: number })
+        navigation.replace('Otp', { number: number })
       }
     }
   }, [status])
   const handleTermsPress = () => {
+    navigation.navigate("TermsCondition")
     console.log('Terms and Conditions clicked');
   };
   const handlePrivacyPress = () => {

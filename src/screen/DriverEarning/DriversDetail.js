@@ -76,8 +76,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     // marginTop: 15,
-    borderRadius: 30,
-    paddingVertical: responsiveHeight(10),
+    borderRadius: 20,
+    paddingVertical: responsiveHeight(8),
     // padding:responsiveHeight(10),
     // paddingHorizontal:responsiveWidth(15),
     marginRight: responsiveWidth(8),
@@ -112,6 +112,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: Colors.grey,
     // marginTop: 2
-  },
+  }, 
 });
 export default DriverDetails;
