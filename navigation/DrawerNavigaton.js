@@ -40,7 +40,7 @@ const DrawerNavigator = () => (
   >
     <Drawer.Screen name="Dashboard" component={DashboardScreen} />
     <Drawer.Screen name="Earning" component={Earning} />
-    <Drawer.Screen name="Ledger" component={LedgerScreen} />
+    <Drawer.Screen name="Ledger" component={LedgerScreen} /> 
 
     <Drawer.Screen name="Payments" component={PaymentsScreen} />
     <Drawer.Screen name="Loans" component={LoansScreen} />
