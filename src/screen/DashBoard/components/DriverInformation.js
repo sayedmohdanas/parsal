@@ -22,10 +22,10 @@ const DriverInformation = ({selected_driver_data}) => {
   const trip = {
     name: selected_driver_data?.driver
       ? selected_driver_data?.driver?.driver_name
-      : store_data?.parsalPartner?.orderData?.custName,
+      : store_data?.parsalPartner?.orderData?.custName || store_data?.parsalPartner?.orderData?.customer?.cust_name,
     phoneNumber: selected_driver_data?.driver?.phone
       ? selected_driver_data?.driver?.phone
-      : store_data?.parsalPartner?.orderData?.custMobile,
+      : store_data?.parsalPartner?.orderData?.customer?.mobile,
   };
   return (
     <View style={styles.userDetail}>

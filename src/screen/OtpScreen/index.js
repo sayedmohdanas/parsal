@@ -110,12 +110,7 @@ const OtpScreen = ({navigation, route}) => {
           response?.partner?.email !== '-' &&
           response?.partner?.phone !== '-'
         ) {
-          // await AsyncStorage.setItem('partner_id', String(partnerId));
-          // await AsyncStorage.setItem('partner_name', String(response?.partner?.partner_name));
-          // dispatch(setParentId(partnerId));
-
-          navigation.replace('MyVehicles', {
-            // partner_id: partnerId,
+          navigation.replace('MyVehicles', {     
             email: number,
           });
         } else {
@@ -147,64 +142,7 @@ const OtpScreen = ({navigation, route}) => {
     }
   };
 
-  // const handleOtp = async () => {
-  //   try {
-  //     // OTP validation
-  //     if (otp.length < 4) {
-  //       errorToast('Invalid Input', 'Enter a Valid OTP');
-  //       return;
-  //     }
-  //     if (otp !== userOtp) {
-  //       errorToast('Invalid Input', 'Incorrect OTP');
-  //       return;
-  //     }
 
-  //     const request = {
-  //       email: number,
-  //       phone: generateRandomPhoneNumber(),
-  //     };
-
-  //     const response = await hitPartnerVerifyOtp(request);
-
-  //     // if (!response || response.status !== 2) {
-  //     //   console.error('PartnerId not found in the response');
-  //     //   return;
-  //     // }
-
-  //     const partnerId = response.partnerId;
-  //     const ownerType = user? user?.payload?.owner_type :"newUser";
-
-  //     if (user) {
-  //       await AsyncStorage.setItem('user', JSON.stringify(user));
-
-  //       if (ownerType !== undefined && ownerType !== null) {
-  //         await AsyncStorage.setItem('owner_type', JSON.stringify(ownerType));
-  //       } else {
-  //         console.error('Invalid owner_type: cannot store undefined/null in AsyncStorage');
-  //         return;
-  //       }
-  //     }
-
-  //     if (ownerType === 0) {
-  //       navigation.replace('DriverDashboard', { driverId: '12' });
-  //       if (response.partner?.partner_name) {
-  //         await AsyncStorage.setItem('partner_name', String(response.partner.partner_name));
-  //       }
-  //     } else if (ownerType === 1) {
-  //       await AsyncStorage.setItem('user_role', 'owner');
-  //       navigation.replace('OwnerDashboard', { ownerId: '12' });
-  //     } else {
-
-  //       if (response.partner?.email && response.partner?.phone && response.partner?.partner_name !== '-') {
-  //         navigation.replace('MyVehicles', { email: number });
-  //       } else {
-  //         navigation.replace('OwnerDetail', { email: number });
-  //       }
-  //     }
-  //   } catch (err) {
-  //     console.error('Error in OTP screen', err);
-  //   }
-  // };
 
   return (
     <>
@@ -233,17 +171,13 @@ const OtpScreen = ({navigation, route}) => {
                 resizeMode="contain"
               />
             </View>
-            {/* <View style={[mystyles.center]}>
-        <Image source={AppImages.EnterNumberScreenImg} style={styles.mainImg} resizeMode='contain' />
-            </View> */}
+        
             <View style={[{flexDirection: 'row'}, styles.numberStyleContainer]}>
               <View style={[{flexDirection: 'row'}, styles.numberContainer]}>
                 <Text style={styles.number}>{number}</Text>
               </View>
               <TouchableOpacity
-                onPress={() => {
-                  // dispatch(setStatusPending());
-                  // navigation.replace('Login');
+                onPress={() => {               
                   dispatch(setLogout());
                   navigation.navigate('Login', {number: number});
                 }}>
@@ -270,7 +204,7 @@ const OtpScreen = ({navigation, route}) => {
                   inputCellLength={1}
                   tintColor={Colors.brandBlue}
                   offTintColor={Colors.textInputBorderColor}
-                  autoFocus={true}
+                  autoFocus={true}                  
                 />
               </View>
             </View>

@@ -1,5 +1,5 @@
 // CustomNotificationModal.js
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,21 +10,22 @@ import {
   Image,
 } from 'react-native';
 import Colors from '../../common/Colors';
-import {hitlPaceOrder, hitMyVehicle} from '../../config/api/api';
-import {useNavigation} from '@react-navigation/native';
+import { hitlPaceOrder, hitMyVehicle } from '../../config/api/api';
+import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useDispatch, useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   setDriverId,
   setOrderData,
+  setlivetripmenu,
   setupdate_order,
 } from '../../redux/HitApis/HitApiSlice';
-import {io} from 'socket.io-client';
+import { io } from 'socket.io-client';
 import {
   generateNumericOTP,
   GetDriverCurrentLocation,
 } from '../../common/CommonFunction';
-import {socketUrl} from '../../config/url';
+import { socketUrl } from '../../config/url';
 import BorderLine from '../../common/BorderLine.';
 import AppImages from '../../common/AppImages';
 import Loading from '../Loading/Loading';
@@ -76,25 +77,48 @@ const NotificationModal = ({
   const pay_mode = 'cash';
   const payment_status = 'pending';
   useEffect(() => {
-    socket = io(socketUrl); // Replace with your server URL
-    socket.emit('registerUser', {userId: driverId, role: 'driver'});
-    // On successful connection
-    socket.on('connect', () => {
-      console.log('Connected to socket server');
-    });
+    const initializeSocket = async () => {
+      try {
+        const user = await AsyncStorage.getItem('user');
+        const parsedUser = JSON.parse(user);
+        const user_data = parsedUser?.payload?.driver_id;
 
-    socket.on('order_accepted', data => {
-      console.log('Order accepted status received:');
-      setModalVisible(false);
-    });
-    // Clean up when the component is unmounted
+        // Initialize socket connection
+        socket = io(socketUrl); // Replace with your actual socket server URL
+
+        // Emit registerUser event with driverId or user_data
+        socket.emit('registerUser', {
+          userId: driverId || user_data,
+          role: 'driver',
+        });
+
+        // On successful connection
+        socket.on('connect', () => {
+          console.log('Connected to socket server');
+        });
+
+        // Listen for order_accepted event
+        socket.on('order_accepted', data => {
+          console.log('Order accepted status received:', data);
+          setModalVisible(false); // Close the modal
+        });
+      } catch (error) {
+        console.error('Error initializing socket:', error);
+      }
+    };
+
+    if (isVisible) {
+      initializeSocket(); // Call the async function inside useEffect
+    }
+
+    // Cleanup function to disconnect the socket when the component unmounts
     return () => {
       if (socket) {
         socket.disconnect();
         console.log('Socket disconnected');
       }
     };
-  }, [isVisible]);
+  }, [isVisible, driverId]); // Add driverId as dependency if it's dynamic
 
   const handleAccept = async () => {
     try {
@@ -103,7 +127,7 @@ const NotificationModal = ({
       dispatch(setupdate_order({}));
       setLoading(true);
 
-      const {latitude, longitude} = await GetDriverCurrentLocation();
+      const { latitude, longitude } = await GetDriverCurrentLocation();
 
       // Create payload
       const payload = {
@@ -146,7 +170,7 @@ const NotificationModal = ({
           socket.emit('driver_accept', resWithOTP, acknowledgment => {
             console.log('Data sent, acknowledgment:', acknowledgment);
           });
-
+          // dispatch(setlivetripmenu(true));
           dispatch(setOrderData(resWithOTP));
           navigation.navigate('DriverMap', {
             picklat: payload.pickup_lat,
@@ -201,9 +225,11 @@ const NotificationModal = ({
               <BorderLine margin={10} thickness={0.5} />
             </View>
 
-            <View style={{ alignSelf: 'center' }}
-            >
-              <CircularProgressComponent timer={timer} setModalVisible={setModalVisible} />
+            <View style={{ alignSelf: 'center' }}>
+              <CircularProgressComponent
+                timer={timer}
+                setModalVisible={setModalVisible}
+              />
             </View>
             <View>
               {/* <Progress.Circle size={30} indeterminate={true} /> */}
@@ -230,9 +256,9 @@ const NotificationModal = ({
             </View> */}
 
             <View style={styles.bodyContainer}>
-            {expected_price&&( 
-              <Text style={styles.priceText}>₹{expected_price}</Text>
-            )}
+              {expected_price && (
+                <Text style={styles.priceText}>₹{expected_price}</Text>
+              )}
               <View
                 style={{
                   marginLeft: responsiveHeight(0),
@@ -240,15 +266,15 @@ const NotificationModal = ({
                   marginTop: responsiveHeight(20),
                   marginBottom: responsiveHeight(8),
                 }}>
-                  {expected_time&&(
-                <Text style={styles.bodyText}> {`${expected_time},`}</Text>
+                {expected_time && (
+                  <Text style={styles.bodyText}> {`${expected_time},`}</Text>
                 )}
-                {expected_distance &&(
-                <Text style={styles.bodyText}>
-                  {' '}
-                  {`${expected_distance} km `}
-                </Text>
-            )}
+                {expected_distance&&(
+                  <Text style={styles.bodyText}>
+                    {' '}
+                    {`${expected_distance} km `}
+                  </Text>
+                )}
               </View>
 
               <View
@@ -257,18 +283,18 @@ const NotificationModal = ({
                   justifyContent: 'space-between',
                   paddingVertical: 8,
                 }}>
-                  {expected_price&&( 
-                <View style={[styles.timelineContainer]}>
-                  <View style={styles.greenCircle}></View>
-                  <View style={styles.line}></View>
-                  <View style={styles.redCircle}>
-                    <View style={styles.blackCircle}></View>
-                    {/* //// <Image source={AppImages.location} style={styles.locImg} /> */}
+                {expected_price&&(
+                  <View style={[styles.timelineContainer]}>
+                    <View style={styles.greenCircle}></View>
+                    <View style={styles.line}></View>
+                    <View style={styles.redCircle}>
+                      <View style={styles.blackCircle}></View>
+                      {/* //// <Image source={AppImages.location} style={styles.locImg} /> */}
+                    </View>
                   </View>
-                </View>
-                  )}
-                <View style={{marginLeft: responsiveWidth(5)}}>
-                  <Text style={[styles.addressText, {marginVertical: 0}]}>
+                )}
+                <View style={{ marginLeft: responsiveWidth(5) }}>
+                  <Text style={[styles.addressText, { marginVertical: 0 }]}>
                     {pickup_address}
                   </Text>
                   {/* <Text style={[styles.addressText, { marginVertical: 0 }]}>{"Mushahibganj Daulatganj Thakurganj 226003 "}</Text> */}
@@ -291,12 +317,12 @@ const NotificationModal = ({
               <TouchableOpacity
                 style={styles.roundButton}
                 onPress={handleAccept}>
-                <Text style={[styles.buttonText, {color: Colors.white}]}>
+                <Text style={[styles.buttonText, { color: Colors.white }]}>
                   Accept
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.rejectButton} onPress={onReject}>
-                <Text style={[styles.buttonText, {color: Colors.grey}]}>
+                <Text style={[styles.buttonText, { color: Colors.grey }]}>
                   Reject
                 </Text>
               </TouchableOpacity>
@@ -317,7 +343,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     // backgroundColor: 'green',
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 1,

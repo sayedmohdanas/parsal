@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import {
-    View,
-    Text,
-    StyleSheet,
-    FlatList,
-    TouchableOpacity,
-    Image,
-    Animated,
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Image,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Swipeable } from 'react-native-gesture-handler';
@@ -30,100 +30,100 @@ const Notification = () => {
     const [expandedItemId, setExpandedItemId] = useState(null);
 
 
-    useEffect(() => {
-        setLoading(true)
-        const fetchNotification = async () => {
-            try {
-                const user = await AsyncStorage.getItem('user');
-                const parsedUser = JSON.parse(user);
-                const response = await hitGetNotification({ user_id: parsedUser?.payload?.driver_id, user_type: 2 });
-                console.log('response', response);
+  useEffect(() => {
+    setLoading(true);
+    const fetchNotification = async () => {
+      try {
+        const user = await AsyncStorage.getItem('user');
+        const parsedUser = JSON.parse(user);
+        const response = await hitGetNotification({
+          user_id: parsedUser?.payload?.driver_id,
+          user_type: 2,
+        });
+        console.log('response', response);
 
-                const formattedNotifications = response.notifications.map((item) => ({
-                    id: item.id.toString(),
-                    title: 'Parsal',
-                    description: item.message,
-                    timestamp: new Date(item.date_time).toLocaleString(),
-                    read: false,
-                }));
+        const formattedNotifications = response.notifications.map(item => ({
+          id: item.id.toString(),
+          title: 'Parsal',
+          description: item.message,
+          timestamp: new Date(item.date_time),
+          read: false,
+        }));
 
-
-                setNotifications(formattedNotifications);
-            } catch (error) {
-                console.log('Notification Error', error);
-            } finally {
-                setLoading(false)
-            }
-        };
-        fetchNotification();
-    }, []);
-
-    const toggleReadStatus = (id) => {
-        setNotifications((prevNotifications) =>
-            prevNotifications.map((notification) =>
-                notification.id === id
-                    ? { ...notification, read: !notification.read }
-                    : notification
-            )
-        );
+        setNotifications(formattedNotifications);
+      } catch (error) {
+        console.log('Notification Error', error);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchNotification();
+  }, []);
 
-    const deleteNotification = (id) => {
-        setNotifications((prevNotifications) =>
-            prevNotifications.filter((notification) => notification.id !== id)
-        );
-    };
+  const toggleReadStatus = id => {
+    setNotifications(prevNotifications =>
+      prevNotifications.map(notification =>
+        notification.id === id
+          ? {...notification, read: !notification.read}
+          : notification,
+      ),
+    );
+  };
 
-    const renderRightActions = (id) => (
+  const deleteNotification = id => {
+    setNotifications(prevNotifications =>
+      prevNotifications.filter(notification => notification.id !== id),
+    );
+  };
+
+  const renderRightActions = id => (
+    <TouchableOpacity
+      style={styles.deleteButton}
+      onPress={() => deleteNotification(id)}>
+      <Text style={styles.deleteText}>Delete</Text>
+    </TouchableOpacity>
+  );
+  const handleToggleDescription = id => {
+    setExpandedItemId(expandedItemId === id ? null : id);
+  };
+
+  const renderNotificationItem = ({item}) => {
+    // Log the item
+    console.log('item', item);
+
+    return (
+      <Swipeable renderRightActions={() => renderRightActions(item.id)}>
         <TouchableOpacity
-            style={styles.deleteButton}
-            onPress={() => deleteNotification(id)}
-        >
-            <Text style={styles.deleteText}>Delete</Text>
-        </TouchableOpacity>
-    );
-    const handleToggleDescription = (id) => {
-        setExpandedItemId(expandedItemId === id ? null : id);
-    };
+          style={[styles.notificationItem, {backgroundColor: Colors.white}]}
+          onPress={() => toggleReadStatus(item.id)}>
+          <View style={styles.notificationContent}>
+            {/* Title */}
+            {/* <Text style={styles.title}>{item.title}</Text> */}
 
-    const renderNotificationItem = ({ item }) => (
-        <Swipeable renderRightActions={() => renderRightActions(item.id)}>
-            <TouchableOpacity
-                style={[
-                    styles.notificationItem,
-                    { backgroundColor: Colors.white },
-                ]}
-                onPress={() => toggleReadStatus(item.id)}
-            >
-                <View style={styles.notificationContent}>
-                    {/* Title */}
-                    {/* <Text style={styles.title}>{item.title}</Text> */}
-
-                    {/* Description */}
-                    <TouchableOpacity onPress={() => handleToggleDescription(item.id)}>
-                        <Text
-                            style={styles.description}
-                            numberOfLines={expandedItemId === item.id ? undefined : 1}
-                            ellipsizeMode="tail"
-                            
-                        >
-                            {item.description}
-                        </Text>
-                    </TouchableOpacity>
-
-                    {/* Timestamp */}
-                    <Text style={styles.timestamp}>
-                        {timeAgo(new Date(item.timestamp))}
-                    </Text>
-                </View>
-                {/* Status Icon */}
-                {/* <Image
-            source={item.read ? AppImages.readIcon : AppImages.unreadIcon}
-            style={styles.statusIcon}
-          /> */}
+            {/* Description */}
+            <TouchableOpacity onPress={() => handleToggleDescription(item.id)}>
+              <Text
+                style={styles.description}
+                numberOfLines={expandedItemId === item.id ? undefined : 1}
+                ellipsizeMode="tail">
+                {item.description}
+              </Text>
             </TouchableOpacity>
-        </Swipeable>
+
+            {/* Timestamp */}
+            <Text style={styles.timestamp}>
+              {timeAgo(new Date(item.timestamp))}
+            </Text>
+          </View>
+          {/* Status Icon */}
+          {/* <Image
+                source={item.read ? AppImages.readIcon : AppImages.unreadIcon}
+                style={styles.statusIcon}
+              /> */}
+        </TouchableOpacity>
+      </Swipeable>
     );
+  };
 
     return (
         <SafeAreaView style={styles.container}>

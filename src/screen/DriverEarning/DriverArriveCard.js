@@ -23,7 +23,11 @@ import {io} from 'socket.io-client';
 import {useDispatch, useSelector} from 'react-redux';
 import {useNavigation} from '@react-navigation/native';
 import {hitCancelOrder, hitUpdateOrder} from '../../config/api/api';
-import {setupdate_order} from '../../redux/HitApis/HitApiSlice';
+import {
+  setOrderData,
+  setlivetripmenu,
+  setupdate_order,
+} from '../../redux/HitApis/HitApiSlice';
 import {successToast} from '../../common/CommonFunction';
 import Loading from '../../components/Loading/Loading';
 
@@ -43,7 +47,7 @@ const DriverArriveCard = ({trip, isReachedPickup}) => {
     socket = io(socketUrl);
 
     socket.emit('registerUser', {
-      userId: orderData?.newOrder?.driver_id,
+      userId: orderData?.newOrder?.driver_id || orderData?.driver_id,
       role: 'driver',
     });
 
@@ -55,7 +59,9 @@ const DriverArriveCard = ({trip, isReachedPickup}) => {
       console.error('Connection error:', error);
     });
     socket.on('order_canceled', data => {
-      navigation.goBack();
+      dispatch(setOrderData(null));
+      dispatch(setupdate_order(null));
+      navigation.navigate('DriverDashboard');
       // Handle cancellation on the frontend (e.g., notify user, redirect, etc.)
     });
     return () => {
@@ -73,7 +79,8 @@ const DriverArriveCard = ({trip, isReachedPickup}) => {
       }
       const payload = {
         is_arrive_pickup: 1,
-        order_id: orderData?.newOrder?.id,
+        // order_id: orderData?.newOrder?.id,
+        order_id: orderData?.newOrder?.id || orderData?.id,
       };
       const response = await hitUpdateOrder(payload);
       if (response) {
@@ -103,17 +110,22 @@ const DriverArriveCard = ({trip, isReachedPickup}) => {
               successToast('Successfull', 'Order Cancel');
               dispatch(setupdate_order(null));
               const param = {
-                order_id: orderData?.newOrder?.id,
+                order_id: orderData?.newOrder?.id || orderData?.id,
               };
               const res = await hitCancelOrder(param);
+
               if (res) {
                 socket.emit('cancel_order', {
-                  userId: orderData?.newOrder?.cust_id,
+                  userId: orderData?.newOrder?.cust_id || orderData?.cust_id,
                   orderId: 'order789',
                   role: 'driver',
                   reason: 'Customer requested cancellation',
                 });
-                navigation.goBack();
+                dispatch(setlivetripmenu(false));
+                dispatch(setOrderData([]));
+                dispatch(setupdate_order([]));
+                navigation.navigate('DriverDashboard');
+
                 console.log('Request cancelled');
               }
 
@@ -130,18 +142,17 @@ const DriverArriveCard = ({trip, isReachedPickup}) => {
       setLoadig(false);
     }
   };
-  console.log('orderData?.otp == otp', orderData?.otp == otp ? true : false);
   return (
     <View style={styles.container}>
       <DriverInformation />
 
       <View style={styles.chatButtonContainer}>
-        <TouchableOpacity style={styles.chatButton}
-         onPress={() => {
-          // Navigate to the Chat screen or handle chat functionality here
-          navigation.navigate('Chat'); // Replace 'ChatScreen' with your actual chat screen name
-        }}
-        >
+        <TouchableOpacity
+          style={styles.chatButton}
+          onPress={() => {
+            // Navigate to the Chat screen or handle chat functionality here
+            navigation.navigate('Chat'); // Replace 'ChatScreen' with your actual chat screen name
+          }}>
           <Image
             source={AppImages.messageIcon}
             style={styles.icon}

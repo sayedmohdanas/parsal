@@ -269,7 +269,6 @@ const MyVehiclesScreen = ({navigation}) => {
     };
   }, []);
 
-
   // Show success toast when vehicle data is loaded
   // useEffect(() => {
   //   if (vehicleCount > 0) {
@@ -304,69 +303,68 @@ const MyVehiclesScreen = ({navigation}) => {
 
   return (
     <>
-            <CustomHeader screenName={"My Vehicles"}/>
+      <CustomHeader screenName={'My Vehicles'} />
 
-  
-    <View style={styles.container}>
-      {loading ? (
-        <Loading loading={loading} />
-      ) : (
-        <>
-          <VehicleList
-            vehicleData={vehicleData}
-            handleCardPress={handleCardPress}
-          />
-        </>
-      )}
-
-      <View style={styles.stickyButtonContainer}>
-        {vehicleCount > 0 && (
-          <View
-            style={{
-              backgroundColor: Colors.brandBlue,
-              marginBottom: responsiveHeight(10),
-              paddingVertical: responsiveHeight(6),
-              flexDirection: 'row',
-            }}>
-            <Text
-              style={{
-                marginLeft: responsiveWidth(16),
-                textDecorationLine: 'underline',
-                marginRight: 6,
-                color: 'white',
-              }}
-              onPress={handleAddBankPress}>
-              ADD Bank Account
-            </Text>
-            <Text style={{color: 'white'}}>➙</Text>
-          </View>
+      <View style={styles.container}>
+        {loading ? (
+          <Loading loading={loading} />
+        ) : (
+          <>
+            <VehicleList
+              vehicleData={vehicleData}
+              handleCardPress={handleCardPress}
+            />
+          </>
         )}
 
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            paddingBottom: 16,
-            paddingHorizontal: 16,
-          }}>
-          <TouchableOpacity
-            style={styles.anotherVehicleButton}
-            onPress={() => navigation.navigate('VehicleDetail')}>
-            <Text style={styles.anotherVehicleText}>+</Text>
-            <Text style={styles.anotherVehicleText}>Another Vehicle</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.button,
-              {backgroundColor: vehicleCount > 0 ? '#3D40D1' : '#d3d3d3'},
-            ]}
-            onPress={onPress}
-            disabled={vehicleCount === 0}>
-            <Text style={styles.buttonText}>Pay Fees</Text>
-          </TouchableOpacity>
+        <View style={styles.stickyButtonContainer}>
+          {vehicleCount > 0 && (
+            <View
+              style={{
+                backgroundColor: Colors.brandBlue,
+                marginBottom: responsiveHeight(10),
+                paddingVertical: responsiveHeight(6),
+                flexDirection: 'row',
+              }}>
+              <Text
+                style={{
+                  marginLeft: responsiveWidth(16),
+                  textDecorationLine: 'underline',
+                  marginRight: 6,
+                  color: 'white',
+                }}
+                onPress={handleAddBankPress}>
+                ADD Bank Account
+              </Text>
+              <Text style={{color: 'white'}}>➙</Text>
+            </View>
+          )}
+
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              paddingBottom: 16,
+              paddingHorizontal: 16,
+            }}>
+            <TouchableOpacity
+              style={styles.anotherVehicleButton}
+              onPress={() => navigation.navigate('VehicleDetail')}>
+              <Text style={styles.anotherVehicleText}>+</Text>
+              <Text style={styles.anotherVehicleText}>Another Vehicle</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.button,
+                {backgroundColor: vehicleCount > 0 ? '#3D40D1' : '#d3d3d3'},
+              ]}
+              onPress={onPress}
+              disabled={vehicleCount === 0}>
+              <Text style={styles.buttonText}>Pay Fees</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
-    </View>
     </>
   );
 };

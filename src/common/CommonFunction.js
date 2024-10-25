@@ -162,8 +162,8 @@ export const GetDriverCurrentLocation = () => {
   return new Promise((resolve, reject) => {
     Geolocation.getCurrentPosition(
       position => {
-        const {latitude, longitude} = position.coords;
-        resolve({latitude, longitude});
+        const {latitude, longitude, heading} = position.coords;
+        resolve({latitude, longitude, heading});
       },
       error => {
         console.error('Geolocation error:', error);

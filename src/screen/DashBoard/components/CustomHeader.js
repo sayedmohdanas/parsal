@@ -237,7 +237,7 @@ const CustomHeader = ({ screenName, selectedRange, setSelectedRange }) => {
           
       <TouchableOpacity onPress={()=>navigation.navigate('Notification')}>
 
-        <Image source={AppImages.notificationIcon} style={{ width: responsiveWidth(24), height: responsiveHeight(24) }} />
+        <Image source={AppImages.notificationIcon} resizeMode='contain' style={{ width: responsiveWidth(20), height: responsiveHeight(20) }} />
 
       </TouchableOpacity>
 
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
     height: responsiveHeight(60),
     backgroundColor: Colors.white,
     paddingHorizontal: responsiveWidth(16),
-    borderBlockColor: '£D8D8D8',
+    borderBlockColor: '#D8D8D8',
     borderBottomWidth: 0.5,
   },
   profilePic: {

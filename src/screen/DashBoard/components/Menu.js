@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Image,
   Modal,
+  TouchableHighlight,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppImages from '../../../common/AppImages';
@@ -16,7 +17,14 @@ import {
   successToast,
 } from '../../../common/CommonFunction';
 import {useDispatch, useSelector} from 'react-redux';
-import {setLogout,setloginuserdetails,setwalletBalance,} from '../../../redux/HitApis/HitApiSlice';
+import {
+  setLogout,
+  setOrderData,
+  setlivetripmenu,
+  setloginuserdetails,
+  setupdate_order,
+  setwalletBalance,
+} from '../../../redux/HitApis/HitApiSlice';
 import {
   responsiveFontSize,
   responsiveHeight,
@@ -24,8 +32,10 @@ import {
 } from '../../../common/metrices';
 import {
   hitGetDriverDetails,
+  hitGetLiveOrderApi,
   hitGetPartner,
   hitGetWalletBalanceApi,
+  hitUpdateDriverLocationApi,
   hitUpdateDriverStatus,
 } from '../../../config/api/api';
 import {getimage} from '../../../config/url';
@@ -65,6 +75,7 @@ const Menu = ({navigation, owner = ''}) => {
   const [user_details, setuser_details] = useState([]);
   const store_data = useSelector(state => state?.parsalPartner);
   const [parse_data, setparsed_data] = useState([]);
+  const [show_live, setshow_live] = useState(false);
   const get_user_details = async () => {
     const user = await AsyncStorage.getItem('user');
     const parsed_user = JSON.parse(user);
@@ -74,18 +85,37 @@ const Menu = ({navigation, owner = ''}) => {
         .then(res => {
           setuser_details(res?.drivers[0]);
           dispatch(setloginuserdetails(res?.drivers[0]));
-          const param = {driver_id: parsed_user?.payload?.partner_id}
-            
-            // parsed_user?.payload?.driver_id};
+          const param = {driver_id: parsed_user?.payload?.driver_id};
+
+          // parsed_user?.payload?.driver_id};
           hitGetWalletBalanceApi(param)
             .then(res => {
               dispatch(setwalletBalance(res));
             })
             .catch(err => {
               console.error(err);
+            });
+          const parameter = {
+            user_id: parsed_user?.payload?.driver_id,
+            type: 'driver',
+          };
+          hitGetLiveOrderApi(parameter)
+            .then(res => {
+              if (res?.status == 0) {
+                setshow_live(false);
+                dispatch(setlivetripmenu(false));
+              } else {
+                dispatch(setlivetripmenu(true));
+                setshow_live(true);
+                dispatch(setOrderData(res?.ongoingOrder));
+                if (res?.ongoingOrder?.is_arrived_pickup) {
+                  dispatch(setupdate_order(res?.ongoingOrder));
+                }
+                // navigation.navigate('DriverMap');
+              }
             })
-            .finally(() => {
-              console.log();
+            .catch(err => {
+              console.error(err);
             });
         })
         .catch(err => {
@@ -99,18 +129,38 @@ const Menu = ({navigation, owner = ''}) => {
           setuser_details(res?.partner);
           dispatch(setloginuserdetails(res?.partner));
           if (parsed_user?.payload?.owner_type == 2) {
-            const param = {driver_id: parsed_user?.payload?.partner_id}
-              
-              // parsed_user?.payload?.driver_id};
+            const param = {driver_id: parsed_user?.payload?.driver_id};
+
+            // parsed_user?.payload?.driver_id};
             hitGetWalletBalanceApi(param)
               .then(res => {
                 dispatch(setwalletBalance(res));
               })
               .catch(err => {
                 console.error(err);
+              });
+            const parameter = {
+              user_id: parsed_user?.payload?.driver_id,
+              type: 'driver',
+            };
+            hitGetLiveOrderApi(parameter)
+              .then(res => {
+                if (res?.status == 0) {
+                  setshow_live(false);
+                  dispatch(setlivetripmenu(false));
+                } else {
+                  setshow_live(true);
+                  dispatch(setlivetripmenu(true));
+
+                  dispatch(setOrderData(res?.ongoingOrder));
+                  if (res?.ongoingOrder?.is_arrived_pickup) {
+                    dispatch(setupdate_order(res?.ongoingOrder));
+                  }
+                  navigation.navigate('DriverMap');
+                }
               })
-              .finally(() => {
-                console.log();
+              .catch(err => {
+                console.error(err);
               });
           }
         })
@@ -130,82 +180,82 @@ const Menu = ({navigation, owner = ''}) => {
         {/* <TouchableOpacity onPress={() => navigation.closeDrawer()} style={styles.imageContainer}>
           <Image source={AppImages.backWhite} style={styles.closeImage} />
         </TouchableOpacity> */}
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+        <TouchableHighlight
+          onPress={() => navigation.navigate('Profile')}
+          underlayColor={'none'}
+          style={{flexDirection: 'row', alignItems: 'center'}}>
           {/* <ProfileWithStatus /> */}
-          <Image
-            source={{
-              uri: user_details?.driver_name
-                ? getimage(
-                    'partners_img/' +
-                      user_details?.partner_id +
-                      '/drivers/' +
-                      user_details?.id +
-                      '_' +
-                      user_details?.profile_pic,
-                  )
-                : getimage(
-                    'partners_img/' +
-                      user_details?.id +
-                      '/' +
-                      user_details?.profile_pic,
-                  ),
-            }}
-            style={{
-              height: responsiveHeight(60),
-              width: responsiveHeight(60),
-              borderRadius: responsiveHeight(60),
-              marginRight: responsiveWidth(10),
-            }}
-          />
-          <View>
-            <Text
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <Image
+              source={{
+                uri: user_details?.driver_name
+                  ? getimage(
+                      'partners_img/' +
+                        user_details?.partner_id +
+                        '/drivers/' +
+                        user_details?.id +
+                        '_' +
+                        user_details?.profile_pic,
+                    )
+                  : getimage(
+                      'partners_img/' +
+                        user_details?.id +
+                        '/' +
+                        user_details?.profile_pic,
+                    ),
+              }}
               style={{
-                color: '#000000',
-                fontSize: responsiveFontSize(14),
-                fontWeight: '700',
-              }}>
-              {user_details?.driver_name?.toLocaleUpperCase() ||
-                user_details?.partner_name?.toLocaleUpperCase()}
-            </Text>
-            <Text
-              style={{
-                color: Colors.grey,
-                fontSize: responsiveFontSize(12),
-                fontWeight: '400',
-              }}>
-              {user_details?.phone}
-            </Text>
+                height: responsiveHeight(60),
+                width: responsiveHeight(60),
+                borderRadius: responsiveHeight(60),
+                marginRight: responsiveWidth(10),
+              }}
+            />
+            <View>
+              <Text
+                style={{
+                  color: '#000000',
+                  fontSize: responsiveFontSize(14),
+                  fontWeight: '700',
+                }}>
+                {user_details?.driver_name?.toLocaleUpperCase() ||
+                  user_details?.partner_name?.toLocaleUpperCase()}
+              </Text>
+              <Text
+                style={{
+                  color: Colors.grey,
+                  fontSize: responsiveFontSize(12),
+                  fontWeight: '400',
+                }}>
+                {user_details?.phone}
+              </Text>
+            </View>
           </View>
-        </View>
+        </TouchableHighlight>
       </View>
       <View style={styles.menuContainer}>
-        {parse_data?.payload?.owner_type == 1 ||
-          parse_data?.payload?.owner_type == 2 && (
-            <TouchableOpacity
-              onPress={() => navigation.navigate('Wallet')}
-              style={styles.menuItem}>
-              <Image
-                source={AppImages.wallet_menu}
-                style={styles.profileImage}
-              />
-                        {/* <Image source={AppImages.ledgerImage} style={styles.profileImage} /> */}
-
-              <Text style={styles.menuText}>Wallet Balance</Text>
-              <View style={{flex: 1}}>
-                <Text
-                  style={{
-                    fontSize: responsiveFontSize(20),
-                    color: Colors.grey,
-                    fontWeight: '800',
-                    textAlign: 'right',
-                  }}>
-                  {'₹' +
-                    (store_data.wallet_balance?.new_wallet_balance || 0).toFixed(2) +
-                    ''}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          )}
+        {(parse_data?.payload?.owner_type == 0 ||
+          parse_data?.payload?.owner_type == 2) && (
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Wallet')}
+            style={styles.menuItem}>
+            <Image source={AppImages.wallet_menu} style={styles.profileImage} />
+            <Text style={styles.menuText}>Wallet Balance</Text>
+            <View style={{flex: 1}}>
+              <Text
+                style={{
+                  fontSize: responsiveFontSize(20),
+                  color: Colors.grey,
+                  fontWeight: '800',
+                  textAlign: 'right',
+                }}>
+                {'₹' +
+                  (store_data.wallet_balance?.new_wallet_balance || 0) +
+                  ''}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        )}
         {owner && (
           <>
             <TouchableOpacity
@@ -231,6 +281,16 @@ const Menu = ({navigation, owner = ''}) => {
             </TouchableOpacity>
           </>
         )}
+        {(parse_data?.payload?.owner_type == 0 ||
+          parse_data?.payload?.owner_type == 2) &&
+          store_data?.show_livetripe_menu && (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('DriverMap')}
+              style={styles.menuItem}>
+              <Image source={AppImages.live} style={styles.profileImage} />
+              <Text style={styles.menuText}>Live Order</Text>
+            </TouchableOpacity>
+          )}
         <TouchableOpacity
           onPress={() => navigation.navigate('Earning')}
           style={styles.menuItem}>
@@ -251,19 +311,19 @@ const Menu = ({navigation, owner = ''}) => {
           <Image source={AppImages.paymentsImage} style={styles.profileImage} />
           <Text style={styles.menuText}>Payments</Text>
         </TouchableOpacity>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPress={() => navigation.navigate('Loans')}
           style={styles.menuItem}>
           <Image source={AppImages.loansImage} style={styles.profileImage} />
           <Text style={styles.menuText}>Loans</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <TouchableOpacity
           onPress={() => navigation.navigate('Training')}
           style={styles.menuItem}>
-          <Image source={AppImages.trainingImage} style={styles.profileImage} />
+          <Image source={AppImages.webinar} style={styles.profileImage} />
           <Text style={styles.menuText}>Training</Text>
         </TouchableOpacity>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPress={() => navigation.navigate('Notifications')}
           style={styles.menuItem}>
           <Image
@@ -271,23 +331,26 @@ const Menu = ({navigation, owner = ''}) => {
             style={styles.profileImage}
           />
           <Text style={styles.menuText}>Notifications</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
+        </TouchableOpacity> */}
+        {/* <TouchableOpacity
           onPress={() => navigation.navigate('Profile')}
           style={styles.menuItem}>
           <Image source={AppImages.profileImage} style={styles.profileImage} />
           <View style={{alignItems: 'center', justifyContent: 'center'}}>
             <Text style={styles.menuText}>Profile</Text>
           </View>
+        </TouchableOpacity> */}
+        <TouchableOpacity
+          onPress={() => navigation.navigate('TermsCondition')}
+          style={styles.menuItem}>
+          <Image source={AppImages.compliant} style={styles.profileImage} />
+          <Text style={styles.menuText}>Privacy Policy</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => navigation.navigate('PrivacyPolicy')}
+          onPress={() => navigation.navigate('TermsCondition')}
           style={styles.menuItem}>
-          <Image
-            source={AppImages.privacyPolicyImage}
-            style={styles.profileImage}
-          />
-          <Text style={styles.menuText}>Privacy Policy</Text>
+          <Image source={AppImages.terms} style={styles.profileImage} />
+          <Text style={styles.menuText}>Terms & Condition</Text>
         </TouchableOpacity>
       </View>
 

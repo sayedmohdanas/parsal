@@ -1,7 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { StyleSheet, Text, View, SafeAreaView, useWindowDimensions, ScrollView } from 'react-native';
-// import HeaderBackButton from '../../../components/HeaderBackButton/HeaderBackButton';
-// import { responsiveFontSize, responsiveHeight, responsiveWidth } from '../../../common/metrices';
 import RenderHTML from 'react-native-render-html';
 import { useNavigation } from '@react-navigation/native';
 import Loading from '../../components/Loading/Loading';
@@ -25,7 +23,9 @@ const TermsAndCondition = () => {
             })
             .catch((err) => {
                 console.error('Error in terms and condition in review booking ==>', err);
-            });
+            }).finally(()=>{
+                setloading(false)
+            })
     }, []);
 
 

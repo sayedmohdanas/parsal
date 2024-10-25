@@ -117,7 +117,14 @@ export default AppImages = {
   unreadIcon: require('../assets/images/unread-message.png'),
   wallet_menu: require('../assets/images/wallet_menu.png'),
   my_wallet: require('../assets/images/my_wallet.png'),
-  transectionList:require('../assets/images/transectionList.png'),
-  walltetBackground:require('../assets/images/walletBackground.png'),
+  transectionList: require('../assets/images/transectionList.png'),
+  walltetBackground: require('../assets/images/walletBackground.png'),
+  terms: require('../assets/images/terms-and-conditions.png'),
+  compliant: require('../assets/images/compliant.png'),
+  webinar: require('../assets/images/webinar.png'),
+  live: require('../assets/images/live.png'),
+
+  
+
 
 };

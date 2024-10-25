@@ -173,6 +173,7 @@ const initialState = {
   loginuserdetails: null,
   logindriverdetails: null,
   wallet_balance: 0,
+  show_livetripe_menu: false,
 };
 
 const HitApiSlice = createSlice({
@@ -197,15 +198,14 @@ const HitApiSlice = createSlice({
     setOwner(state, action) {
       state.owner = action.payload;
     },
-    setLogout(state,action){
-      state.status = 'logout'
+    setLogout(state, action) {
+      state.status = 'logout';
     },
-    setDriverDetail(state,action){
-      state.driverDetail = action.payload
+    setDriverDetail(state, action) {
+      state.driverDetail = action.payload;
     },
-    setOwnerDetail(state,action){
-    state.ownerDetail = action.payload
-     
+    setOwnerDetail(state, action) {
+      state.ownerDetail = action.payload;
     },
     setlogindriverdetails(state, action) {
       state.logindriverdetails = action.payload;
@@ -215,6 +215,9 @@ const HitApiSlice = createSlice({
     },
     setwalletBalance(state, action) {
       state.wallet_balance = action.payload;
+    },
+    setlivetripmenu(state, action) {
+      state.show_livetripe_menu = action.payload;
     },
   },
   extraReducers: builder => {
@@ -229,7 +232,7 @@ const HitApiSlice = createSlice({
         state.status = 'succeeded';
         state.loading = false;
         state.user = action.payload;
-        state.owner = action.payload?.payload?.owner_type
+        state.owner = action.payload?.payload?.owner_type;
       })
       .addCase(loginPartner.rejected, (state, action) => {
         state.status = 'failed';
@@ -388,7 +391,8 @@ export const {
   setOwnerDetail,
   setloginuserdetails,
   setlogindriverdetails,
-  setwalletBalance
+  setwalletBalance,
+  setlivetripmenu
 } = HitApiSlice.actions;
 
 export default HitApiSlice.reducer;

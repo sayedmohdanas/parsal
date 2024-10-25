@@ -24,7 +24,6 @@ const VehicleCard = ({vehicle, onPress}) => {
 
   const handleDriverDetails = async () => {
     // Store driver data in AsyncStorage
-    // Alert.alert('hiiii')
     await AsyncStorage.setItem('driver_data', JSON.stringify(vehicle));
 
     // If vehicle has a driver, get driver details

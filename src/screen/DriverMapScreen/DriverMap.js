@@ -1,9 +1,8 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Image, StyleSheet, View} from 'react-native';
+import {Image, StyleSheet, View, Text} from 'react-native';
 import MapView, {Circle, Marker} from 'react-native-maps';
 import AppImages from '../../common/AppImages';
 import ActionButton from './ActionButtons';
-import ProfileSection from './ProfileSecrion';
 import {
   GetDriverCurrentLocation,
   calculateDistance,
@@ -16,12 +15,16 @@ import Colors from '../../common/Colors';
 import {responsiveHeight, responsiveWidth} from '../../common/metrices';
 import DriverArriveCard from '../DriverEarning/DriverArriveCard';
 import DestinationSection from './DestinationSection';
+import {hitUpdateDriverLocationApi} from '../../config/api/api';
+
 const DriverMapScreen = ({route}) => {
   const [showButtons, setShowButtons] = useState(false);
-  const [latLOng, setLatLong] = useState({latitude: '', longitude: ''});
+  const [latLOng, setLatLong] = useState({
+    latitude: '',
+    longitude: '',
+    heading: null,
+  });
   const [mapRegion, setMapRegion] = useState(null);
-
-  const data = route?.params || {};
   const GOOGLE_API_KEY = 'AIzaSyAbwv5P-iff_vVB7TpstiQ1RI1kvktza48';
 
   const orderData = useSelector(
@@ -30,10 +33,7 @@ const DriverMapScreen = ({route}) => {
   const update_order = useSelector(
     state => state?.parsalPartner?.update_order || null,
   );
-  // console.log('orderData',update_order?.is_arrived_pickup);
-
-  // console.log(orderData?.newOrder?.driver_id,'orderda---idddtafrommascreen')
-  const driverID = orderData?.newOrder?.driver_id;
+  const driverID = orderData?.newOrder?.driver_id || orderData?.id;
 
   const isFocused = useIsFocused();
 
@@ -41,19 +41,22 @@ const DriverMapScreen = ({route}) => {
     let intervalId;
     const fetchLocation = async () => {
       try {
-        const {latitude, longitude} = await GetDriverCurrentLocation();
-        setLatLong({latitude, longitude});
-        setMapRegion({
-          latitude,
-          longitude,
-          latitudeDelta: 0.01, // Adjust for zoom level
-          longitudeDelta: 0.01,
-        });
-        database().ref(`/drivers/${driverID}/location`).set({
-          latitude,
-          longitude,
-          timestamp: database?.ServerValue.TIMESTAMP,
-        });
+        const {latitude, longitude, heading} = await GetDriverCurrentLocation();
+        setLatLong({latitude, longitude, heading});
+        if (latitude && longitude) {
+          database().ref(`/drivers/${driverID}/location`).set({
+            latitude,
+            longitude,
+            timestamp: database?.ServerValue.TIMESTAMP,
+          });
+        }
+        if (orderData) {
+          const param = {
+            order_id: orderData?.id || orderData?.newOrder?.id,
+            current_lat: latitude,
+            current_long: longitude,
+          };
+        }
       } catch (error) {
         console.error('Error fetching location:', error);
       }
@@ -77,41 +80,50 @@ const DriverMapScreen = ({route}) => {
   };
 
   const origin = {
-    latitude: Number(latLOng?.latitude),
-    longitude: Number(latLOng?.longitude),
+    latitude: Number(latLOng?.latitude) || 0,
+    longitude: Number(latLOng?.longitude) || 0,
+    heading: Number(latLOng?.heading) || 0,
   };
 
   const destination = {
     latitude: update_order?.is_arrived_pickup
-      ? Number(data?.drop_lat)
-      : Number(data?.picklat),
+      ? Number(orderData?.drop_lat) || Number(orderData?.newOrder?.drop_lat) || 0
+      : Number(orderData?.pickup_lat) ||
+        Number(orderData?.newOrder?.pickup_lat) || 0,
     longitude: update_order?.is_arrived_pickup
-      ? Number(data?.drop_long)
-      : Number(data?.pickLong),
+      ? Number(orderData?.drop_long) ||
+        Number(orderData?.newOrder?.drop_long) || 0
+      : Number(orderData?.pickup_long) ||
+        Number(orderData?.newOrder?.pickup_long) || 0,
   };
+
   const [reached, setReached] = useState(false);
+  
   useEffect(() => {
-    const distance = calculateDistance(origin, destination);
-    if (distance <= 9900) {
-      setReached(true); // Set reached to true if distance is less than 100 meters
-    } else {
-      setReached(false); // Set reached to false otherwise
+    if (origin.latitude && origin.longitude && destination.latitude && destination.longitude) {
+      const distance = calculateDistance(origin, destination);
+      if (distance <= 9900) {
+        setReached(true);
+      } else {
+        setReached(false);
+      }
     }
   }, [origin, destination]);
+
   const mapRef = useRef(null);
 
   useEffect(() => {
-    if (mapRef.current && origin && destination) {
-      // Calculate the midpoint between source and destination
+    if (
+      mapRef.current &&
+      origin.latitude &&
+      origin.longitude &&
+      destination.latitude &&
+      destination.longitude
+    ) {
       const midLat = (origin.latitude + destination.latitude) / 2;
       const midLong = (origin.longitude + destination.longitude) / 2;
-
-      // Calculate the latitude and longitude deltas to cover both points
       const latDelta = Math.abs(origin.latitude - destination.latitude) + 0.05;
-      const longDelta =
-        Math.abs(origin.longitude - destination.longitude) + 0.05;
-
-      // Focus on the region
+      const longDelta = Math.abs(origin.longitude - destination.longitude) + 0.05;
       mapRef.current.animateToRegion(
         {
           latitude: midLat,
@@ -119,31 +131,34 @@ const DriverMapScreen = ({route}) => {
           latitudeDelta: latDelta,
           longitudeDelta: longDelta,
         },
-        1000, // Animation duration in ms
+        1000,
       );
     }
   }, [origin, destination]);
+
   return (
     <View style={styles.container}>
       <MapView
         ref={mapRef}
         style={styles.map}
         initialRegion={{
-          latitude: (origin.latitude + destination.latitude) / 2, // midpoint
-          longitude: (origin.longitude + destination.longitude) / 2, // midpoint
+          latitude: (origin.latitude + destination.latitude) / 2 || 0, // midpoint with default
+          longitude: (origin.longitude + destination.longitude) / 2 || 0, // midpoint with default
           latitudeDelta:
             Math.abs(origin.latitude - destination.latitude) + 0.05,
           longitudeDelta:
             Math.abs(origin.longitude - destination.longitude) + 0.05,
         }}>
-        {/* Marker for current location */}
-        <Marker coordinate={origin}>
-          <Image
-            source={AppImages.navArrow}
-            style={{width: responsiveWidth(37), height: responsiveHeight(37)}}
-            resizeMode="contain"
-          />
-        </Marker>
+        {/* Render origin marker only if coordinates are available */}
+        {origin.latitude && origin.longitude ? (
+          <Marker coordinate={origin} rotation={origin.heading}>
+            <Image
+              source={AppImages.Bike}
+              style={{width: responsiveWidth(37), height: responsiveHeight(37)}}
+              resizeMode="contain"
+            />
+          </Marker>
+        ) : null}
 
         <Marker coordinate={destination}>
           <Image
@@ -153,14 +168,16 @@ const DriverMapScreen = ({route}) => {
           />
         </Marker>
 
-        {/* Display directions from current location to pickup location */}
-        <MapViewDirections
-          origin={origin}
-          destination={destination}
-          apikey={GOOGLE_API_KEY}
-          strokeWidth={4}
-          strokeColor={Colors.brandBlue}
-        />
+        {/* Render directions only if both origin and destination are available */}
+        {origin.latitude && origin.longitude && destination.latitude && destination.longitude ? (
+          <MapViewDirections
+            origin={origin}
+            destination={destination}
+            apikey={GOOGLE_API_KEY}
+            strokeWidth={4}
+            strokeColor={Colors.brandBlue}
+          />
+        ) : null}
       </MapView>
       {showButtons ? (
         <View style={styles.buttonContainer}>
@@ -168,23 +185,18 @@ const DriverMapScreen = ({route}) => {
           <ActionButton title="Reject" color="red" onPress={handleReject} />
         </View>
       ) : (
-        <>
-          {/* <View style={{position: 'absolute', bottom: 20,}}>
-            <View style={{flex: 1, backgroundColor: 'red'}}> */}
-          <View style={styles.cardContainer}>
-            {update_order?.is_arrived_pickup ? (
-              <DestinationSection details={update_order} />
-            ) : (
-              <DriverArriveCard isReachedPickup={reached} />
-            )}
-          </View>
-          {/* </View>
-          </View> */}
-        </>
+        <View style={styles.cardContainer}>
+          {update_order?.is_arrived_pickup ? (
+            <DestinationSection details={update_order} />
+          ) : (
+            <DriverArriveCard isReachedPickup={reached} />
+          )}
+        </View>
       )}
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -208,7 +220,9 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
 });
+
 export default DriverMapScreen;
+
 
 // import React, { useEffect, useState } from 'react';
 // import { Image, StyleSheet, View } from 'react-native';

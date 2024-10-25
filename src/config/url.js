@@ -1,7 +1,6 @@
 // const API_BASE_URL = 'http://192.168.29.189:4000/'
 
- export const API_BASE_URL = 'http://192.168.29.237:5000/'
- export  const socketUrl= `http://192.168.29.237:5000/`
+//  export const API_BASE_URL = 'http://192.168.29.238:9292/'
 
 // export const API_BASE_URL = `http://192.168.29.244:5000/`;
 // export const socketUrl = `http://192.168.29.244:4000/`;
@@ -9,6 +8,8 @@
 // //
 // export const API_BASE_URL ='http://52.66.236.213:9292/'
 // export  const socketUrl= `http://52.66.236.213:4000/`
+export const API_BASE_URL ='http://192.168.29.237:5000/'
+export  const socketUrl= `http://192.168.29.237:4000/`
 
 //
 const getEndpoint = text => {
@@ -48,10 +49,19 @@ export const createtransactionurl = getEndpoint('users/create-transaction');
 export const livedriverOfPartnernurl = getEndpoint('drivers/get-live-driverOfPartner');
 export const getallvehicletypeurl = getEndpoint('generic/get-all-VehicleType');
 export const reviewTermsAndCondition = getEndpoint('generic/get-terms-condition');
+export const getTickeReply = getEndpoint('generic/get-tickets-reply');
+export const addTickeReply = getEndpoint('generic/add-tickets-reply');
+
 export const getNotification = getEndpoint('generic/get-notifications');
 export const getwalletbalanceurl = getEndpoint('drivers/wallet-balance');
 export const addMoney = getEndpoint('drivers/wallet-deposit');
 export const withrawMoney = getEndpoint('drivers/wallet-withdraw');
+export const updateDriverLocationurl = getEndpoint('orders/update-driverLocation');
+export const getliveorderdataurl = getEndpoint('orders/get-ongoing-order');
+export const updatefcmurl = getEndpoint('drivers/update-fcm');
+
+
+
 
 
 

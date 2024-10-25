@@ -1,39 +1,43 @@
-import { Alert, Image, StyleSheet, Text, TextInput, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import AppImages from '../../common/AppImages'
-import Colors from '../../common/Colors'
+import {Alert, Image, StyleSheet, Text, TextInput, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import AppImages from '../../common/AppImages';
+import Colors from '../../common/Colors';
 import CustomButton from '../../components/CustomButton/CustomButton';
-import { errorToast, getItem, successToast } from '../../common/CommonFunction'
-import { useDispatch, useSelector } from 'react-redux'
-import Loading from '../../components/Loading/Loading'
-import CheckBox from 'react-native-check-box'
-import { loginPartner, } from '../../redux/HitApis/HitApiSlice'
+import {errorToast, getItem, successToast} from '../../common/CommonFunction';
+import {useDispatch, useSelector} from 'react-redux';
+import Loading from '../../components/Loading/Loading';
+import CheckBox from 'react-native-check-box';
+import {loginPartner} from '../../redux/HitApis/HitApiSlice';
 import flagImages from './FlagImages';
-import { responsiveFontSize, responsiveHeight, responsiveWidth } from '../../common/metrices';
-const LoginScreen = ({ navigation, route }) => {
-  const dispatch = useDispatch()
-  const user = useSelector((state) => state.parsal_store?.user);
-  const status = useSelector((state) => state?.parsalPartner?.status);
-  const loading = useSelector((state) => state?.parsalPartner?.loading);
-  const [termsAndConditions, setTermsAndConditions] = useState(false)
-  const [tdsDeclaration, setTdsDeclaration] = useState(false)
+import {
+  responsiveFontSize,
+  responsiveHeight,
+  responsiveWidth,
+} from '../../common/metrices';
+import { getMessaging } from '@react-native-firebase/messaging';
+const LoginScreen = ({navigation, route}) => {
+  const dispatch = useDispatch();
+  const user = useSelector(state => state.parsal_store?.user);
+  const status = useSelector(state => state?.parsalPartner?.status);
+  const loading = useSelector(state => state?.parsalPartner?.loading);
+  const [termsAndConditions, setTermsAndConditions] = useState(false);
+  const [tdsDeclaration, setTdsDeclaration] = useState(false);
   const [countryCode, setCountryCode] = useState('IN');
   const [isPickerVisible, setIsPickerVisible] = useState(false);
-  const [number, setNumber] = useState('')
+  const [number, setNumber] = useState('');
   const [flag, setFlag] = useState(flagImages.default);
   const [countryName, setCountryName] = useState('India');
   const [mobile, setMobile] = useState('9711825718');
-  // useEffect(() => {
-  //   const pId = async () => {
-  //     await AsyncStorage.removeItem('partner_id');
-  //   }
-  //   pId()
-  // }, [])
+
   useEffect(() => {
     if (route.params?.number) {
       setNumber(route.params.number);
     }
   }, [route.params?.number]);
+  const getToken = async () => {
+    const token = await getMessaging().getToken();
+    return token;
+  };
   const handleGetOtp = async () => {
     try {
       if (number === '' || number == undefined || number === null) {
@@ -43,26 +47,27 @@ const LoginScreen = ({ navigation, route }) => {
       const request = {
         email: number,
         // mobile: mobile
+        fcm_token: await getToken(),
       };
-      dispatch(loginPartner(request))
+      dispatch(loginPartner(request));
       if (status === 'failed') {
         errorToast('Issue!!', 'Something went wrong');
       }
     } catch (error) {
-      console.log('Error in getting otp by email', error)
+      console.log('Error in getting otp by email', error);
     }
-  }
+  };
   useEffect(() => {
     if (status === 'succeeded' && !loading) {
       successToast('Success', `OTP has been sent successfully to ${number}`);
       // navigation.replace('OtpScreen', { number: number });
       if (!loading) {
-        navigation.replace('Otp', { number: number })
+        navigation.replace('Otp', {number: number});
       }
     }
-  }, [status])
+  }, [status]);
   const handleTermsPress = () => {
-    navigation.navigate("TermsCondition")
+    navigation.navigate('TermsCondition');
     console.log('Terms and Conditions clicked');
   };
   const handlePrivacyPress = () => {
@@ -73,36 +78,59 @@ const LoginScreen = ({ navigation, route }) => {
   };
   return (
     <>
-      <View style={{ flex: 1, justifyContent: 'center', backgroundColor: Colors.homeBackground ,marginBottom:responsiveHeight(30)}}>
-        <View >
-          <View style={{ marginBottom: 50, justifyContent: "center", alignItems: 'center' }}>
-            <View style={{ marginBottom: 10, justifyContent: 'center', alignItems: 'center' }}>
-              <Image source={AppImages.SplashScreenLogo} style={styles.parcalLogo} resizeMode='contain' />
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          backgroundColor: Colors.homeBackground,
+          marginBottom: responsiveHeight(30),
+        }}>
+        <View>
+          <View
+            style={{
+              marginBottom: 50,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <View
+              style={{
+                marginBottom: 10,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <Image
+                source={AppImages.SplashScreenLogo}
+                style={styles.parcalLogo}
+                resizeMode="contain"
+              />
             </View>
           </View>
-          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-            <View style={{ alignSelf: 'flex-start' }}>
+          <View style={{justifyContent: 'center', alignItems: 'center'}}>
+            <View style={{alignSelf: 'flex-start'}}>
               <Text style={styles.inputLabel}>Mobile Number</Text>
             </View>
             <View style={[styles.numberInputContainer]}>
-              <View style={{ marginLeft: 5 }}>
-                <Text style={{ color: Colors.black, fontSize: 15, fontWeight: 600 }}>+91</Text>
+              <View style={{marginLeft: 5}}>
+                <Text
+                  style={{color: Colors.black, fontSize: 15, fontWeight: 600}}>
+                  +91
+                </Text>
               </View>
               <View style={styles.inputContainer}>
                 <TextInput
-                  placeholder='Enter your number'
+                  placeholder="Enter your number"
                   style={styles.textInputstyle}
                   // maxLength={10}
                   value={number.trim()}
                   placeholderTextColor={Colors.black}
-                  onChangeText={(e) => {
-                    setNumber(e)
+                  onChangeText={e => {
+                    setNumber(e);
                   }}
                 />
               </View>
             </View>
             {/* Add label above the TextInput */}
-            <View style={{ width: '92%', marginBottom: responsiveHeight(16) }}>
+            <View style={{width: '92%', marginBottom: responsiveHeight(16)}}>
               <View style={styles.checkboxContainer}>
                 <CheckBox
                   style={styles.checkbox}
@@ -113,9 +141,13 @@ const LoginScreen = ({ navigation, route }) => {
                 <View style={styles.textWrapper}>
                   <Text style={styles.label}>
                     I have read and agreed to{' '}
-                    <Text style={styles.linkText} onPress={handleTermsPress}>Terms and Conditions</Text>
-                    {' '}and{' '}
-                    <Text style={styles.linkText} onPress={handlePrivacyPress}>Privacy Policy</Text>
+                    <Text style={styles.linkText} onPress={handleTermsPress}>
+                      Terms and Conditions
+                    </Text>{' '}
+                    and{' '}
+                    <Text style={styles.linkText} onPress={handlePrivacyPress}>
+                      Privacy Policy
+                    </Text>
                   </Text>
                 </View>
               </View>
@@ -129,27 +161,37 @@ const LoginScreen = ({ navigation, route }) => {
                 <View style={styles.textWrapper}>
                   <Text style={styles.label}>
                     I have read and hereby provide my consent on the{' '}
-                    <Text style={styles.linkText} onPress={handleTDSPress} >TDS Declaration</Text>
+                    <Text style={styles.linkText} onPress={handleTDSPress}>
+                      TDS Declaration
+                    </Text>
                   </Text>
                 </View>
               </View>
             </View>
-            <View style={{ marginBottom: responsiveHeight(10), justifyContent: "center", alignItems: 'center' }}>
+            <View
+              style={{
+                marginBottom: responsiveHeight(10),
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
               <CustomButton
                 buttonText={'LOGIN'}
-                disabled={!termsAndConditions || !tdsDeclaration || number.length <= 10}
+                disabled={
+                  !termsAndConditions || !tdsDeclaration || number.length <= 10
+                }
                 onPress={() => {
-                  handleGetOtp()
-                }} />
+                  handleGetOtp();
+                }}
+              />
             </View>
           </View>
         </View>
       </View>
       <Loading loading={loading} />
     </>
-  )
-}
-export default LoginScreen
+  );
+};
+export default LoginScreen;
 const styles = StyleSheet.create({
   parcalLogo: {
     width: responsiveWidth(160),
@@ -182,7 +224,7 @@ const styles = StyleSheet.create({
     marginLeft: responsiveWidth(10),
     color: Colors.black,
     fontWeight: '500',
-    fontSize: responsiveFontSize(15)
+    fontSize: responsiveFontSize(15),
   },
   numberContainer: {
     gap: 10,

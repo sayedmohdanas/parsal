@@ -1,26 +1,40 @@
-import { Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import Colors from '../../../../common/Colors'
-import CustomHeader from '../../components/CustomHeader'
-import { Fonts, FontSizes, Spacing } from '../../../../common/Theme'
-import AppImages from '../../../../common/AppImages'
-import { responsiveFontSize, responsiveHeight, responsiveWidth } from '../../../../common/metrices'
-import { useNavigation } from '@react-navigation/native'
-import { useSelector } from 'react-redux'
+import {
+  Image,
+  ImageBackground,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import Colors from '../../../../common/Colors';
+import CustomHeader from '../../components/CustomHeader';
+import {Fonts, FontSizes, Spacing} from '../../../../common/Theme';
+import AppImages from '../../../../common/AppImages';
+import {
+  responsiveFontSize,
+  responsiveHeight,
+  responsiveWidth,
+} from '../../../../common/metrices';
+import {useNavigation} from '@react-navigation/native';
+import {useSelector} from 'react-redux';
+import {errorToast} from '../../../../common/CommonFunction';
 
-const WalletScreen = ({route, accountNumber = '075423453453' }) => {
+const WalletScreen = ({route, accountNumber = '075423453453'}) => {
   const [balance, setBalance] = useState(0);
   const [isHidden, setIsHidden] = useState(true); // State to control visibility
 
   // Generate the masked number: Keep the first two digits, replace the rest with stars
-  const maskedNumber = accountNumber.slice(0, 2) + '*'.repeat(accountNumber.length - 2);
+  const maskedNumber =
+    accountNumber.slice(0, 2) + '*'.repeat(accountNumber.length - 2);
 
   // const store_data = useSelector(state => state?.parsalPartner);
-  const store_data = useSelector(state => state.parsalPartner.wallet_balance?.new_wallet_balance || 0);
+  const store_data = useSelector(
+    state => state.parsalPartner.wallet_balance?.new_wallet_balance || 0,
+  );
 
-
-  const navigation = useNavigation()
+  const navigation = useNavigation();
 
   useEffect(() => {
     if (route.params?.newBalance) {
@@ -29,26 +43,33 @@ const WalletScreen = ({route, accountNumber = '075423453453' }) => {
       setBalance(store_data);
     }
   }, [route.params?.newBalance, store_data]);
-
-
   return (
     <SafeAreaView style={styles.container}>
-      <CustomHeader screenName={"Wallet"} />
+      <CustomHeader screenName={'Wallet'} />
       <View style={styles.walletcard}>
-        <ImageBackground source={AppImages.walltetBackground} style={{ padding: 15 }} resizeMode='cover'>
-          <View style={styles.imageContainer}>
-            <Image source={AppImages.transectionList} style={styles.transactionImage} />
-          </View>
+        <ImageBackground
+          source={AppImages.walltetBackground}
+          style={{padding: 15}}
+          resizeMode="stretch">
+          <TouchableOpacity
+            onPress={() => navigation.navigate('TransactionHistory')}
+            style={styles.imageContainer}>
+            <Image
+              source={AppImages.transectionList}
+              style={styles.transactionImage}
+            />
+          </TouchableOpacity>
           <View style={styles.balanceContainer}>
-            {/* <Text style={styles.balanceText}> {'₹ ' +
-              (store_data.wallet_balance?.new_wallet_balance || 0).toFixed(2) +
-              ''}</Text> */}
-               <Text style={styles.balanceText}> {'₹ ' +
-              (balance || 0).toFixed(2) +
-              ''}</Text>
-              
+            <Text style={styles.balanceText}>
+              {' '}
+              {'₹ ' + (balance || 0).toFixed(2) + ''}
+            </Text>
             <View style={styles.walletInfoContainer}>
-              <Image source={AppImages.my_wallet} style={styles.walletIcon} tintColor={'rgba(255, 255, 255, 0.6)'} />
+              <Image
+                source={AppImages.my_wallet}
+                style={styles.walletIcon}
+                tintColor={'rgba(255, 255, 255, 0.6)'}
+              />
               <Text style={styles.walletInfoText}>My Wallet Balance</Text>
             </View>
           </View>
@@ -58,13 +79,12 @@ const WalletScreen = ({route, accountNumber = '075423453453' }) => {
               <Text style={styles.accountLabel}>Routing</Text>
             </View>
             <View style={styles.accountInfo}>
-            <TouchableOpacity onPress={() => setIsHidden(!isHidden)}>
-        <Text style={[styles.accountText,{    letterSpacing: 1.5, 
-}]}>
-          {isHidden ? maskedNumber : accountNumber}
-        </Text>
-      </TouchableOpacity>            
-        <Text style={styles.accountLabel}>Account</Text>
+              <TouchableOpacity onPress={() => setIsHidden(!isHidden)}>
+                <Text style={[styles.accountText, {letterSpacing: 1.5}]}>
+                  {isHidden ? maskedNumber : accountNumber}
+                </Text>
+              </TouchableOpacity>
+              <Text style={styles.accountLabel}>Account</Text>
             </View>
           </View>
           <View style={styles.buttonContainer}>
@@ -75,18 +95,25 @@ const WalletScreen = ({route, accountNumber = '075423453453' }) => {
             >
               <Text style={styles.buttonText}>Add Cash</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AddCash', { screenName: 'Withdraw' })}
-            >
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => {
+                if (balance <= 0) {
+                  errorToast('Insufficient balance to cash out.');
+                  return; // Add return here to prevent navigation if balance is less than 0
+                }
+                navigation.navigate('AddCash', {screenName: 'Withdraw'});
+              }}>
               <Text style={styles.buttonText}>Cash Out</Text>
             </TouchableOpacity>
           </View>
         </ImageBackground>
       </View>
     </SafeAreaView>
-  )
-}
+  );
+};
 
-export default WalletScreen
+export default WalletScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -95,11 +122,8 @@ const styles = StyleSheet.create({
     // paddingHorizontal: Spacing.small,
   },
   walletcard: {
-    // backgroundColor: 'rgba(89, 93 , 229, 1)',
     flex: 0.5,
-    // margin: Spacing.small,
     borderRadius: 10,
-    // elevation: 1,
     marginTop: responsiveHeight(25),
   },
   imageContainer: {
@@ -148,13 +172,13 @@ const styles = StyleSheet.create({
   accountInfo: {
     alignItems: 'center',
     justifyContent: 'center',
-    flex:1
+    flex: 1,
   },
   accountText: {
     fontSize: responsiveFontSize(14),
     fontWeight: Fonts.bold,
     color: Colors.white,
-    alignSelf:'center',
+    alignSelf: 'center',
   },
   accountLabel: {
     marginTop: Spacing.small,
@@ -183,4 +207,4 @@ const styles = StyleSheet.create({
     fontWeight: Fonts.semilarge,
     borderRadius: 10,
   },
-})
+});

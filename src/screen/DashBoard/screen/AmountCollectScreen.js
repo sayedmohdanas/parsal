@@ -7,12 +7,13 @@ import {
 } from '../../../common/metrices';
 import Colors from '../../../common/Colors';
 import ArriveButton from '../components/ArriveButton';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {hitCreateTransaction} from '../../../config/api/api';
 import {useNavigation} from '@react-navigation/native';
 import {io} from 'socket.io-client';
 import {socketUrl} from '../../../config/url';
 import PaymentSuccessModal from '../components/PaymentSuccessModal';
+import {setlivetripmenu} from '../../../redux/HitApis/HitApiSlice';
 
 const AmountCollectScreen = () => {
   const update_order = useSelector(
@@ -20,7 +21,7 @@ const AmountCollectScreen = () => {
   );
   const [visible, setvisible] = useState(false);
   const orderData = useSelector(state => state?.parsalPartner?.orderData || {});
-
+  const dispatch = useDispatch();
   const navigation = useNavigation();
   const store_data = useSelector(state => state);
   const driver_details = useSelector(
@@ -39,14 +40,17 @@ const AmountCollectScreen = () => {
     });
     socket.on('complete_transaction_by_user_ack', data => {
       const param = {
-        orderId: orderData?.newOrder?.id,
-        partner_id: store_data?.parsalPartner?.loginuserdetails?.partner_id || store_data?.parsalPartner?.loginuserdetails?.id,
+        orderId: orderData?.newOrder?.id || orderData?.id,
+        partner_id:
+          store_data?.parsalPartner?.loginuserdetails?.partner_id ||
+          store_data?.parsalPartner?.loginuserdetails?.id,
         vehicle_type_id: driver_details?.vehicle_type_id,
       };
       hitCreateTransaction(param)
         .then(res => {
           if (res) {
             setvisible(true);
+            dispatch(setlivetripmenu(false));
             setTimeout(() => {
               setvisible(false);
               navigation.navigate('Earning');
@@ -66,8 +70,10 @@ const AmountCollectScreen = () => {
   }, []);
   const Complete_Order = () => {
     const param = {
-      orderId: orderData?.newOrder?.id,
-      partner_id: store_data?.parsalPartner?.loginuserdetails?.partner_id || store_data?.parsalPartner?.loginuserdetails?.id,
+      orderId: orderData?.newOrder?.id || orderData?.id,
+      partner_id:
+        store_data?.parsalPartner?.loginuserdetails?.partner_id ||
+        store_data?.parsalPartner?.loginuserdetails?.id,
       vehicle_type_id: driver_details?.vehicle_type_id,
     };
     hitCreateTransaction(param)
@@ -76,7 +82,10 @@ const AmountCollectScreen = () => {
           // socket.emit('order_completed', {
           //   userId: orderData?.newOrder?.cust_id,
           // });
-          socket.emit("complete_transaction_by_user", { userId: orderData?.newOrder?.cust_id});
+          dispatch(setlivetripmenu(false));
+          socket.emit('complete_transaction_by_user', {
+            userId: orderData?.newOrder?.cust_id,
+          });
           navigation.navigate('Earning');
         }
       })

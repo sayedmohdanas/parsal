@@ -3,7 +3,6 @@ import {
   View,
   Text,
   Image,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   Linking,
@@ -11,28 +10,21 @@ import {
 import AppImages from '../../common/AppImages';
 import Colors from '../../common/Colors';
 import BorderLine from '../../common/BorderLine.';
-import CustomButton from '../../components/CustomButton/CustomButton';
-import {Divider} from 'react-native-paper';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   hitCancelOrder,
   hitUpdateDriverLocation,
   hitUpdateOrder,
 } from '../../config/api/api';
-import {errorToast, successToast} from '../../common/CommonFunction';
-import {setOrderData, setupdate_order} from '../../redux/HitApis/HitApiSlice';
 import {io} from 'socket.io-client';
 import {useNavigation} from '@react-navigation/native';
-import {SuccessToast} from 'react-native-toast-message';
 import {socketUrl} from '../../config/url';
 import Loading from '../../components/Loading/Loading';
-import OTPTextInput from 'react-native-otp-textinput';
 import {
   responsiveFontSize,
   responsiveHeight,
   responsiveWidth,
 } from '../../common/metrices';
-import OTPTextView from 'react-native-otp-textinput';
 import SlideButton from 'rn-slide-button';
 
 const DestinationSection = ({details}) => {
@@ -40,19 +32,7 @@ const DestinationSection = ({details}) => {
 
   const navigation = useNavigation();
   const [loading, setLoadig] = useState(false);
-
-  // const [otp, setOtp] = useState('');
-  // const orderData = useSelector(state => state?.parsalPartner?.orderData || {});
-  // const update_order = useSelector(state => state?.parsalPartner?.update_order || null);
-  // console.log(orderData?.newOrder?.driver_id, 'driver_id===>')
-  // let otpInput = useRef(null);
-  // const dispatch = useDispatch()
   const [address, setAddress] = useState(details?.drop_address || 'N/A');
-
-  // const handleOpenMap = () => {
-  // const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
-  // Linking.openURL(mapUrl).catch(err => Alert.alert('Error', 'Failed to open the map.'));
-  // }
 
   const handleOpenMap = (latitude, longitude) => {
     const location = `${latitude},${longitude}`;
@@ -68,7 +48,6 @@ const DestinationSection = ({details}) => {
   };
   const orderData = useSelector(state => state?.parsalPartner?.orderData || {});
 
-  
   useEffect(() => {
     socket = io(socketUrl);
     return () => {
@@ -81,7 +60,7 @@ const DestinationSection = ({details}) => {
 
   const handleEndTrip = async () => {
     const param = {
-      orderId: orderData?.newOrder?.id,
+      orderId: orderData?.newOrder?.id || orderData?.id,
       distance: 10,
       time: 10,
     };
@@ -89,12 +68,9 @@ const DestinationSection = ({details}) => {
     hitUpdateDriverLocation(param)
       .then(res => {
         if (res) {
-          socket.emit(
-            'end_trip',
-            {
-              userId: orderData?.newOrder?.cust_id,
-            },           
-          );
+          socket.emit('end_trip', {
+            userId: orderData?.newOrder?.cust_id || orderData?.cust_id,
+          });
           navigation.navigate('AmountCollected');
         }
       })

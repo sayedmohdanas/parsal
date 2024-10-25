@@ -2,6 +2,7 @@ import {
   addBankAccount,
   addDriverDetails,
   addMoney,
+  addTickeReply,
   addVehicle,
   cancelOrderurl,
   createPartner,
@@ -13,9 +14,11 @@ import {
   getallvehicletypeurl,
   getBankAccount,
   getDriverDetails,
+  getliveorderdataurl,
   getNotification,
   getOrderDetail,
   getPartner,
+  getTickeReply,
   getwalletbalanceurl,
   livedriverOfPartnernurl,
   MyVehicle,
@@ -25,6 +28,8 @@ import {
   reviewTermsAndCondition,
   updateDriverDetails,
   updateDriverDistanceurl,
+  updateDriverLocationurl,
+  updatefcmurl,
   updateOrder,
   updateWorkStatusurl,
   withrawMoney,
@@ -128,3 +133,24 @@ export const hitAddMoney = param => {
 export const hitAddWithraw = param => {
   return apiPost(withrawMoney, param);
 };
+export const hitUpdateDriverLocationApi = param => {
+  return apiPost(updateDriverLocationurl, param);
+};
+
+export const hitGetLiveOrderApi = param => {
+  return apiPost(getliveorderdataurl, param);
+};
+export const hitUpdateFcmApi = param => {
+  return apiPost(updatefcmurl, param);
+};
+
+
+export const hitAddTicketReply = param => {
+  return apiPost(addTickeReply, param);
+};
+export const hitGetTicketReply = param => {
+  return apiPost(getTickeReply, param);
+};
+
+
+

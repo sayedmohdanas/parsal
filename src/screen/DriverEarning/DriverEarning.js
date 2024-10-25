@@ -341,32 +341,7 @@ const Earning = () => {
           <FlatList
             ListHeaderComponent={() => (
               <>
-                {/* <View style={styles.earningChart}>
-                  <TouchableOpacity
-                    style={styles.navButton}
-                    onPress={handlePrevDate}>
-                    <Image
-                      source={AppImages.arrowLeft}
-                      style={styles.arrowImage}
-                      resizeMode="contain"
-                    />
-                  </TouchableOpacity>
-                  <Text style={styles.dateText}>
-                    {dateRange.start} - {dateRange.end}
-                  </Text>
-                  <TouchableOpacity
-                    style={styles.navButton}
-                    onPress={handleNextDate}>
-                    <Image
-                      source={AppImages.arrowRight}
-                      style={styles.arrowImage}
-                      resizeMode="contain"
-                    />
-                  </TouchableOpacity>
-                </View> */}
-                {/* {driver_todays_earning?.individual_paid_amounts && (
-                  <Text style={styles.orderListHeadign}>{'Order List '}</Text>
-                )} */}
+               
                 {!driver_todays_earning?.individual_paid_amounts && (
                   <View
                     style={{

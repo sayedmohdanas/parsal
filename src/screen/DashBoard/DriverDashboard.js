@@ -1,5 +1,5 @@
 import React, {useEffect, useLayoutEffect, useState} from 'react';
-import {View, Text, StyleSheet, SafeAreaView} from 'react-native';
+import {View, Text, StyleSheet, SafeAreaView, Image} from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import Colors from '../../common/Colors';
@@ -7,21 +7,23 @@ import CustomHeader from './components/CustomHeader';
 import Loading from '../../components/Loading/Loading';
 import {
   GetDriverCurrentLocation,
-  fetchDriverLocation,
 } from '../../common/CommonFunction';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import {useDispatch} from 'react-redux';
 import {hitDriverEarning} from '../../config/api/api';
 import BorderLine from '../../common/BorderLine.';
-import {responsiveFontSize, responsiveHeight} from '../../common/metrices';
+import {
+  responsiveFontSize,
+  responsiveHeight,
+  responsiveWidth,
+} from '../../common/metrices';
+import AppImages from '../../common/AppImages';
 
 const DriverDashboard = () => {
   const navigation = useNavigation();
-  const [selectedTrip, setSelectedTrip] = useState(1);
   const [driverLocation, setDriverLocation] = useState({
     latitude: null,
     longitude: null,
+    heading: null,
   });
   const [loading, setLoading] = useState(true);
 
@@ -34,22 +36,24 @@ const DriverDashboard = () => {
   useEffect(() => {
     const fetchDriverLocations = async () => {
       try {
-        // const { latitude, longitude } = await GetDriverCurrentLocation();
-        const {latitude, longitude} = await GetDriverCurrentLocation();
-        setDriverLocation({latitude, longitude});
+        const {latitude, longitude, heading} = await GetDriverCurrentLocation();
+        setDriverLocation({latitude, longitude, heading});
       } catch (error) {
         console.error('Error fetching driver location: ', error);
       } finally {
         setLoading(false);
       }
     };
-    fetchDriverLocations();
-  }, []);
 
-  const handleCardClick = tripId => {
-    setSelectedTrip(tripId);
-  };
-  const dispatch = useDispatch();
+    // Fetch driver location initially
+    fetchDriverLocations();
+
+    // Set up an interval to fetch the location every 5 seconds
+    const intervalId = setInterval(fetchDriverLocations, 5000);
+
+    // Clear the interval when the component unmounts
+    return () => clearInterval(intervalId);
+  }, []);
   const [driver_todays_earning, setdriver_todays_earning] = useState([]);
 
   const get_data = async () => {
@@ -61,7 +65,6 @@ const DriverDashboard = () => {
         filter: 'today',
         customDate: {start: new Date(), end: ''},
       };
-
       const res = await hitDriverEarning(param);
       if (res?.success == false) {
         setdriver_todays_earning([]);
@@ -69,7 +72,7 @@ const DriverDashboard = () => {
         setdriver_todays_earning(res?.data);
       }
     } catch (err) {
-      console.error(err);
+      console.log(err);
     }
   };
 
@@ -79,7 +82,6 @@ const DriverDashboard = () => {
     }, []),
   );
 
-  // console.log(driver_todays_earning?.total_paid_amount);
   return (
     <SafeAreaView style={styles.container}>
       {loading ? (
@@ -95,14 +97,25 @@ const DriverDashboard = () => {
               longitude: driverLocation?.longitude || -122.4324,
             }}>
             {/* Marker for the driver's current location */}
-            {driverLocation.latitude && driverLocation.longitude && (
+            {driverLocation?.latitude && driverLocation?.longitude && (
               <Marker
                 coordinate={{
-                  latitude: driverLocation.latitude,
-                  longitude: driverLocation.longitude,
+                  latitude: driverLocation?.latitude,
+                  longitude: driverLocation?.longitude,
                 }}
-                title={'Driver Location'}
-              />
+                rotation={driverLocation?.heading} // Apply heading to rotate the marker
+                anchor={{x: 0.5, y: 0.5}} // Center the marker
+              >
+                <Image
+                  source={AppImages.Bike}
+                  style={{
+                    width: responsiveWidth(37),
+                    height: responsiveHeight(37),
+                    transform: [{rotate: `${driverLocation?.heading}deg`}], // Rotate the bike image
+                  }}
+                  resizeMode="contain"
+                />
+              </Marker>
             )}
           </MapView>
 
