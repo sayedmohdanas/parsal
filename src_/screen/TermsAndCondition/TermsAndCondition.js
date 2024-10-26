@@ -1,0 +1,74 @@
+import React, { useRef, useEffect, useState } from 'react';
+import { StyleSheet, Text, View, SafeAreaView, useWindowDimensions, ScrollView } from 'react-native';
+import RenderHTML from 'react-native-render-html';
+import { useNavigation } from '@react-navigation/native';
+import Loading from '../../components/Loading/Loading';
+import { hitReviewTermsAndCondition } from '../../config/api/api';
+import { responsiveFontSize ,responsiveHeight,responsiveWidth} from '../../common/metrices';
+const TermsAndCondition = () => {
+    const { width } = useWindowDimensions();
+    const scrollViewRef = useRef(null);
+    const navigation = useNavigation()
+
+    const [terms, setTerms] = useState()
+    const [loading, setloading] = useState(true)
+
+    useEffect(() => {
+        const params = { id: 1 };
+        hitReviewTermsAndCondition(params)
+            .then((res) => {
+                const formattedTerms = res?.data?.content?.replace(/\n/g, ''); // Removes all line breaks
+                setTerms(formattedTerms);
+                setloading(false)
+            })
+            .catch((err) => {
+                console.error('Error in terms and condition in review booking ==>', err);
+            }).finally(()=>{
+                setloading(false)
+            })
+    }, []);
+
+
+    const source = {
+        html: terms
+    };
+
+    // Automatically scroll to end when the component mounts
+    useEffect(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, []);
+
+    return (
+        <SafeAreaView style={{ flex: 1 }}>
+            {/* <HeaderBackButton
+                headerText={`Terms and Conditions`}
+                onPress={() => navigation.goBack()}
+            /> */}
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+                <View style={{ flex: 1, backgroundColor: 'black', height: "60%", alignItems: 'center', paddingBottom: '45%' }}>
+                    <Text style={{ fontSize: responsiveFontSize(30), color: 'white', fontWeight: '800', marginTop: '10%' }}>
+                        {'TERMS AND CONDITION'}
+                    </Text>
+                </View>
+                <View style={{ flex: 2, padding: 10 }}>
+                    {
+                        loading
+                            ?
+                            <Loading loading={loading} />
+                            :
+                            <View style={{ elevation: 20, backgroundColor: 'white', padding: 10, marginTop: responsiveWidth(-100), borderRadius: 12, marginHorizontal: responsiveWidth(12) }}>
+                                <RenderHTML
+                                    contentWidth={width}
+                                    source={source}
+                                />
+                            </View>
+                    }
+                </View>
+            </ScrollView>
+        </SafeAreaView>
+    );
+}
+
+export default TermsAndCondition;
+
+const styles = StyleSheet.create({});

@@ -45,7 +45,7 @@ const LoginScreen = ({navigation, route}) => {
         return;
       }
       const request = {
-        email: number,
+        email: number?.replaceAll(" ",""),
         // mobile: mobile
         fcm_token: await getToken(),
       };

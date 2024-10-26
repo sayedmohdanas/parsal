@@ -122,7 +122,7 @@ export const addDriverDetails = createAsyncThunk(
       const response = await hitAddDriverDetails(credentials);
       return response;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response || error);
     }
   },
 );
@@ -168,8 +168,8 @@ const initialState = {
   update_order: null,
   driverEarning: null,
   owner: null,
-  driverDetail:null,
-  ownerDetail:null,
+  driverDetail: null,
+  ownerDetail: null,
   loginuserdetails: null,
   logindriverdetails: null,
   wallet_balance: 0,
@@ -392,7 +392,7 @@ export const {
   setloginuserdetails,
   setlogindriverdetails,
   setwalletBalance,
-  setlivetripmenu
+  setlivetripmenu,
 } = HitApiSlice.actions;
 
 export default HitApiSlice.reducer;

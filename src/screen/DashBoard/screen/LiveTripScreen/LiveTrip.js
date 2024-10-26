@@ -411,13 +411,6 @@
 //                 return null;
 //               })}
 
-
-
-
-
-
-
-
 //           </MapView>
 
 //           {/* Header and Trip details */}
@@ -630,8 +623,6 @@
 
 // export default LiveTripScreen;
 
-
-
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   View,
@@ -641,6 +632,8 @@ import {
   TouchableOpacity,
   FlatList,
   Image,
+  ScrollView,
+  RefreshControl,
 } from 'react-native';
 import Colors from '../../../../common/Colors';
 import {
@@ -677,6 +670,28 @@ const LiveTripScreen = () => {
   const [login_data, setlogin_data] = useState();
   const [partner_riders, setpartner_riders] = useState([]);
   const [all_driver_in_map, setall_driver_in_map] = useState([]);
+  const [refreshing, setrefreshing] = useState(false);
+  const get_live_data = async () => {
+    // if (!all_flag)
+    try {
+      const user = await AsyncStorage.getItem('user');
+      const parsedUser = JSON.parse(user);
+      setlogin_data(parsedUser);
+      const param = {
+        partner_id: parsedUser?.payload?.partner_id,
+      };
+      setrefreshing(true);
+      const res = await hitGetLiveDriverofPartner(param);
+      setpartner_riders(res?.data);
+      setrefreshing(false);
+      // if (!all_flag) {
+
+      //   setSelectedTrip(res?.data[0]);
+      // }
+    } catch (error) {
+      console.error('Error fetching data: ', error);
+    }
+  };
   useFocusEffect(
     useCallback(() => {
       setall_flag(true);
@@ -701,31 +716,18 @@ const LiveTripScreen = () => {
           };
 
           const res = await hitMyVehicle(param);
-          setall_driver_in_map(res?.vehicles);
+
+          // Filter vehicles to only include those where driver_id is not null
+          const vehiclesWithDriver = res?.vehicles?.filter(
+            vehicle => vehicle?.driver_id != null,
+          );
+
+          setall_driver_in_map(vehiclesWithDriver);
         } catch (error) {
           console.error('Error fetching data: ', error);
         }
       };
-      const get_live_data = async () => {
-        // if (!all_flag)
-        try {
-          const user = await AsyncStorage.getItem('user');
-          const parsedUser = JSON.parse(user);
-          setlogin_data(parsedUser);
-          const param = {
-            partner_id: parsedUser?.payload?.partner_id,
-          };
 
-          const res = await hitGetLiveDriverofPartner(param);
-          setpartner_riders(res?.data);
-          // if (!all_flag) {
-
-          //   setSelectedTrip(res?.data[0]);
-          // }
-        } catch (error) {
-          console.error('Error fetching data: ', error);
-        }
-      };
       // Call both functions when the screen is focused
       fetchDriverLocation();
       get_live_data();
@@ -833,10 +835,14 @@ const LiveTripScreen = () => {
     }
   }, [selectedTrip, all_driver_in_map]);
   const isOnlyPartnerDriver = (all_driver_in_map, login_data) => {
-    // Check if there is exactly one driver
-    if (all_driver_in_map.length === 1) {
-      const {driver: driverInfo} = all_driver_in_map[0];
-      // Check if the driver's phone matches the logged-in user's phone
+    // Filter out entries where driver_id is null
+    const filteredDrivers = all_driver_in_map.filter(
+      item => item?.driver_id != null,
+    );
+    // Check if there is exactly one driver in the filtered list
+
+    if (filteredDrivers.length === 1) {
+      const {driver: driverInfo} = filteredDrivers[0];
       if (driverInfo?.phone === login_data?.payload?.phone) {
         return true;
       }
@@ -844,9 +850,9 @@ const LiveTripScreen = () => {
     return false;
   };
   const onlyPartnerDriver = isOnlyPartnerDriver(all_driver_in_map, login_data);
-  const [driver_todays_earning, setdriver_todays_earning] = useState([]);
-// console.log('login_data',login_data);
 
+  const [driver_todays_earning, setdriver_todays_earning] = useState([]);
+  // console.log('login_data',login_data);
 
   const get_data = async () => {
     try {
@@ -855,7 +861,7 @@ const LiveTripScreen = () => {
       const param = {
         driver_id: parsedUser?.payload?.driver_id,
         filter: 'today',
-        customDate:{start:new Date(),end:null}
+        customDate: {start: new Date(), end: null},
       };
       const res = await hitDriverEarning(param);
       if (res?.success == false) {
@@ -873,50 +879,57 @@ const LiveTripScreen = () => {
       if (onlyPartnerDriver) get_data();
     }, [onlyPartnerDriver]),
   );
-  
   return (
     <SafeAreaView style={styles.container}>
       {loading ? (
         <Loading loading={loading} /> // my custom loading component
       ) : (
         <>
-          <MapView
-            ref={mapRef}
-            style={StyleSheet.absoluteFillObject}
-            initialRegion={{
-              latitude:
-                all_flag && all_driver_in_map.length > 0
-                  ? parseFloat(all_driver_in_map[0]?.driver?.current_lat) ||
-                    driverLocation.latitude
-                  : parseFloat(selectedTrip?.driver_lat) ||
-                    driverLocation.latitude,
-              longitude:
-                all_flag && all_driver_in_map.length > 0
-                  ? parseFloat(all_driver_in_map[0]?.driver?.current_long) ||
-                    driverLocation.longitude
-                  : parseFloat(selectedTrip?.driver_long) ||
-                    driverLocation.longitude,
-              latitudeDelta: 0.0992,
-              longitudeDelta: 0.0991,
-            }}>
-            {driverLocation.latitude &&
-              driverLocation.longitude &&
-              // login_data?.payload?.owner_type !== 1 &&
-              login_data?.payload?.owner_type !== 2 && (
-                <Marker
-                  coordinate={{
-                    latitude:
-                      parseFloat(selectedTrip?.driver?.current_lat) ||
-                      driverLocation.latitude, // Fallback values
-                    longitude:
-                      parseFloat(selectedTrip?.driver?.current_long) ||
+          <ScrollView
+            contentContainerStyle={{flex: 1}}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={get_live_data}
+              />
+            }>
+            <MapView
+              ref={mapRef}
+              style={StyleSheet.absoluteFillObject}
+              initialRegion={{
+                latitude:
+                  all_flag && all_driver_in_map.length > 0
+                    ? parseFloat(all_driver_in_map[0]?.driver?.current_lat) ||
+                      driverLocation.latitude
+                    : parseFloat(selectedTrip?.driver_lat) ||
+                      driverLocation.latitude,
+                longitude:
+                  all_flag && all_driver_in_map.length > 0
+                    ? parseFloat(all_driver_in_map[0]?.driver?.current_long) ||
+                      driverLocation.longitude
+                    : parseFloat(selectedTrip?.driver_long) ||
                       driverLocation.longitude,
-                  }}
-                  title={'Driver Location'}
-                />
-              )}
+                latitudeDelta: 0.0992,
+                longitudeDelta: 0.0991,
+              }}>
+              {driverLocation.latitude &&
+                driverLocation.longitude &&
+                // login_data?.payload?.owner_type !== 1 &&
+                login_data?.payload?.owner_type !== 2 && (
+                  <Marker
+                    coordinate={{
+                      latitude:
+                        parseFloat(selectedTrip?.driver?.current_lat) ||
+                        driverLocation.latitude, // Fallback values
+                      longitude:
+                        parseFloat(selectedTrip?.driver?.current_long) ||
+                        driverLocation.longitude,
+                    }}
+                    title={'Driver Location'}
+                  />
+                )}
 
-            {/* {login_data?.payload?.owner_type != 0 && !all_flag && (
+              {/* {login_data?.payload?.owner_type != 0 && !all_flag && (
               <>
                 <Marker
                   coordinate={{
@@ -943,19 +956,16 @@ const LiveTripScreen = () => {
                 />
               </>
             )} */}
-            {login_data?.payload?.owner_type != 0 && !all_flag && (
-              <>
-                {/* Check if the source coordinates are valid */}
-                {selectedTrip?.driver_lat && selectedTrip?.driver_long && (
-                  <Marker
-                    coordinate={{
-                      latitude: parseFloat(selectedTrip.driver_lat),
-                      longitude: parseFloat(selectedTrip.driver_long),
-                    }}
-                    title="Source"
-                
-                  >
-
+              {login_data?.payload?.owner_type != 0 && !all_flag && (
+                <>
+                  {/* Check if the source coordinates are valid */}
+                  {selectedTrip?.driver_lat && selectedTrip?.driver_long && (
+                    <Marker
+                      coordinate={{
+                        latitude: parseFloat(selectedTrip.driver_lat),
+                        longitude: parseFloat(selectedTrip.driver_long),
+                      }}
+                      title="Source">
                       <Image
                         source={AppImages.Bike}
                         style={{
@@ -965,132 +975,135 @@ const LiveTripScreen = () => {
                         resizeMode="contain"
                       />
                     </Marker>
-                )}
+                  )}
 
-                {/* Check if the destination coordinates are valid */}
-                {selectedTrip?.drop_lat && selectedTrip?.drop_long && (
-                  <Marker
-                    coordinate={{
-                      latitude: parseFloat(selectedTrip.drop_lat),
-                      longitude: parseFloat(selectedTrip.drop_long),
-                    }}
-                    title="Destination"
-                  />
-                )}
-
-                {/* Check if both source and destination coordinates are valid before rendering Polyline */}
-                {selectedTrip?.driver_lat &&
-                  selectedTrip?.driver_long &&
-                  selectedTrip?.drop_lat &&
-                  selectedTrip?.drop_long && (
-                    <Polyline
-                      coordinates={[
-                        {
-                          latitude: parseFloat(selectedTrip.driver_lat),
-                          longitude: parseFloat(selectedTrip.driver_long),
-                        },
-                        {
-                          latitude: parseFloat(selectedTrip.drop_lat),
-                          longitude: parseFloat(selectedTrip.drop_long),
-                        },
-                      ]}
-                      strokeColor={Colors.black} // Line color
-                      strokeWidth={4} // Line thickness
-                      lineDashPattern={[5, 5]} // Dashed line pattern
-                      lineCap="round" // Round end of line
-                      lineJoin="round" // Round join between line segments
+                  {/* Check if the destination coordinates are valid */}
+                  {selectedTrip?.drop_lat && selectedTrip?.drop_long && (
+                    <Marker
+                      coordinate={{
+                        latitude: parseFloat(selectedTrip.drop_lat),
+                        longitude: parseFloat(selectedTrip.drop_long),
+                      }}
+                      title="Destination"
                     />
                   )}
-              </>
-            )}
 
-            {all_flag &&
-              all_driver_in_map.map((driver, index) => {
-                const {driver: driverInfo} = driver;
-                const driverLat = parseFloat(driverInfo?.current_lat);
-                const driverLong = parseFloat(driverInfo?.current_long);
+                  {/* Check if both source and destination coordinates are valid before rendering Polyline */}
+                  {selectedTrip?.driver_lat &&
+                    selectedTrip?.driver_long &&
+                    selectedTrip?.drop_lat &&
+                    selectedTrip?.drop_long && (
+                      <Polyline
+                        coordinates={[
+                          {
+                            latitude: parseFloat(selectedTrip.driver_lat),
+                            longitude: parseFloat(selectedTrip.driver_long),
+                          },
+                          {
+                            latitude: parseFloat(selectedTrip.drop_lat),
+                            longitude: parseFloat(selectedTrip.drop_long),
+                          },
+                        ]}
+                        strokeColor={Colors.black} // Line color
+                        strokeWidth={4} // Line thickness
+                        lineDashPattern={[5, 5]} // Dashed line pattern
+                        lineCap="round" // Round end of line
+                        lineJoin="round" // Round join between line segments
+                      />
+                    )}
+                </>
+              )}
 
-                if (driverInfo && driverLat && driverLong) {
-                  const image =
-                    driverInfo.phone == login_data?.payload?.phone
-                      ? AppImages.Bike
-                      : AppImages.partnerbike;
-                  return (
-                    <Marker
-                      key={index}
-                      coordinate={{latitude: driverLat, longitude: driverLong}}
-                      title={driverInfo.driver_name}
-                      description={driverInfo.vehicle_number}>
+              {all_flag &&
+                all_driver_in_map.map((driver, index) => {
+                  const {driver: driverInfo} = driver;
+                  const driverLat = parseFloat(driverInfo?.current_lat);
+                  const driverLong = parseFloat(driverInfo?.current_long);
+
+                  if (driverInfo && driverLat && driverLong) {
+                    const image =
+                      driverInfo.phone == login_data?.payload?.phone
+                        ? AppImages.Bike
+                        : AppImages.partnerbike;
+                    return (
+                      <Marker
+                        key={index}
+                        coordinate={{
+                          latitude: driverLat,
+                          longitude: driverLong,
+                        }}
+                        title={driverInfo.driver_name}
+                        description={driverInfo.vehicle_number}>
+                        <Image
+                          source={image}
+                          style={{
+                            width: responsiveWidth(37),
+                            height: responsiveHeight(37),
+                          }}
+                          resizeMode="contain"
+                        />
+                      </Marker>
+                    );
+                  }
+                  return null;
+                })}
+            </MapView>
+
+            {/* Header and Trip details */}
+            <View style={styles.content}>
+              <CustomHeader screenName={'Live Trips'} />
+              {!onlyPartnerDriver && (
+                <View style={styles.tripContainer}>
+                  {partner_riders?.length > 0 && (
+                    <TouchableOpacity
+                      onPress={() => {
+                        setSelectedTrip(null);
+                        setall_flag(true);
+                      }}
+                      style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        borderBottomWidth: all_flag ? 4 : 0,
+                        borderColor: all_flag ? Colors.brandBlue : 'none',
+                        padding: 13,
+                      }}>
                       <Image
-                        source={image}
+                        source={AppImages.driversList}
                         style={{
-                          width: responsiveWidth(37),
-                          height: responsiveHeight(37),
+                          height: responsiveHeight(25),
+                          width: responsiveWidth(45),
                         }}
                         resizeMode="contain"
                       />
-                    </Marker>
-                  );
-                }
-                return null;
-              })}
-          </MapView>
-
-          {/* Header and Trip details */}
-          <View style={styles.content}>
-            <CustomHeader screenName={'Live Trips'} />
-            {!onlyPartnerDriver && (
-              <View style={styles.tripContainer}>
-                {partner_riders?.length > 0 && (
-                  <TouchableOpacity
-                    onPress={() => {
-                      setSelectedTrip(null);
-                      setall_flag(true);
-                    }}
-                    style={{
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      borderBottomWidth: all_flag ? 4 : 0,
-                      borderColor: all_flag ? Colors.brandBlue : 'none',
-                      padding: 13,
-                    }}>
-                    <Image
-                      source={AppImages.driversList}
-                      style={{
-                        height: responsiveHeight(25),
-                        width: responsiveWidth(45),
-                      }}
-                      resizeMode="contain"
+                    </TouchableOpacity>
+                  )}
+                  {partner_riders?.length > 0 ? (
+                    <FlatList
+                      data={partner_riders}
+                      horizontal
+                      renderItem={renderItem}
                     />
-                  </TouchableOpacity>
-                )}
-                {partner_riders?.length > 0 ? (
-                  <FlatList
-                    data={partner_riders}
-                    horizontal
-                    renderItem={renderItem}
-                  />
-                ) : (
-                  <View
-                    style={{
-                      flex: 1,
-                      justifyContent: 'center',
-                      alignContent: 'center',
-                    }}>
-                    <Text
+                  ) : (
+                    <View
                       style={{
-                        fontSize: responsiveFontSize(12),
-                        paddingVertical: responsiveHeight(12),
-                        color: Colors.grey,
-                        fontWeight: '600',
-                        // marginLeft: responsiveWidth(45),
-                        alignSelf: 'center',
+                        flex: 1,
+                        justifyContent: 'center',
+                        alignContent: 'center',
                       }}>
-                      {'No live trips are currently available'}
-                    </Text>
-                  </View>
-                )}
-                {/* <TouchableOpacity onPress={() => handleCardClick(2)}>
+                      <Text
+                        style={{
+                          fontSize: responsiveFontSize(12),
+                          paddingVertical: responsiveHeight(12),
+                          color: Colors.grey,
+                          fontWeight: '600',
+                          // marginLeft: responsiveWidth(45),
+                          alignSelf: 'center',
+                        }}>
+                        {'No live trips are currently available'}
+                      </Text>
+                    </View>
+                  )}
+                  {/* <TouchableOpacity onPress={() => handleCardClick(2)}>
                 <View
                   style={[
                     styles.tripCard,
@@ -1117,46 +1130,46 @@ const LiveTripScreen = () => {
                   <Text style={styles.tripName}>Maria</Text>
                 </View>
               </TouchableOpacity> */}
-              </View>
-            )}
-            {onlyPartnerDriver && (
-              <View style={styles.tripContainer}>
-                <View>
-                  <View style={[styles.tripCard]}>
-                    <Text style={styles.tripTime}>Booking Count</Text>
-                    <Text style={styles.tripName}>
-                      {driver_todays_earning?.length == 0
-                        ? '0'
-                        : driver_todays_earning?.individual_paid_amounts
-                            ?.length}
-                    </Text>
+                </View>
+              )}
+              {onlyPartnerDriver && (
+                <View style={styles.tripContainer}>
+                  <View>
+                    <View style={[styles.tripCard]}>
+                      <Text style={styles.tripTime}>Booking Count</Text>
+                      <Text style={styles.tripName}>
+                        {driver_todays_earning?.length == 0
+                          ? '0'
+                          : driver_todays_earning?.individual_paid_amounts
+                              ?.length}
+                      </Text>
+                    </View>
+                  </View>
+                  <BorderLine
+                    color={'#D8D8D8'}
+                    orientation="vertical"
+                    length="65%"
+                    thickness={0.4}
+                  />
+                  <View>
+                    <View style={[styles.tripCard]}>
+                      <Text style={styles.tripTime}>Operator Bill</Text>
+                      <Text style={styles.tripName}>
+                        ₹
+                        {!isNaN(driver_todays_earning?.total_paid_amount)
+                          ? Math.round(
+                              driver_todays_earning?.total_paid_amount,
+                            ).toFixed(2)
+                          : '0'}
+                      </Text>
+                    </View>
                   </View>
                 </View>
-                <BorderLine
-                  color={'#D8D8D8'}
-                  orientation="vertical"
-                  length="65%"
-                  thickness={0.4}
-                />
-                <View>
-                  <View style={[styles.tripCard]}>
-                    <Text style={styles.tripTime}>Operator Bill</Text>
-                    <Text style={styles.tripName}>
-                      ₹
-                      {!isNaN(driver_todays_earning?.total_paid_amount)
-                        ? Math.round(
-                            driver_todays_earning?.total_paid_amount,
-                          ).toFixed(2)
-                        : '0'}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            )}
-          </View>
+              )}
+            </View>
 
-          {/* Card positioned just above bottom navigation */}
-          {/* {selectedTrip && (
+            {/* Card positioned just above bottom navigation */}
+            {/* {selectedTrip && (
                         <View style={styles.cardContainer}>
                             {tripData
                                 .filter(trip => trip.id === selectedTrip)
@@ -1167,13 +1180,14 @@ const LiveTripScreen = () => {
                                 ))}
                         </View>
                     )} */}
-          {login_data?.payload?.owner_type != 0 &&
-            !all_flag &&
-            selectedTrip && (
-              <View style={styles.cardContainer}>
-                <LiveTripCustomCard trip={selectedTrip} />
-              </View>
-            )}
+            {login_data?.payload?.owner_type != 0 &&
+              !all_flag &&
+              selectedTrip && (
+                <View style={styles.cardContainer}>
+                  <LiveTripCustomCard trip={selectedTrip} />
+                </View>
+              )}
+          </ScrollView>
         </>
       )}
 
@@ -1250,4 +1264,3 @@ const styles = StyleSheet.create({
 });
 
 export default LiveTripScreen;
-

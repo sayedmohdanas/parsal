@@ -8,9 +8,11 @@ import {
   createPartner,
   createtransactionurl,
   deleteDriverDetails,
+  deleteNotificationurl,
   deleteVehicle,
   driverEaring,
   driverEaringurl,
+  editpartnervehicleurl,
   getallvehicletypeurl,
   getBankAccount,
   getDriverDetails,
@@ -18,8 +20,10 @@ import {
   getNotification,
   getOrderDetail,
   getPartner,
+  getSupportTickets,
   getTickeReply,
   getwalletbalanceurl,
+  helpAndSupport,
   livedriverOfPartnernurl,
   MyVehicle,
   partnerLogin,
@@ -151,6 +155,17 @@ export const hitAddTicketReply = param => {
 export const hitGetTicketReply = param => {
   return apiPost(getTickeReply, param);
 };
+export const hitEditParnterVehicle = param => {
+  return apiPost(editpartnervehicleurl, param);
+};
 
 
-
+export const hitHelpAndSupport = param => {
+  return apiPost(helpAndSupport, param);
+};
+export const hitGetSupportTicket = param => {
+  return apiPost(getSupportTickets, param);
+};
+export const hitDeleteNotificationApi = param => {
+  return apiPost(deleteNotificationurl, param);
+};

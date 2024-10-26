@@ -170,7 +170,7 @@ const NotificationModal = ({
           socket.emit('driver_accept', resWithOTP, acknowledgment => {
             console.log('Data sent, acknowledgment:', acknowledgment);
           });
-          // dispatch(setlivetripmenu(true));
+          dispatch(setlivetripmenu(true));
           dispatch(setOrderData(resWithOTP));
           navigation.navigate('DriverMap', {
             picklat: payload.pickup_lat,

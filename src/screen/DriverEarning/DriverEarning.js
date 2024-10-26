@@ -31,11 +31,10 @@ import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import Line from '../../components/Line/Line';
 import {errorToast} from '../../common/CommonFunction';
 import Loading from '../../components/Loading/Loading';
-import { useSelector } from 'react-redux';
-
+import {useSelector} from 'react-redux';
 
 const Earning = () => {
-  const [selectedRange, setSelectedRange] = useState('week'); // date range
+  const [selectedRange, setSelectedRange] = useState('today'); // date range
   const [totalEarnings, setTotalEarnings] = useState(0);
   const [dateRange, setDateRange] = useState({start: '', end: ''});
   const [loading, setLoading] = useState(false); // State for loading
@@ -44,6 +43,12 @@ const Earning = () => {
   useEffect(() => {
     getEarningData();
   }, [selectedRange]);
+
+  useFocusEffect(
+    useCallback(() => {
+      getEarningData();
+    }, [selectedRange]),
+  );
 
   // Function to get earning data
   const getEarningData = async () => {
@@ -61,10 +66,7 @@ const Earning = () => {
 
     setDateRange({start: startDate, end: endDate});
     setLoading(false); // Stop loading
-
   };
-
-  
 
   const [driver_todays_earning, setdriver_todays_earning] = useState([]);
   const [login_user, setlogin_user] = useState();
@@ -77,29 +79,30 @@ const Earning = () => {
     if (parsedUser?.payload?.owner_type == 0) {
       const param = {
         driver_id: parsedUser?.payload?.driver_id,
-        filter:selectedRange,
-        customDate:dateRange
+        filter: selectedRange,
+        customDate: dateRange,
       };
+      console.log('parameter--->',param);
       hitDriverEarning(param)
         .then(res => {
           if (res?.success == false) {
             setdriver_todays_earning([]);
           } else {
+            console.log('res---->',res?.data);
             setdriver_todays_earning(res?.data);
           }
         })
         .catch(err => {
           console.error(err);
-        }).finally(() => {
-          setLoading(false); 
+        })
+        .finally(() => {
+          setLoading(false);
         });
-  ;
     } else {
       const param = {
         driver_id: driver_id,
         filter: selectedRange,
-        customDate:dateRange
-
+        customDate: dateRange,
       };
       hitDriverEarning(param)
         .then(res => {
@@ -111,9 +114,10 @@ const Earning = () => {
         })
         .catch(err => {
           console.error(err);
-        }).finally(() => {
-          setLoading(false); 
-        });;
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     }
   };
   const [partner_riders, setpartner_riders] = useState([]);
@@ -129,14 +133,18 @@ const Earning = () => {
       hitMyVehicle(param)
         .then(res => {
           setpartner_riders(res?.vehicles);
-          setSelectedDriver(res?.vehicles?.[0]);
-          get_data(res?.vehicles?.[0]?.driver_id);
+          const drivers = res?.vehicles?.filter(
+            item => item?.driver_id != null,
+          );
+          setSelectedDriver(drivers?.[0]);
+          get_data(drivers[0]?.driver_id);
         })
         .catch(err => {
           console.error(err);
-        }) .finally(() => {
-          setLoading(false); 
-        });;
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     }
   };
 
@@ -155,7 +163,7 @@ const Earning = () => {
       return () => {
         // Cleanup logic here if necessary
       };
-    }, [selectedRange,dateRange]), // The dependency array can be adjusted as needed
+    }, [selectedRange, dateRange]), // The dependency array can be adjusted as needed
   );
   const renderItem = useMemo(() => {
     return ({item}) => {
@@ -250,9 +258,10 @@ const Earning = () => {
       setDateRange(nextDay);
     }
   };
-// useEffect(()=>{
-//   get_data()
-// },[dateRange])
+  // useEffect(()=>{
+  //   get_data()
+  // },[dateRange])
+  console.log('driver_todays_earning?.individual_paid_amounts',driver_todays_earning);
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: Colors.homeBackground}}>
       <View>
@@ -263,133 +272,141 @@ const Earning = () => {
         />
       </View>
       <View style={styles.container}>
-      {loading ? (
-        <Loading loading={loading} /> 
-      ) : (
-        <>
-        <View style={{alignSelf: 'center', marginTop: responsiveHeight(14)}}>
-          <DateRangeSelector
-            selectedRange={selectedRange}
-            setSelectedRange={setSelectedRange}
-          />
-        </View>
-        {driver_todays_earning?.individual_paid_amounts && (
-          <View style={[styles.earningDisplay, {justifyContent: 'center'}]}>
-            <View style={{justifyContent: 'center', alignItems: 'center'}}>
-              {/* <Text style={styles.totalEarningText}>{'Total Earning'}</Text> */}
-              {/* <DateRangeSelector selectedRange={selectedRange}  setSelectedRange={setSelectedRange}/> */}
-              <Text style={styles.earningAmount}>
-                ₹
-                {!isNaN(driver_todays_earning?.total_paid_amount)
-                  ? Math.round(
-                      driver_todays_earning?.total_paid_amount,
-                    ).toFixed(2)
-                  : '0'}
-              </Text>
-              <View style={styles.percentageContainer}>
-                <View style={styles.increaseContainer}>
-                  <Image
-                    source={AppImages.arrowUp}
-                    style={styles.arrowUpImage}
-                    resizeMode="contain"
-                  />
-                  <Text style={styles.percentageText}>
-                    {'3 '}
-                    {'% '}
-                  </Text>
-                </View>
-                <Text style={styles.heigherText}>{'higher than last day'}</Text>
-              </View>
+        {loading ? (
+          <Loading loading={loading} />
+        ) : (
+          <>
+            <View
+              style={{alignSelf: 'center', marginTop: responsiveHeight(14)}}>
+              <DateRangeSelector
+                selectedRange={selectedRange}
+                setSelectedRange={setSelectedRange}
+              />
             </View>
-          </View>
-        )}
-        <View style={styles.earningChart}>
-          <TouchableOpacity style={styles.navButton} onPress={handlePrevDate}>
-            <Image
-              source={AppImages.arrowLeft}
-              style={styles.arrowImage}
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
-          <Text style={styles.dateText}>
-            {formatDateForDisplay(dateRange.start)}{' '}
-            {formatDateForDisplay(dateRange.end) && '-'}{' '}
-            {formatDateForDisplay(dateRange.end)}
-          </Text>
-          <TouchableOpacity style={styles.navButton} onPress={handleNextDate}>
-            <Image
-              source={AppImages.arrowRight}
-              style={styles.arrowImage}
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
-        </View>
-        {/* Bar Chart */}
-        {driver_todays_earning?.total_paid_amount && (
-          <BarChart
-            driverEarningData={driver_todays_earning}
-            selectedRange={selectedRange}
-          />
-        )}
-        {/* Order List Section */}
-        <View style={[styles.orderListContainer, {flex: 1}]}>
-          {/* <Line marginH={0}/> */}
-          {/* <BorderLine thickness={0.}/> */}
-          {driver_todays_earning?.individual_paid_amounts && (
-            <Text style={styles.orderListHeadign}>{'Order List '}</Text>
-          )}
-          <FlatList
-            ListHeaderComponent={() => (
-              <>
-               
-                {!driver_todays_earning?.individual_paid_amounts && (
-                  <View
-                    style={{
-                      flex: 1,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      alignSelf: 'center',
-                      paddingVertical: 30,
-
-                      marginTop: responsiveHeight(110),
-                    }}>
-                    <ImageBackground
-                      source={AppImages.boxbackgound}
-                      style={styles.boxBackstyle}>
+            {driver_todays_earning?.individual_paid_amounts && (
+              <View style={[styles.earningDisplay, {justifyContent: 'center'}]}>
+                <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                  {/* <Text style={styles.totalEarningText}>{'Total Earning'}</Text> */}
+                  {/* <DateRangeSelector selectedRange={selectedRange}  setSelectedRange={setSelectedRange}/> */}
+                  <Text style={styles.earningAmount}>
+                    ₹
+                    {!isNaN(driver_todays_earning?.total_paid_amount)
+                      ? Math.round(
+                          driver_todays_earning?.total_paid_amount,
+                        ).toFixed(2)
+                      : '0'}
+                  </Text>
+                  <View style={styles.percentageContainer}>
+                    <View style={styles.increaseContainer}>
                       <Image
-                        source={AppImages.emptyImage}
-                        style={styles.emptyboxStyle}
+                        source={AppImages.arrowUp}
+                        style={styles.arrowUpImage}
                         resizeMode="contain"
                       />
-                    </ImageBackground>
-                    <Text style={styles.emptyTextStyle}>
-                      {'No Order history Available, contact our support team.'}
+                      <Text style={styles.percentageText}>
+                        {'3 '}
+                        {'% '}
+                      </Text>
+                    </View>
+                    <Text style={styles.heigherText}>
+                      {'higher than last day'}
                     </Text>
                   </View>
-                )}
-                {login_user?.owner_type != 0 &&
-                  driver_todays_earning?.individual_paid_amounts && (
-                    <View style={{marginLeft: 20}}>
-                      {partner_riders?.length > 1 && (
-                        <FlatList
-                          data={partner_riders}
-                          horizontal
-                          renderItem={renderRieder}
-                          keyExtractor={(item, index) => index.toString()}
-                        />
-                      )}
-                    </View>
-                  )}
-              </>
+                </View>
+              </View>
             )}
-            data={driver_todays_earning?.individual_paid_amounts}
-            renderItem={renderItem}
-            keyExtractor={(item, index) => index.toString()}
-            contentContainerStyle={{flexGrow: 1}}
-          />
-        </View>
-        </>
-      )}
+            <View style={styles.earningChart}>
+              <TouchableOpacity
+                style={styles.navButton}
+                onPress={handlePrevDate}>
+                <Image
+                  source={AppImages.arrowLeft}
+                  style={styles.arrowImage}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+              <Text style={styles.dateText}>
+                {formatDateForDisplay(dateRange.start)}{' '}
+                {formatDateForDisplay(dateRange.end) && '-'}{' '}
+                {formatDateForDisplay(dateRange.end)}
+              </Text>
+              <TouchableOpacity
+                style={styles.navButton}
+                onPress={handleNextDate}>
+                <Image
+                  source={AppImages.arrowRight}
+                  style={styles.arrowImage}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+            </View>
+            {/* Bar Chart */}
+            {driver_todays_earning?.total_paid_amount && (
+              <BarChart
+                driverEarningData={driver_todays_earning}
+                selectedRange={selectedRange}
+              />
+            )}
+            {/* Order List Section */}
+            <View style={[styles.orderListContainer, {flex: 1}]}>
+              {/* <Line marginH={0}/> */}
+              {/* <BorderLine thickness={0.}/> */}
+              {driver_todays_earning?.individual_paid_amounts && (
+                <Text style={styles.orderListHeadign}>{'Order List '}</Text>
+              )}
+              <FlatList
+                ListHeaderComponent={() => (
+                  <>
+                    {!driver_todays_earning?.individual_paid_amounts && (
+                      <View
+                        style={{
+                          flex: 1,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          alignSelf: 'center',
+                          paddingVertical: 30,
+
+                          marginTop: responsiveHeight(110),
+                        }}>
+                        <ImageBackground
+                          source={AppImages.boxbackgound}
+                          style={styles.boxBackstyle}>
+                          <Image
+                            source={AppImages.emptyImage}
+                            style={styles.emptyboxStyle}
+                            resizeMode="contain"
+                          />
+                        </ImageBackground>
+                        <Text style={styles.emptyTextStyle}>
+                          {
+                            'No Order history Available, contact our support team.'
+                          }
+                        </Text>
+                      </View>
+                    )}
+                    {login_user?.owner_type != 0 &&
+                      driver_todays_earning?.individual_paid_amounts && (
+                        <View style={{marginLeft: 20}}>
+                          {partner_riders?.length > 1 && (
+                            <FlatList
+                              data={partner_riders}
+                              horizontal
+                              renderItem={renderRieder}
+                              keyExtractor={(item, index) => index.toString()}
+                            />
+                          )}
+                        </View>
+                      )}
+                  </>
+                )}
+                data={driver_todays_earning?.individual_paid_amounts}
+                renderItem={renderItem}
+                keyExtractor={(item, index) => index.toString()}
+                contentContainerStyle={{flexGrow: 1}}
+              />
+            </View>
+          </>
+        )}
       </View>
     </SafeAreaView>
   );

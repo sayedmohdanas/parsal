@@ -230,12 +230,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '../../common/Colors';
 import {responsiveHeight, responsiveWidth} from '../../common/metrices';
 import CustomHeader from '../DashBoard/components/CustomHeader';
+import {useNavigation} from '@react-navigation/native';
 
-const MyVehiclesScreen = ({navigation}) => {
+const MyVehiclesScreen = () => {
   const dispatch = useDispatch();
   const vehicleData = useSelector(
     state => state?.parsalPartner?.MyVehicle || [],
   );
+  const navigation = useNavigation();
   const vehicleCount = vehicleData?.length;
   // const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
 

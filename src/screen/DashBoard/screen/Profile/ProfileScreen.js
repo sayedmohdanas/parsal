@@ -28,7 +28,7 @@ const ProfileScreen = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await hitGetBankAccount({partner_id: 100});
+        const response = await hitGetBankAccount({partner_id: partnerId});
         setBankAcccount(response?.data);
         console.log('response from get account ===>', response);
       } catch (error) {

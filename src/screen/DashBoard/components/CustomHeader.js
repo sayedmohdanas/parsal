@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import React, {useCallback, useEffect, useState} from 'react';
+import {View, Text, Image, StyleSheet, TouchableOpacity} from 'react-native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {
   responsiveFontSize,
   responsiveHeight,
@@ -8,18 +8,18 @@ import {
 } from '../../../common/metrices';
 import Colors from '../../../common/Colors';
 import AppImages from '../../../common/AppImages';
-import { Switch } from 'react-native-switch';
-import { useDispatch, useSelector } from 'react-redux';
+import {Switch} from 'react-native-switch';
+import {useDispatch, useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { GetDriverCurrentLocation } from '../../../common/CommonFunction';
+import {GetDriverCurrentLocation} from '../../../common/CommonFunction';
 import {
   hitGetDriverDetails,
   hitGetPartner,
   hitUpdateDriverStatus,
 } from '../../../config/api/api';
-import { setlogindriverdetails } from '../../../redux/HitApis/HitApiSlice';
+import {setlogindriverdetails} from '../../../redux/HitApis/HitApiSlice';
 
-const CustomHeader = ({ screenName, selectedRange, setSelectedRange }) => {
+const CustomHeader = ({screenName, selectedRange, setSelectedRange}) => {
   const owner = useSelector(state => state?.parsalPartner?.owner);
   const [check_owner, setcheck_owner] = useState();
   const navigation = useNavigation();
@@ -29,17 +29,16 @@ const CustomHeader = ({ screenName, selectedRange, setSelectedRange }) => {
       const parse_data = JSON.parse(unparse_driver_data);
       setIsEnabled(prevStatus => !prevStatus);
       if (!isEnabled) {
-        const { latitude, longitude } = await GetDriverCurrentLocation();
+        const {latitude, longitude} = await GetDriverCurrentLocation();
         const param = {
           driver_id: parse_data?.payload?.driver_id,
           current_lat: latitude,
           current_long: longitude,
           working_status: 1,
         };
-        console.log('param', param);
         const res = await hitUpdateDriverStatus(param);
       } else {
-        const { latitude, longitude } = await GetDriverCurrentLocation();
+        const {latitude, longitude} = await GetDriverCurrentLocation();
         const param = {
           driver_id: parse_data?.payload?.driver_id,
           current_lat: latitude,
@@ -96,7 +95,7 @@ const CustomHeader = ({ screenName, selectedRange, setSelectedRange }) => {
     const parsed_user = JSON.parse(user);
 
     if (parsed_user?.payload?.owner_type == 0) {
-      hitGetDriverDetails({ ids: [parsed_user?.payload?.driver_id] })
+      hitGetDriverDetails({ids: [parsed_user?.payload?.driver_id]})
         .then(res => {
           setuser_details(res?.drivers[0]);
           dispatch(setlogindriverdetails(res?.drivers[0]));
@@ -115,7 +114,6 @@ const CustomHeader = ({ screenName, selectedRange, setSelectedRange }) => {
             hitGetDriverDetails({ids: [parsed_user?.payload?.driver_id]})
               .then(driverRes => {
                 const driverDetails = driverRes?.drivers[0];
-
                 if (driverDetails) {
                   // Add the working_status object to the user details
                   userDetails = {
@@ -125,6 +123,7 @@ const CustomHeader = ({ screenName, selectedRange, setSelectedRange }) => {
                   };
                 }
                 // Update user details with the new object
+              
                 dispatch(setlogindriverdetails(userDetails));
 
                 setuser_details(userDetails);
@@ -144,14 +143,14 @@ const CustomHeader = ({ screenName, selectedRange, setSelectedRange }) => {
   };
   useEffect(() => {
     get_user_details();
-  }, [isEnabled]);
+  }, [isEnabled, dispatch]);
   const [isEnabled, setIsEnabled] = useState(
     user_details?.working_status == 0 ? false : true,
   );
   // Update isEnabled whenever user_details changes
   useEffect(() => {
     setIsEnabled(user_details?.working_status == 0 ? false : true);
-  }, [user_details]);
+  }, [user_details, dispatch]);
   return (
     <>
       <View style={styles.headerContainer}>
@@ -234,17 +233,18 @@ const CustomHeader = ({ screenName, selectedRange, setSelectedRange }) => {
           selectedRange={selectedRange}
         />
       ) : null} */}
-          
-      <TouchableOpacity onPress={()=>navigation.navigate('Notification')}>
 
-        <Image source={AppImages.notificationIcon} resizeMode='contain' style={{ width: responsiveWidth(20), height: responsiveHeight(20) }} />
-
-      </TouchableOpacity>
-
-    </View>
+        <TouchableOpacity onPress={() => navigation.navigate('Notification')}>
+          <Image
+            source={AppImages.notificationIcon}
+            resizeMode="contain"
+            style={{width: responsiveWidth(20), height: responsiveHeight(20)}}
+          />
+        </TouchableOpacity>
+      </View>
     </>
-  )
-}
+  );
+};
 
 export default CustomHeader;
 
@@ -286,4 +286,4 @@ const styles = StyleSheet.create({
     zIndex: 1,
     flexDirection: 'row',
   },
-})
+});

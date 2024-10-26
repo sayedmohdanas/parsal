@@ -33,7 +33,7 @@ export const addBankAccount = getEndpoint('partner/addBankDetails');
 export const getBankAccount = getEndpoint('partner/bank-details');
 //driver
 export const addDriverDetails = getEndpoint('drivers/assign-driver-vehicles');
-export const updateDriverDetails = getEndpoint('drivers/edit-driver-vehicles');
+export const updateDriverDetails = getEndpoint('drivers/edit-driver-profile');
 
 export const deleteDriverDetails = getEndpoint('drivers/delete-driver-vehicles');
 export const getDriverDetails = getEndpoint('drivers/get-driver-details');
@@ -59,9 +59,11 @@ export const withrawMoney = getEndpoint('drivers/wallet-withdraw');
 export const updateDriverLocationurl = getEndpoint('orders/update-driverLocation');
 export const getliveorderdataurl = getEndpoint('orders/get-ongoing-order');
 export const updatefcmurl = getEndpoint('drivers/update-fcm');
+export const helpAndSupport = getEndpoint('generic/support-ticket');
+export const getSupportTickets = getEndpoint('generic/get-support-tickets');
 
-
-
+export const editpartnervehicleurl = getEndpoint('partner/edit-partner-vehicle');
+export const deleteNotificationurl = getEndpoint('generic/delete-user-notifications');
 
 
 

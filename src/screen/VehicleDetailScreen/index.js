@@ -21,7 +21,7 @@ import SelectVehicleFuel from '../../components/VehicleFuel/SelectVehicleFuel';
 import {useDispatch, useSelector} from 'react-redux';
 import {addVehicle, setParentId} from '../../redux/HitApis/HitApiSlice';
 import PageButtons from '../../components/TempBtn/TempBtn';
-import {useIsFocused} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import AppImages from '../../common/AppImages';
 import Colors from '../../common/Colors';
 import {errorToast, successToast} from '../../common/CommonFunction';
@@ -31,140 +31,175 @@ import {
   responsiveHeight,
   responsiveWidth,
 } from '../../common/metrices';
-import {hitGetAllVehicleTypeApi} from '../../config/api/api';
+import {
+  hitEditParnterVehicle,
+  hitGetAllVehicleTypeApi,
+} from '../../config/api/api';
 import {getimage} from '../../config/url';
+import {FontSizes} from '../../common/Theme';
 
-const VehicleDetailScreen = ({navigation}) => {
-  const [vehicleNumber, setVehicleNumber] = useState('');
-  const [rcUploaded, setRcUploaded] = useState('');
-  const [selectedVehicleType, setSelectedVehicleType] = useState(null);
-  const [showVehicleOptions, setShowVehicleOptions] = useState(true);
-  const [selectedCity, setSelectedCity] = useState('Lucknow');
-  const [selectedBodyType, setSelectedBodyType] = useState(null);
-  const [showVehicleBodyType, setShowVehicleBodyType] = useState(true);
+const VehicleDetailScreen = ({route}) => {
+  const {UpdatedVehicleData} = route.params || {};
+  // const [vehicleNumber, setVehicleNumber] = useState('');
+  // const [rcUploaded, setRcUploaded] = useState('');
+  // const [selectedVehicleType, setSelectedVehicleType] = useState(null);
+  // const [showVehicleOptions, setShowVehicleOptions] = useState(true);
+  // const [selectedCity, setSelectedCity] = useState('Lucknow');
+  // const [selectedBodyType, setSelectedBodyType] = useState(null);
+  // const [showVehicleBodyType, setShowVehicleBodyType] = useState(true);
+  const navigation = useNavigation();
   const [showEditOption, setShowEditOption] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [selectedFuelType, setSelectedFuelType] = useState(0);
+  // const [selectedFuelType, setSelectedFuelType] = useState(0);
+  const [vehicleNumber, setVehicleNumber] = useState(
+    UpdatedVehicleData?.vehicle_number || '',
+  );
+  const [rcUploaded, setRcUploaded] = useState(
+    UpdatedVehicleData?.rc_image || '',
+  );
+  const [selectedVehicleType, setSelectedVehicleType] = useState(
+    UpdatedVehicleData?.vehicle_type_id || null,
+  );
+  const [selectedCity, setSelectedCity] = useState(
+    UpdatedVehicleData?.operational_city || 'Lucknow',
+  );
+  const [selectedFuelType, setSelectedFuelType] = useState(
+    UpdatedVehicleData?.fuel_type === 2
+      ? 'Petrol'
+      : UpdatedVehicleData?.fuel_type === 1
+      ? 'EV'
+      : 0,
+  );
+  const [selectedVehicleModel, setSelectedVehicleModel] = useState(
+    UpdatedVehicleData?.vehicle_model || 'Toyota Corolla',
+  );
+  const [selectedVehicleColor, setSelectedVehicleColor] = useState(
+    UpdatedVehicleData?.vehicle_color || 'Blue',
+  );
+  const [selectedVehicleName, setSelectedVehicleName] = useState(
+    UpdatedVehicleData?.vehicle_name || 'Corolla',
+  );
+  const [selectedVehicleCapacity, setSelectedVehicleCapacity] = useState(
+    UpdatedVehicleData?.vehicle_capacity || 5,
+  );
 
   const dispatch = useDispatch();
-  const vehicleOptions = [
-    {value: 3, label: 'Truck', image: AppImages.truckImage},
-    {value: 2, label: '3W', image: AppImages.threeWheelerImage},
-    {value: 1, label: '2W', image: AppImages.twoWheelerImage},
-  ];
+
   const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
   // const partnerId =4
 
   useEffect(() => {
     const pId = async () => {
-      // await AsyncStorage.removeItem('partner_id');
       const parent_id = await AsyncStorage.getItem('partner_id');
-      console.log('parent id in login', parent_id);
       dispatch(setParentId(parent_id));
     };
     pId();
   }, [navigation]);
-
-  const bodyTypeOptions = [
-    {value: 'Scooter', label: 'Scooter', image: AppImages.scooterImage},
-    {value: 'Bike', label: 'Bike', image: AppImages.twoWheelerImage},
-  ];
-  const selectedVehicleModel = 'Toyota Corolla';
-  const selectedVehicleColor = 'Blue';
-  const selectedVehicleName = 'Corolla';
-  const selectedVehicleCapacity = 5;
 
   const toggleBottomSheet = () => {
     setIsVisible(prev => !prev);
   };
 
   const handleSubmit = async () => {
-    const payload = {
-      partner_id: partnerId,
-      driver_id: null,
-      vehicle_number: vehicleNumber,
-      vehicle_type_id: selected_vehicle,
-      //vehicle_sub_cat[0]?.vehicle_type_id,
-      //  selectedVehicleType
-      //   ? selectedVehicleType.value
-      //   : 'v-type',
-      vehicle_model: selectedVehicleModel,
-      vehicle_color: selectedVehicleColor,
-      fuel_type:
-        selectedFuelType === 'Petrol'
-          ? 2
-          : selectedFuelType === 'EV'
-          ? 1
-          : null,
-      vehicle_name: selectedVehicleName,
-      vehicle_capacity: selectedVehicleCapacity || 5,
-      operational_city: selectedCity ? selectedCity : 'london',
-      vehicle_docs: [
-        {
-          partner_id: partnerId,
-          doc_id: 3,
-          img_name: `${vehicleNumber}_rc.png`,
-          img_src: rcUploaded?.base64 || '',
-        },
-      ],
-    };
-
-    if (
-      payload.vehicle_number &&
-      payload.vehicle_docs[0].img_src &&
-      payload.vehicle_type_id &&
-      payload.fuel_type &&
-      payload.vehicle_model
-    ) {
-      try {
-        const resultAction = await dispatch(addVehicle(payload));
-        // if (resultAction.meta.requestStatus === 'fulfilled') {
-        if (addVehicle.fulfilled.match(resultAction)) {
-          // Alert.alert('Submitted');
-          successToast('Submitted', 'Vehicle details have been submitted');
-
-          navigation.navigate('MyVehicles');
-        } else {
-          errorToast('Error', 'An error occurred while submitting.');
-        }
-      } catch (error) {
-        Alert.alert('Error', 'An unexpected error occurred.');
-        console.error('here is error', error);
-      }
-      successToast('Submitted', 'Vehicle details have been submitted');
-
-      // Alert.alert('Submitted', 'Vehicle details have been submitted.');
+    if (UpdatedVehicleData) {
+      const payload = {
+        partner_id: partnerId,
+        vehicle_id: UpdatedVehicleData?.id,
+        driver_id: UpdatedVehicleData?.driver_id,
+        vehicle_number: vehicleNumber,
+        vehicle_type_id: selected_vehicle,
+        vehicle_model: selectedVehicleModel,
+        vehicle_color: selectedVehicleColor,
+        fuel_type:
+          selectedFuelType === 'Petrol'
+            ? 2
+            : selectedFuelType === 'EV'
+            ? 1
+            : null,
+        vehicle_name: selectedVehicleName,
+        vehicle_capacity: selectedVehicleCapacity || 5,
+        operational_city: selectedCity ? selectedCity : 'london',
+        vehicle_docs: [
+          {
+            partner_id: partnerId,
+            doc_id: 3,
+            img_name: `${vehicleNumber}_rc.png`,
+            img_src: rcUploaded?.base64 || '-',
+          },
+        ],
+      };
+      hitEditParnterVehicle(payload)
+        .then(res => {
+          if (res?.status) {
+            successToast('Submitted', 'Vehicle details have been Updated');
+            // navigation.navigate('MyVehicles');
+            navigation.navigate('OwnerDashboard');
+          } else {
+            errorToast('Error', 'An error occurred while submitting.');
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
     } else {
-      Alert.alert('Error', 'Please fill  all fields.');
+      const payload = {
+        partner_id: partnerId,
+        driver_id: null,
+        vehicle_number: vehicleNumber,
+        vehicle_type_id: selected_vehicle,
+        vehicle_model: selectedVehicleModel,
+        vehicle_color: selectedVehicleColor,
+        fuel_type:
+          selectedFuelType === 'Petrol'
+            ? 2
+            : selectedFuelType === 'EV'
+            ? 1
+            : null,
+        vehicle_name: selectedVehicleName,
+        vehicle_capacity: selectedVehicleCapacity || 5,
+        operational_city: selectedCity ? selectedCity : 'london',
+        vehicle_docs: [
+          {
+            partner_id: partnerId,
+            doc_id: 3,
+            img_name: `${vehicleNumber}_rc.png`,
+            img_src: rcUploaded?.base64 || '',
+          },
+        ],
+      };
+
+      if (
+        payload.vehicle_number &&
+        payload.vehicle_docs[0].img_src &&
+        payload.vehicle_type_id &&
+        payload.fuel_type &&
+        payload.vehicle_model
+      ) {
+        try {
+          const resultAction = await dispatch(addVehicle(payload));
+          // if (resultAction.meta.requestStatus === 'fulfilled') {
+          if (addVehicle.fulfilled.match(resultAction)) {
+            // Alert.alert('Submitted');
+            successToast('Submitted', 'Vehicle details have been submitted');
+            navigation.navigate('OwnerDashboard');
+
+            // navigation.navigate('MyVehicles');
+          } else {
+            errorToast('Error', 'An error occurred while submitting.');
+          }
+        } catch (error) {
+          Alert.alert('Error', 'An unexpected error occurred.');
+          console.error('here is error', error);
+        }
+        successToast('Submitted', 'Vehicle details have been submitted');
+
+        // Alert.alert('Submitted', 'Vehicle details have been submitted.');
+      } else {
+        Alert.alert('Error', 'Please fill  all fields.');
+      }
     }
   };
 
-  const handleOptionEdit = () => {
-    setShowVehicleOptions(true);
-    setShowVehicleBodyType(true);
-  };
-
-  const handleBodyTypeEdit = () => {
-    setShowVehicleBodyType(true);
-    setShowEditOption(false);
-  };
-
-  const handleVehicleSelect = value => {
-    const selectedOption = vehicleOptions.find(
-      option => option.value === value,
-    );
-    setSelectedVehicleType(selectedOption);
-    setShowVehicleOptions(false);
-  };
-
-  const handleBodyTypeSelect = value => {
-    const selectedOption = bodyTypeOptions.find(
-      option => option.value === value,
-    );
-    setSelectedBodyType(selectedOption);
-    setShowVehicleBodyType(false);
-    setShowEditOption(true);
-  }
   // console.log(JSON.stringify(groupedVehicles, null, 2));
   const [all_vehicle_type, setall_vehicle_type] = useState([]);
   useEffect(() => {
@@ -212,17 +247,41 @@ const VehicleDetailScreen = ({navigation}) => {
         console.error(err);
       });
   }, []);
-  const [vehicle_sub_cat, setvehicle_sub_cat] = useState([]);
   const handleVehicleSelectlive = (id, arr) => {
     const sub_cat = arr.filter(item => {
       return item?.vehicle_type_id == id;
     });
-    setvehicle_sub_cat(sub_cat);
+    setVehicleSubCat(sub_cat);
   };
+
   const [selected_vehicle, setselected_vehicle] = useState(1);
-  const isEnabled =
-    vehicleNumber && rcUploaded && vehicle_sub_cat && selected_vehicle;
-    console.log('selected_vehicle',selected_vehicle);
+  const [vehicle_sub_cat, setVehicleSubCat] = useState([]);
+
+  useEffect(() => {
+    if (UpdatedVehicleData) {
+      const filteredVehicles = all_vehicle_type.filter(
+        item => item?.vehicle_type_id === UpdatedVehicleData?.vehicle_type_id,
+      );
+      setVehicleSubCat(filteredVehicles);
+    } else {
+      setVehicleSubCat([]); // Reset if no UpdatedVehicleData
+    }
+  }, [UpdatedVehicleData, all_vehicle_type]);
+
+  useEffect(() => {
+    if (UpdatedVehicleData && vehicle_sub_cat.length > 0) {
+      const selected = vehicle_sub_cat[0]?.list?.find(
+        item => item?.vehicle_cat_name === UpdatedVehicleData?.vehicle_cat_name,
+      );
+      setselected_vehicle(selected?.id || 1); // Set to the found id or default to 1
+    } else {
+      setselected_vehicle(1); // Reset to default if no match
+    }
+  }, [UpdatedVehicleData, vehicle_sub_cat]);
+  const isEnabled = UpdatedVehicleData
+    ? true
+    : vehicleNumber && rcUploaded && vehicle_sub_cat && selected_vehicle;
+
   return (
     <>
       <View style={styles.container}>
@@ -284,12 +343,6 @@ const VehicleDetailScreen = ({navigation}) => {
                       <Text style={styles.vehicleLabel}>
                         {item.vehicle_cat_name}
                       </Text>
-                      {/* <TouchableOpacity
-                       >
-                        <View style={{padding: 3}}>
-                          <Image source={AppImages.editPen} />
-                        </View>
-                      </TouchableOpacity> */}
                     </TouchableOpacity>
                   </>
                 );
@@ -501,7 +554,7 @@ const styles = StyleSheet.create({
     // backgroundColor: 'red',
   },
   editButton: {
-    fontSize: responsiveFontSize(16),
+    fontSize: FontSizes.semiLarge,
     marginRight: 5,
     color: '#007BFF',
     fontWeight: '700',

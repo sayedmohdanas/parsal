@@ -17,7 +17,7 @@ const TransactionHistory = () => {
   return (
     <>
       <SafeAreaView style={{flex: 1, backgroundColor: Colors.white}}>
-        <TouchableHighlight style={styles.container}>
+        {/* <TouchableHighlight style={styles.container}>
           <View style={{flex: 1, flexDirection: 'row'}}>
             <View
               style={{
@@ -38,7 +38,7 @@ const TransactionHistory = () => {
               <Text style={styles.text}>{'$1000.00'}</Text>
             </View>
           </View>
-        </TouchableHighlight>
+        </TouchableHighlight> */}
       </SafeAreaView>
     </>
   );

@@ -60,8 +60,10 @@ const DriverArriveCard = ({trip, isReachedPickup}) => {
     });
     socket.on('order_canceled', data => {
       dispatch(setOrderData(null));
+      dispatch(setlivetripmenu(false));
       dispatch(setupdate_order(null));
-      navigation.navigate('DriverDashboard');
+      navigation.goBack('');
+
       // Handle cancellation on the frontend (e.g., notify user, redirect, etc.)
     });
     return () => {
@@ -124,9 +126,7 @@ const DriverArriveCard = ({trip, isReachedPickup}) => {
                 dispatch(setlivetripmenu(false));
                 dispatch(setOrderData([]));
                 dispatch(setupdate_order([]));
-                navigation.navigate('DriverDashboard');
-
-                console.log('Request cancelled');
+                navigation.goBack('');
               }
 
               // Call API to cancel the order or update state

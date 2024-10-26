@@ -174,6 +174,7 @@ const Menu = ({navigation, owner = ''}) => {
       get_user_details();
     }, []), // Empty dependency array to run only when the page is focused
   );
+  console.log('parse_data?.payload?.owner_type',store_data?.show_livetripe_menu);
   return (
     <>
       <View style={styles.header}>
@@ -205,9 +206,9 @@ const Menu = ({navigation, owner = ''}) => {
                     ),
               }}
               style={{
-                height: responsiveHeight(60),
-                width: responsiveHeight(60),
-                borderRadius: responsiveHeight(60),
+                height: responsiveHeight(70),
+                width: responsiveHeight(70),
+                borderRadius: responsiveHeight(70),
                 marginRight: responsiveWidth(10),
               }}
             />
@@ -262,8 +263,8 @@ const Menu = ({navigation, owner = ''}) => {
               onPress={() => navigation.navigate('Trip')}
               style={styles.menuItem}>
               <Image
-                source={AppImages.dashboard}
-                style={styles.profileImage}
+                source={AppImages.dash}
+                style={[styles.profileImage,{tintColor:Colors.brandBlue}]}
                 // style={{height: 30, width: 30}}
                 resizeMode="contain"
               />
@@ -340,6 +341,12 @@ const Menu = ({navigation, owner = ''}) => {
             <Text style={styles.menuText}>Profile</Text>
           </View>
         </TouchableOpacity> */}
+        <TouchableOpacity
+          onPress={() => navigation.navigate('HelpandSupport')}
+          style={styles.menuItem}>
+          <Image source={AppImages.help} style={styles.profileImage} />
+          <Text style={styles.menuText}>Help & Support</Text>
+        </TouchableOpacity>
         <TouchableOpacity
           onPress={() => navigation.navigate('TermsCondition')}
           style={styles.menuItem}>
