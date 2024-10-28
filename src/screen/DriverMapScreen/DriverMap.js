@@ -1,11 +1,226 @@
+// import React, {useEffect, useRef, useState} from 'react';
+// import {Image, StyleSheet, View, Text} from 'react-native';
+// import MapView, {Circle, Marker} from 'react-native-maps';
+// import AppImages from '../../common/AppImages';
+// import ActionButton from './ActionButtons';
+// import {
+//   GetDriverCurrentLocation,
+//   calculateDistance,
+//   custommapstyle,
+// } from '../../common/CommonFunction';
+// import MapViewDirections from 'react-native-maps-directions';
+// import {useIsFocused} from '@react-navigation/native';
+// import {useSelector} from 'react-redux';
+// import database from '@react-native-firebase/database';
+// import Colors from '../../common/Colors';
+// import {responsiveHeight, responsiveWidth} from '../../common/metrices';
+// import DriverArriveCard from '../DriverEarning/DriverArriveCard';
+// import DestinationSection from './DestinationSection';
+// import {hitUpdateDriverLocationApi} from '../../config/api/api';
+
+// const DriverMapScreen = ({route}) => {
+//   const [showButtons, setShowButtons] = useState(false);
+//   const [latLOng, setLatLong] = useState({
+//     latitude: '',
+//     longitude: '',
+//     heading: null,
+//   });
+//   const [mapRegion, setMapRegion] = useState(null);
+//   const GOOGLE_API_KEY = 'AIzaSyAbwv5P-iff_vVB7TpstiQ1RI1kvktza48';
+
+//   const orderData = useSelector(
+//     state => state?.parsalPartner?.orderData || null,
+//   );
+//   const update_order = useSelector(
+//     state => state?.parsalPartner?.update_order || null,
+//   );
+//   const driverID = orderData?.newOrder?.driver_id || orderData?.id;
+
+//   const isFocused = useIsFocused();
+
+//   useEffect(() => {
+//     let intervalId;
+//     const fetchLocation = async () => {
+//       try {
+//         const {latitude, longitude, heading} = await GetDriverCurrentLocation();
+//         setLatLong({latitude, longitude, heading});
+//         if (latitude && longitude) {
+//           database().ref(`/drivers/${driverID}/location`).set({
+//             latitude,
+//             longitude,
+//             timestamp: database?.ServerValue.TIMESTAMP,
+//           });
+//         }
+//         if (orderData) {
+//           const param = {
+//             order_id: orderData?.id || orderData?.newOrder?.id,
+//             current_lat: latitude,
+//             current_long: longitude,
+//           };
+//         }
+//       } catch (error) {
+//         console.error('Error fetching location:', error);
+//       }
+//     };
+//     if (isFocused) {
+//       fetchLocation();
+//       intervalId = setInterval(fetchLocation, 1000);
+//     }
+//     return () => {
+//       if (intervalId) clearInterval(intervalId);
+//     };
+//   }, [isFocused]);
+
+//   const handleAccept = () => {
+//     setShowButtons(false);
+//     console.log('Request Accepted');
+//   };
+//   const handleReject = () => {
+//     setShowButtons(false);
+//     console.log('Request Rejected');
+//   };
+
+//   const origin = {
+//     latitude: Number(latLOng?.latitude) || 0,
+//     longitude: Number(latLOng?.longitude) || 0,
+//     heading: Number(latLOng?.heading) || 0,
+//   };
+
+//   const destination = {
+//     latitude: update_order?.is_arrived_pickup
+//       ? Number(orderData?.drop_lat) ||
+//         Number(orderData?.newOrder?.drop_lat) ||
+//         0
+//       : Number(orderData?.pickup_lat) ||
+//         Number(orderData?.newOrder?.pickup_lat) ||
+//         0,
+//     longitude: update_order?.is_arrived_pickup
+//       ? Number(orderData?.drop_long) ||
+//         Number(orderData?.newOrder?.drop_long) ||
+//         0
+//       : Number(orderData?.pickup_long) ||
+//         Number(orderData?.newOrder?.pickup_long) ||
+//         0,
+//   };
+
+//   const [reached, setReached] = useState(false);
+
+//   useEffect(() => {
+//     if (
+//       origin.latitude &&
+//       origin.longitude &&
+//       destination.latitude &&
+//       destination.longitude
+//     ) {
+//       const distance = calculateDistance(origin, destination);
+//       if (distance <= 50) {
+//         setReached(true);
+//       } else {
+//         setReached(false);
+//       }
+//     }
+//   }, [origin, destination]);
+
+//   const mapRef = useRef(null);
+
+//   useEffect(() => {
+//     if (
+//       mapRef.current &&
+//       origin.latitude &&
+//       origin.longitude &&
+//       destination.latitude &&
+//       destination.longitude
+//     ) {
+//       const midLat = (origin.latitude + destination.latitude) / 2;
+//       const midLong = (origin.longitude + destination.longitude) / 2;
+//       const latDelta = Math.abs(origin.latitude - destination.latitude) + 0.05;
+//       const longDelta =
+//         Math.abs(origin.longitude - destination.longitude) + 0.05;
+//       mapRef.current.animateToRegion(
+//         {
+//           latitude: midLat,
+//           longitude: midLong,
+//           latitudeDelta: latDelta,
+//           longitudeDelta: longDelta,
+//         },
+//         1000,
+//       );
+//     }
+//   }, [orderData?.id, update_order?.is_arrived_pickup]);
+
+//   return (
+//     <View style={styles.container}>
+//       <MapView
+//         customMapStyle={custommapstyle}
+//         ref={mapRef}
+//         style={styles.map}
+//         initialRegion={{
+//           latitude: (origin.latitude + destination.latitude) / 2 || 0, // midpoint with default
+//           longitude: (origin.longitude + destination.longitude) / 2 || 0, // midpoint with default
+//           latitudeDelta:
+//             Math.abs(origin.latitude - destination.latitude) + 0.05,
+//           longitudeDelta:
+//             Math.abs(origin.longitude - destination.longitude) + 0.05,
+//         }}>
+//         {/* Render origin marker only if coordinates are available */}
+//         {origin.latitude && origin.longitude ? (
+//           <Marker coordinate={origin} rotation={origin.heading}>
+//             <Image
+//               source={AppImages.Bike}
+//               style={{width: responsiveWidth(37), height: responsiveHeight(37)}}
+//               resizeMode="contain"
+//             />
+//           </Marker>
+//         ) : null}
+
+//         <Marker coordinate={destination}>
+//           <Image
+//             source={AppImages.location}
+//             style={{width: responsiveWidth(37), height: responsiveHeight(37)}}
+//             resizeMode="contain"
+//           />
+//         </Marker>
+
+//         {/* Render directions only if both origin and destination are available */}
+//         {origin.latitude &&
+//         origin.longitude &&
+//         destination.latitude &&
+//         destination.longitude ? (
+//           <MapViewDirections
+//             origin={origin}
+//             destination={destination}
+//             apikey={GOOGLE_API_KEY}
+//             strokeWidth={4}
+//             strokeColor={Colors.brandBlue}
+//           />
+//         ) : null}
+//       </MapView>
+//       {showButtons ? (
+//         <View style={styles.buttonContainer}>
+//           <ActionButton title="Accept" color="green" onPress={handleAccept} />
+//           <ActionButton title="Reject" color="red" onPress={handleReject} />
+//         </View>
+//       ) : (
+//         <View style={styles.cardContainer}>
+//           {update_order?.is_arrived_pickup ? (
+//             <DestinationSection details={update_order} />
+//           ) : (
+//             <DriverArriveCard isReachedPickup={reached} />
+//           )}
+//         </View>
+//       )}
+//     </View>
+//   );
+// };
 import React, {useEffect, useRef, useState} from 'react';
-import {Image, StyleSheet, View, Text} from 'react-native';
-import MapView, {Circle, Marker} from 'react-native-maps';
+import {Animated, Easing, Image, StyleSheet, View, Text} from 'react-native';
+import MapView, {Marker} from 'react-native-maps';
 import AppImages from '../../common/AppImages';
 import ActionButton from './ActionButtons';
 import {
   GetDriverCurrentLocation,
   calculateDistance,
+  custommapstyle,
 } from '../../common/CommonFunction';
 import MapViewDirections from 'react-native-maps-directions';
 import {useIsFocused} from '@react-navigation/native';
@@ -15,7 +230,8 @@ import Colors from '../../common/Colors';
 import {responsiveHeight, responsiveWidth} from '../../common/metrices';
 import DriverArriveCard from '../DriverEarning/DriverArriveCard';
 import DestinationSection from './DestinationSection';
-import {hitUpdateDriverLocationApi} from '../../config/api/api';
+
+const GOOGLE_API_KEY = 'AIzaSyAbwv5P-iff_vVB7TpstiQ1RI1kvktza48';
 
 const DriverMapScreen = ({route}) => {
   const [showButtons, setShowButtons] = useState(false);
@@ -25,7 +241,11 @@ const DriverMapScreen = ({route}) => {
     heading: null,
   });
   const [mapRegion, setMapRegion] = useState(null);
-  const GOOGLE_API_KEY = 'AIzaSyAbwv5P-iff_vVB7TpstiQ1RI1kvktza48';
+  const [reached, setReached] = useState(false);
+  const markerScale = useRef(new Animated.Value(1)).current; // For wave effect
+  const rotationValue = useRef(new Animated.Value(0)).current; // For rotation
+  const mapRef = useRef(null);
+  const isFocused = useIsFocused();
 
   const orderData = useSelector(
     state => state?.parsalPartner?.orderData || null,
@@ -35,50 +255,6 @@ const DriverMapScreen = ({route}) => {
   );
   const driverID = orderData?.newOrder?.driver_id || orderData?.id;
 
-  const isFocused = useIsFocused();
-
-  useEffect(() => {
-    let intervalId;
-    const fetchLocation = async () => {
-      try {
-        const {latitude, longitude, heading} = await GetDriverCurrentLocation();
-        setLatLong({latitude, longitude, heading});
-        if (latitude && longitude) {
-          database().ref(`/drivers/${driverID}/location`).set({
-            latitude,
-            longitude,
-            timestamp: database?.ServerValue.TIMESTAMP,
-          });
-        }
-        if (orderData) {
-          const param = {
-            order_id: orderData?.id || orderData?.newOrder?.id,
-            current_lat: latitude,
-            current_long: longitude,
-          };
-        }
-      } catch (error) {
-        console.error('Error fetching location:', error);
-      }
-    };
-    if (isFocused) {
-      fetchLocation();
-      intervalId = setInterval(fetchLocation, 10000);
-    }
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [isFocused]);
-
-  const handleAccept = () => {
-    setShowButtons(false);
-    console.log('Request Accepted');
-  };
-  const handleReject = () => {
-    setShowButtons(false);
-    console.log('Request Rejected');
-  };
-
   const origin = {
     latitude: Number(latLOng?.latitude) || 0,
     longitude: Number(latLOng?.longitude) || 0,
@@ -87,71 +263,111 @@ const DriverMapScreen = ({route}) => {
 
   const destination = {
     latitude: update_order?.is_arrived_pickup
-      ? Number(orderData?.drop_lat) || Number(orderData?.newOrder?.drop_lat) || 0
+      ? Number(orderData?.drop_lat) ||
+        Number(orderData?.newOrder?.drop_lat) ||
+        0
       : Number(orderData?.pickup_lat) ||
-        Number(orderData?.newOrder?.pickup_lat) || 0,
+        Number(orderData?.newOrder?.pickup_lat) ||
+        0,
     longitude: update_order?.is_arrived_pickup
       ? Number(orderData?.drop_long) ||
-        Number(orderData?.newOrder?.drop_long) || 0
+        Number(orderData?.newOrder?.drop_long) ||
+        0
       : Number(orderData?.pickup_long) ||
-        Number(orderData?.newOrder?.pickup_long) || 0,
+        Number(orderData?.newOrder?.pickup_long) ||
+        0,
   };
 
-  const [reached, setReached] = useState(false);
-  
-  useEffect(() => {
-    if (origin.latitude && origin.longitude && destination.latitude && destination.longitude) {
-      const distance = calculateDistance(origin, destination);
-      if (distance <= 9900) {
-        setReached(true);
-      } else {
-        setReached(false);
-      }
-    }
-  }, [origin, destination]);
+  // Animated marker scaling for wave effect
+  const animateMarkerScale = () => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(markerScale, {
+          toValue: 1.2,
+          duration: 500,
+          easing: Easing.ease,
+          useNativeDriver: true,
+        }),
+        Animated.timing(markerScale, {
+          toValue: 1,
+          duration: 500,
+          easing: Easing.ease,
+          useNativeDriver: true,
+        }),
+      ]),
+    ).start();
+  };
 
-  const mapRef = useRef(null);
+  // Rotate the marker based on heading
+  const rotateMarker = newHeading => {
+    Animated.timing(rotationValue, {
+      toValue: newHeading,
+      duration: 500,
+      easing: Easing.linear,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  useEffect(() => {
+    animateMarkerScale();
+    if (isFocused) {
+      const fetchLocation = async () => {
+        const {latitude, longitude, heading} = await GetDriverCurrentLocation();
+        setLatLong({latitude, longitude, heading});
+        if (latitude && longitude) {
+          database().ref(`/drivers/${driverID}/location`).set({
+            latitude,
+            longitude,
+            timestamp: database.ServerValue.TIMESTAMP,
+          });
+        }
+      };
+      fetchLocation();
+    }
+  }, [isFocused]);
 
   useEffect(() => {
     if (
-      mapRef.current &&
       origin.latitude &&
       origin.longitude &&
       destination.latitude &&
       destination.longitude
     ) {
-      const midLat = (origin.latitude + destination.latitude) / 2;
-      const midLong = (origin.longitude + destination.longitude) / 2;
-      const latDelta = Math.abs(origin.latitude - destination.latitude) + 0.05;
-      const longDelta = Math.abs(origin.longitude - destination.longitude) + 0.05;
-      mapRef.current.animateToRegion(
-        {
-          latitude: midLat,
-          longitude: midLong,
-          latitudeDelta: latDelta,
-          longitudeDelta: longDelta,
-        },
-        1000,
-      );
+      const distance = calculateDistance(origin, destination);
+      setReached(distance <= 50);
     }
   }, [origin, destination]);
 
   return (
     <View style={styles.container}>
       <MapView
+        customMapStyle={custommapstyle}
         ref={mapRef}
         style={styles.map}
         initialRegion={{
-          latitude: (origin.latitude + destination.latitude) / 2 || 0, // midpoint with default
-          longitude: (origin.longitude + destination.longitude) / 2 || 0, // midpoint with default
+          latitude: (origin.latitude + destination.latitude) / 2 || 0,
+          longitude: (origin.longitude + destination.longitude) / 2 || 0,
           latitudeDelta:
             Math.abs(origin.latitude - destination.latitude) + 0.05,
           longitudeDelta:
             Math.abs(origin.longitude - destination.longitude) + 0.05,
         }}>
-        {/* Render origin marker only if coordinates are available */}
         {origin.latitude && origin.longitude ? (
-          <Marker coordinate={origin} rotation={origin.heading}>
+          <Marker
+            coordinate={origin}
+            anchor={{x: 0.5, y: 0.5}}
+            flat
+            style={{
+              transform: [
+                {
+                  rotate: rotationValue.interpolate({
+                    inputRange: [0, 360],
+                    outputRange: ['0deg', '360deg'],
+                  }),
+                },
+                {scale: markerScale},
+              ],
+            }}>
             <Image
               source={AppImages.Bike}
               style={{width: responsiveWidth(37), height: responsiveHeight(37)}}
@@ -168,21 +384,31 @@ const DriverMapScreen = ({route}) => {
           />
         </Marker>
 
-        {/* Render directions only if both origin and destination are available */}
-        {origin.latitude && origin.longitude && destination.latitude && destination.longitude ? (
-          <MapViewDirections
-            origin={origin}
-            destination={destination}
-            apikey={GOOGLE_API_KEY}
-            strokeWidth={4}
-            strokeColor={Colors.brandBlue}
-          />
-        ) : null}
+        {origin.latitude &&
+          origin.longitude &&
+          destination.latitude &&
+          destination.longitude && (
+            <MapViewDirections
+              origin={origin}
+              destination={destination}
+              apikey={GOOGLE_API_KEY}
+              strokeWidth={4}
+              strokeColor={Colors.brandBlue}
+            />
+          )}
       </MapView>
       {showButtons ? (
         <View style={styles.buttonContainer}>
-          <ActionButton title="Accept" color="green" onPress={handleAccept} />
-          <ActionButton title="Reject" color="red" onPress={handleReject} />
+          <ActionButton
+            title="Accept"
+            color="green"
+            onPress={() => setShowButtons(false)}
+          />
+          <ActionButton
+            title="Reject"
+            color="red"
+            onPress={() => setShowButtons(false)}
+          />
         </View>
       ) : (
         <View style={styles.cardContainer}>

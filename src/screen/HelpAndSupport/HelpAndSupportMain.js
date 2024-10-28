@@ -17,8 +17,8 @@ import {hitGetSupportTicket} from '../../config/api/api';
 import Colors from '../../common/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const HelpAndSupportMain = () => {
-  const navigation = useNavigation();
+const HelpAndSupportMain = ({navigation}) => {
+  // const navigation = useNavigation();
   const [tickets, setTickets] = useState([]);
 
   const timeAgo = date => {

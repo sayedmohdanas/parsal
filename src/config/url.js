@@ -6,10 +6,10 @@
 // export const socketUrl = `http://192.168.29.244:4000/`;
 
 // //
-// export const API_BASE_URL ='http://52.66.236.213:9292/'
-// export  const socketUrl= `http://52.66.236.213:4000/`
-export const API_BASE_URL ='http://192.168.29.237:5000/'
-export  const socketUrl= `http://192.168.29.237:4000/`
+export const API_BASE_URL ='http://52.66.236.213:9292/'
+export  const socketUrl= `http://52.66.236.213:4000/`
+// export const API_BASE_URL ='http://192.168.29.237:5000/'
+// export  const socketUrl= `http://192.168.29.237:4000/`
 
 //
 const getEndpoint = text => {
@@ -64,6 +64,8 @@ export const getSupportTickets = getEndpoint('generic/get-support-tickets');
 
 export const editpartnervehicleurl = getEndpoint('partner/edit-partner-vehicle');
 export const deleteNotificationurl = getEndpoint('generic/delete-user-notifications');
+export const updateotppurl = getEndpoint('orders/update-order-otp');
+
 
 
 

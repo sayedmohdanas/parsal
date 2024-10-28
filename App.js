@@ -223,11 +223,11 @@ export default function App() {
       // Start countdown
       interval = setInterval(() => {
         setTimer(prevTimer => prevTimer - 1);
-      }, 1000); // Decrease the timer every second
+      }, 1000); 
     }
 
     if (timer === 0) {
-      setModalVisible(false); // Close the modal when timer reaches 0
+      setModalVisible(false); 
     }
 
     return () => {

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Dimensions,
+  RefreshControl,
 } from 'react-native';
 import {useSelector} from 'react-redux';
 import Colors from '../../../../common/Colors';
@@ -19,6 +20,7 @@ import {
   responsiveWidth,
 } from '../../../../common/metrices';
 import {hitAddTicketReply, hitGetTicketReply} from '../../../../config/api/api';
+import {useFocusEffect} from '@react-navigation/native';
 
 // const API_URL = 'http://localhost:3000/api';
 
@@ -26,16 +28,19 @@ const HelpAndSupportChat = ({route}) => {
   const [messages, setMessages] = useState([]);
   const details = route.params;
   const [messageText, setMessageText] = useState('');
-  const orderData = useSelector(state => state?.parsalPartner?.orderData || {});
 
   // Fetch messages from the server
-  useEffect(() => {
-    fetchMessages();
-  }, []);
-
+  useFocusEffect(
+    useCallback(() => {
+      fetchMessages();
+    }, []),
+  );
+  const [refreshing, setrefreshing] = useState(false);
   const fetchMessages = async () => {
     try {
+      setrefreshing(true);
       const response = await hitGetTicketReply({ticket_id: details?.data?.id});
+      setrefreshing(false);
       setMessages(response?.messages);
     } catch (error) {
       setMessages([]);
@@ -149,11 +154,15 @@ const HelpAndSupportChat = ({route}) => {
       </View>
       <Line marginH={0} />
       <FlatList
+        refreshControl={
+          <RefreshControl onRefresh={fetchMessages} refreshing={refreshing} />
+        }
         data={messages}
         keyExtractor={(item, index) => index.toString()}
         renderItem={renderItem}
         contentContainerStyle={styles.messageList}
       />
+
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}

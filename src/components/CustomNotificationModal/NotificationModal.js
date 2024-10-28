@@ -1,5 +1,5 @@
 // CustomNotificationModal.js
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -10,22 +10,26 @@ import {
   Image,
 } from 'react-native';
 import Colors from '../../common/Colors';
-import { hitlPaceOrder, hitMyVehicle } from '../../config/api/api';
-import { useNavigation } from '@react-navigation/native';
+import {
+  hitlPaceOrder,
+  hitMyVehicle,
+  hitUpdateOrderOtpApi,
+} from '../../config/api/api';
+import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useDispatch, useSelector } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {
   setDriverId,
   setOrderData,
   setlivetripmenu,
   setupdate_order,
 } from '../../redux/HitApis/HitApiSlice';
-import { io } from 'socket.io-client';
+import {io} from 'socket.io-client';
 import {
   generateNumericOTP,
   GetDriverCurrentLocation,
 } from '../../common/CommonFunction';
-import { socketUrl } from '../../config/url';
+import {socketUrl} from '../../config/url';
 import BorderLine from '../../common/BorderLine.';
 import AppImages from '../../common/AppImages';
 import Loading from '../Loading/Loading';
@@ -127,7 +131,7 @@ const NotificationModal = ({
       dispatch(setupdate_order({}));
       setLoading(true);
 
-      const { latitude, longitude } = await GetDriverCurrentLocation();
+      const {latitude, longitude} = await GetDriverCurrentLocation();
 
       // Create payload
       const payload = {
@@ -169,7 +173,20 @@ const NotificationModal = ({
           // Emit 'driver_accept' event and send the data
           socket.emit('driver_accept', resWithOTP, acknowledgment => {
             console.log('Data sent, acknowledgment:', acknowledgment);
+          
           });
+          const param = {
+            order_id: resWithOTP?.newOrder?.id,
+            order_otp: resWithOTP?.resWithOTP,
+          };
+          console.log('param',param);
+          // hitUpdateOrderOtpApi(param)
+          //   .then(res => {
+          //     console.log('res', res);
+          //   })
+          //   .catch(err => {
+          //     console.error(err);
+          //   });
           dispatch(setlivetripmenu(true));
           dispatch(setOrderData(resWithOTP));
           navigation.navigate('DriverMap', {
@@ -225,7 +242,7 @@ const NotificationModal = ({
               <BorderLine margin={10} thickness={0.5} />
             </View>
 
-            <View style={{ alignSelf: 'center' }}>
+            <View style={{alignSelf: 'center'}}>
               <CircularProgressComponent
                 timer={timer}
                 setModalVisible={setModalVisible}
@@ -269,7 +286,7 @@ const NotificationModal = ({
                 {expected_time && (
                   <Text style={styles.bodyText}> {`${expected_time},`}</Text>
                 )}
-                {expected_distance&&(
+                {expected_distance && (
                   <Text style={styles.bodyText}>
                     {' '}
                     {`${expected_distance} km `}
@@ -283,7 +300,7 @@ const NotificationModal = ({
                   justifyContent: 'space-between',
                   paddingVertical: 8,
                 }}>
-                {expected_price&&(
+                {expected_price && (
                   <View style={[styles.timelineContainer]}>
                     <View style={styles.greenCircle}></View>
                     <View style={styles.line}></View>
@@ -293,8 +310,8 @@ const NotificationModal = ({
                     </View>
                   </View>
                 )}
-                <View style={{ marginLeft: responsiveWidth(5) }}>
-                  <Text style={[styles.addressText, { marginVertical: 0 }]}>
+                <View style={{marginLeft: responsiveWidth(5)}}>
+                  <Text style={[styles.addressText, {marginVertical: 0}]}>
                     {pickup_address}
                   </Text>
                   {/* <Text style={[styles.addressText, { marginVertical: 0 }]}>{"Mushahibganj Daulatganj Thakurganj 226003 "}</Text> */}
@@ -317,12 +334,12 @@ const NotificationModal = ({
               <TouchableOpacity
                 style={styles.roundButton}
                 onPress={handleAccept}>
-                <Text style={[styles.buttonText, { color: Colors.white }]}>
+                <Text style={[styles.buttonText, {color: Colors.white}]}>
                   Accept
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.rejectButton} onPress={onReject}>
-                <Text style={[styles.buttonText, { color: Colors.grey }]}>
+                <Text style={[styles.buttonText, {color: Colors.grey}]}>
                   Reject
                 </Text>
               </TouchableOpacity>
@@ -343,7 +360,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     // backgroundColor: 'green',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 1,

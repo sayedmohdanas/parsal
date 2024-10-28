@@ -643,7 +643,10 @@ import {
 } from '../../../../common/metrices';
 import CustomHeader from '../../components/CustomHeader';
 import MapView, {Marker, Polyline} from 'react-native-maps';
-import {GetDriverCurrentLocation} from '../../../../common/CommonFunction';
+import {
+  GetDriverCurrentLocation,
+  custommapstyle,
+} from '../../../../common/CommonFunction';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import Loading from '../../../../components/Loading/Loading';
 import LiveTripCustomCard from '../../../DriverEarning/LiveTripCustomCard';
@@ -896,6 +899,7 @@ const LiveTripScreen = () => {
             <MapView
               ref={mapRef}
               style={StyleSheet.absoluteFillObject}
+              customMapStyle={custommapstyle}
               initialRegion={{
                 latitude:
                   all_flag && all_driver_in_map.length > 0
@@ -909,8 +913,8 @@ const LiveTripScreen = () => {
                       driverLocation.longitude
                     : parseFloat(selectedTrip?.driver_long) ||
                       driverLocation.longitude,
-                latitudeDelta: 0.0992,
-                longitudeDelta: 0.0991,
+                latitudeDelta: 0.024, // More zoomed-in for closer latitude view
+                longitudeDelta: 0.024, // More zoomed-in for closer longitude view
               }}>
               {driverLocation.latitude &&
                 driverLocation.longitude &&

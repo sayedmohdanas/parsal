@@ -1,4 +1,3 @@
-
 import React, {useEffect, useState} from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import {ActivityIndicator, Alert, View} from 'react-native';
@@ -66,24 +65,6 @@ const StackNavigator = () => {
     checkUserStatus();
   }, []);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   if (loading) {
     return <Loading loading={loading} />;
   }
@@ -99,9 +80,12 @@ const StackNavigator = () => {
       <Stack.Screen name="UpdateDriver" component={UpdateDriver} />
       <Stack.Screen name="ProfileDetail" component={ProfileDetail} />
       <Stack.Screen name="Notification" component={Notification} />
-      <Stack.Screen name="MyVehicles" component={MyVehiclesScreen}  options={{headerShown: false}} />
+      <Stack.Screen
+        name="MyVehicles"
+        component={MyVehiclesScreen}
+        options={{headerShown: false}}
+      />
 
-      
       <Stack.Screen
         name="DriverDashboard"
         component={DriverDrawerNavigator} // Driver's drawer

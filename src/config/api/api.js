@@ -35,6 +35,7 @@ import {
   updateDriverLocationurl,
   updatefcmurl,
   updateOrder,
+  updateotppurl,
   updateWorkStatusurl,
   withrawMoney,
 } from '../url';
@@ -58,7 +59,7 @@ export const hitAddVehicle = param => {
   return apiPost(addVehicle, param);
 };
 export const hitDeleteVehicle = param => {
-  console.log(param,'paramfromdelete')
+  console.log(param, 'paramfromdelete');
 
   return apiPost(deleteVehicle, param);
 };
@@ -71,11 +72,11 @@ export const hitAddDriverDetails = param => {
   return apiPost(addDriverDetails, param);
 };
 export const hitUpdateDriverDetails = param => {
-  console.log('param-from-add-driver-page',param)
+  console.log('param-from-add-driver-page', param);
   return apiPost(updateDriverDetails, param);
 };
 export const hitDeleteDriverDetails = param => {
-  console.log(param,'paramfromdelete')
+  console.log(param, 'paramfromdelete');
   return apiPost(deleteDriverDetails, param);
 };
 export const hitGetDriverDetails = param => {
@@ -148,7 +149,6 @@ export const hitUpdateFcmApi = param => {
   return apiPost(updatefcmurl, param);
 };
 
-
 export const hitAddTicketReply = param => {
   return apiPost(addTickeReply, param);
 };
@@ -159,7 +159,6 @@ export const hitEditParnterVehicle = param => {
   return apiPost(editpartnervehicleurl, param);
 };
 
-
 export const hitHelpAndSupport = param => {
   return apiPost(helpAndSupport, param);
 };
@@ -168,4 +167,7 @@ export const hitGetSupportTicket = param => {
 };
 export const hitDeleteNotificationApi = param => {
   return apiPost(deleteNotificationurl, param);
+};
+export const hitUpdateOrderOtpApi = param => {
+  return apiPost(updateotppurl, param);
 };
