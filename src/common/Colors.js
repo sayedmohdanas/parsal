@@ -1,7 +1,7 @@
 export default Colors = {
     splashWhite: "#E0E1FF",
     white: '#FFFFFF',
-    red:"#FF6666",
+    red:"#EB5757",
     black: '#232323',
     grey: '#777777',
     brandBlue: '#3D40D1',

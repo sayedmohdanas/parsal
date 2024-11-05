@@ -221,11 +221,7 @@ const NotificationModal = ({
         <View style={styles.modalBackground}>
           <View style={styles.modalContainer}>
             <View style={styles.headerContainer}>
-              {/* <Image
-                source={AppImages.SplashScreenLogo}
-                style={styles.parcalLogo}
-                resizeMode='contain'
-              /> */}
+
               <Text
                 style={{
                   alignSelf: 'flex-start',
@@ -236,9 +232,7 @@ const NotificationModal = ({
                 }}>
                 New Order
               </Text>
-              {/* <TouchableOpacity onPress={onReject} style={{ backgroundColor: Colors.grey, paddingHorizontal: 4, borderRadius: 5, elevation: 0.3, }}>
-                <Text style={styles.closeText}>X</Text>
-              </TouchableOpacity> */}
+    
               <BorderLine margin={10} thickness={0.5} />
             </View>
 
@@ -249,28 +243,10 @@ const NotificationModal = ({
               />
             </View>
             <View>
-              {/* <Progress.Circle size={30} indeterminate={true} /> */}
-
-              {/* <Progress.Bar progress={0.3} width={200} /> */}
-              {/* <Progress.Pie progress={0.4} size={50} />
-              <Progress.CircleSnail color={['red', 'green', 'blue']} /> */}
+         
             </View>
 
-            {/* <Text style={styles.priceText}>₹{expected_price}</Text> */}
-            {/* <AnimatedCircularProgress
-             size={120}
-           width={15}
-            fill={100}
-  tintColor="#00e0ff"
-  onAnimationComplete={() => console.log('onAnimationComplete')}
-  backgroundColor="#3d5875" /> */}
-
-            {/* <View style={styles.ratingContainer}>
-              <Image source={AppImages.starImage} style={styles.starImg} />
-              <Text style={styles.ratingText}>4.9</Text>
-              <Text style={styles.payText}>{pay_mode}</Text>
-
-            </View> */}
+        
 
             <View style={styles.bodyContainer}>
               {expected_price && (
@@ -306,7 +282,6 @@ const NotificationModal = ({
                     <View style={styles.line}></View>
                     <View style={styles.redCircle}>
                       <View style={styles.blackCircle}></View>
-                      {/* //// <Image source={AppImages.location} style={styles.locImg} /> */}
                     </View>
                   </View>
                 )}
@@ -314,15 +289,12 @@ const NotificationModal = ({
                   <Text style={[styles.addressText, {marginVertical: 0}]}>
                     {pickup_address}
                   </Text>
-                  {/* <Text style={[styles.addressText, { marginVertical: 0 }]}>{"Mushahibganj Daulatganj Thakurganj 226003 "}</Text> */}
-                  {/* <Text style={[styles.addressText, { marginTop:responsiveHeight(22) }]}>{"Mushahibganj Daulatganj Thakurganj 226003 "}</Text> */}
 
                   <Text style={styles.addressText}>{drop_address}</Text>
                 </View>
               </View>
             </View>
-            {/* <View style={styles.lineContainer}>
-          </View> */}
+          
 
             <View
               style={{

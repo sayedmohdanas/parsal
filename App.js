@@ -13,6 +13,7 @@ import {requestLocationPermission} from './src/common/CommonFunction';
 // import Sound from 'react-native-sound'
 import SoundPlayer from 'react-native-sound-player';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import NextOrder from './src/components/CustomNotificationModal/NextOrder';
 
 const TOPIC = 'MyNews';
 
@@ -252,7 +253,6 @@ export default function App() {
           pickup_long={notificationData.pickup_long}
           vehicle_id={notificationData.vehicle_id}
           vehicle_type_id={notificationData?.vehicle_type}
-
           cust_id={notificationData.cust_id}
           driverId={notificationData?.driverId}
           pickup_address={notificationData?.pickup_address}
@@ -267,7 +267,14 @@ export default function App() {
           setModalVisible={setModalVisible}
           timer={timer}
         />
-      </NavigationContainer>
+        <NextOrder  isVisible={true}
+         expected_price={40}
+         expected_distance={6}
+         expected_time={13}
+         pickup_address={'Thakurganj daulatganj lucknow 226003'}
+         drop_address={'khurram nagar near chandela lucknow 226003'}
+        />
+        </NavigationContainer>
     </Provider>
   );
 }
