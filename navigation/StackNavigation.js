@@ -1,16 +1,16 @@
-import React, {useEffect, useState} from 'react';
-import {createStackNavigator} from '@react-navigation/stack';
-import {ActivityIndicator, Alert, View} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { createStackNavigator } from '@react-navigation/stack';
+import { ActivityIndicator, Alert, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LoginScreen from '../src/screen/LoginScreen';
 import OtpScreen from '../src/screen/OtpScreen';
 import OwnerDetailScreen from '../src/screen/OwnerDetail';
 import DriverDetailScreen from '../src/screen/DriverDetailScreen';
 import VehicleDetailScreen from '../src/screen/VehicleDetailScreen';
-import {DriverDrawerNavigator, OwnerDrawerNavigator} from './DrawerNavigaton';
+import { DriverDrawerNavigator, OwnerDrawerNavigator } from './DrawerNavigaton';
 import Loading from '../src/components/Loading/Loading';
-import {setOwner} from '../src/redux/HitApis/HitApiSlice';
-import {useDispatch} from 'react-redux';
+import { setOwner, setPartnerdetails, setShowDashBoard } from '../src/redux/HitApis/HitApiSlice';
+import { useDispatch, useSelector } from 'react-redux';
 import TermsAndCondition from '../src/screen/TermsAndCondition/TermsAndCondition';
 import Earning from '../src/screen/DriverEarning/DriverEarning';
 import UpdateDriver from '../src/screen/MyVehiclesScreen/UpdateDriver';
@@ -19,12 +19,15 @@ import Notification from '../src/screen/DashBoard/screen/Notification/Notificati
 import MyVehiclesScreen from '../src/screen/MyVehiclesScreen';
 import WalletScreen from '../src/screen/DashBoard/screen/Wallet/WalletScreen';
 import TransactionHistory from '../src/screen/TransactionHistory';
+import { hitGetUserDetails } from '../src/config/api/api';
 
 const Stack = createStackNavigator();
 
 const StackNavigator = () => {
   const dispatch = useDispatch();
-
+  const showDashBoard = useSelector(
+    state => state?.parsalPartner?.showDashBoard || false,
+  );
   const [initialRoute, setInitialRoute] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -40,10 +43,46 @@ const StackNavigator = () => {
             try {
               const parsedUser = JSON.parse(user);
               const ownerType = parsedUser?.payload?.owner_type;
+              const partnerId = parsedUser?.payload?.partner_id;
+              console.log('partner__id====>>>>>>>', parsedUser)
               if (ownerType === 0) {
+                console.log('hello-anas==>', ownerType);
+
                 setInitialRoute('DriverDashboard');
               } else if (ownerType == 1 || ownerType == 2) {
-                setInitialRoute('OwnerDashboard');
+                console.log('hello-anas', ownerType);
+                const response = await hitGetUserDetails({ partner_id: partnerId })
+                console.log(response, 'responsedromstacknav')
+                if (response?.status == 1) {
+                  dispatch(setShowDashBoard(true))
+                  if (showDashBoard) {
+                    console.log('showDashboard', showDashBoard);
+                    dispatch(setPartnerdetails(2))
+                    setInitialRoute('OwnerDashboard');
+
+                  }
+
+                  dispatch(setPartnerdetails(2))
+                  setInitialRoute('OwnerDashboard');
+
+
+
+                } else {
+                  // Alert.alert('4')
+                  // if(showDashBoard){
+
+                  // console.log('showDashboard',showDashBoard);
+                  //   dispatch(setPartnerdetails(1))
+                  //   setInitialRoute('OwnerDashboard');
+
+                  // }
+                  dispatch(setPartnerdetails(1))
+
+
+                  setInitialRoute('OwnerDashboard');
+
+                }
+                // setInitialRoute('OwnerDashboard');
               } else {
                 setInitialRoute('Login');
               }
@@ -83,18 +122,18 @@ const StackNavigator = () => {
       <Stack.Screen
         name="MyVehicles"
         component={MyVehiclesScreen}
-        options={{headerShown: false}}
+        options={{ headerShown: false }}
       />
 
       <Stack.Screen
         name="DriverDashboard"
         component={DriverDrawerNavigator} // Driver's drawer
-        options={{headerShown: false}}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="OwnerDashboard"
         component={OwnerDrawerNavigator} // Owner's drawer
-        options={{headerShown: false}}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );

@@ -71,15 +71,11 @@ const DriverDetails = ({details, onPress, selectedDriver}) => {
 };
 const styles = StyleSheet.create({
   UserDetailMainContainer: {
-    // flex: 1,
     backgroundColor: Colors.white,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    // marginTop: 15,
     borderRadius: 20,
     paddingVertical: responsiveHeight(8),
-    // padding:responsiveHeight(10),
-    // paddingHorizontal:responsiveWidth(15),
     marginRight: responsiveWidth(8),
     alignItems: 'center',
     borderWidth: 0.5,
@@ -90,7 +86,6 @@ const styles = StyleSheet.create({
   userDetail: {
     flexDirection: 'row',
     alignItems: 'center',
-    // justifyContent:'center'
   },
   manStyle: {
     height: responsiveHeight(30),
@@ -111,7 +106,6 @@ const styles = StyleSheet.create({
     fontSize: responsiveFontSize(10),
     fontWeight: '500',
     color: Colors.grey,
-    // marginTop: 2
   }, 
 });
 export default DriverDetails;

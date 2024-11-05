@@ -20,6 +20,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {
   setLogout,
   setOrderData,
+  setPartnerdetails,
   setlivetripmenu,
   setloginuserdetails,
   setupdate_order,
@@ -44,7 +45,10 @@ import {useFocusEffect} from '@react-navigation/native';
 const Menu = ({navigation, owner = ''}) => {
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const dispatch = useDispatch();
-  const handleLogout = async navigation => {
+  const showDashBoard=useSelector(
+    state => state?.parsalPartner?.showDashBoard || false,
+  );
+    const handleLogout = async navigation => {
     try {
       const unparse_driver_data = await AsyncStorage.getItem('user');
       const parse_data = JSON.parse(unparse_driver_data);
@@ -61,6 +65,7 @@ const Menu = ({navigation, owner = ''}) => {
       await AsyncStorage.removeItem('partner_id');
       await AsyncStorage.removeItem('partner_name');
       await AsyncStorage.removeItem('user');
+      dispatch(setPartnerdetails(null))
       dispatch(setLogout());
       successToast(
         'Logged out successfully',
@@ -194,7 +199,7 @@ const Menu = ({navigation, owner = ''}) => {
                       'partners_img/' +
                         user_details?.partner_id +
                         '/drivers/' +
-                        user_details?.id +
+                        user_details?.id + 
                         '_' +
                         user_details?.profile_pic,
                     )
@@ -257,7 +262,7 @@ const Menu = ({navigation, owner = ''}) => {
             </View>
           </TouchableOpacity>
         )}
-        {owner && (
+        {owner &&  showDashBoard && (
           <>
             <TouchableOpacity
               onPress={() => navigation.navigate('Trip')}

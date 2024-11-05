@@ -216,16 +216,17 @@
 import React, {useEffect, useCallback, useState} from 'react';
 import {View, Text, TouchableOpacity, Alert, StyleSheet} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {
+import { 
   getPartner,
   getVehicle,
   setMyVehicleData,
   setParentId,
+  setShowDashBoard,
 } from '../../redux/HitApis/HitApiSlice'; // Ensure this is the correct path
 import Loading from '../../components/Loading/Loading';
 import VehicleList from './VehicleList';
 import {successToast} from '../../common/CommonFunction';
-import {hitMyVehicle} from '../../config/api/api';
+import {hitGetUserDetails, hitMyVehicle} from '../../config/api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '../../common/Colors';
 import {responsiveHeight, responsiveWidth} from '../../common/metrices';
@@ -235,7 +236,7 @@ import {useNavigation} from '@react-navigation/native';
 const MyVehiclesScreen = () => {
   const dispatch = useDispatch();
   const vehicleData = useSelector(
-    state => state?.parsalPartner?.MyVehicle || [],
+    state => state?.parsalPartner?.MyVehicle || false
   );
   const navigation = useNavigation();
   const vehicleCount = vehicleData?.length;
@@ -246,7 +247,14 @@ const MyVehiclesScreen = () => {
   const refreshData = async () => {
     try {
       const partnerIds = await AsyncStorage.getItem('partner_id');
-      const partnerId = JSON.parse(partnerIds);
+      const partnerId = JSON.parse(partnerIds); 
+      const response =await  hitGetUserDetails({partner_id: partnerId})
+      if(response?.status==1)    {
+           dispatch(setShowDashBoard(true))
+      } else{
+        dispatch(setShowDashBoard(false))
+
+      } 
       await dispatch(setParentId(partnerId));
       hitMyVehicle({partnerId: partnerId})
         .then(res => {
@@ -305,6 +313,8 @@ const MyVehiclesScreen = () => {
 
   return (
     <>
+
+
       <CustomHeader screenName={'My Vehicles'} />
 
       <View style={styles.container}>

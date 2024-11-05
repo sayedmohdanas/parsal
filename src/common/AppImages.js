@@ -64,6 +64,7 @@ export default AppImages = {
   helpIcon: require('../assets/images/helpIcon.png'),
   languageIcon: require('../assets/images/languageIcon.png'),
   logoutIcon: require('../assets/images/logoutIcon.png'),
+  leftlogoutIcon: require('../assets/images/lefLogout.png'),
   termsAndCondition: require('../assets/images/termsAndCondition.png'),
   sliderHorn: require('../assets/images/sliderHorn.png'),
   cameraImage: require('../assets/images/camera.png'),

@@ -22,6 +22,7 @@ import {
   getPartner,
   getSupportTickets,
   getTickeReply,
+  getUserDetails,
   getwalletbalanceurl,
   helpAndSupport,
   livedriverOfPartnernurl,
@@ -58,6 +59,15 @@ export const hitGetPartner = param => {
 export const hitAddVehicle = param => {
   return apiPost(addVehicle, param);
 };
+
+
+export const hitGetUserDetails = param => {
+  console.log(param, 'paramfromdelete');
+
+  return apiPost(getUserDetails, param);
+};
+
+
 export const hitDeleteVehicle = param => {
   console.log(param, 'paramfromdelete');
 

@@ -3,13 +3,15 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-nati
 import CustomTextInput from '../../components/CustomTextInput/CustomTextInput';
 import Colors from '../../common/Colors';
 import ImagePicker from 'react-native-image-crop-picker';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { hitAddBankAccount } from '../../config/api/api';
 import Loading from '../../components/Loading/Loading'; 
 import { errorToast, successToast } from '../../common/CommonFunction';
+import { setPartnerdetails, setShowDashBoard } from '../../redux/HitApis/HitApiSlice';
 // import { successToast Assuming you have a utility function for showing toasts
 
 const UpdateBankDetailsScreen = ({ navigation }) => {
+  const dispatch=useDispatch()
   const [accountNumber, setAccountNumber] = useState('');
   const [ifscCode, setIfscCode] = useState('');
   const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
@@ -52,6 +54,10 @@ const UpdateBankDetailsScreen = ({ navigation }) => {
       };
       console.log('addbankaccoun-payload====>>>', payload);
       const response = await hitAddBankAccount(payload);
+      if (response){
+        // dispatch(setPartnerdetails(1))
+        dispatch(setShowDashBoard(true))
+      }
       console.log('addbankaccountresponse===>>', response);
 
       if (response.success) {

@@ -264,7 +264,7 @@ const VehicleDetailScreen = ({route}) => {
       );
       setVehicleSubCat(filteredVehicles);
     } else {
-      setVehicleSubCat([]); // Reset if no UpdatedVehicleData
+      setVehicleSubCat([]); 
     }
   }, [UpdatedVehicleData, all_vehicle_type]);
 

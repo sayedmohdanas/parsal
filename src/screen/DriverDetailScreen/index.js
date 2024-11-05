@@ -23,11 +23,14 @@ import {
   responsiveHeight,
   responsiveWidth,
 } from '../../common/metrices';
+import { Fonts, FontSizes } from '../../common/Theme';
+import Loading from '../../components/Loading/Loading';
 const DriverDetailScreen = ({route}) => {
   const {v_id, updateDriverData} = route.params || {};
 
   const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
   const dispatch = useDispatch();
+  const [loading ,setLoading]=useState(false)
 
   const [name, setName] = useState(updateDriverData?.driver?.driver_name || '');
   const [email, setEmail] = useState(updateDriverData?.driver?.email || '');
@@ -51,12 +54,15 @@ const DriverDetailScreen = ({route}) => {
   const [partneData, setPartnerData] = useState([]);
   useEffect(() => {
     const fetchPartnerDetails = async () => {
+      setLoading(true);
       try {
         const response = await hitGetPartner({partner_id: partnerId});
         setPartnerData(response?.partner);
       } catch (error) {
         console.error('Error fetching partner details:', error);
       }
+      setLoading(false);
+
     };
     fetchPartnerDetails();
   }, [navigation]);
@@ -82,6 +88,7 @@ const DriverDetailScreen = ({route}) => {
       errorToast('Invalid Number', 'Please enter 10 digits valid  number.');
       return; // Exit if the driver number is invalid
     }
+    setLoading(true)
     const partnerId = await AsyncStorage.getItem('partner_id');
     const {latitude, longitude} = await GetDriverCurrentLocation();
     const payload = {
@@ -152,11 +159,16 @@ const DriverDetailScreen = ({route}) => {
     } catch (error) {
       Alert.alert('Error', 'An unexpected error occurred.');
       console.error(error);
+    }finally {
+      setLoading(false);
     }
   };
   const isEnabled = name && driverNumber && licenseUploaded;
   return (
     <View style={styles.container}>
+    {loading ? (
+      <Loading loading={loading} />
+    ) : (
       <ScrollView>
         <View style={styles.formContainer}>
           <Heading text="Driver Details" isRequired={true} />
@@ -195,9 +207,7 @@ const DriverDetailScreen = ({route}) => {
             placeholder="Driver Email"
             label="Driver Email"
             isRequired={true}
-            // error={emailError}
           />
-          {/* {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null} */}
           <CustomTextInput
             value={driverNumber}
             onChangeText={setDriverNumber}
@@ -222,12 +232,14 @@ const DriverDetailScreen = ({route}) => {
           />
         </View>
       </ScrollView>
-      {/* Submit Button Card */}
-      <SubmitCard onPress={handleSubmit} isEnabled={isEnabled} />
-      <PageButtons nextScreenName={'Login'} />
-    </View>
-  );
+    )}
+    {/* Submit Button Card */}
+    <SubmitCard onPress={handleSubmit} isEnabled={isEnabled} />
+    <PageButtons nextScreenName={'Login'} />
+  </View>
+);
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -248,26 +260,23 @@ const styles = StyleSheet.create({
   },
   confirmationText: {
     color: '#000',
-    fontSize: responsiveFontSize(16),
+    fontSize: FontSizes.semiLarge,
     textAlign: 'center',
-    fontWeight: '500',
+    fontWeight: Fonts.semilarge,
   },
   headinglabel: {
-    fontSize: responsiveFontSize(16),
+    fontSize: FontSizes.semiLarge,
     color: 'black',
     marginVertical: responsiveHeight(20),
-    fontWeight: '600',
+    fontWeight: Fonts.medium,
   },
   redAsterisk: {
     color: 'red',
   },
   errorText: {
     color: 'red',
-    fontSize: responsiveFontSize(14),
-    fontWeight: '500',
-    // marginTop: responsiveHeight(8),
-    // alignSelf:'center',
-    // marginLeft:responsiveWidth(20)
+    fontSize: FontSizes.medium,
+    fontWeight: Fonts.semilarge,
   },
 });
 export default DriverDetailScreen;

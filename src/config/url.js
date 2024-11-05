@@ -31,6 +31,7 @@ export const deleteVehicle = getEndpoint('partner/delete-partner-vehicle');
 export const MyVehicle = getEndpoint('partner/vehiclesByPartnerId');
 export const addBankAccount = getEndpoint('partner/addBankDetails');
 export const getBankAccount = getEndpoint('partner/bank-details');
+export const getUserDetails = getEndpoint('partner/check-partner-details');
 //driver
 export const addDriverDetails = getEndpoint('drivers/assign-driver-vehicles');
 export const updateDriverDetails = getEndpoint('drivers/edit-driver-profile');

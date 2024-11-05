@@ -17,7 +17,7 @@ const RideCompleteScreen = () => {
                     <Text style={styles.value}>₹850.25</Text>
                 </View>
 
-                <View style={styles.row}>
+                <View style={styles.row}> 
                     <View style={styles.rowWithCenter}>
                         <Text style={styles.label}>Tax Deductions</Text>
                         <Image source={AppImages.arrowDown} style={styles.arrowImage} />

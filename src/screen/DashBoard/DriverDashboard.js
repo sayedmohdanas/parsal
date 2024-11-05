@@ -23,7 +23,7 @@ const DriverDashboard = () => {
   const [driverLocation, setDriverLocation] = useState({
     latitude: null,
     longitude: null,
-    heading: null,
+    heading: null, 
   });
   const [loading, setLoading] = useState(true);
 

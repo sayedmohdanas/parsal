@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {View, Text, Image, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, Text, Image, StyleSheet, TouchableOpacity, Alert} from 'react-native';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {
   responsiveFontSize,
@@ -11,22 +11,58 @@ import AppImages from '../../../common/AppImages';
 import {Switch} from 'react-native-switch';
 import {useDispatch, useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {GetDriverCurrentLocation} from '../../../common/CommonFunction';
+import {GetDriverCurrentLocation, successToast} from '../../../common/CommonFunction';
 import {
   hitGetDriverDetails,
   hitGetPartner,
   hitUpdateDriverStatus,
 } from '../../../config/api/api';
-import {setlogindriverdetails} from '../../../redux/HitApis/HitApiSlice';
+import {setlogindriverdetails, setLogout, setPartnerdetails} from '../../../redux/HitApis/HitApiSlice';
 
 const CustomHeader = ({screenName, selectedRange, setSelectedRange}) => {
+  // const dispatch=useDispatch()
   const owner = useSelector(state => state?.parsalPartner?.owner);
   const [check_owner, setcheck_owner] = useState();
   const navigation = useNavigation();
+  const showDashBoard=useSelector(
+    state => state?.parsalPartner?.showDashBoard || false,
+  );
+
+  const handleLogout = async () => {
+    try {
+      const unparse_driver_data = await AsyncStorage.getItem('user');
+      const parse_data = JSON.parse(unparse_driver_data);
+      if (parse_data?.payload?.owner_type != 1) {
+        // const {latitude, longitude} = await GetDriverCurrentLocation();
+        // const param = {
+        //   driver_id: parse_data?.payload?.driver_id,
+        //   current_lat: latitude,
+        //   current_long: longitude,
+        //   working_status: 0,
+        // };
+        // const res = await hitUpdateDriverStatus(param);
+      }
+      await AsyncStorage.removeItem('partner_id');
+      await AsyncStorage.removeItem('partner_name');
+      await AsyncStorage.removeItem('user');
+      // Alert.alert('hello')
+      dispatch(setPartnerdetails(null))
+      dispatch(setLogout());
+      successToast(
+        'Logged out successfully',
+        'You will be redirected to login.',
+      );
+      navigation.replace('Login'); 
+    } catch (error) {
+      console.error(error);
+      errorToast('Logout Failed', 'An error occurred during logout.');
+    }
+  };
   const toggleOnlineStatus = async () => {
     try {
       const unparse_driver_data = await AsyncStorage.getItem('user');
       const parse_data = JSON.parse(unparse_driver_data);
+      
       setIsEnabled(prevStatus => !prevStatus);
       if (!isEnabled) {
         const {latitude, longitude} = await GetDriverCurrentLocation();
@@ -154,20 +190,39 @@ const CustomHeader = ({screenName, selectedRange, setSelectedRange}) => {
   return (
     <>
       <View style={styles.headerContainer}>
-        <TouchableOpacity
-          onPress={() => navigation.openDrawer()}
-          style={styles.profilePic}>
-          <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
-            <Image
-              source={AppImages.hamburgerImage} // Replace with your profile pic URL
-              style={styles.profilePic}
-            />
-          </View>
-        </TouchableOpacity>
+      {showDashBoard ? (
+  <TouchableOpacity
+    onPress={() => navigation.openDrawer()}
+    style={styles.profilePic}
+  >
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+      <Image
+        source={AppImages.hamburgerImage} // Replace with your profile pic URL
+        style={styles.profilePic}
+      />
+    </View>
+  </TouchableOpacity>
+) : (
+  <TouchableOpacity
+    onPress={handleLogout}
+    style={styles.profilePic}
+  >
+    {/* <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 ,width:responsiveWidth(30),height:responsiveHeight(30),borderRadius:100,justifyContent:'center',   resizeMode: 'contain',
+  paddingVertical: responsiveHeight(15),elevation:1,
+padding: responsiveWidth(15), }}> */}
+      <Image
+        source={AppImages.leftlogoutIcon} // Replace with your profile pic URL
+        style={styles.profilePic}
+        tintColor={Colors.brandBlue}
+      />
+    {/* </View> */}
+  </TouchableOpacity>
+)}
 
         {/* Center: Screen Name or Switch */}
-        {check_owner != 1 ? (
+        {check_owner != 1 || showDashBoard  ? ( 
           <>
+
             <Switch
               value={isEnabled}
               onValueChange={val => {
@@ -260,9 +315,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
   },
   profilePic: {
-    height: responsiveHeight(25),
-    width: responsiveHeight(25),
-    tintColor: 'black',
+    height: responsiveHeight(20),
+    width: responsiveHeight(20),
+    // tintColor: 'black',
     // flex:1
     // borderRadius: responsiveHeight(20),
   },

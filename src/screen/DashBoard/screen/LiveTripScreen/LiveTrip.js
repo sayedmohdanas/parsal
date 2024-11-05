@@ -658,9 +658,12 @@ import {
 } from '../../../../config/api/api';
 import AppImages from '../../../../common/AppImages';
 import BorderLine from '../../../../common/BorderLine.';
+import { useDispatch, useSelector } from 'react-redux';
 
 const LiveTripScreen = () => {
+  
   const navigation = useNavigation();
+  const dispatch=  useDispatch()
   const [selectedTrip, setSelectedTrip] = useState(1);
   const [all_flag, setall_flag] = useState(false);
 
@@ -696,7 +699,10 @@ const LiveTripScreen = () => {
     }
   };
   useFocusEffect(
+    
+
     useCallback(() => {
+     
       setall_flag(true);
       const fetchDriverLocation = async () => {
         try {

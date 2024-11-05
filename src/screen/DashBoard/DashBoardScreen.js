@@ -60,7 +60,7 @@ const DashboardScreen = ({ route }) => {
             const locationGranted = await requestLocationPermission();
             if (!locationGranted) {
                 console.error('Location permission denied');
-                return;
+                return;  
             }
 
             // Fetch data from AsyncStorage

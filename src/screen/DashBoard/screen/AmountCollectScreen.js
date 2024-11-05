@@ -15,7 +15,7 @@ import {socketUrl} from '../../../config/url';
 import PaymentSuccessModal from '../components/PaymentSuccessModal';
 import {setlivetripmenu} from '../../../redux/HitApis/HitApiSlice';
 
-const AmountCollectScreen = () => {
+const AmountCollectScreen = () => { 
   const update_order = useSelector(
     state => state?.parsalPartner?.update_order || null,
   );

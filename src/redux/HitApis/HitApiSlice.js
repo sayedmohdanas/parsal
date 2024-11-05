@@ -174,6 +174,8 @@ const initialState = {
   logindriverdetails: null,
   wallet_balance: 0,
   show_livetripe_menu: false,
+  partnerDetail:null,
+  showDashBoard:null
 };
 
 const HitApiSlice = createSlice({
@@ -219,6 +221,12 @@ const HitApiSlice = createSlice({
     setlivetripmenu(state, action) {
       state.show_livetripe_menu = action.payload;
     },
+    setPartnerdetails(state,action){
+      state.partnerDetail = action.payload;
+    },
+    setShowDashBoard(state,action){
+      state.showDashBoard=action.payload
+    }
   },
   extraReducers: builder => {
     builder
@@ -393,6 +401,8 @@ export const {
   setlogindriverdetails,
   setwalletBalance,
   setlivetripmenu,
+  setPartnerdetails,
+  setShowDashBoard
 } = HitApiSlice.actions;
 
 export default HitApiSlice.reducer;

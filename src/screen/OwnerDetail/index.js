@@ -6,7 +6,7 @@ import ImagePicker from '../../components/ImagePickerComponent/ImagePicker';
 import SubmitCard from '../../components/SumbmitButton/SubmitButton';
 import PageButtons from '../../components/TempBtn/TempBtn';
 import Loading from '../../components/Loading/Loading';
-import {createPartner, setParentId} from '../../redux/HitApis/HitApiSlice';
+import {createPartner, setMyVehicleData, setParentId, setPartnerdetails} from '../../redux/HitApis/HitApiSlice';
 import {
   errorToast,
   generateRandomPhoneNumber,
@@ -15,6 +15,9 @@ import {
 import Colors from '../../common/Colors';
 import {responsiveFontSize, responsiveHeight} from '../../common/metrices';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { hitGetUserDetails, hitMyVehicle } from '../../config/api/api';
+
+
 
 const OwnerDetailScreen = ({navigation, route}) => {
   const {partner_id, email} = route.params;
@@ -71,17 +74,34 @@ const OwnerDetailScreen = ({navigation, route}) => {
           successToast('Submitted', 'Your details have been submitted.');
           await AsyncStorage.setItem('partner_id', String(partnerId));
           await dispatch(setParentId(partnerId));
+         
+        // .then(res => {
+        //   dispatch(setMyVehicleData(res));
+        //   console.log('res-from-new-api call=======>',res)
+        // })
+        // .catch(err => {
+        //   dispatch(setMyVehicleData([]));
+        //   console.error('error-from-veh',err);
+        // });
           await AsyncStorage.setItem('user', JSON.stringify(user));
           await AsyncStorage.setItem('owner_type', JSON.stringify(owner_type));
-          navigation.replace('OwnerDashboard');
+          const response =await  hitGetUserDetails({partner_id: partnerId})
+           if(response?.status==1)    {
+                dispatch(setPartnerdetails(1))
+              navigation.replace('OwnerDashboard');
+           } else{
+            navigation.replace('OwnerDashboard');
+
+           }     
           successToast('Submitted', 'Your details have been submitted.');
           // navigation.navigate('VehicleDetail');
         } else {
           errorToast('Not Created', 'Something went wrong.');
         }
       } catch (error) {
-        Alert.alert('Error', 'An unexpected error occurred.');
+        // Alert.alert('Error', 'An unexpected error occurred.');
         console.error('error', error);
+
       }
     } else {
       Alert.alert(
