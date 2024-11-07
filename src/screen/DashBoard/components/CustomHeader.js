@@ -133,40 +133,40 @@ const CustomHeader = ({screenName}) => {
     }
   };
 
-  const driverProfile = useSelector(
-    state => state?.parsalPartner?.logindriverdetails,
-  );
-  const [user_image, setuser_image] = useState();
-  const fetchUserData = async () => {
-    try {
-      const user = await AsyncStorage.getItem('user');
-      if (user) {
-        const parsedUser = JSON.parse(user);
-        const isOwnerTypeZero = parsedUser?.payload?.owner_type === 0;
-        const profileImageUrl = isOwnerTypeZero
-          ? getimage(
-              `partners_img/${driverProfile?.partner_id}/drivers/${driverProfile?.id}_${driverProfile?.profile_pic}`,
-            )
-          : getimage(
-              `partners_img/${driverProfile?.id}/${driverProfile?.profile_pic}`,
-            );
+  // const driverProfile = useSelector(
+  //   state => state?.parsalPartner?.logindriverdetails,
+  // );
+  // const [user_image, setuser_image] = useState();
+  // const fetchUserData = async () => {
+  //   try {
+  //     const user = await AsyncStorage.getItem('user');
+  //     if (user) {
+  //       const parsedUser = JSON.parse(user);
+  //       const isOwnerTypeZero = parsedUser?.payload?.owner_type === 0;
+  //       const profileImageUrl = isOwnerTypeZero
+  //         ? getimage(
+  //             `partners_img/${driverProfile?.partner_id}/drivers/${driverProfile?.id}_${driverProfile?.profile_pic}`,
+  //           )
+  //         : getimage(
+  //             `partners_img/${driverProfile?.id}/${driverProfile?.profile_pic}`,
+  //           );
 
-        return profileImageUrl;
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-      return null;
-    }
-  };
-  const fetchData = async () => {
-    const imgUrl = await fetchUserData();
-    if (imgUrl) {
-      setuser_image(imgUrl);
-    }
-  };
+  //       return profileImageUrl;
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching user data:', error);
+  //     return null;
+  //   }
+  // };
+  // const fetchData = async () => {
+  //   const imgUrl = await fetchUserData();
+  //   if (imgUrl) {
+  //     setuser_image(imgUrl);
+  //   }
+  // };
   useEffect(() => {
     get_user_details();
-  }, [isEnabled, dispatch, isEnabled]);
+  }, [isEnabled, dispatch, isEnabled,]);
   const [isEnabled, setIsEnabled] = useState(
     user_details?.working_status == 0 ? false : true,
   );
@@ -175,8 +175,7 @@ const CustomHeader = ({screenName}) => {
     setIsEnabled(user_details?.working_status == 0 ? false : true);
     dispatch(
       setworking_status(user_details?.working_status == 0 ? false : true),
-    );
-    fetchData();
+    );    
   }, [user_details, dispatch]);
   return (
     <>
@@ -185,12 +184,12 @@ const CustomHeader = ({screenName}) => {
           onPress={() => navigation.openDrawer()}
           style={styles.profilePic}>
           <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
-            <Image
-              // source={{
-              //   uri: user_image,
-              // }} // Replace with your profile pic URL
+            {/* <Image
+              source={{
+                uri: user_image,
+              }} // Replace with your profile pic URL
               style={styles.profilePic}
-            />
+            /> */}
           </View>
         </TouchableOpacity>
 
@@ -285,8 +284,8 @@ const styles = StyleSheet.create({
     height: responsiveHeight(32),
     width: responsiveHeight(32),
     borderRadius: responsiveHeight(32),
-    borderWidth: 1,
-    borderColor: '#D9D9D9',
+    // borderWidth: 1,
+    // borderColor: '#D9D9D9',
   },
   screenName: {
     fontSize: responsiveFontSize(20),

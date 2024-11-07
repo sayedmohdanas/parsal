@@ -130,7 +130,7 @@ export default AppImages = {
   bike2: require('../assets/images/bike2-removebg-preview.png'),
   radar: require('../assets/images/radar.png'),
   close: require('../assets/images/close.png'),
-
+  brandBlueEditIcon: require('../assets/images/brandBlueEditicon.png'),
 
 
 

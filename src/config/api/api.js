@@ -22,6 +22,7 @@ import {
   getNotification,
   getOrderDetail,
   getOrderFareDetail,
+  getOrdersById,
   getPartner,
   getSupportTickets,
   getTickeReply,
@@ -40,6 +41,7 @@ import {
   updateOrder,
   updateotppurl,
   updateWorkStatusurl,
+  userorderstatsurl,
   withrawMoney,
 } from '../url';
 import {apiGet, apiPost} from '../utils';
@@ -182,4 +184,11 @@ export const hitEndOrderApi = param => {
 };
 export const hitDriverArrivedApi = param => {
   return apiPost(driverarriveurl, param);
+};
+
+export const hitOrderListApi = param => {
+  return apiPost(getOrdersById, param);
+};
+export const hitGetUserOrderStatsApi = param => {
+  return apiPost(userorderstatsurl, param);
 };

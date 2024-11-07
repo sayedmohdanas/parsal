@@ -23,7 +23,9 @@ import {errorToast} from '../../../../common/CommonFunction';
 
 const WalletScreen = ({route, accountNumber = '075423453453'}) => {
   const [balance, setBalance] = useState(0);
-  const [isHidden, setIsHidden] = useState(true);
+  const [isHidden, setIsHidden] = useState(true); // State to control visibility
+
+  // Generate the masked number: Keep the first two digits, replace the rest with stars
   const maskedNumber =
     accountNumber.slice(0, 2) + '*'.repeat(accountNumber.length - 2);
 
@@ -97,7 +99,7 @@ const WalletScreen = ({route, accountNumber = '075423453453'}) => {
               onPress={() => {
                 if (balance <= 0) {
                   errorToast('Insufficient balance to cash out.');
-                  return;
+                  return; // Add return here to prevent navigation if balance is less than 0
                 }
                 navigation.navigate('AddCash', {screenName: 'Withdraw'});
               }}>

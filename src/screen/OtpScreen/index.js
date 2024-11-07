@@ -43,6 +43,8 @@ const OtpScreen = ({navigation, route}) => {
   let otpInput = useRef(null);
 
   useEffect(() => {
+    console.log(userOtp);
+
     const pId = async () => {
       if (user) {
       }
@@ -80,7 +82,7 @@ const OtpScreen = ({navigation, route}) => {
         phone: generateRandomPhoneNumber(),
       };
       // if (owner_type) {
-      console.log('user====================>>>>>>>>>', user);
+      console.log('user', user);
       await AsyncStorage.setItem('user', JSON.stringify(user));
 
       // }

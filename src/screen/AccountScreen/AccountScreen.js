@@ -1,6 +1,7 @@
 import {
   Alert,
   Image,
+  Modal,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -23,6 +24,7 @@ import {
   useNavigation,
 } from '@react-navigation/native';
 import {
+  GetDriverCurrentLocation,
   errorToast,
   getItem,
   setItem,
@@ -31,8 +33,11 @@ import {
 import {useDispatch, useSelector} from 'react-redux';
 import {
   hitGetDriverDetails,
+  hitGetLiveOrderApi,
+  hitGetPartner,
   hitGetUserOrderStatsApi,
   hitGetWalletBalanceApi,
+  hitUpdateDriverStatus,
   hitVerifyEmail,
 } from '../../config/api/api';
 import {Button, Dialog, Portal} from 'react-native-paper';
@@ -41,6 +46,7 @@ import AppImages from '../../common/AppImages';
 import {
   setlivetripmenu,
   setloginuserdetails,
+  setLogout,
   setOrderData,
   setwalletBalance,
 } from '../../redux/HitApis/HitApiSlice';
@@ -151,22 +157,25 @@ const AccountScreen = () => {
   const driverProfile = useSelector(
     state => state?.parsalPartner?.logindriverdetails,
   );
-  useFocusEffect(
-    useCallback(() => {
-      get_user_details();
-    }, []),
-  );
+  const [logoutModalVisible, setLogoutModalVisible] = useState(false);
 
-  const [visible, setVisible] = React.useState(false);
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     get_user_details();
+  //   }, []),
+  // );
 
-  const showDialog = () => setVisible(true);
-
-  const hideDialog = () => setVisible(false);
   const [orderStats, setorderstats] = useState([]);
   const fetchData = async () => {
-    const getCustomerId = await getItem('customerId');
-    const request = {id: getCustomerId};
-    dispatch(fetchProfileThunk(request));
+    const user = await AsyncStorage.getItem('user');
+    const parsedUser = JSON.parse(user);
+    const request = {
+      id:
+        parsedUser?.payload?.owner_type == 1
+          ? '1'
+          : parsedUser?.payload?.driver_id,
+      type: 1,
+    };
     hitGetUserOrderStatsApi(request)
       .then(res => {
         setorderstats(res);
@@ -182,29 +191,6 @@ const AccountScreen = () => {
     }
   }, [isFocused, dispatch, navigation]);
   const [user_image, setuser_image] = useState();
-
-  const handleVerifyEmail = async () => {
-    try {
-      const customerId = await getItem('customerId');
-      const request = {
-        customerId: customerId,
-        email: email,
-      };
-
-      hitVerifyEmail(request)
-        .then(e => {
-          if (e.status === 1) {
-            successToast('Success', `Email sent to ${email} for verification`);
-          }
-        })
-        .catch(() => {
-          errorToast('Error', 'Error occurred while verifying email');
-        });
-    } catch (err) {
-      console.log('Error in verify email API =>', err.message);
-    }
-  };
-
   const fetchUserData = async () => {
     try {
       const user = await AsyncStorage.getItem('user');
@@ -243,6 +229,34 @@ const AccountScreen = () => {
   const email = driverProfile
     ? driverProfile.email || driverProfile.email
     : 'No Driver Data';
+  const handleLogout = async () => {
+    try {
+      const unparse_driver_data = await AsyncStorage.getItem('user');
+      const parse_data = JSON.parse(unparse_driver_data);
+      if (parse_data?.payload?.owner_type != 1) {
+        const {latitude, longitude} = await GetDriverCurrentLocation();
+        const param = {
+          driver_id: parse_data?.payload?.driver_id,
+          current_lat: latitude,
+          current_long: longitude,
+          working_status: 0,
+        };
+        const res = await hitUpdateDriverStatus(param);
+      }
+      await AsyncStorage.removeItem('partner_id');
+      await AsyncStorage.removeItem('partner_name');
+      await AsyncStorage.removeItem('user');
+      dispatch(setLogout());
+      successToast(
+        'Logged out successfully',
+        'You will be redirected to login.',
+      );
+      navigation.replace('Login'); // Navigate to the login screen
+    } catch (error) {
+      console.error(error);
+      errorToast('Logout Failed', 'An error occurred during logout.');
+    }
+  };
   return (
     <>
       <View style={{flex: 1, backgroundColor: '#F5F6F7'}}>
@@ -254,9 +268,16 @@ const AccountScreen = () => {
               <TouchableOpacity
                 onPress={() => navigation.navigate('EditProfileScreen')}
                 activeOpacity={0.8}>
-                <View style={styles.editProfileButton}>
+                {/* <View style={styles.editProfileButton}>
                   <Text style={styles.editButtonText}>{'EDIT PROFILE'}</Text>
-                </View>
+                </View> */}
+                <Image
+                  source={AppImages.brandBlueEditIcon}
+                  style={{
+                    height: responsiveHeight(16),
+                    width: responsiveHeight(16),
+                  }}
+                />
               </TouchableOpacity>
             </View>
 
@@ -278,14 +299,14 @@ const AccountScreen = () => {
                     <View style={styles.userTextContainer}>
                       <Text style={styles.name}>{name}</Text>
                       <Text style={styles.email}> {email}</Text>
-                      <TouchableOpacity
+                      {/* <TouchableOpacity
                         onPress={() => {
                           handleVerifyEmail();
                         }}>
                         <Text style={styles.VerifyEmail}>
                           {'Verify Email ID'}
                         </Text>
-                      </TouchableOpacity>
+                      </TouchableOpacity> */}
                     </View>
                   </View>
                 </View>
@@ -414,51 +435,43 @@ const AccountScreen = () => {
                 <ProfileScreenOptions
                   Icon={AppImages.logoutIcon}
                   onPress={() => {
-                    showDialog();
+                    setLogoutModalVisible(prev => !prev);
                   }}
                   optionName={'Logout'}
                 />
               </View>
             </View>
 
-            <Portal>
-              <Dialog visible={visible} onDismiss={hideDialog}>
-                <Dialog.Title>Alert</Dialog.Title>
-                <Dialog.Content>
-                  <Text
-                    variant="bodyMedium"
-                    style={{
-                      color: Colors.black,
-                      fontSize: responsiveFontSize(16),
-                    }}>
+            <Modal
+              animationType="slide"
+              transparent={true}
+              visible={logoutModalVisible}
+              onRequestClose={() => setLogoutModalVisible(false)}>
+              <View style={styles.modalContainer}>
+                <View style={styles.modalContent}>
+                  <Text style={styles.modalText}>
                     Are you sure you want to logout?
                   </Text>
-                </Dialog.Content>
-                <Dialog.Actions>
-                  <Button onPress={hideDialog} textColor={Colors.brandBlue}>
-                    Cancel
-                  </Button>
-                  <Button
-                    onPress={async () => {
-                      navigation.reset({
-                        index: 0,
-                        routes: [{name: 'EnterNumberScreen'}],
-                      });
-                      dispatch(setUserStatusIdle());
-                      await setItem('userLogin', '0');
-                      successToast('Success', 'User Logged Out succesfully');
-                    }}
-                    textColor={Colors.red}>
-                    Yes
-                  </Button>
-                </Dialog.Actions>
-              </Dialog>
-            </Portal>
+                  <View style={styles.modalButtons}>
+                    <TouchableOpacity
+                      onPress={() => setLogoutModalVisible(false)}
+                      style={styles.modalButton}>
+                      <Text style={styles.modalButtonText}>No</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => handleLogout(navigation)}
+                      style={styles.modalButton}>
+                      <Text style={styles.modalButtonText}>Yes</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </Modal>
           </ScrollView>
         </SafeAreaView>
       </View>
-      <View style={{marginBottom: 10,backgroundColor:"#F5F6F7"}}>
-        <BottomNav Setting={true} />
+      <View style={{marginBottom: 10, backgroundColor: '#F5F6F7'}}>
+        <BottomNav Setting={true} account={true} />
       </View>
     </>
   );
@@ -562,5 +575,41 @@ const styles = StyleSheet.create({
   },
   optionSection: {
     // backgroundColor: 'yellow',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: responsiveWidth(300),
+    backgroundColor: 'white',
+    borderRadius: 5,
+    padding: 20,
+    alignItems: 'center',
+  },
+  modalText: {
+    fontSize: responsiveFontSize(16),
+    fontWeight: '500',
+    marginBottom: 20,
+    color: Colors.black,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  modalButton: {
+    flex: 1,
+    padding: 10,
+    marginHorizontal: 5,
+    borderRadius: 5,
+    backgroundColor: Colors.brandBlue,
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });

@@ -66,8 +66,8 @@ export const deleteNotificationurl = getEndpoint('generic/delete-user-notificati
 export const updateotppurl = getEndpoint('orders/update-order-otp');
 export const endtripurl = getEndpoint('orders/endRide');
 export const driverarriveurl = getEndpoint('orders/driverArrived');
-
-
+export const getOrdersById = getEndpoint('orders/get-order-by-customer');
+export const userorderstatsurl = getEndpoint('users/get-cust-orderStats')
 
 
 

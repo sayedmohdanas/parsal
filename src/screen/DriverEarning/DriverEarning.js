@@ -258,10 +258,6 @@ const Earning = () => {
       setDateRange(nextDay);
     }
   };
-  // useEffect(()=>{
-  //   get_data()
-  // },[dateRange])
-  // console.log('driver_todays_earning?.individual_paid_amounts',driver_todays_earning);
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: Colors.homeBackground}}>
       <View>

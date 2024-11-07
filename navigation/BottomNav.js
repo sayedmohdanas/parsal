@@ -33,6 +33,7 @@ const BottomNav = props => {
           : getimage(
               `partners_img/${driverProfile?.id}/${driverProfile?.profile_pic}`,
             );
+        setuser_image(profileImageUrl);
 
         return profileImageUrl;
       }
@@ -42,17 +43,12 @@ const BottomNav = props => {
     }
   };
 
-  // const fetchData = async () => {
-  //   const imgUrl = await fetchUserData();
-  //   if (imgUrl) {
-  //     setuser_image(imgUrl);
-  //   }
-  // };
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     fetchData();
-  //   }, [fetchUserData]), // Dependencies for useCallback
-  // );
+  const fetchData = async () => {
+    const imgUrl = await fetchUserData();
+    if (imgUrl) {
+      setuser_image(imgUrl);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -145,7 +141,7 @@ const BottomNav = props => {
                     {orderData && (
                       <TouchableOpacity
                         onPress={() => {
-                          navigation.navigate('TripScreen');
+                          navigation.navigate('OrderScreen');
                         }}
                         style={{
                           position: 'absolute',
@@ -235,10 +231,19 @@ const BottomNav = props => {
                 navigation.navigate('Setting');
               }}>
               <View style={[styles.header, {paddingTop: 5}]}>
-                {/* <Image source={AppImages.PaymentIcon} resizeMode={'contain'} style={{ height: responsiveHeight(24), width: responsiveWidth(24), tintColor: props.payment ? Colors.brandBlue : null }} /> */}
                 <Image
-                  // source={{uri: user_image}}
-                  defaultSource={AppImages.UserIcon}
+                  source={
+                    props.account ? AppImages.activeUser : AppImages.UserIcon
+                  }
+                  resizeMode={'contain'}
+                  style={{
+                    height: responsiveHeight(24),
+                    width: responsiveWidth(24),
+                    tintColor: props.payment ? Colors.brandBlue : null,
+                  }}
+                />
+                {/* <Image
+                  source={{uri: user_image}}
                   resizeMode={'contain'}
                   style={{
                     height: responsiveHeight(25),
@@ -247,7 +252,7 @@ const BottomNav = props => {
                     borderWidth: 1,
                     borderColor: '#D9D9D9',
                   }}
-                />
+                /> */}
               </View>
               <View
                 style={[
@@ -257,7 +262,7 @@ const BottomNav = props => {
                     borderColor: Colors.brandBlue,
                   },
                 ]}>
-                <Text style={styles.menu_txt}>{'Setting'}</Text>
+                <Text style={styles.menu_txt}>{'Account'}</Text>
               </View>
             </TouchableOpacity>
           </View>

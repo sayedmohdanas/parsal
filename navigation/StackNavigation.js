@@ -45,6 +45,7 @@ import {
   setwalletBalance,
 } from '../src/redux/HitApis/HitApiSlice';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import OrderScreen from '../src/screen/OrderList/OrderScreen';
 
 const Stack = createStackNavigator();
 
@@ -56,7 +57,7 @@ const StackNavigator = () => {
   const get_user_details = async () => {
     const user = await AsyncStorage.getItem('user');
     const parsed_user = JSON.parse(user);
-   
+
     if (parsed_user?.payload?.owner_type == 0) {
       hitGetDriverDetails({ids: [parsed_user?.payload?.driver_id]})
         .then(res => {
@@ -203,7 +204,7 @@ const StackNavigator = () => {
       }
     };
     checkUserStatus();
-    get_user_details();
+    // get_user_details();
   }, []);
 
   if (loading) {
@@ -288,7 +289,7 @@ const StackNavigator = () => {
         options={{headerShown: false}}
       />
       <Stack.Screen
-        name="OrderInfo"
+        name="orderinfo"
         component={OrderInfo}
         options={{headerShown: false}}
       />
@@ -308,6 +309,7 @@ const StackNavigator = () => {
       <Stack.Screen name="HelpAndSupport" component={HelpAndSupportMain} />
       <Stack.Screen name="TicketSubmission" component={AddHelpAndSupport} />
       <Stack.Screen name="Setting" component={AccountScreen} />
+      <Stack.Screen name="OrderScreen" component={OrderScreen} />
     </Stack.Navigator>
   );
 };

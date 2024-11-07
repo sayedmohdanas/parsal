@@ -1182,7 +1182,7 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     position: 'absolute',
-    bottom: 10,
+    bottom: responsiveHeight(90),
     width: '100%',
     paddingHorizontal: 15,
     zIndex: 10,
