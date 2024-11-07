@@ -177,9 +177,9 @@ const Menu = ({navigation, owner = ''}) => {
   useFocusEffect(
     useCallback(() => {
       get_user_details();
-    }, []), // Empty dependency array to run only when the page is focused
+    }, []), 
   );
-  console.log('parse_data?.payload?.owner_type',store_data?.show_livetripe_menu);
+  // console.log('parse_data?.payload?.owner_type',store_data?.show_livetripe_menu);
   return (
     <>
       <View style={styles.header}>
@@ -326,7 +326,7 @@ const Menu = ({navigation, owner = ''}) => {
         <TouchableOpacity
           onPress={() => navigation.navigate('Training')}
           style={styles.menuItem}>
-          <Image source={AppImages.webinar} style={styles.profileImage} />
+          <Image source={AppImages.trainingImage} style={styles.profileImage} />
           <Text style={styles.menuText}>Training</Text>
         </TouchableOpacity>
         {/* <TouchableOpacity
@@ -349,19 +349,19 @@ const Menu = ({navigation, owner = ''}) => {
         <TouchableOpacity
           onPress={() => navigation.navigate('HelpandSupport')}
           style={styles.menuItem}>
-          <Image source={AppImages.help} style={styles.profileImage} />
+          <Image source={AppImages.helpIcon} style={styles.profileImage} />
           <Text style={styles.menuText}>Help & Support</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => navigation.navigate('TermsCondition')}
           style={styles.menuItem}>
-          <Image source={AppImages.compliant} style={styles.profileImage} />
+          <Image source={AppImages.privacyPolicyImage} style={styles.profileImage} />
           <Text style={styles.menuText}>Privacy Policy</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => navigation.navigate('TermsCondition')}
           style={styles.menuItem}>
-          <Image source={AppImages.terms} style={styles.profileImage} />
+          <Image source={AppImages.termsAndCondition} style={styles.profileImage} />
           <Text style={styles.menuText}>Terms & Condition</Text>
         </TouchableOpacity>
       </View>
@@ -371,7 +371,7 @@ const Menu = ({navigation, owner = ''}) => {
           onPress={() => setLogoutModalVisible(true)}
           style={styles.menuItem}>
           <Image
-            source={AppImages.logoutImage}
+            source={AppImages.logoutIcon}
             style={styles.profileImage}
             resizeMode="contain"
           />

@@ -1,5 +1,5 @@
 // CustomNotificationModal.js
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -15,21 +15,21 @@ import {
   hitMyVehicle,
   hitUpdateOrderOtpApi,
 } from '../../config/api/api';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useDispatch, useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   setDriverId,
   setOrderData,
   setlivetripmenu,
   setupdate_order,
 } from '../../redux/HitApis/HitApiSlice';
-import {io} from 'socket.io-client';
+import { io } from 'socket.io-client';
 import {
   generateNumericOTP,
   GetDriverCurrentLocation,
 } from '../../common/CommonFunction';
-import {socketUrl} from '../../config/url';
+import { socketUrl } from '../../config/url';
 import BorderLine from '../../common/BorderLine.';
 import AppImages from '../../common/AppImages';
 import Loading from '../Loading/Loading';
@@ -126,14 +126,12 @@ const NotificationModal = ({
 
   const handleAccept = async () => {
     try {
-      // Show loading
       dispatch(setOrderData({}));
       dispatch(setupdate_order({}));
       setLoading(true);
 
-      const {latitude, longitude} = await GetDriverCurrentLocation();
+      const { latitude, longitude } = await GetDriverCurrentLocation();
 
-      // Create payload
       const payload = {
         pickup_address,
         drop_address,
@@ -154,14 +152,11 @@ const NotificationModal = ({
         payment_status,
       };
 
-      // Pass the payload into the API call
-      const res = await hitlPaceOrder(payload); // Your API call function
+      const res = await hitlPaceOrder(payload);
 
       if (res) {
-        // Assuming `onAccept` is a callback for successful orders
         onAccept(res);
 
-        // Emit the socket event after a successful API call
         if (socket && socket.connected) {
           const resWithOTP = {
             ...res,
@@ -170,16 +165,15 @@ const NotificationModal = ({
             custMobile: cust_mobile,
             vehicle_type_id: vehicle_type_id,
           };
-          // Emit 'driver_accept' event and send the data
           socket.emit('driver_accept', resWithOTP, acknowledgment => {
             console.log('Data sent, acknowledgment:', acknowledgment);
-          
+
           });
           const param = {
             order_id: resWithOTP?.newOrder?.id,
             order_otp: resWithOTP?.resWithOTP,
           };
-          console.log('param',param);
+          console.log('param', param);
           // hitUpdateOrderOtpApi(param)
           //   .then(res => {
           //     console.log('res', res);
@@ -232,21 +226,21 @@ const NotificationModal = ({
                 }}>
                 New Order
               </Text>
-    
+
               <BorderLine margin={10} thickness={0.5} />
             </View>
 
-            <View style={{alignSelf: 'center'}}>
+            <View style={{ alignSelf: 'center' }}>
               <CircularProgressComponent
                 timer={timer}
                 setModalVisible={setModalVisible}
               />
             </View>
             <View>
-         
+
             </View>
 
-        
+
 
             <View style={styles.bodyContainer}>
               {expected_price && (
@@ -285,8 +279,8 @@ const NotificationModal = ({
                     </View>
                   </View>
                 )}
-                <View style={{marginLeft: responsiveWidth(5)}}>
-                  <Text style={[styles.addressText, {marginVertical: 0}]}>
+                <View style={{ marginLeft: responsiveWidth(5) }}>
+                  <Text style={[styles.addressText, { marginVertical: 0 }]}>
                     {pickup_address}
                   </Text>
 
@@ -294,7 +288,7 @@ const NotificationModal = ({
                 </View>
               </View>
             </View>
-          
+
 
             <View
               style={{
@@ -306,12 +300,12 @@ const NotificationModal = ({
               <TouchableOpacity
                 style={styles.roundButton}
                 onPress={handleAccept}>
-                <Text style={[styles.buttonText, {color: Colors.white}]}>
+                <Text style={[styles.buttonText, { color: Colors.white }]}>
                   Accept
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.rejectButton} onPress={onReject}>
-                <Text style={[styles.buttonText, {color: Colors.grey}]}>
+                <Text style={[styles.buttonText, { color: Colors.grey }]}>
                   Reject
                 </Text>
               </TouchableOpacity>
@@ -330,9 +324,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
 
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    // backgroundColor: 'green',
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 1,
@@ -346,7 +339,6 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   headerContainer: {
-    // flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
@@ -355,7 +347,7 @@ const styles = StyleSheet.create({
   },
   parcalLogo: {
     width: 70,
-    height: 50, // Adjust according to your logo size
+    height: 50,
   },
   closeText: {
     fontSize: 16,
@@ -367,7 +359,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     lineHeight: 36.31,
     color: 'black',
-    // marginVertical: 10,
   },
   ratingContainer: {
     flexDirection: 'row',
@@ -378,13 +369,11 @@ const styles = StyleSheet.create({
   },
   starImg: {
     width: 15,
-    height: 15, // Adjust according to your star image size
-    // marginRight: 3,
+    height: 15,
   },
   locImg: {
     width: 20,
-    height: 20, // Adjust according to your star image size
-    // marginRight: 3,
+    height: 20,
   },
   ratingText: {
     color: 'grey',
@@ -397,10 +386,8 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   bodyContainer: {
-    // alignItems: 'center',
     marginBottom: responsiveHeight(17),
     marginLeft: responsiveWidth(10),
-    // borderTopWidth:1,
     marginTop: responsiveHeight(15),
     paddingRight: 50,
   },
@@ -428,48 +415,40 @@ const styles = StyleSheet.create({
   line: {
     borderBottomColor: 'black',
     borderBottomWidth: 1,
-    width: '90%', // Adjust the width as necessary
+    width: '90%',
     marginVertical: 10,
   },
   roundButton: {
     backgroundColor: '#232323',
     padding: 12,
-    borderRadius: 30, // Make it a circle
+    borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
     width: '47%',
-    // marginTop: 10,
   },
   rejectButton: {
-    // backgroundColor: '#232323',
     padding: 12,
     borderWidth: 1,
     borderColor: '#D8D8D8',
-    borderRadius: 30, // Make it a circle
+    borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
     width: '47%',
-    // marginTop: 10,
   },
   buttonText: {
-    // color: Colors.grey,
     fontWeight: '400',
     fontSize: responsiveFontSize(16),
     lineHeight: 19.36,
   },
 
   timelineContainer: {
-    // flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    // backgroundColor:'yellow',
     marginTop: 5,
 
-    // justifyContent:'flex-start',
   },
   textInputContainers: {
     flex: 9,
-    // backgroundColor: "red"
   },
   greenCircle: {
     height: responsiveWidth(8),

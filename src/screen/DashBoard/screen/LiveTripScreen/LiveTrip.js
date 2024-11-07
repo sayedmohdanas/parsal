@@ -659,6 +659,7 @@ import {
 import AppImages from '../../../../common/AppImages';
 import BorderLine from '../../../../common/BorderLine.';
 import { useDispatch, useSelector } from 'react-redux';
+import BottomNav from '../../../../../navigation/BottomNav';
 
 const LiveTripScreen = () => {
   
@@ -1202,9 +1203,9 @@ const LiveTripScreen = () => {
       )}
 
       {/* Bottom Navigation */}
-      {/* <View style={styles.bottomNavContainer}>
+      <View style={styles.bottomNavContainer}>
                 <BottomNav Trip={true} />
-            </View> */}
+            </View>
     </SafeAreaView>
   );
 };

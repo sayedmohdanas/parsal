@@ -1,7 +1,7 @@
-import React, {useEffect, useState} from 'react';
-import {Alert, SafeAreaView, StyleSheet} from 'react-native';
-import {Provider} from 'react-redux';
-import {NavigationContainer} from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { Alert, SafeAreaView, StyleSheet } from 'react-native';
+import { Provider } from 'react-redux';
+import { NavigationContainer } from '@react-navigation/native';
 import store from './src/redux/store';
 import Toast from 'react-native-toast-message';
 import StackNavigator from './navigation/StackNavigation';
@@ -9,11 +9,13 @@ import messaging from '@react-native-firebase/messaging';
 import NotificationModal from './src/components/CustomNotificationModal/NotificationModal';
 import firebase from '@react-native-firebase/app';
 import database from '@react-native-firebase/database';
-import {requestLocationPermission} from './src/common/CommonFunction';
+import { requestLocationPermission } from './src/common/CommonFunction';
 // import Sound from 'react-native-sound'
 import SoundPlayer from 'react-native-sound-player';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NextOrder from './src/components/CustomNotificationModal/NextOrder';
+import { Provider as PaperProvider } from 'react-native-paper';
+
 
 const TOPIC = 'MyNews';
 
@@ -47,7 +49,7 @@ export default function App() {
       databaseURL: 'https://parsal-4c318-default-rtdb.firebaseio.com/',
     });
   } else {
-    firebase.app(); // if already initialized, use the existing one
+    firebase.app();
   }
   // useEffect(() => {
   //   const interval = setInterval(() => {
@@ -75,8 +77,8 @@ export default function App() {
 
   const handleNotification = remoteMessage => {
     // When handling the remote message
-    const {notification} = remoteMessage;
-    const {data} = remoteMessage;
+    const { notification } = remoteMessage;
+    const { data } = remoteMessage;
     console.log('remotemessage=========>>>>>', remoteMessage);
 
     // Use optional chaining to avoid errors
@@ -100,7 +102,7 @@ export default function App() {
       expected_distance = '',
       expected_time = '',
     } = data || {};
-    // Update the notification data state
+
     setNotificationData({
       goods_type_id,
       title,
@@ -224,11 +226,11 @@ export default function App() {
       // Start countdown
       interval = setInterval(() => {
         setTimer(prevTimer => prevTimer - 1);
-      }, 1000); 
+      }, 1000);
     }
 
     if (timer === 0) {
-      setModalVisible(false); 
+      setModalVisible(false);
     }
 
     return () => {
@@ -237,6 +239,7 @@ export default function App() {
   }, [isModalVisible, timer]);
 
   return (
+    <PaperProvider>
     <Provider store={store}>
       <NavigationContainer>
         <StackNavigator />
@@ -267,15 +270,19 @@ export default function App() {
           setModalVisible={setModalVisible}
           timer={timer}
         />
-        <NextOrder  isVisible={true}
-         expected_price={40}
-         expected_distance={6}
-         expected_time={13}
-         pickup_address={'Thakurganj daulatganj lucknow 226003'}
-         drop_address={'khurram nagar near chandela lucknow 226003'}
+        <NextOrder isVisible={false}
+          expected_price={40}
+          onReject={handleReject}
+
+          expected_distance={6}
+          expected_time={13}
+          pickup_address={'Thakurganj daulatganj lucknow 226003'}
+          drop_address={'khurram nagar near chandela lucknow 226003'}
         />
-        </NavigationContainer>
+      </NavigationContainer>
     </Provider>
+    </PaperProvider>
+
   );
 }
 

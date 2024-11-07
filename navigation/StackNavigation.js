@@ -20,6 +20,10 @@ import MyVehiclesScreen from '../src/screen/MyVehiclesScreen';
 import WalletScreen from '../src/screen/DashBoard/screen/Wallet/WalletScreen';
 import TransactionHistory from '../src/screen/TransactionHistory';
 import { hitGetUserDetails } from '../src/config/api/api';
+import AccountScreen from '../src/screen/AccountScreen/AccountScreen';
+import HelpAndSupportMain from '../src/screen/HelpAndSupport/HelpAndSupportMain';
+import AddHelpAndSupport from '../src/screen/HelpAndSupport/AddHelpAndSupport';
+import ChatScreen from '../src/screen/DashBoard/Chat/ChatScreen';
 
 const Stack = createStackNavigator();
 
@@ -119,12 +123,31 @@ const StackNavigator = () => {
       <Stack.Screen name="UpdateDriver" component={UpdateDriver} />
       <Stack.Screen name="ProfileDetail" component={ProfileDetail} />
       <Stack.Screen name="Notification" component={Notification} />
+      <Stack.Screen name="Setting" component={AccountScreen} />
       <Stack.Screen
         name="MyVehicles"
         component={MyVehiclesScreen}
         options={{ headerShown: false }}
       />
-
+      <Stack.Screen
+        name="Wallet"
+        component={WalletScreen}
+        options={{ headerShown: false }}
+      />
+   
+       <Stack.Screen
+        name="Chat"
+        component={ChatScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="HelpandSupport"
+        component={HelpAndSupportMain}
+      />
+      <Stack.Screen
+        name="TicketSubmission"
+        component={AddHelpAndSupport}
+      />
       <Stack.Screen
         name="DriverDashboard"
         component={DriverDrawerNavigator} // Driver's drawer

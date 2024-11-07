@@ -6,15 +6,30 @@ import AppImages from '../../common/AppImages'
 
 const ProfileScreenOptions = (props) => {
     return (
-        <TouchableHighlight>
+        <TouchableHighlight onPress={props.onPress} underlayColor={'none'}>
             <View style={styles.container}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', }}>
                     <Image source={props.Icon} style={styles.iconStyle} resizeMode='contain' />
                     <Text style={styles.optionName}>{props.optionName}</Text>
                 </View>
                 <View>
+                    {props.walletBalance ? (
+
+                        <Text
+                            style={{
+                                fontSize: responsiveFontSize(15),
+                                color: 'black',
+                                fontWeight: '400',
+                                textAlign: 'right',
+                            }}>
+                            {'₹' +
+                                (props.walletBalance || 0) +
+                                ''}
+                        </Text>
+                    ):(
                     <Image source={AppImages.optionRightArrow} style={styles.iconStyle} resizeMode='contain' />
-                </View>
+                )}
+                    </View>
             </View>
         </TouchableHighlight>
     )
@@ -31,11 +46,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop:5
+        marginTop: 5
     },
     iconStyle: {
-        height: responsiveHeight(28),
-        width: responsiveWidth(28)
+        height: responsiveHeight(20),
+        width: responsiveWidth(20)
     },
     optionName: {
         fontSize: responsiveFontSize(14),

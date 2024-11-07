@@ -39,7 +39,8 @@ export default AppImages = {
   TripIcon: require('../assets/images/trip.png'),
   TripIconB: require('../assets/images/trip-1.png'),
   messageIcon: require('../assets/images/message.png'),
-  crossIcon: require('../assets/images/cross.png'),
+  crossIcon: require('../assets/images/cross.png'), 
+  
   trashIcon: require('../assets/images/trash.png'),
   pickedIcon: require('../assets/images/picked.png'),
 
@@ -49,7 +50,7 @@ export default AppImages = {
   pickupIcon: require('../assets/images/PickedImg.png'),
   dropupIcon: require('../assets/images/dropImg.png'),
   borderIcon: require('../assets/images/borderImg.png'),
-
+ 
   TrackParsalImg: require('../assets/images/trackParsalImg.png'),
   emptyImage: require('../assets/images/emptyBoxImage.png'),
   boxbackgound: require('../assets/images/boxImageBackground.png'),
@@ -128,6 +129,7 @@ export default AppImages = {
   help: require('../assets/images/customer-service.png'),
   addSupport: require('../assets/images/add.png'),
   helpSupport: require('../assets/images/helpSupport.jpg'),
+  savedAddress:require('../assets/images/saved_Address.png')
 
 
 

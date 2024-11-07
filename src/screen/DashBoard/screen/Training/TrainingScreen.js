@@ -6,7 +6,7 @@ const TrainingScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Training Screen</Text>
-    </View>
+    </View> pst
   );
 };
 

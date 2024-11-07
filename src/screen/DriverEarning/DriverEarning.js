@@ -395,7 +395,7 @@ const Earning = () => {
                               keyExtractor={(item, index) => index.toString()}
                             />
                           )}
-                        </View>
+                        </View> 
                       )}
                   </>
                 )}
@@ -408,6 +408,9 @@ const Earning = () => {
           </>
         )}
       </View>
+      <View style={styles.bottomNavContainer}>
+                <BottomNav Earning={true} />
+            </View>
     </SafeAreaView>
   );
 };
@@ -576,6 +579,12 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 200,
     backgroundColor: 'lightgray',
+  },
+  bottomNavContainer: {
+    position: 'absolute',
+    bottom: 13,
+    left: 0,
+    right: 0,
   },
 });
 
