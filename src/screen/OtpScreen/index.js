@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import AppImages from '../../common/AppImages';
-import {responsiveHeight, responsiveWidth} from '../../common/metrices';
+import {responsiveFontSize, responsiveHeight, responsiveWidth} from '../../common/metrices';
 import Colors from '../../common/Colors';
 import CustomButton from '../../components/CustomButton/CustomButton';
 import {
@@ -30,6 +30,7 @@ import {
   setParentId,
 } from '../../redux/HitApis/HitApiSlice';
 import OTPTextView from 'react-native-otp-textinput';
+import { Fonts, FontSizes } from '../../common/Theme';
 
 const OtpScreen = ({navigation, route}) => {
   const {number} = route?.params;
@@ -79,7 +80,7 @@ const OtpScreen = ({navigation, route}) => {
         phone: generateRandomPhoneNumber(),
       };
       // if (owner_type) {
-      console.log('user', user);
+      console.log('user====================>>>>>>>>>', user);
       await AsyncStorage.setItem('user', JSON.stringify(user));
 
       // }
@@ -142,7 +143,6 @@ const OtpScreen = ({navigation, route}) => {
   };
 
 
-
   return (
     <>
       <View
@@ -160,7 +160,7 @@ const OtpScreen = ({navigation, route}) => {
             }}>
             <View
               style={{
-                marginBottom: 20,
+                marginBottom: responsiveHeight(20),
                 justifyContent: 'center',
                 alignItems: 'center',
               }}>
@@ -210,7 +210,7 @@ const OtpScreen = ({navigation, route}) => {
             <View
               style={{
                 marginTop: responsiveHeight(20),
-                marginBottom: 10,
+                marginBottom: responsiveHeight(10),
                 justifyContent: 'center',
                 alignItems: 'center',
               }}>
@@ -253,8 +253,8 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flex: 1,
-    marginLeft: 10,
-    height: 40,
+    marginLeft: responsiveWidth(10),
+    height: responsiveHeight(40),
     borderColor: Colors.textInputBorderColor,
   },
   textInputstyle: {
@@ -265,26 +265,27 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
     paddingHorizontal: 10,
-    height: 40,
+    paddingVertical:responsiveHeight(10)
+    // height: 40,
   },
   numberContainer: {
     gap: 10,
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: FontSizes.semiLarge,
     color: Colors.brandBlue,
-    fontWeight: '600',
+    fontWeight: Fonts.medium,
   },
   number: {
     color: '#000000',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: FontSizes.semiLarge,
+    fontWeight: Fonts.medium,
   },
   checkboxContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: responsiveHeight(12),
   },
   textContainer: {
     flexDirection: 'row',
@@ -300,19 +301,19 @@ const styles = StyleSheet.create({
     marginHorizontal: -5,
   },
   inputLabel: {
-    fontSize: 12,
+    fontSize: FontSizes.xsmall,
     color: 'gray',
     fontWeight: '500',
     alignSelf: 'flex-start',
 
     //   marginBottom: 8,
-    marginLeft: 25,
+    marginLeft: responsiveWidth(25),
   },
   resendBtn: {
     color: Colors.brandBlue,
-    fontSize: 17,
-    fontWeight: '600',
-    marginTop: 10,
+    fontSize: FontSizes.semiLarge,
+    fontWeight: Fonts.medium,
+    marginTop: responsiveHeight(10),
   },
   otpContainer: {
     flexDirection: 'row',
@@ -323,7 +324,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 6,
     borderColor: Colors.textInputBorderColor,
-    fontSize: 20,
+    fontSize: responsiveFontSize(20),
     color: Colors.brandBlue,
     textAlign: 'center',
     height: responsiveHeight(55),

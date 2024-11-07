@@ -71,32 +71,28 @@ const DriverDetails = ({details, onPress, selectedDriver}) => {
 };
 const styles = StyleSheet.create({
   UserDetailMainContainer: {
-    // flex: 1,
     backgroundColor: Colors.white,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    // marginTop: 15,
-    borderRadius: 20,
+    borderRadius: responsiveHeight(18),
     paddingVertical: responsiveHeight(8),
-    // padding:responsiveHeight(10),
-    // paddingHorizontal:responsiveWidth(15),
     marginRight: responsiveWidth(8),
     alignItems: 'center',
     borderWidth: 0.5,
-    borderColor: Colors.buttonGrey,
+    borderColor: Colors.brandBlue,
     marginRight: responsiveWidth(10),
     marginBottom: responsiveHeight(10),
   },
   userDetail: {
     flexDirection: 'row',
     alignItems: 'center',
-    // justifyContent:'center'
   },
   manStyle: {
     height: responsiveHeight(30),
-    width: responsiveWidth(30),
-    borderRadius: 35,
+    width: responsiveHeight(30), 
+    borderRadius: responsiveHeight(15), 
     marginLeft: responsiveWidth(8),
+    resizeMode: 'cover'
   },
   userNameAddress: {
     marginLeft: responsiveWidth(6),
@@ -111,7 +107,6 @@ const styles = StyleSheet.create({
     fontSize: responsiveFontSize(10),
     fontWeight: '500',
     color: Colors.grey,
-    // marginTop: 2
   }, 
 });
 export default DriverDetails;

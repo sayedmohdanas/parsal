@@ -23,13 +23,10 @@ import {errorToast} from '../../../../common/CommonFunction';
 
 const WalletScreen = ({route, accountNumber = '075423453453'}) => {
   const [balance, setBalance] = useState(0);
-  const [isHidden, setIsHidden] = useState(true); // State to control visibility
-
-  // Generate the masked number: Keep the first two digits, replace the rest with stars
+  const [isHidden, setIsHidden] = useState(true);
   const maskedNumber =
     accountNumber.slice(0, 2) + '*'.repeat(accountNumber.length - 2);
 
-  // const store_data = useSelector(state => state?.parsalPartner);
   const store_data = useSelector(
     state => state.parsalPartner.wallet_balance?.new_wallet_balance || 0,
   );
@@ -100,7 +97,7 @@ const WalletScreen = ({route, accountNumber = '075423453453'}) => {
               onPress={() => {
                 if (balance <= 0) {
                   errorToast('Insufficient balance to cash out.');
-                  return; // Add return here to prevent navigation if balance is less than 0
+                  return;
                 }
                 navigation.navigate('AddCash', {screenName: 'Withdraw'});
               }}>
@@ -128,14 +125,20 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     alignSelf: 'flex-end',
-    margin: 16,
+    margin: 8,
+    marginHorizontal:responsiveWidth(12),
     backgroundColor: 'rgba(120, 122, 243, 1)',
     borderRadius: 5,
     padding: 4,
+    paddingHorizontal:responsiveWidth(6),
+    paddingVertical:responsiveHeight(8)
+
   },
   transactionImage: {
-    width: responsiveWidth(26),
-    height: responsiveHeight(26),
+    width: responsiveWidth(24),
+    height: responsiveHeight(24),
+    resizeMode:'contain'
+    
   },
   balanceContainer: {
     alignItems: 'center',
@@ -144,7 +147,7 @@ const styles = StyleSheet.create({
   },
   balanceText: {
     fontSize: responsiveFontSize(34),
-    fontWeight: Fonts.bold,
+    fontWeight: Fonts.medium,
     color: Colors.white,
   },
   walletInfoContainer: {
@@ -154,8 +157,10 @@ const styles = StyleSheet.create({
     marginTop: Spacing.small,
   },
   walletIcon: {
-    width: 12,
-    height: 12,
+    width: responsiveWidth(12),
+    height: responsiveHeight(14),
+    resizeMode:'contain'
+
   },
   walletInfoText: {
     marginLeft: Spacing.small,
@@ -170,9 +175,9 @@ const styles = StyleSheet.create({
     marginTop: responsiveHeight(60),
   },
   accountInfo: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,
   },
   accountText: {
     fontSize: responsiveFontSize(14),

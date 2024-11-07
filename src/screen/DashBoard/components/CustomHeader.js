@@ -166,7 +166,7 @@ const CustomHeader = ({screenName}) => {
   };
   useEffect(() => {
     get_user_details();
-  }, [isEnabled, dispatch, isEnabled, fetchUserData]);
+  }, [isEnabled, dispatch, isEnabled]);
   const [isEnabled, setIsEnabled] = useState(
     user_details?.working_status == 0 ? false : true,
   );

@@ -46,7 +46,7 @@ const OrderDetail = ({orderDetails}) => {
 
   return (
     <TouchableOpacity
-      onPress={()=>navigation.navigate('orderinfo',{
+      onPress={()=>navigation.navigate('OrderInfo',{ 
         id:orderDetails?.order_id
       })}
     >
