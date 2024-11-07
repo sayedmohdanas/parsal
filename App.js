@@ -1,28 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { Alert, SafeAreaView, StyleSheet } from 'react-native';
-import { Provider } from 'react-redux';
-import { NavigationContainer } from '@react-navigation/native';
+import React, {useEffect, useRef, useState} from 'react';
+import {StyleSheet, AppState} from 'react-native';
+import {Provider} from 'react-redux';
+import {NavigationContainer} from '@react-navigation/native';
 import store from './src/redux/store';
 import Toast from 'react-native-toast-message';
 import StackNavigator from './navigation/StackNavigation';
 import messaging from '@react-native-firebase/messaging';
 import NotificationModal from './src/components/CustomNotificationModal/NotificationModal';
 import firebase from '@react-native-firebase/app';
-import database from '@react-native-firebase/database';
-import { requestLocationPermission } from './src/common/CommonFunction';
-// import Sound from 'react-native-sound'
+import {requestLocationPermission} from './src/common/CommonFunction';
 import SoundPlayer from 'react-native-sound-player';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import NextOrder from './src/components/CustomNotificationModal/NextOrder';
-import { Provider as PaperProvider } from 'react-native-paper';
-
-
+import {hitUpdateFcmApi} from './src/config/api/api';
 const TOPIC = 'MyNews';
-
+import {LogBox} from 'react-native';
+LogBox.ignoreLogs(['new NativeEventEmitter']);
+import {Provider as PaperProvider} from 'react-native-paper';
 export default function App() {
   const [isModalVisible, setModalVisible] = useState(false);
-  const [timer, setTimer] = useState(15); // Timer state
-
   const [notificationData, setNotificationData] = useState({
     title: '',
     body: '',
@@ -43,24 +38,15 @@ export default function App() {
     cust_name: '',
     goods_type_id: '',
   });
+  const [timer, setTimer] = useState(15); // Timer state
   // Initialize Firebase with Realtime Database URL
   if (!firebase.apps.length) {
     firebase.initializeApp({
       databaseURL: 'https://parsal-4c318-default-rtdb.firebaseio.com/',
     });
   } else {
-    firebase.app();
+    firebase.app(); // if already initialized, use the existing one
   }
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     setModalVisible(true);
-  //     clearInterval(interval);  // Stop the interval after it's triggered once
-  //   }, 1000); // 16 seconds
-
-  //   // Cleanup when component unmounts
-  //   return () => clearInterval(interval);
-  // }, []);
-
 
   const requestUserPermission = async () => {
     const authStatus = await messaging().requestPermission();
@@ -69,17 +55,39 @@ export default function App() {
       authStatus === messaging.AuthorizationStatus.PROVISIONAL
     );
   };
+  const updateFcmTokenInDB = async token => {
+    try {
+      const user = await AsyncStorage.getItem('user');
+      const parsedUser = JSON.parse(user);
 
+      if (
+        parsedUser?.payload?.owner_type == 0 ||
+        parsedUser?.payload?.owner_type == 2
+      ) {
+        // Call your backend API to update the token in the database
+        const param = {
+          driverId: parsedUser?.payload?.driver_id,
+          fcm_token: token,
+        };
+        const response = await hitUpdateFcmApi(param);
+
+        console.log('FCM token updated successfully in DB', response.data);
+      } else {
+        console.error('User data not found!');
+      }
+    } catch (error) {
+      console.error('Error updating FCM token in DB:', error);
+    }
+  };
   const getToken = async () => {
     const token = await messaging().getToken();
-    console.log(token, 'token---');
+    console.log('token', token);
   };
 
   const handleNotification = remoteMessage => {
     // When handling the remote message
-    const { notification } = remoteMessage;
-    const { data } = remoteMessage;
-    console.log('remotemessage=========>>>>>', remoteMessage);
+    const {notification} = remoteMessage;
+    const {data} = remoteMessage;
 
     // Use optional chaining to avoid errors
     const title = notification?.title || '';
@@ -102,7 +110,7 @@ export default function App() {
       expected_distance = '',
       expected_time = '',
     } = data || {};
-
+    // Update the notification data state
     setNotificationData({
       goods_type_id,
       title,
@@ -128,13 +136,10 @@ export default function App() {
   };
 
   const handleAccept = res => {
-    console.log(res);
-    console.log('Accepted');
     setModalVisible(false);
   };
 
   const handleReject = () => {
-    console.log('Rejected');
     setModalVisible(false);
   };
   const playNotificationSound = () => {
@@ -157,24 +162,23 @@ export default function App() {
   useEffect(() => {
     getToken();
     requestUserPermission();
+
     const handleUserNotification = async remoteMessage => {
-      const user = await get_user_data(); // Get the parsed user
-      if (
-        user?.payload?.driver_id &&
-        (user?.payload?.owner_type == 0 || user?.payload?.owner_type == 2)
-      ) {
-        console.log('User has driver_id and owner_type is either 0 or 2');
-        handleNotification(remoteMessage); // Handle the notification
-        playNotificationSound(); // Play the notification sound
+      const user = await get_user_data(); // Get the parsed user data
+      if (user?.payload?.owner_type === 0 || user?.payload?.owner_type === 2) {
+        setModalVisible(true);
+        setTimer(10); // Reset timer to 10 seconds (or desired duration)
+        handleNotification(remoteMessage);
+        playNotificationSound();
       }
     };
+
     messaging()
       .getInitialNotification()
       .then(async remoteMessage => {
         if (remoteMessage) {
-          console.log(
-            'getInitialNotification: Notification caused app to open from quit state',
-          );
+          setModalVisible(true);
+          setTimer(10); // Reset timer
           handleNotification(remoteMessage);
           playNotificationSound();
         }
@@ -182,9 +186,8 @@ export default function App() {
 
     messaging().onNotificationOpenedApp(async remoteMessage => {
       if (remoteMessage) {
-        console.log(
-          'onNotificationOpenedApp: Notification caused app to open from background state',
-        );
+        setModalVisible(true);
+        setTimer(10); // Reset timer
         handleNotification(remoteMessage);
         playNotificationSound();
       }
@@ -192,13 +195,15 @@ export default function App() {
 
     messaging().setBackgroundMessageHandler(async remoteMessage => {
       console.log('Message handled in the background!', remoteMessage);
+      setModalVisible(true);
+      setTimer(10); // Reset timer
     });
 
-    // const unsubscribe = messaging().onMessage(async remoteMessage => {
-    //   console.log(remoteMessage);
-    //   handleNotification(remoteMessage);
-    //   playNotificationSound();
-    // });
+    messaging().onTokenRefresh(async newToken => {
+      console.log('New FCM token:', newToken);
+      updateFcmTokenInDB(newToken);
+    });
+
     const unsubscribe = messaging().onMessage(async remoteMessage => {
       console.log('Foreground message received:', remoteMessage);
       await handleUserNotification(remoteMessage);
@@ -207,14 +212,13 @@ export default function App() {
     messaging()
       .subscribeToTopic(TOPIC)
       .then(() => {
-        console.log(`Topic: ${TOPIC} Subscribed`);
+        console.log(`Subscribed to topic: ${TOPIC}`);
       });
 
     return () => {
-      unsubscribe;
+      unsubscribe();
     };
   }, []);
-
   useEffect(() => {
     requestLocationPermission();
   }, []);
@@ -223,66 +227,54 @@ export default function App() {
     let interval;
 
     if (isModalVisible && timer > 0) {
-      // Start countdown
       interval = setInterval(() => {
         setTimer(prevTimer => prevTimer - 1);
-      }, 1000);
+      }, 1000); // Countdown by 1 second
     }
 
-    if (timer === 0) {
-      setModalVisible(false);
+    if (timer === 0 && isModalVisible) {
+      setModalVisible(false); // Close modal when timer reaches 0
     }
 
     return () => {
-      clearInterval(interval); // Clear interval when modal is closed or component unmounts
+      clearInterval(interval);
     };
   }, [isModalVisible, timer]);
-
   return (
     <PaperProvider>
-    <Provider store={store}>
-      <NavigationContainer>
-        <StackNavigator />
-        <Toast />
-        <NotificationModal
-          isVisible={isModalVisible}
-          onAccept={handleAccept}
-          onReject={handleReject}
-          title={notificationData.title}
-          body={notificationData.body}
-          drop_lat={notificationData.drop_lat}
-          drop_long={notificationData.drop_long}
-          pickup_lat={notificationData.pickup_lat}
-          pickup_long={notificationData.pickup_long}
-          vehicle_id={notificationData.vehicle_id}
-          vehicle_type_id={notificationData?.vehicle_type}
-          cust_id={notificationData.cust_id}
-          driverId={notificationData?.driverId}
-          pickup_address={notificationData?.pickup_address}
-          drop_address={notificationData?.drop_address}
-          expected_distance={notificationData?.expected_distance}
-          expected_price={notificationData?.expected_price}
-          expected_time={notificationData?.expected_time}
-          goods_type_id={notificationData?.goods_type_id}
-          cust_name={notificationData?.cust_name}
-          cust_mobile={notificationData?.cust_mobile}
-          onClose={() => setModalVisible(false)}
-          setModalVisible={setModalVisible}
-          timer={timer}
-        />
-        <NextOrder isVisible={false}
-          expected_price={40}
-          onReject={handleReject}
-
-          expected_distance={6}
-          expected_time={13}
-          pickup_address={'Thakurganj daulatganj lucknow 226003'}
-          drop_address={'khurram nagar near chandela lucknow 226003'}
-        />
-      </NavigationContainer>
-    </Provider>
+      <Provider store={store}>
+        <NavigationContainer>
+          <StackNavigator />
+          <Toast />
+          <NotificationModal
+            isVisible={isModalVisible}
+            onAccept={handleAccept}
+            onReject={handleReject}
+            title={notificationData.title}
+            body={notificationData.body}
+            drop_lat={notificationData.drop_lat}
+            drop_long={notificationData.drop_long}
+            pickup_lat={notificationData.pickup_lat}
+            pickup_long={notificationData.pickup_long}
+            vehicle_id={notificationData.vehicle_id}
+            vehicle_type_id={notificationData?.vehicle_type}
+            cust_id={notificationData.cust_id}
+            driverId={notificationData?.driverId}
+            pickup_address={notificationData?.pickup_address}
+            drop_address={notificationData?.drop_address}
+            expected_distance={notificationData?.expected_distance}
+            expected_price={notificationData?.expected_price}
+            expected_time={notificationData?.expected_time}
+            goods_type_id={notificationData?.goods_type_id}
+            cust_name={notificationData?.cust_name}
+            cust_mobile={notificationData?.cust_mobile}
+            onClose={() => setModalVisible(false)}
+            setModalVisible={setModalVisible}
+            timer={timer}
+          />
+        </NavigationContainer>
+      </Provider>
     </PaperProvider>
-
   );
 }
 
@@ -294,85 +286,3 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
 });
-
-
-// import React, {useEffect, useState} from 'react';
-// import {Provider} from 'react-redux';
-// import {NavigationContainer} from '@react-navigation/native';
-// import store from './src/redux/store';
-// import Toast from 'react-native-toast-message';
-// import StackNavigator from './navigation/StackNavigation';
-// import NotificationModal from './src/components/CustomNotificationModal/NotificationModal';
-// import {requestLocationPermission} from './src/common/CommonFunction';
-// import SoundPlayer from 'react-native-sound-player';
-// import useNotification from './src/hooks/useNotification';
-
-// const TOPIC = 'MyNews';
-
-// export default function App() {
-//   const [isModalVisible, setModalVisible] = useState(false);
-//   const [timer, setTimer] = useState(90);
-//   const [notificationData, setNotificationData] = useState({});
-
-//   const playNotificationSound = () => {
-//     try {
-//       SoundPlayer.playSoundFile('notification', 'mp3');
-//     } catch (e) {
-//       console.log('Cannot play the sound file', e);
-//     }
-//   };
-
-//   const handleNotification = (remoteMessage) => {
-//     const {notification, data} = remoteMessage;
-//     const title = notification?.title || '';
-//     const body = notification?.body || '';
-
-//     setNotificationData({
-//       ...data,
-//       title,
-//       body,
-//     });
-//     setModalVisible(true);
-//     setTimer(15);
-//   };
-
-//   useNotification(setModalVisible, setNotificationData, playNotificationSound, TOPIC, handleNotification);
-
-//   useEffect(() => {
-//     requestLocationPermission();
-//   }, []);
-
-//   useEffect(() => {
-//     let interval;
-
-//     if (isModalVisible && timer > 0) {
-//       interval = setInterval(() => {
-//         setTimer(prevTimer => prevTimer - 1);
-//       }, 1000);
-//     }
-
-//     if (timer === 0) {
-//       setModalVisible(false);
-//     }
-
-//     return () => clearInterval(interval);
-//   }, [isModalVisible, timer]);
-
-//   return (
-//     <Provider store={store}>
-//       <NavigationContainer>
-//         <StackNavigator />
-//         <Toast />
-//         <NotificationModal
-//           isVisible={isModalVisible}
-//           title={notificationData.title}
-//           body={notificationData.body}
-//           onClose={() => setModalVisible(false)}
-//           timer={timer}
-//           {...notificationData}
-//         />
-//       </NavigationContainer>
-//     </Provider>
-//   );
-// }
-

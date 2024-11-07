@@ -1,40 +1,173 @@
-import React, { useEffect, useState } from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
-import { ActivityIndicator, Alert, View } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, {useCallback, useEffect, useState} from 'react';
+import {createStackNavigator} from '@react-navigation/stack';
 import LoginScreen from '../src/screen/LoginScreen';
 import OtpScreen from '../src/screen/OtpScreen';
 import OwnerDetailScreen from '../src/screen/OwnerDetail';
 import DriverDetailScreen from '../src/screen/DriverDetailScreen';
 import VehicleDetailScreen from '../src/screen/VehicleDetailScreen';
-import { DriverDrawerNavigator, OwnerDrawerNavigator } from './DrawerNavigaton';
-import Loading from '../src/components/Loading/Loading';
-import { setOwner, setPartnerdetails, setShowDashBoard } from '../src/redux/HitApis/HitApiSlice';
-import { useDispatch, useSelector } from 'react-redux';
 import TermsAndCondition from '../src/screen/TermsAndCondition/TermsAndCondition';
-import Earning from '../src/screen/DriverEarning/DriverEarning';
 import UpdateDriver from '../src/screen/MyVehiclesScreen/UpdateDriver';
 import ProfileDetail from '../src/screen/DashBoard/screen/ProfileDetailScreen/ProfileDetailScreen';
 import Notification from '../src/screen/DashBoard/screen/Notification/Notification';
 import MyVehiclesScreen from '../src/screen/MyVehiclesScreen';
 import WalletScreen from '../src/screen/DashBoard/screen/Wallet/WalletScreen';
 import TransactionHistory from '../src/screen/TransactionHistory';
-import { hitGetUserDetails } from '../src/config/api/api';
-import AccountScreen from '../src/screen/AccountScreen/AccountScreen';
+import DriverDashboard from '../src/screen/DashBoard/DriverDashboard';
+import LiveTripScreen from '../src/screen/DashBoard/screen/LiveTripScreen/LiveTrip';
+import Earning from '../src/screen/DriverEarning/DriverEarning';
+import DriverMapScreen from '../src/screen/DriverMapScreen/DriverMap';
+import AmountCollectScreen from '../src/screen/DashBoard/screen/AmountCollectScreen';
+import UpdateBankDetailsScreen from '../src/screen/UpdateBankDetails/UpdateBankDetailsScreen';
+import RideCompleteScreen from '../src/screen/DashBoard/screen/RideCompleteScreen';
+import ProfileScreen from '../src/screen/DashBoard/screen/Profile/ProfileScreen';
+import OrderInfo from '../src/screen/DashBoard/screen/OrderInfo/OrderInfoScreen';
+import ChatScreen from '../src/screen/DashBoard/Chat/ChatScreen';
+import AddCashScreen from '../src/screen/DashBoard/screen/Wallet/AddCachScreen';
+import HelpAndSupportChat from '../src/screen/DashBoard/screen/HelpAndSupport/HelpAndSupportChat';
 import HelpAndSupportMain from '../src/screen/HelpAndSupport/HelpAndSupportMain';
 import AddHelpAndSupport from '../src/screen/HelpAndSupport/AddHelpAndSupport';
-import ChatScreen from '../src/screen/DashBoard/Chat/ChatScreen';
+import {useDispatch} from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Loading from '../src/components/Loading/Loading';
+import AccountScreen from '../src/screen/AccountScreen/AccountScreen';
+import {
+  hitGetDriverDetails,
+  hitGetLiveOrderApi,
+  hitGetPartner,
+  hitGetWalletBalanceApi,
+} from '../src/config/api/api';
+import {
+  setOrderData,
+  setlivetripmenu,
+  setloginuserdetails,
+  setnextOrderData,
+  setupdate_order,
+  setwalletBalance,
+} from '../src/redux/HitApis/HitApiSlice';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 
 const Stack = createStackNavigator();
 
 const StackNavigator = () => {
   const dispatch = useDispatch();
-  const showDashBoard = useSelector(
-    state => state?.parsalPartner?.showDashBoard || false,
-  );
+  const navigation = useNavigation();
   const [initialRoute, setInitialRoute] = useState(null);
   const [loading, setLoading] = useState(true);
+  const get_user_details = async () => {
+    const user = await AsyncStorage.getItem('user');
+    const parsed_user = JSON.parse(user);
+   
+    if (parsed_user?.payload?.owner_type == 0) {
+      hitGetDriverDetails({ids: [parsed_user?.payload?.driver_id]})
+        .then(res => {
+          // setuser_details(res?.drivers[0]);
+          dispatch(setloginuserdetails(res?.drivers[0]));
+          const param = {driver_id: parsed_user?.payload?.driver_id};
 
+          // parsed_user?.payload?.driver_id};
+          hitGetWalletBalanceApi(param)
+            .then(res => {
+              dispatch(setwalletBalance(res));
+            })
+            .catch(err => {
+              console.error(err);
+            });
+          const parameter = {
+            user_id: parsed_user?.payload?.driver_id,
+            type: 'driver',
+          };
+          hitGetLiveOrderApi(parameter)
+            .then(res => {
+              if (res?.status == 0) {
+                setshow_live(false);
+                dispatch(setlivetripmenu(false));
+              } else {
+                dispatch(setlivetripmenu(true));
+                setshow_live(true);
+                const {order_otp, ...restOrderData} = res?.ongoingOrder || {};
+                const modifiedOrderData = {...restOrderData, otp: order_otp};
+                dispatch(setOrderData(modifiedOrderData));
+                if (res?.ongoingOrder?.is_arrived_pickup) {
+                  dispatch(setupdate_order(modifiedOrderData));
+                }
+                // navigation.navigate('DriverMap');
+              }
+            })
+            .catch(err => {
+              console.error(err);
+            });
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    } else {
+      hitGetPartner({
+        partner_id: parsed_user?.payload?.partner_id,
+      })
+        .then(res => {
+          // setuser_details(res?.partner);
+          dispatch(setloginuserdetails(res?.partner));
+          if (parsed_user?.payload?.owner_type == 2) {
+            const param = {driver_id: parsed_user?.payload?.driver_id};
+
+            // parsed_user?.payload?.driver_id};
+            hitGetWalletBalanceApi(param)
+              .then(res => {
+                dispatch(setwalletBalance(res));
+              })
+              .catch(err => {
+                console.error(err);
+              });
+            const parameter = {
+              user_id: parsed_user?.payload?.driver_id,
+              type: 'driver',
+            };
+            hitGetLiveOrderApi(parameter)
+              .then(res => {
+                if (res?.ongoingOrder?.length == 0) {
+                  // setshow_live(false);
+                  dispatch(setlivetripmenu(false));
+                  return;
+                } else {
+                  // setshow_live(true);
+                  dispatch(setlivetripmenu(true));
+
+                  const {order_otp, ...restOrderData} =
+                    res?.ongoingOrder[0] || {};
+                  const modifiedOrderData = {...restOrderData, otp: order_otp};
+
+                  dispatch(setOrderData(modifiedOrderData));
+
+                  if (res?.ongoingOrder[0]?.is_arrived_pickup) {
+                    dispatch(setupdate_order(modifiedOrderData));
+                  }
+                  if (res?.ongoingOrder?.length > 1) {
+                    const {order_otp, ...restOrderData} =
+                      res?.ongoingOrder[1] || {};
+                    const modifiedOrderData = {
+                      ...restOrderData,
+                      otp: order_otp,
+                    };
+                    dispatch(setnextOrderData(modifiedOrderData));
+                  }
+                  navigation.navigate('DriverMap');
+                }
+              })
+              .catch(err => {
+                console.error(err);
+              });
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    }
+  };
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     get_user_details();
+  //   }, []), // Empty dependency array to run only when the page is focused
+  // );
   useEffect(() => {
     const checkUserStatus = async () => {
       setLoading(true);
@@ -47,46 +180,10 @@ const StackNavigator = () => {
             try {
               const parsedUser = JSON.parse(user);
               const ownerType = parsedUser?.payload?.owner_type;
-              const partnerId = parsedUser?.payload?.partner_id;
-              console.log('partner__id====>>>>>>>', parsedUser)
               if (ownerType === 0) {
-                console.log('hello-anas==>', ownerType);
-
                 setInitialRoute('DriverDashboard');
               } else if (ownerType == 1 || ownerType == 2) {
-                console.log('hello-anas', ownerType);
-                const response = await hitGetUserDetails({ partner_id: partnerId })
-                console.log(response, 'responsedromstacknav')
-                if (response?.status == 1) {
-                  dispatch(setShowDashBoard(true))
-                  if (showDashBoard) {
-                    console.log('showDashboard', showDashBoard);
-                    dispatch(setPartnerdetails(2))
-                    setInitialRoute('OwnerDashboard');
-
-                  }
-
-                  dispatch(setPartnerdetails(2))
-                  setInitialRoute('OwnerDashboard');
-
-
-
-                } else {
-                  // Alert.alert('4')
-                  // if(showDashBoard){
-
-                  // console.log('showDashboard',showDashBoard);
-                  //   dispatch(setPartnerdetails(1))
-                  //   setInitialRoute('OwnerDashboard');
-
-                  // }
-                  dispatch(setPartnerdetails(1))
-
-
-                  setInitialRoute('OwnerDashboard');
-
-                }
-                // setInitialRoute('OwnerDashboard');
+                setInitialRoute('Trip');
               } else {
                 setInitialRoute('Login');
               }
@@ -106,6 +203,7 @@ const StackNavigator = () => {
       }
     };
     checkUserStatus();
+    get_user_details();
   }, []);
 
   if (loading) {
@@ -113,7 +211,39 @@ const StackNavigator = () => {
   }
 
   return (
-    <Stack.Navigator initialRouteName={initialRoute}>
+    // <Stack.Navigator initialRouteName={initialRoute}>
+    //   <Stack.Screen name="Login" component={LoginScreen} />
+    //   <Stack.Screen name="Otp" component={OtpScreen} />
+    //   <Stack.Screen name="TermsCondition" component={TermsAndCondition} />
+    //   <Stack.Screen name="OwnerDetail" component={OwnerDetailScreen} />
+    //   <Stack.Screen name="DriverDetail" component={DriverDetailScreen} />
+    //   <Stack.Screen name="VehicleDetail" component={VehicleDetailScreen} />
+    //   <Stack.Screen name="UpdateDriver" component={UpdateDriver} />
+    //   <Stack.Screen name="ProfileDetail" component={ProfileDetail} />
+    //   <Stack.Screen name="Notification" component={Notification} />
+    //   <Stack.Screen
+    //     name="MyVehicles"
+    //     component={MyVehiclesScreen}
+    //     options={{headerShown: false}}
+    //   />
+
+    //   <Stack.Screen
+    //     name="DriverDashboard"
+    //     component={DriverDrawerNavigator} // Driver's drawer
+    //     options={{headerShown: false}}
+    //   />
+    //   <Stack.Screen
+    //     name="OwnerDashboard"
+    //     component={OwnerDrawerNavigator} // Owner's drawer
+    //     options={{headerShown: false}}
+    //   />
+    // </Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+      initialRouteName={initialRoute}>
+      {/* Authentication and Profile Screens */}
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Otp" component={OtpScreen} />
       <Stack.Screen name="TermsCondition" component={TermsAndCondition} />
@@ -122,42 +252,62 @@ const StackNavigator = () => {
       <Stack.Screen name="VehicleDetail" component={VehicleDetailScreen} />
       <Stack.Screen name="UpdateDriver" component={UpdateDriver} />
       <Stack.Screen name="ProfileDetail" component={ProfileDetail} />
+
+      {/* Main Screens */}
       <Stack.Screen name="Notification" component={Notification} />
-      <Stack.Screen name="Setting" component={AccountScreen} />
       <Stack.Screen
         name="MyVehicles"
         component={MyVehiclesScreen}
-        options={{ headerShown: false }}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="DriverDashboard"
+        component={DriverDashboard}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Trip"
+        component={LiveTripScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Earning"
+        component={Earning}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen name="DriverMap" component={DriverMapScreen} />
+      <Stack.Screen name="AmountCollected" component={AmountCollectScreen} />
+      <Stack.Screen
+        name="UpdateBankDetails"
+        component={UpdateBankDetailsScreen}
+      />
+      <Stack.Screen name="RideComplete" component={RideCompleteScreen} />
+      <Stack.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="OrderInfo"
+        component={OrderInfo}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Chat"
+        component={ChatScreen}
+        options={{headerShown: false}}
       />
       <Stack.Screen
         name="Wallet"
         component={WalletScreen}
-        options={{ headerShown: false }}
+        options={{headerShown: false}}
       />
-   
-       <Stack.Screen
-        name="Chat"
-        component={ChatScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="HelpandSupport"
-        component={HelpAndSupportMain}
-      />
-      <Stack.Screen
-        name="TicketSubmission"
-        component={AddHelpAndSupport}
-      />
-      <Stack.Screen
-        name="DriverDashboard"
-        component={DriverDrawerNavigator} // Driver's drawer
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="OwnerDashboard"
-        component={OwnerDrawerNavigator} // Owner's drawer
-        options={{ headerShown: false }}
-      />
+      <Stack.Screen name="AddCash" component={AddCashScreen} />
+      <Stack.Screen name="HelpChat" component={HelpAndSupportChat} />
+      <Stack.Screen name="TransactionHistory" component={TransactionHistory} />
+      <Stack.Screen name="HelpAndSupport" component={HelpAndSupportMain} />
+      <Stack.Screen name="TicketSubmission" component={AddHelpAndSupport} />
+      <Stack.Screen name="Setting" component={AccountScreen} />
     </Stack.Navigator>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import DriverDashboard from '../src/screen/DashBoard/DriverDashboard';
 import LiveTripScreen from '../src/screen/DashBoard/screen/LiveTripScreen/LiveTrip';
@@ -21,10 +21,7 @@ import TransactionHistory from '../src/screen/TransactionHistory';
 import HelpAndSupportMain from '../src/screen/HelpAndSupport/HelpAndSupportMain';
 import AddHelpAndSupport from '../src/screen/HelpAndSupport/AddHelpAndSupport';
 
-import { useSelector } from 'react-redux';
-import { useFocusEffect } from '@react-navigation/native';
-import { getPartner } from '../src_/config/url';
-import Loading from '../src/components/Loading/Loading';
+// Driver Drawer
 const DriverDrawer = createDrawerNavigator();
 const DriverDrawerNavigator = () => {
   return (
@@ -95,54 +92,35 @@ const DriverDrawerNavigator = () => {
 };
 const OwnerDrawer = createDrawerNavigator();
 const OwnerDrawerNavigator = () => {
-  const partnerDetail = useSelector(state => state?.parsalPartner?.partnerDetail || false);
-  const [initialRouteName, setInitialRouteName] = useState(null);
-  const [loading, setLoading] = useState(true)
-  useEffect(() => {
-    setLoading(true);
-    if (partnerDetail === 2) {
-      setInitialRouteName('Trip');
-    } else {
-      setInitialRouteName('MyVehicles');
-    }
-    setLoading(false); 
-  }, [partnerDetail]);
-
-  if (loading || !initialRouteName) {
-    // Render the Loading component while determining the initial route
-    return <Loading loading={loading} />;
-  }
   return (
     <OwnerDrawer.Navigator
-      initialRouteName={initialRouteName}
-      drawerContent={props => <Menu {...props} owner={1} />}
-    >
-      
-      <OwnerDrawer.Screen
-        name="MyVehicles"
-        component={MyVehiclesScreen}
-        options={{ headerShown: false }}
-      />
+      drawerContent={props => <Menu {...props} owner={1} />}>
+      {/* Include direct screen components for the owner */}
       <OwnerDrawer.Screen
         name="Trip"
         component={LiveTripScreen}
-        options={{ headerShown: false }}
+        options={{headerShown: false}}
       />
       <OwnerDrawer.Screen name="Help" component={HelpAndSupportChat} />
       <OwnerDrawer.Screen
+        name="MyVehicles"
+        component={MyVehiclesScreen}
+        options={{headerShown: false}}
+      />
+      <OwnerDrawer.Screen
         name="Earning"
         component={Earning}
-        options={{ headerShown: false }}
+        options={{headerShown: false}}
       />
       <OwnerDrawer.Screen
         name="Profile"
         component={ProfileScreen}
-        options={{ headerShown: false }}
+        options={{headerShown: false}}
       />
       <OwnerDrawer.Screen
         name="orderinfo"
         component={OrderInfo}
-        options={{ headerShown: false }}
+        options={{headerShown: false}}
       />
       <OwnerDrawer.Screen
         name="ProfileDetail"
@@ -155,18 +133,18 @@ const OwnerDrawerNavigator = () => {
       <OwnerDrawer.Screen
         name="Wallet"
         component={WalletScreen}
-        options={{ headerShown: false }}
+        options={{headerShown: false}}
       />
       <OwnerDrawer.Screen name="AddCash" component={AddCashScreen} />
       <OwnerDrawer.Screen
         name="Notification"
         component={Notification}
-        options={{ headerShown: false }}
+        options={{headerShown: false}}
       />
       <OwnerDrawer.Screen
         name="Chat"
         component={ChatScreen}
-        options={{ headerShown: false }}
+        options={{headerShown: false}}
       />
       <OwnerDrawer.Screen
         name="HelpandSupport"
@@ -194,6 +172,5 @@ const OwnerDrawerNavigator = () => {
     </OwnerDrawer.Navigator>
   );
 };
-
 // Export both navigators
 export {OwnerDrawerNavigator, DriverDrawerNavigator};
