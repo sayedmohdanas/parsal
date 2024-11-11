@@ -7,18 +7,22 @@ import Geolocation from 'react-native-geolocation-service';
 import {API_BASE_URL} from '../config/url';
 import AppImages from './AppImages';
 export const IMAGE_FOLDER = 'partners_img/';
-// export function setItem(key, data) {
-//     data = JSON.stringify(data);
-//     // return AsyncStorage.setItem(key, data);
-// }
+ export const formatDate = (date) => {
+  const newDate = new Date(date);
+  
+  const day = newDate.getDate();
+  const month = newDate.toLocaleString('default', { month: 'short' });
+  const year = newDate.getFullYear().toString().slice(-2);
+  
+  const hours = newDate.getHours();
+  const minutes = newDate.getMinutes(); 
+  const amPm = hours >= 12 ? 'PM' : 'AM';
+  const formattedHours = hours % 12 || 12; 
+  const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
 
-// export function getItem(key) {
-//     return new Promise((resolve, reject) => {
-//         AsyncStorage.getItem(key).then(data => {
-//             resolve(JSON.parse(data));
-//         });
-//     });
-// }
+  // Format as required: 26-Oct-24 10:47 PM
+  return `${day}-${month}-${year} ${formattedHours}:${formattedMinutes} ${amPm}`;
+}; 
 export const getImageUrl = (partner_id, driver_id, profile_pic) => {
   console.log(
     'img_url',

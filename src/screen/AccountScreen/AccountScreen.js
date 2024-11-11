@@ -276,6 +276,7 @@ const AccountScreen = () => {
                   style={{
                     height: responsiveHeight(16),
                     width: responsiveHeight(16),
+                    
                   }}
                 />
               </TouchableOpacity>
@@ -565,6 +566,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: responsiveHeight(13),
     marginHorizontal: 5,
+    // backgroundColor:'red',
+    marginHorizontal:responsiveWidth(10)
+
   },
   optionName: {
     fontSize: responsiveFontSize(15),

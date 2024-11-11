@@ -278,9 +278,9 @@ const styles = StyleSheet.create({
   modalContainer: {
     width: '90%',
     backgroundColor: 'white',
-    borderRadius: 20,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
+    borderRadius: responsiveHeight(20),
+    paddingHorizontal: responsiveWidth(15),
+    paddingVertical: responsiveHeight(10),
     alignItems: 'flex-start',
   },
   headerContainer: {
@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
     padding: 12,
     // borderWidth: 1,
     borderColor: '#D8D8D8',
-    borderRadius: 30, // Make it a circle
+    borderRadius: responsiveHeight(30), // Make it a circle
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
@@ -401,7 +401,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     // backgroundColor:'yellow',
-    marginTop: 5,
+    marginTop: responsiveHeight(5),
 
     // justifyContent:'flex-start',
   },
@@ -413,13 +413,13 @@ const styles = StyleSheet.create({
     height: responsiveWidth(8),
     width: responsiveWidth(8),
     backgroundColor: Colors.brandBlue,
-    borderRadius: 20,
+    borderRadius: responsiveHeight(20),
   },
   blackCircle: {
     height: responsiveWidth(5),
     width: responsiveWidth(5),
     backgroundColor: Colors.black,
-    borderRadius: 20,
+    borderRadius: responsiveHeight(20),
   },
   redCircle: {
     height: responsiveWidth(10),

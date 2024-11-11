@@ -118,7 +118,7 @@ const BottomNav = props => {
                             position: 'absolute',
                             height: 8,
                             width: 8,
-                            borderRadius: 5,
+                            borderRadius: responsiveHeight(5),
                             backgroundColor: 'red',
                             zIndex: 1000,
                             right: 0,
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     height: responsiveHeight(62),
     backgroundColor: Colors.white,
     marginHorizontal: responsiveWidth(16),
-    borderRadius: 40,
+    borderRadius: responsiveHeight(40),
     // elevation: 7,
     // shadowColor: Colors.black,
     // iOS Shadow
