@@ -37,7 +37,6 @@ const OtpScreen = ({navigation, route}) => {
   const dispatch = useDispatch();
   const userOtp = useSelector(state => state?.parsalPartner?.user?.otp);
   const user = useSelector(state => state?.parsalPartner?.user);
-
   const loading = useSelector(state => state?.parsalPartner?.loading);
   const [otp, setOtp] = useState('');
   let otpInput = useRef(null);
@@ -112,7 +111,7 @@ const OtpScreen = ({navigation, route}) => {
           response?.partner?.email !== '-' &&
           response?.partner?.phone !== '-'
         ) {
-          navigation.replace('MyVehicles', {     
+          navigation.replace('MyVehicles', {
             email: number,
           });
         } else {
@@ -144,7 +143,6 @@ const OtpScreen = ({navigation, route}) => {
     }
   };
 
-
   return (
     <>
       <View
@@ -172,13 +170,13 @@ const OtpScreen = ({navigation, route}) => {
                 resizeMode="contain"
               />
             </View>
-        
+
             <View style={[{flexDirection: 'row'}, styles.numberStyleContainer]}>
               <View style={[{flexDirection: 'row'}, styles.numberContainer]}>
                 <Text style={styles.number}>{number}</Text>
               </View>
               <TouchableOpacity
-                onPress={() => {               
+                onPress={() => {
                   dispatch(setLogout());
                   navigation.navigate('Login', {number: number});
                 }}>
@@ -205,7 +203,7 @@ const OtpScreen = ({navigation, route}) => {
                   inputCellLength={1}
                   tintColor={Colors.brandBlue}
                   offTintColor={Colors.textInputBorderColor}
-                  autoFocus={true}                  
+                  autoFocus={true}
                 />
               </View>
             </View>

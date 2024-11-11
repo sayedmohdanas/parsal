@@ -56,12 +56,12 @@ const Earning = () => {
 
     let startDate, endDate;
     if (selectedRange === 'today') {
-      startDate = new Date(); // Use today's date as JavaScript Date object
-      endDate = null; // No end date for 'today'
+      startDate = new Date();
+      endDate = null;
     } else if (selectedRange === 'week') {
-      startDate = new Date(); // Today's date as end of the week
-      endDate = new Date(); // Clone today's date for start calculation
-      startDate.setDate(startDate.getDate() - 6); // Subtract 6 days to get start of the week
+      startDate = new Date();
+      endDate = new Date();
+      startDate.setDate(startDate.getDate() - 6);
     }
 
     setDateRange({start: startDate, end: endDate});
@@ -184,15 +184,11 @@ const Earning = () => {
       );
     };
   }, [selectedDriver]);
-  // const formatDateForDisplay = (date) => {
-  // console.log('data',date);
-  //   return date ? date.toDateString() : ''; // Format the date when needed
-  // };
+
   const formatDateForDisplay = date => {
     if (date != null && date) {
       const options = {day: '2-digit', month: 'short', year: 'numeric'};
       const formattedDate = date?.toLocaleDateString('en-GB', options);
-      // Replace spaces with hyphens
       return formattedDate.replace(/ /g, '-');
     }
   };
@@ -201,11 +197,9 @@ const Earning = () => {
     const currentStartDate = new Date(dateRange.start);
 
     if (selectedRange === 'week') {
-      // Calculate previous week range
       const prevWeek = calculateWeekRange(currentStartDate, false);
       setDateRange(prevWeek);
     } else if (selectedRange === 'today') {
-      // Calculate previous day
       const prevDay = calculateDayRange(currentStartDate, false);
       setDateRange(prevDay);
     }
@@ -398,7 +392,7 @@ const Earning = () => {
                 data={driver_todays_earning?.individual_paid_amounts}
                 renderItem={renderItem}
                 keyExtractor={(item, index) => index.toString()}
-                contentContainerStyle={{flexGrow: 1}}
+                contentContainerStyle={{flexGrow: 1,paddingBottom:responsiveHeight(80)}}
               />
             </View>
           </>

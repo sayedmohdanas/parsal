@@ -50,14 +50,17 @@ const OrderScreen = () => {
       type: 1,
     };
     hitOrderListApi(request)
-      .then(res => {
-        setorders(res?.data);
-        setloader(false);
-      })
-      .catch(err => {
-        console.error(err);
-      });
-  };
+    .then(res => {
+      setorders(res?.data);
+    })
+    .catch(err => {
+      console.error(err);
+    })
+    .finally(() => {
+      setloader(false);
+    });
+      };
+  
 
   useEffect(() => {
     if (focus) {
@@ -68,7 +71,6 @@ const OrderScreen = () => {
   const filter_data = data => {
     let filtered = data;
 
-    // Filter by order status based on the active button
     if (activeButton === 'Pending') {
       filtered = filtered.filter(order => order.order_status === 0);
     } else if (activeButton === 'Delivered') {
@@ -77,7 +79,6 @@ const OrderScreen = () => {
       filtered = filtered.filter(order => order.order_status === 5);
     }
 
-    // Filter based on search query (matches parcel number, parcel name, pickup address, or drop address)
     if (searchQuery.trim() !== '') {
       filtered = filtered.filter(
         order =>
@@ -134,11 +135,11 @@ const OrderScreen = () => {
             parsalStatusTextColor={orderStatusTextColor}
             textColor={textColor}
             citystart={item.pickup_address}
-            statestart={'State Name'} // Replace with dynamic state if available
+            statestart={'State Name'}
             cityend={item.drop_address}
-            stateend={'State Name'} // Replace with dynamic state if available
+            stateend={'State Name'}
             name={item.driver?.driver_name}
-            address={'Driver Address'} // Replace with dynamic address if available
+            address={'Driver Address'} 
             tripCost={parseFloat(item?.paid_amount || 0).toFixed(2)}
             partnerId={item.driver?.partner_id}
             driverId={item.driver_id}
@@ -148,7 +149,7 @@ const OrderScreen = () => {
           />
         );
       },
-    [filteredOrders, activeButton, searchQuery], // Dependencies could include `items` or relevant props passed to `renderOrderItem`
+    [filteredOrders, activeButton, searchQuery],
   );
 
   return (
@@ -217,36 +218,36 @@ const OrderScreen = () => {
               data={filter_data(orders)}
               keyExtractor={(item, index) => item.id.toString()}
               renderItem={renderOrderItem}
-              //   ListEmptyComponent={() => (
-              //     <SafeAreaView
-              //       style={{
-              //         flex: 1,
-              //         justifyContent: 'center',
-              //         alignItems: 'center',
-              //         marginTop: '30%',
-              //       }}>
-              //       <View
-              //         style={{flex: 1, backgroundColor: Colors.homeBackground}}>
-              //         <View style={[{flex: 1}, mystyles.center]}>
-              //           <ImageBackground
-              //             source={AppImages.boxbackgound}
-              //             style={styles.boxBackstyle}>
-              //             <Image
-              //               source={AppImages.emptyImage}
-              //               style={styles.emptyboxStyle}
-              //               resizeMode="contain"
-              //             />
-              //           </ImageBackground>
-              //           <Text style={[styles.emptyTextStyle, {marginTop: 10}]}>
-              //             {'Order history limited to last 2 years'}
-              //           </Text>
-              //           <Text style={styles.emptyTextStyle}>
-              //             {'For older orders, contact our support team.'}
-              //           </Text>
-              //         </View>
-              //       </View>
-              //     </SafeAreaView>
-              //   )}
+                ListEmptyComponent={() => (
+                  <SafeAreaView
+                    style={{
+                      flex: 1,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginTop: '30%',
+                    }}>
+                    <View
+                      style={{flex: 1, backgroundColor: Colors.homeBackground}}>
+                      <View style={[{flex: 1}, mystyles.center]}>
+                        <ImageBackground
+                          source={AppImages.boxbackgound}
+                          style={styles.boxBackstyle}>
+                          <Image
+                            source={AppImages.emptyImage}
+                            style={styles.emptyboxStyle}
+                            resizeMode="contain"
+                          />
+                        </ImageBackground>
+                        <Text style={[styles.emptyTextStyle, {marginTop: 10}]}>
+                          {'Order history limited to last 2 years'}
+                        </Text>
+                        <Text style={styles.emptyTextStyle}>
+                          {'For older orders, contact our support team.'}
+                        </Text>
+                      </View>
+                    </View>
+                  </SafeAreaView>
+                )}
             />
           )}
         </View>
