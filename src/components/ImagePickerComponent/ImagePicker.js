@@ -49,7 +49,7 @@ const ImagePickerComponent = ({ labelText, uploaded, onImagePick, useCamera = fa
           </Text>
           {uploaded &&
             <View style={styles.uplodedIConView}>
-              <Image source={uplodedImage} style={styles.image} />
+              <Image source={uplodedImage} resizeMode='contain' style={{height:responsiveHeight(15),width:responsiveWidth(15)}} />
               <Text style={styles.uploadedText}>Uploaded</Text>
             </View>
           }
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
   },
   uploadedText: {
     color: 'green',
-    fontSize: responsiveFontSize(14),
+    fontSize: responsiveFontSize(12),
     fontWeight: '500',
     marginLeft: responsiveWidth(5),
   },

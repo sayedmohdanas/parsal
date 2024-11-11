@@ -58,7 +58,7 @@ export default CustomButton;
 const styles = StyleSheet.create({
     container: {
         height: responsiveHeight(56),
-        borderRadius: 10,
+        borderRadius: responsiveHeight(30),
     },
     buttonText: {
         fontSize: responsiveFontSize(16),

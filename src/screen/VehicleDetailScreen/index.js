@@ -37,18 +37,12 @@ import {
 } from '../../config/api/api';
 import {getimage} from '../../config/url';
 import {FontSizes} from '../../common/Theme';
+import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
 
 const VehicleDetailScreen = ({route}) => {
   const {UpdatedVehicleData} = route.params || {};
-  // const [vehicleNumber, setVehicleNumber] = useState('');
-  // const [rcUploaded, setRcUploaded] = useState('');
-  // const [selectedVehicleType, setSelectedVehicleType] = useState(null);
-  // const [showVehicleOptions, setShowVehicleOptions] = useState(true);
-  // const [selectedCity, setSelectedCity] = useState('Lucknow');
-  // const [selectedBodyType, setSelectedBodyType] = useState(null);
-  // const [showVehicleBodyType, setShowVehicleBodyType] = useState(true);
   const navigation = useNavigation();
-  const [showEditOption, setShowEditOption] = useState(false);
+  // const [showEditOption, setShowEditOption] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   // const [selectedFuelType, setSelectedFuelType] = useState(0);
   const [vehicleNumber, setVehicleNumber] = useState(
@@ -57,9 +51,9 @@ const VehicleDetailScreen = ({route}) => {
   const [rcUploaded, setRcUploaded] = useState(
     UpdatedVehicleData?.rc_image || '',
   );
-  const [selectedVehicleType, setSelectedVehicleType] = useState(
-    UpdatedVehicleData?.vehicle_type_id || null,
-  );
+  // const [selectedVehicleType, setSelectedVehicleType] = useState(
+  //   UpdatedVehicleData?.vehicle_type_id || null,
+  // );
   const [selectedCity, setSelectedCity] = useState(
     UpdatedVehicleData?.operational_city || 'Lucknow',
   );
@@ -181,7 +175,7 @@ const VehicleDetailScreen = ({route}) => {
           if (addVehicle.fulfilled.match(resultAction)) {
             // Alert.alert('Submitted');
             successToast('Submitted', 'Vehicle details have been submitted');
-            navigation.navigate('OwnerDashboard');
+            navigation.goBack('');
 
             // navigation.navigate('MyVehicles');
           } else {
@@ -284,6 +278,12 @@ const VehicleDetailScreen = ({route}) => {
 
   return (
     <>
+      <HeaderBackButton
+        headerText={'Add Vehicle'}
+        onPress={() => {
+          navigation.goBack('');
+        }}
+      />
       <View style={styles.container}>
         <ScrollView style={styles.formContainer}>
           <Heading text="Add RC Details" isRequired={false} />

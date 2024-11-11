@@ -65,6 +65,7 @@ const LoginScreen = ({navigation, route}) => {
         navigation.replace('Otp', {number: number});
       }
     }
+    
   }, [status]);
   const handleTermsPress = () => {
     navigation.navigate('TermsCondition', {

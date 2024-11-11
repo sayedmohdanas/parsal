@@ -3,7 +3,7 @@ import React, {useCallback, useEffect, useState} from 'react';
 import AppImages from '../src/common/AppImages';
 import Colors from '../src/common/Colors';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {
   responsiveFontSize,
   responsiveHeight,
@@ -11,13 +11,32 @@ import {
 } from '../src/common/metrices';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {getimage} from '../src/config/url';
+import {
+  hitGetDriverDetails,
+  hitGetLiveOrderApi,
+  hitGetPartner,
+  hitGetWalletBalanceApi,
+} from '../src/config/api/api';
+import {
+  setOrderData,
+  setlivetripmenu,
+  setloginuserdetails,
+  setnextOrderData,
+  setupdate_order,
+  setwalletBalance,
+} from '../src/redux/HitApis/HitApiSlice';
 const BottomNav = props => {
   const navigation = useNavigation();
-  const orderData = useSelector(state => state.parsal_store?.orderData);
+  const {orderData, update_order, nextOrderData} = useSelector(
+    state => state?.parsalPartner,
+  );
   const driverProfile = useSelector(
     state => state?.parsalPartner?.logindriverdetails,
   );
   const [user_image, setuser_image] = useState();
+  const [show_live, setshow_live] = useState(false);
+  const [parse_data, setparsed_data] = useState();
+  const dispatch = useDispatch();
   const fetchUserData = async () => {
     try {
       const user = await AsyncStorage.getItem('user');
@@ -49,7 +68,121 @@ const BottomNav = props => {
       setuser_image(imgUrl);
     }
   };
-
+  const get_user_details = async () => {
+    const user = await AsyncStorage.getItem('user');
+    const parsed_user = JSON.parse(user);
+    setparsed_data(parsed_user);
+    if (parsed_user?.payload?.owner_type == 0) {
+      hitGetDriverDetails({ids: [parsed_user?.payload?.driver_id]})
+        .then(res => {
+          dispatch(setloginuserdetails(res?.drivers[0]));
+          const param = {driver_id: parsed_user?.payload?.driver_id};
+          hitGetWalletBalanceApi(param)
+            .then(res => {
+              dispatch(setwalletBalance(res));
+            })
+            .catch(err => {
+              console.error(err);
+            });
+          const parameter = {
+            user_id: parsed_user?.payload?.driver_id,
+            type: 'driver',
+          };
+          hitGetLiveOrderApi(parameter)
+            .then(res => {
+              if (res?.ongoingOrder.length == 0) {
+                setshow_live(false);
+                dispatch(setlivetripmenu(false));
+              } else {
+                setshow_live(true);
+                dispatch(setlivetripmenu(true));
+                const {order_otp, ...restOrderData} =
+                  res?.ongoingOrder[0] || {};
+                const modifiedOrderData = {...restOrderData, otp: order_otp};
+                dispatch(setOrderData(modifiedOrderData));
+                if (res?.ongoingOrder[0]?.is_arrived_pickup) {
+                  dispatch(setupdate_order(modifiedOrderData));
+                }
+                if (res?.ongoingOrder?.length > 1) {
+                  const {order_otp, ...restOrderData} =
+                    res?.ongoingOrder[1] || {};
+                  const modifiedOrderData = {
+                    ...restOrderData,
+                    otp: order_otp,
+                  };
+                  dispatch(setnextOrderData(modifiedOrderData));
+                }
+              }
+            })
+            .catch(err => {
+              console.error(err);
+            });
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    } else {
+      hitGetPartner({
+        partner_id: parsed_user?.payload?.partner_id,
+      })
+        .then(res => {
+          // setuser_details(res?.partner);
+          dispatch(setloginuserdetails(res?.partner));
+          if (parsed_user?.payload?.owner_type == 2) {
+            const param = {driver_id: parsed_user?.payload?.driver_id};
+            hitGetWalletBalanceApi(param)
+              .then(res => {
+                dispatch(setwalletBalance(res));
+              })
+              .catch(err => {
+                console.error(err);
+              });
+            const parameter = {
+              user_id: parsed_user?.payload?.driver_id,
+              type: 'driver',
+            };
+            hitGetLiveOrderApi(parameter)
+              .then(res => {
+                if (res?.ongoingOrder?.length == 0) {
+                  setshow_live(false);
+                  dispatch(setlivetripmenu(false));
+                  return;
+                } else {
+                  setshow_live(true);
+                  dispatch(setlivetripmenu(true));
+                  const {order_otp, ...restOrderData} =
+                    res?.ongoingOrder[0] || {};
+                  const modifiedOrderData = {...restOrderData, otp: order_otp};
+                  dispatch(setOrderData(modifiedOrderData));
+                  if (res?.ongoingOrder[0]?.is_arrived_pickup) {
+                    dispatch(setupdate_order(modifiedOrderData));
+                  }
+                  if (res?.ongoingOrder?.length > 1) {
+                    const {order_otp, ...restOrderData} =
+                      res?.ongoingOrder[1] || {};
+                    const modifiedOrderData = {
+                      ...restOrderData,
+                      otp: order_otp,
+                    };
+                    dispatch(setnextOrderData(modifiedOrderData));
+                  }
+                }
+              })
+              .catch(err => {
+                console.error(err);
+              });
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    }
+  };
+  useFocusEffect(
+    useCallback(() => {
+      get_user_details();
+    }, []),
+  );
   return (
     <View style={styles.container}>
       <View style={styles.row}>
@@ -57,7 +190,11 @@ const BottomNav = props => {
           <TouchableOpacity
             style={styles.header_center}
             onPress={() => {
-              navigation.navigate('Trip');
+              if (parse_data?.payload?.owner_type == 0) {
+                navigation.navigate('DriverDashboard');
+              } else {
+                navigation.navigate('Trip');
+              }
             }}>
             <View style={[styles.header, {paddingTop: 5}]}>
               {props.Trip ? (
@@ -99,8 +236,8 @@ const BottomNav = props => {
             <TouchableOpacity
               style={styles.header_center}
               onPress={() => {
-                if (orderData) {
-                  navigation.navigate('TripScreen');
+                if (orderData || nextOrderData || update_order) {
+                  navigation.navigate('DriverMap');
                 } else {
                   navigation.navigate('OrderScreen');
                 }
@@ -112,7 +249,11 @@ const BottomNav = props => {
                       {orderData && (
                         <TouchableOpacity
                           onPress={() => {
-                            navigation.navigate('TripScreen');
+                            if (orderData || nextOrderData || update_order) {
+                              navigation.navigate('DriverMap');
+                            } else {
+                              navigation.navigate('TripScreen');
+                            }
                           }}
                           style={{
                             position: 'absolute',
@@ -141,7 +282,11 @@ const BottomNav = props => {
                     {orderData && (
                       <TouchableOpacity
                         onPress={() => {
-                          navigation.navigate('OrderScreen');
+                          if (orderData || nextOrderData || update_order) {
+                            navigation.navigate('DriverMap');
+                          } else {
+                            navigation.navigate('TripScreen');
+                          }
                         }}
                         style={{
                           position: 'absolute',

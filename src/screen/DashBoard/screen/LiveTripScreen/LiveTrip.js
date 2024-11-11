@@ -916,7 +916,7 @@ const LiveTripScreen = () => {
                 latitudeDelta: 0.024, // More zoomed-in for closer latitude view
                 longitudeDelta: 0.024, // More zoomed-in for closer longitude view
               }}>
-              {driverLocation.latitude &&
+              {/* {driverLocation.latitude &&
                 driverLocation.longitude &&
                 login_data?.payload?.owner_type !== 2 && (
                   <Marker
@@ -930,7 +930,7 @@ const LiveTripScreen = () => {
                     }}
                     title={'Driver Location'}
                   />
-                )}
+                )} */}
 
               {login_data?.payload?.owner_type != 0 && !all_flag && (
                 <>
@@ -1022,7 +1022,7 @@ const LiveTripScreen = () => {
             </MapView>
 
             <View style={styles.content}>
-              <CustomHeader screenName={'Live Trips'} />
+              <CustomHeader  showSplash={true} screenName={'Trips'} />
               {!onlyPartnerDriver && (
                 <View style={styles.tripContainer}>
                   {partner_riders?.length > 0 && (
@@ -1093,7 +1093,7 @@ const LiveTripScreen = () => {
                     color={'#D8D8D8'}
                     orientation="vertical"
                     length="65%"
-                    thickness={0.4}
+                    thickness={0.97}
                   />
                   <View>
                     <View style={[styles.tripCard]}>
@@ -1116,7 +1116,7 @@ const LiveTripScreen = () => {
               !all_flag &&
               selectedTrip && (
                 <View style={styles.cardContainer}>
-                  <LiveTripCustomCard trip={selectedTrip} />
+                  <LiveTripCustomCard  trip={selectedTrip} />
                 </View>
               )}
           </ScrollView>

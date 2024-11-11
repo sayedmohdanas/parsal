@@ -116,6 +116,7 @@ const NextOrder = ({isVisible, driverId, onClose, setnextordermodal}) => {
       setLoadig(false);
     }
   };
+  // console.log('===>', nextOrderData);
   return (
     <>
       <Modal
@@ -152,8 +153,12 @@ const NextOrder = ({isVisible, driverId, onClose, setnextordermodal}) => {
 
             <View style={{width: '100%'}}>
               <DriverInformation
-                display_name={nextOrderData?.customer?.cust_name}
-                display_phone={nextOrderData?.customer?.mobile}
+                display_name={
+                  nextOrderData?.customer?.cust_name || nextOrderData?.custName
+                }
+                display_phone={
+                  nextOrderData?.customer?.mobile || nextOrderData?.custMobile
+                }
                 propStyle={{
                   manStyle: {
                     width: responsiveWidth(44),
@@ -170,9 +175,12 @@ const NextOrder = ({isVisible, driverId, onClose, setnextordermodal}) => {
             <BorderLine color="#D8D8D8" margin={10} thickness={0.5} />
 
             <View style={styles.bodyContainer}>
-              {nextOrderData?.paid_amount && (
+              {nextOrderData && (
                 <Text style={styles.priceText}>
-                  ₹{nextOrderData?.paid_amount}
+                  ₹
+                  {nextOrderData?.newOrder?.paid_amount ||
+                    nextOrderData?.paid_amount ||
+                    0}
                 </Text>
               )}
               <View
@@ -182,32 +190,42 @@ const NextOrder = ({isVisible, driverId, onClose, setnextordermodal}) => {
                   marginTop: responsiveHeight(20),
                   marginBottom: responsiveHeight(8),
                 }}>
-                {nextOrderData?.drop_long && (
-                  <Text style={styles.bodyText}>
-                    {' '}
-                    {`${
-                      calculateDistanceAndTime(
-                        nextOrderData?.pickup_lat,
-                        nextOrderData?.pickup_long,
-                        nextOrderData?.drop_lat,
-                        nextOrderData?.drop_long,
-                      )?.travelTime
-                    },`}
-                  </Text>
-                )}
-                {nextOrderData?.drop_long && (
-                  <Text style={styles.bodyText}>
-                    {' '}
-                    {`${
-                      calculateDistanceAndTime(
-                        nextOrderData?.pickup_lat,
-                        nextOrderData?.pickup_long,
-                        nextOrderData?.drop_lat,
-                        nextOrderData?.drop_long,
-                      )?.distanceKm
-                    } km `}
-                  </Text>
-                )}
+                {nextOrderData?.newOrder?.drop_long ||
+                  (nextOrderData?.drop_long && (
+                    <Text style={styles.bodyText}>
+                      {' '}
+                      {`${
+                        calculateDistanceAndTime(
+                          nextOrderData?.newOrder?.pickup_lat ||
+                            nextOrderData?.pickup_lat,
+                          nextOrderData?.newOrder?.pickup_long ||
+                            nextOrderData?.pickup_long,
+                          nextOrderData?.newOrder?.drop_lat ||
+                            nextOrderData?.drop_lat,
+                          nextOrderData?.newOrder?.drop_long ||
+                            nextOrderData?.drop_long,
+                        )?.travelTime
+                      },`}
+                    </Text>
+                  ))}
+                {nextOrderData?.newOrder?.drop_long ||
+                  (nextOrderData?.drop_long && (
+                    <Text style={styles.bodyText}>
+                      {' '}
+                      {`${
+                        calculateDistanceAndTime(
+                          nextOrderData?.newOrder?.pickup_lat ||
+                            nextOrderData?.pickup_lat,
+                          nextOrderData?.newOrder?.pickup_long ||
+                            nextOrderData?.pickup_long,
+                          nextOrderData?.newOrder?.drop_lat ||
+                            nextOrderData?.drop_lat,
+                          nextOrderData?.newOrder?.drop_long ||
+                            nextOrderData?.drop_long,
+                        )?.distanceKm
+                      } km `}
+                    </Text>
+                  ))}
               </View>
 
               <View
@@ -216,24 +234,27 @@ const NextOrder = ({isVisible, driverId, onClose, setnextordermodal}) => {
                   justifyContent: 'space-between',
                   paddingVertical: 8,
                 }}>
-                {nextOrderData?.paid_amount && (
-                  <View style={[styles.timelineContainer]}>
-                    <View style={styles.greenCircle}></View>
-                    <View style={styles.line}></View>
-                    <View style={styles.redCircle}>
-                      <View style={styles.blackCircle}></View>
+                {nextOrderData?.newOrder?.paid_amount ||
+                  (nextOrderData?.paid_amount && (
+                    <View style={[styles.timelineContainer]}>
+                      <View style={styles.greenCircle}></View>
+                      <View style={styles.line}></View>
+                      <View style={styles.redCircle}>
+                        <View style={styles.blackCircle}></View>
+                      </View>
                     </View>
-                  </View>
-                )}
+                  ))}
                 <View style={{marginLeft: responsiveWidth(5)}}>
                   <Text
                     numberOfLines={2}
                     style={[styles.addressText, {marginVertical: 0}]}>
-                    {nextOrderData?.pickup_address}
+                    {nextOrderData?.pickup_address ||
+                      nextOrderData?.newOrder?.pickup_address}
                   </Text>
 
                   <Text numberOfLines={2} style={styles.addressText}>
-                    {nextOrderData?.drop_address}
+                    {nextOrderData?.drop_address ||
+                      nextOrderData?.newOrder?.drop_address}
                   </Text>
                 </View>
               </View>
@@ -278,9 +299,9 @@ const styles = StyleSheet.create({
   modalContainer: {
     width: '90%',
     backgroundColor: 'white',
-    borderRadius: responsiveHeight(20),
-    paddingHorizontal: responsiveWidth(15),
-    paddingVertical: responsiveHeight(10),
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
     alignItems: 'flex-start',
   },
   headerContainer: {

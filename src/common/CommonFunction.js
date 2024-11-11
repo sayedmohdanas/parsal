@@ -7,32 +7,32 @@ import Geolocation from 'react-native-geolocation-service';
 import {API_BASE_URL} from '../config/url';
 import AppImages from './AppImages';
 export const IMAGE_FOLDER = 'partners_img/';
- export const formatDate = (date) => {
+// export function setItem(key, data) {
+//     data = JSON.stringify(data);
+//     // return AsyncStorage.setItem(key, data);
+// }
+
+// export function getItem(key) {
+//     return new Promise((resolve, reject) => {
+//         AsyncStorage.getItem(key).then(data => {
+//             resolve(JSON.parse(data));
+//         });
+//     });
+// }
+export const formatDate = date => {
   const newDate = new Date(date);
-  
   const day = newDate.getDate();
-  const month = newDate.toLocaleString('default', { month: 'short' });
+  const month = newDate.toLocaleString('default', {month: 'short'});
   const year = newDate.getFullYear().toString().slice(-2);
-  
   const hours = newDate.getHours();
-  const minutes = newDate.getMinutes(); 
+  const minutes = newDate.getMinutes();
   const amPm = hours >= 12 ? 'PM' : 'AM';
   const formattedHours = hours % 12 || 12; 
   const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-
   // Format as required: 26-Oct-24 10:47 PM
   return `${day}-${month}-${year} ${formattedHours}:${formattedMinutes} ${amPm}`;
-}; 
+};
 export const getImageUrl = (partner_id, driver_id, profile_pic) => {
-  console.log(
-    'img_url',
-    `${API_BASE_URL}media/${IMAGE_FOLDER}${partner_id}/drivers/${driver_id}_${profile_pic}`,
-  );
-  console.log('====================================');
-  console.log(partner_id);
-  console.log(driver_id);
-  console.log(profile_pic);
-  console.log('====================================');
   if (!partner_id || !driver_id || !profile_pic) {
     return AppImages.profileImage;
   }
@@ -128,21 +128,143 @@ export const formatVehicleNumber = number => {
 // import Geolocation from '@react-native-community/geolocation';
 
 // Function to request location permission for Android
+// export async function requestLocationPermission() {
+//   try {
+//     // First, request fine location permission
+//     const fineLocationGranted = await PermissionsAndroid.request(
+//       PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+//       {
+//         title: 'Parsal Partner Location Permission',
+//         message: 'Parsal Partner needs access to your location.',
+//       },
+//     );
+
+//     console.log('Fine location permission status:', fineLocationGranted);
+
+//     if (fineLocationGranted === PermissionsAndroid.RESULTS.GRANTED) {
+//       // Check if the platform is Android 10 (API level 29) or higher
+//       if (Platform.OS === 'android' && Platform.Version >= 29) {
+//         // Request background location permission
+//         const backgroundLocationGranted = await PermissionsAndroid.request(
+//           PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,
+//           {
+//             title: 'Parsal Partner Background Location Permission',
+//             message:
+//               'Parsal Partner needs access to your location all the time.',
+//           },
+//         );
+
+//         console.log(
+//           'Background location permission status:',
+//           backgroundLocationGranted,
+//         );
+
+//         if (backgroundLocationGranted === PermissionsAndroid.RESULTS.GRANTED) {
+//           console.log('All-time location permission granted');
+//           return true;
+//         } else {
+//           console.log('Background location permission denied');
+//           Alert.alert(
+//             'Permission Denied',
+//             'Background location permission denied',
+//           );
+//           return false;
+//         }
+//       }
+
+//       console.log('Location permission granted for foreground');
+//       return true;
+//     } else {
+//       console.log('Location permission denied');
+//       Alert.alert('Permission Denied', 'Location permission denied');
+//       return false;
+//     }
+//   } catch (err) {
+//     console.warn(err);
+//     return false;
+//   }
+// }
+// export async function requestNotificationPermission() {
+//   if (Platform.OS === 'android' && Platform.Version >= 33) {
+//     try {
+//       const granted = await PermissionsAndroid.request(
+//         PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+//         {
+//           title: 'Parsal Partner Notification Permission',
+//           message:
+//             'Parsal Partner needs permission to send you notifications all the time.',
+//         },
+//       );
+
+//       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+//         console.log('Notification permission granted');
+//         return true;
+//       } else {
+//         console.log('Notification permission denied');
+//         Alert.alert('Permission Denied', 'Notification permission denied');
+//         return false;
+//       }
+//     } catch (err) {
+//       console.warn(err);
+//       return false;
+//     }
+//   } else {
+//     // Permission is automatically granted on Android versions below 13
+//     console.log('Notification permission granted by default');
+//     return true;
+//   }
+// }
+
+// Function to request location permission
 export async function requestLocationPermission() {
   try {
-    const granted = await PermissionsAndroid.request(
+    // First, request fine location permission
+    const fineLocationGranted = await PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
       {
         title: 'Parsal Partner Location Permission',
-        message: 'Parsal Partner needs access to your location',
+        message: 'Parsal Partner needs access to your location.',
       },
     );
-    console.log('Permission status:', granted); // Log the permission status
 
-    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-      console.log('Location permission granted');
-      // After permission is granted, fetch the driver's location
-      return true;
+    console.log('Fine location permission status:', fineLocationGranted);
+
+    if (fineLocationGranted === PermissionsAndroid.RESULTS.GRANTED) {
+      // Check if the platform is Android 10 (API level 29) or higher
+      if (Platform.OS === 'android' && Platform.Version >= 29) {
+        // Request background location permission
+        const backgroundLocationGranted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,
+          {
+            title: 'Parsal Partner Background Location Permission',
+            message: 'Parsal Partner needs access to your location all the time.',
+          },
+        );
+
+        console.log(
+          'Background location permission status:',
+          backgroundLocationGranted,
+        );
+
+        if (backgroundLocationGranted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('All-time location permission granted');
+          // After location permissions are granted, request notification permission
+          const notificationGranted = await requestNotificationPermission();
+          return notificationGranted;
+        } else {
+          console.log('Background location permission denied');
+          Alert.alert(
+            'Permission Denied',
+            'Background location permission denied',
+          );
+          return false;
+        }
+      }
+
+      console.log('Location permission granted for foreground');
+      // After location permissions are granted, request notification permission
+      const notificationGranted = await requestNotificationPermission();
+      return notificationGranted;
     } else {
       console.log('Location permission denied');
       Alert.alert('Permission Denied', 'Location permission denied');
@@ -153,6 +275,39 @@ export async function requestLocationPermission() {
     return false;
   }
 }
+
+// Function to request notification permission
+export async function requestNotificationPermission() {
+  if (Platform.OS === 'android' && Platform.Version >= 33) {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+        {
+          title: 'Parsal Partner Notification Permission',
+          message:
+            'Parsal Partner needs permission to send you notifications all the time.',
+        },
+      );
+
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('Notification permission granted');
+        return true;
+      } else {
+        console.log('Notification permission denied');
+        Alert.alert('Permission Denied', 'Notification permission denied');
+        return false;
+      }
+    } catch (err) {
+      console.warn(err);
+      return false;
+    }
+  } else {
+    // Permission is automatically granted on Android versions below 13
+    console.log('Notification permission granted by default');
+    return true;
+  }
+}
+
 export function generateNumericOTP(length = 6) {
   let otp = '';
   for (let i = 0; i < length; i++) {
@@ -447,20 +602,12 @@ export const custommapstyle = [
   },
 ];
 
-// [
+// export const custommapstyle = [
 //   {
 //     elementType: 'geometry',
 //     stylers: [
 //       {
-//         color: '#f5f5f5',
-//       },
-//     ],
-//   },
-//   {
-//     elementType: 'labels.icon',
-//     stylers: [
-//       {
-//         visibility: 'off',
+//         color: '#1d2c4d',
 //       },
 //     ],
 //   },
@@ -468,7 +615,7 @@ export const custommapstyle = [
 //     elementType: 'labels.text.fill',
 //     stylers: [
 //       {
-//         color: '#616161',
+//         color: '#8ec3b9',
 //       },
 //     ],
 //   },
@@ -476,7 +623,16 @@ export const custommapstyle = [
 //     elementType: 'labels.text.stroke',
 //     stylers: [
 //       {
-//         color: '#f5f5f5',
+//         color: '#1a3646',
+//       },
+//     ],
+//   },
+//   {
+//     featureType: 'administrative.country',
+//     elementType: 'geometry.stroke',
+//     stylers: [
+//       {
+//         color: '#4b6878',
 //       },
 //     ],
 //   },
@@ -485,7 +641,34 @@ export const custommapstyle = [
 //     elementType: 'labels.text.fill',
 //     stylers: [
 //       {
-//         color: '#bdbdbd',
+//         color: '#64779e',
+//       },
+//     ],
+//   },
+//   {
+//     featureType: 'administrative.province',
+//     elementType: 'geometry.stroke',
+//     stylers: [
+//       {
+//         color: '#4b6878',
+//       },
+//     ],
+//   },
+//   {
+//     featureType: 'landscape.man_made',
+//     elementType: 'geometry.stroke',
+//     stylers: [
+//       {
+//         color: '#334e87',
+//       },
+//     ],
+//   },
+//   {
+//     featureType: 'landscape.natural',
+//     elementType: 'geometry',
+//     stylers: [
+//       {
+//         color: '#023e58',
 //       },
 //     ],
 //   },
@@ -494,7 +677,7 @@ export const custommapstyle = [
 //     elementType: 'geometry',
 //     stylers: [
 //       {
-//         color: '#eeeeee',
+//         color: '#283d6a',
 //       },
 //     ],
 //   },
@@ -503,16 +686,25 @@ export const custommapstyle = [
 //     elementType: 'labels.text.fill',
 //     stylers: [
 //       {
-//         color: '#757575',
+//         color: '#6f9ba5',
+//       },
+//     ],
+//   },
+//   {
+//     featureType: 'poi',
+//     elementType: 'labels.text.stroke',
+//     stylers: [
+//       {
+//         color: '#1d2c4d',
 //       },
 //     ],
 //   },
 //   {
 //     featureType: 'poi.park',
-//     elementType: 'geometry',
+//     elementType: 'geometry.fill',
 //     stylers: [
 //       {
-//         color: '#e5e5e5',
+//         color: '#023e58',
 //       },
 //     ],
 //   },
@@ -521,7 +713,7 @@ export const custommapstyle = [
 //     elementType: 'labels.text.fill',
 //     stylers: [
 //       {
-//         color: '#9e9e9e',
+//         color: '#3C7680',
 //       },
 //     ],
 //   },
@@ -530,16 +722,25 @@ export const custommapstyle = [
 //     elementType: 'geometry',
 //     stylers: [
 //       {
-//         color: '#ffffff',
+//         color: '#304a7d',
 //       },
 //     ],
 //   },
 //   {
-//     featureType: 'road.arterial',
+//     featureType: 'road',
 //     elementType: 'labels.text.fill',
 //     stylers: [
 //       {
-//         color: '#757575',
+//         color: '#98a5be',
+//       },
+//     ],
+//   },
+//   {
+//     featureType: 'road',
+//     elementType: 'labels.text.stroke',
+//     stylers: [
+//       {
+//         color: '#1d2c4d',
 //       },
 //     ],
 //   },
@@ -548,7 +749,16 @@ export const custommapstyle = [
 //     elementType: 'geometry',
 //     stylers: [
 //       {
-//         color: '#dadada',
+//         color: '#2c6675',
+//       },
+//     ],
+//   },
+//   {
+//     featureType: 'road.highway',
+//     elementType: 'geometry.stroke',
+//     stylers: [
+//       {
+//         color: '#255763',
 //       },
 //     ],
 //   },
@@ -557,25 +767,43 @@ export const custommapstyle = [
 //     elementType: 'labels.text.fill',
 //     stylers: [
 //       {
-//         color: '#616161',
+//         color: '#b0d5ce',
 //       },
 //     ],
 //   },
 //   {
-//     featureType: 'road.local',
+//     featureType: 'road.highway',
+//     elementType: 'labels.text.stroke',
+//     stylers: [
+//       {
+//         color: '#023e58',
+//       },
+//     ],
+//   },
+//   {
+//     featureType: 'transit',
 //     elementType: 'labels.text.fill',
 //     stylers: [
 //       {
-//         color: '#9e9e9e',
+//         color: '#98a5be',
+//       },
+//     ],
+//   },
+//   {
+//     featureType: 'transit',
+//     elementType: 'labels.text.stroke',
+//     stylers: [
+//       {
+//         color: '#1d2c4d',
 //       },
 //     ],
 //   },
 //   {
 //     featureType: 'transit.line',
-//     elementType: 'geometry',
+//     elementType: 'geometry.fill',
 //     stylers: [
 //       {
-//         color: '#e5e5e5',
+//         color: '#283d6a',
 //       },
 //     ],
 //   },
@@ -584,7 +812,7 @@ export const custommapstyle = [
 //     elementType: 'geometry',
 //     stylers: [
 //       {
-//         color: '#eeeeee',
+//         color: '#3a4762',
 //       },
 //     ],
 //   },
@@ -593,7 +821,7 @@ export const custommapstyle = [
 //     elementType: 'geometry',
 //     stylers: [
 //       {
-//         color: '#c9c9c9',
+//         color: '#0e1626',
 //       },
 //     ],
 //   },
@@ -602,7 +830,7 @@ export const custommapstyle = [
 //     elementType: 'labels.text.fill',
 //     stylers: [
 //       {
-//         color: '#9e9e9e',
+//         color: '#4e6d70',
 //       },
 //     ],
 //   },

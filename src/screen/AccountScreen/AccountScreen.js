@@ -47,11 +47,14 @@ import {
   setlivetripmenu,
   setloginuserdetails,
   setLogout,
+  setnextOrderData,
   setOrderData,
+  setupdate_order,
   setwalletBalance,
 } from '../../redux/HitApis/HitApiSlice';
 import {getimage} from '../../config/url';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import CustomHeader from '../DashBoard/components/CustomHeader';
 
 const AccountScreen = () => {
   const navigation = useNavigation();
@@ -71,8 +74,6 @@ const AccountScreen = () => {
           setuser_details(res?.drivers[0]);
           dispatch(setloginuserdetails(res?.drivers[0]));
           const param = {driver_id: parsed_user?.payload?.driver_id};
-
-          // parsed_user?.payload?.driver_id};
           hitGetWalletBalanceApi(param)
             .then(res => {
               dispatch(setwalletBalance(res));
@@ -86,17 +87,32 @@ const AccountScreen = () => {
           };
           hitGetLiveOrderApi(parameter)
             .then(res => {
-              if (res?.status == 0) {
+              if (res?.ongoingOrder?.length == 0) {
                 setshow_live(false);
                 dispatch(setlivetripmenu(false));
+                return;
               } else {
-                dispatch(setlivetripmenu(true));
                 setshow_live(true);
-                dispatch(setOrderData(res?.ongoingOrder));
-                if (res?.ongoingOrder?.is_arrived_pickup) {
-                  dispatch(setupdate_order(res?.ongoingOrder));
+                dispatch(setlivetripmenu(true));
+
+                const {order_otp, ...restOrderData} =
+                  res?.ongoingOrder[0] || {};
+                const modifiedOrderData = {...restOrderData, otp: order_otp};
+
+                dispatch(setOrderData(modifiedOrderData));
+
+                if (res?.ongoingOrder[0]?.is_arrived_pickup) {
+                  dispatch(setupdate_order(modifiedOrderData));
                 }
-                // navigation.navigate('DriverMap');
+                if (res?.ongoingOrder?.length > 1) {
+                  const {order_otp, ...restOrderData} =
+                    res?.ongoingOrder[1] || {};
+                  const modifiedOrderData = {
+                    ...restOrderData,
+                    otp: order_otp,
+                  };
+                  dispatch(setnextOrderData(modifiedOrderData));
+                }
               }
             })
             .catch(err => {
@@ -115,8 +131,6 @@ const AccountScreen = () => {
           dispatch(setloginuserdetails(res?.partner));
           if (parsed_user?.payload?.owner_type == 2) {
             const param = {driver_id: parsed_user?.payload?.driver_id};
-
-            // parsed_user?.payload?.driver_id};
             hitGetWalletBalanceApi(param)
               .then(res => {
                 dispatch(setwalletBalance(res));
@@ -130,18 +144,33 @@ const AccountScreen = () => {
             };
             hitGetLiveOrderApi(parameter)
               .then(res => {
-                if (res?.status == 0) {
+                if (res?.ongoingOrder?.length == 0) {
                   setshow_live(false);
                   dispatch(setlivetripmenu(false));
+                  return;
                 } else {
                   setshow_live(true);
                   dispatch(setlivetripmenu(true));
 
-                  dispatch(setOrderData(res?.ongoingOrder));
-                  if (res?.ongoingOrder?.is_arrived_pickup) {
-                    dispatch(setupdate_order(res?.ongoingOrder));
+                  const {order_otp, ...restOrderData} =
+                    res?.ongoingOrder[0] || {};
+                  const modifiedOrderData = {...restOrderData, otp: order_otp};
+
+                  dispatch(setOrderData(modifiedOrderData));
+
+                  if (res?.ongoingOrder[0]?.is_arrived_pickup) {
+                    dispatch(setupdate_order(modifiedOrderData));
                   }
-                  navigation.navigate('DriverMap');
+                  if (res?.ongoingOrder?.length > 1) {
+                    const {order_otp, ...restOrderData} =
+                      res?.ongoingOrder[1] || {};
+                    const modifiedOrderData = {
+                      ...restOrderData,
+                      otp: order_otp,
+                    };
+                    dispatch(setnextOrderData(modifiedOrderData));
+                  }
+                  // navigation.navigate('DriverMap');
                 }
               })
               .catch(err => {
@@ -159,11 +188,11 @@ const AccountScreen = () => {
   );
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
 
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     get_user_details();
-  //   }, []),
-  // );
+  useFocusEffect(
+    useCallback(() => {
+      get_user_details();
+    }, []),
+  );
 
   const [orderStats, setorderstats] = useState([]);
   const fetchData = async () => {
@@ -196,17 +225,14 @@ const AccountScreen = () => {
       const user = await AsyncStorage.getItem('user');
       if (user) {
         const parsedUser = JSON.parse(user);
-        // Construct profile image URL based on owner_type
-        const isOwnerTypeZero = parsedUser?.payload?.owner_type === 0;
-
+        const isOwnerTypeZero = parsedUser?.payload?.owner_type == 0;
         const profileImageUrl = isOwnerTypeZero
           ? getimage(
               `partners_img/${driverProfile?.partner_id}/drivers/${driverProfile?.id}_${driverProfile?.profile_pic}`,
             )
           : getimage(
-              `partners_img/${driverProfile?.id}/${driverProfile?.profile_pic}`,
+              `partners_img/${parsedUser?.payload?.partner_id}/${user_details?.profile_pic}`,
             );
-
         return profileImageUrl;
       }
     } catch (error) {
@@ -222,13 +248,15 @@ const AccountScreen = () => {
       }
     };
     fetchData();
-  }, []);
-  const name = driverProfile
-    ? driverProfile.driver_name || driverProfile.partner_name
-    : 'No Driver Data';
-  const email = driverProfile
-    ? driverProfile.email || driverProfile.email
-    : 'No Driver Data';
+  }, [user_details]);
+  const name =
+    parse_data?.payload?.owner_type == 0
+      ? user_details?.driver_name
+      : user_details?.partner_name;
+  const email =
+    parse_data?.payload?.owner_type == 0
+      ? user_details?.email
+      : user_details?.email;
   const handleLogout = async () => {
     try {
       const unparse_driver_data = await AsyncStorage.getItem('user');
@@ -257,46 +285,50 @@ const AccountScreen = () => {
       errorToast('Logout Failed', 'An error occurred during logout.');
     }
   };
+
   return (
     <>
       <View style={{flex: 1, backgroundColor: '#F5F6F7'}}>
+        <View
+          style={{
+            height: responsiveHeight(60),
+          }}>
+          <CustomHeader screenName={"Account"} showSplash={true} />
+        </View>
         <SafeAreaView
           style={{backgroundColor: '#F5F6F7', flex: 1, marginHorizontal: 16}}>
           <ScrollView showsVerticalScrollIndicator={false}>
-            <View style={styles.profileSection}>
+            {/* <View style={styles.profileSection}>
               <Text style={styles.profileTextStyle}>{`Profile`}</Text>
-              <TouchableOpacity
-                onPress={() => navigation.navigate('EditProfileScreen')}
-                activeOpacity={0.8}>
-                {/* <View style={styles.editProfileButton}>
-                  <Text style={styles.editButtonText}>{'EDIT PROFILE'}</Text>
-                </View> */}
-                <Image
-                  source={AppImages.brandBlueEditIcon}
-                  style={{
-                    height: responsiveHeight(16),
-                    width: responsiveHeight(16),
-                    
-                  }}
-                />
-              </TouchableOpacity>
-            </View>
+          
+            </View> */}
 
             <View
               style={{flex: 1, backgroundColor: '#F5F6F7', marginBottom: 10}}>
               <View style={styles.userDetailSection}>
                 <View style={styles.udSection1}>
                   <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <Image
-                      source={{
-                        uri: user_image,
-                      }}
-                      style={{
-                        height: responsiveHeight(70),
-                        width: responsiveHeight(70),
-                        borderRadius: responsiveHeight(70),
-                      }}
-                    />
+                    {!user_image ? (
+                      <Image
+                        source={AppImages.man}
+                        style={{
+                          height: responsiveHeight(70),
+                          width: responsiveHeight(70),
+                          borderRadius: responsiveHeight(70),
+                        }}
+                      />
+                    ) : (
+                      <Image
+                        source={{
+                          uri: user_image,
+                        }}
+                        style={{
+                          height: responsiveHeight(70),
+                          width: responsiveHeight(70),
+                          borderRadius: responsiveHeight(70),
+                        }}
+                      />
+                    )}
                     <View style={styles.userTextContainer}>
                       <Text style={styles.name}>{name}</Text>
                       <Text style={styles.email}> {email}</Text>
@@ -356,9 +388,22 @@ const AccountScreen = () => {
                   Icon={AppImages.live}
                   optionName={'Live Order'}
                   onPress={() => {
-                    navigation.navigate('HelpAndSupportMain');
+                    if (show_live) {
+                      navigation.navigate('DriverMap');
+                    }
                   }}
                 />
+                {parse_data?.payload?.owner_type != 0 && (
+                  <ProfileScreenOptions
+                    Icon={AppImages.addvehicle}
+                    optionName={'Manage Vehicles'}
+                    onPress={() => {
+                      navigation.navigate('MyVehicles', {
+                        login_user: 1,
+                      });
+                    }}
+                  />
+                )}
 
                 <ProfileScreenOptions
                   Icon={AppImages.earningImage}
@@ -385,7 +430,7 @@ const AccountScreen = () => {
                   Icon={AppImages.trainingImage}
                   optionName={'Traning'}
                   onPress={() => {
-                    navigation.navigate('HelpAndSupportMain');
+                    // navigation.navigate('HelpAndSupportMain');
                   }}
                 />
                 {/* <Text style={styles.optionName}>{'Address'}</Text>
@@ -566,9 +611,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: responsiveHeight(13),
     marginHorizontal: 5,
-    // backgroundColor:'red',
-    marginHorizontal:responsiveWidth(10)
-
   },
   optionName: {
     fontSize: responsiveFontSize(15),

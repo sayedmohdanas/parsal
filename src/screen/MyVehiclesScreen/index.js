@@ -213,41 +213,49 @@
 
 // export default MyVehiclesScreen;
 
-import React, {useEffect, useCallback, useState} from 'react';
-import {View, Text, TouchableOpacity, Alert, StyleSheet} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  StyleSheet,
+  Modal,
+} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {
-  getPartner,
-  getVehicle,
+  setLogout,
   setMyVehicleData,
   setParentId,
 } from '../../redux/HitApis/HitApiSlice'; // Ensure this is the correct path
 import Loading from '../../components/Loading/Loading';
 import VehicleList from './VehicleList';
-import {successToast} from '../../common/CommonFunction';
 import {hitMyVehicle} from '../../config/api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '../../common/Colors';
-import {responsiveHeight, responsiveWidth} from '../../common/metrices';
+import {
+  responsiveFontSize,
+  responsiveHeight,
+  responsiveWidth,
+} from '../../common/metrices';
 import CustomHeader from '../DashBoard/components/CustomHeader';
 import {useNavigation} from '@react-navigation/native';
+import AppImages from '../../common/AppImages';
+import {successToast} from '../../common/CommonFunction';
 
-const MyVehiclesScreen = () => {
+const MyVehiclesScreen = ({route}) => {
   const dispatch = useDispatch();
-  const vehicleData = useSelector(
-    state => state?.parsalPartner?.MyVehicle || [],
-  );
+  const vehicleData = useSelector(state => state?.parsalPartner?.MyVehicle);
+  const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const navigation = useNavigation();
   const vehicleCount = vehicleData?.length;
-  // const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
-
   const [loading, setLoading] = useState(false); // State to manage loading
-
   const refreshData = async () => {
     try {
       const partnerIds = await AsyncStorage.getItem('partner_id');
       const partnerId = JSON.parse(partnerIds);
       await dispatch(setParentId(partnerId));
+      console.log(partnerId);
       hitMyVehicle({partnerId: partnerId})
         .then(res => {
           dispatch(setMyVehicleData(res));
@@ -260,7 +268,6 @@ const MyVehiclesScreen = () => {
       console.log(error);
     }
   };
-
   // Use focus effect to call refreshData when screen gains focus
   useEffect(() => {
     const unsubscribeFocus = navigation.addListener('focus', () => {
@@ -270,18 +277,6 @@ const MyVehiclesScreen = () => {
       unsubscribeFocus();
     };
   }, []);
-
-  // Show success toast when vehicle data is loaded
-  // useEffect(() => {
-  //   if (vehicleCount > 0) {
-  //     successToast(
-  //       `Successfully loaded ${vehicleCount} vehicle${
-  //         vehicleCount !== 1 ? 's' : ''
-  //       }.`,
-  //     );
-  //   }
-  // }, [vehicleCount]);
-
   // Handle card press
   const handleCardPress = vehicleId => {
     navigation.navigate('DriverDetail', {
@@ -289,24 +284,56 @@ const MyVehiclesScreen = () => {
       onUpdate: refreshData,
     });
   };
-
   const handleAddBankPress = () => {
-    navigation.navigate('AddBank'); // Replace 'TargetScreen' with your desired screen name
+    navigation.navigate('UpdateBankDetails'); // Replace 'TargetScreen' with your desired screen name
   };
-
   const onPress = () => {
     Alert.alert('Pay Fees Button Pressed');
   };
-
-  // Initial data fetch when component mounts
   useEffect(() => {
     refreshData();
   }, []);
-
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('partner_id');
+      await AsyncStorage.removeItem('partner_name');
+      await AsyncStorage.removeItem('user');
+      dispatch(setLogout());
+      successToast(
+        'Logged out successfully',
+        'You will be redirected to login.',
+      );
+      navigation.replace('Login'); // Navigate to the login screen
+    } catch (error) {
+      console.error(error);
+      errorToast('Logout Failed', 'An error occurred during logout.');
+    }
+  };
+  function isAnyVehicleAssignedToDriver(vehicles) {
+    // Check if any vehicle has a driver assigned
+    if (vehicles) return vehicles?.some(vehicle => vehicle.driver_id !== null);
+  }
   return (
     <>
-      <CustomHeader screenName={'My Vehicles'} />
-
+      <View style={{height: responsiveHeight(60)}}>
+        <CustomHeader
+          leftimage={
+            route?.params?.login_user
+              ? AppImages.previous
+              : AppImages.logoutImage
+          }
+          rotate={!route?.params?.login_user}
+          screenName={'My Vehicles'}
+          not_show={route?.params?.login_user ? true : false}
+          onPress={() => {
+            if (route?.params?.login_user) {
+              navigation.navigate('Setting');
+            } else {
+              setLogoutModalVisible(prev => !prev);
+            }
+          }}
+        />
+      </View>
       <View style={styles.container}>
         {loading ? (
           <Loading loading={loading} />
@@ -318,9 +345,8 @@ const MyVehiclesScreen = () => {
             />
           </>
         )}
-
         <View style={styles.stickyButtonContainer}>
-          {vehicleCount > 0 && (
+          {isAnyVehicleAssignedToDriver(vehicleData) && (
             <View
               style={{
                 backgroundColor: Colors.brandBlue,
@@ -341,19 +367,18 @@ const MyVehiclesScreen = () => {
               <Text style={{color: 'white'}}>➙</Text>
             </View>
           )}
-
           <View
             style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
-              paddingBottom: 16,
+              paddingVertical: 10,
               paddingHorizontal: 16,
             }}>
             <TouchableOpacity
               style={styles.anotherVehicleButton}
               onPress={() => navigation.navigate('VehicleDetail')}>
               <Text style={styles.anotherVehicleText}>+</Text>
-              <Text style={styles.anotherVehicleText}>Another Vehicle</Text>
+              <Text style={styles.anotherVehicleText}>Add Vehicle</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
@@ -367,6 +392,31 @@ const MyVehiclesScreen = () => {
           </View>
         </View>
       </View>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={logoutModalVisible}
+        onRequestClose={() => setLogoutModalVisible(false)}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>
+              Are you sure you want to logout?
+            </Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                onPress={() => setLogoutModalVisible(false)}
+                style={styles.modalButton}>
+                <Text style={styles.modalButtonText}>No</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => handleLogout()}
+                style={styles.modalButton}>
+                <Text style={styles.modalButtonText}>Yes</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </>
   );
 };
@@ -415,6 +465,42 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 16,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: responsiveWidth(300),
+    backgroundColor: 'white',
+    borderRadius: 5,
+    padding: 20,
+    alignItems: 'center',
+  },
+  modalText: {
+    fontSize: responsiveFontSize(16),
+    fontWeight: '500',
+    marginBottom: 20,
+    color: Colors.black,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  modalButton: {
+    flex: 1,
+    padding: 10,
+    marginHorizontal: 5,
+    borderRadius: 5,
+    backgroundColor: Colors.brandBlue,
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
 

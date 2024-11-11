@@ -23,12 +23,12 @@ import {
   responsiveHeight,
   responsiveWidth,
 } from '../../common/metrices';
+import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
+import Loading from '../../components/Loading/Loading';
 const DriverDetailScreen = ({route}) => {
   const {v_id, updateDriverData} = route.params || {};
-
   const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
   const dispatch = useDispatch();
-
   const [name, setName] = useState(updateDriverData?.driver?.driver_name || '');
   const [email, setEmail] = useState(updateDriverData?.driver?.email || '');
   const [driverNumber, setDriverNumber] = useState(
@@ -44,10 +44,7 @@ const DriverDetailScreen = ({route}) => {
     updateDriverData?.driver?.driving_license_pic || '',
   );
   const navigation = useNavigation();
-  // const [driverNumber, setDriverNumber] = useState('');
   const [emailError, setEmailError] = useState('');
-  // const [driverProfilePic, setDriverProfilePic] = useState('');
-  // const [licenseUploaded, setLicenseUploaded] = useState('');
   const [partneData, setPartnerData] = useState([]);
   useEffect(() => {
     const fetchPartnerDetails = async () => {
@@ -72,16 +69,17 @@ const DriverDetailScreen = ({route}) => {
       setEmailError('');
     }
   };
+  const [loader, setloader] = useState(false);
   const handleSubmit = async () => {
     if (!validateEmail(email?.replaceAll(' ', ''))) {
       errorToast('Invalid Email', 'Please enter a valid email address.');
       return;
     }
     if (driverNumber?.length != 10) {
-      // Adjusting to 10 digits requirement
       errorToast('Invalid Number', 'Please enter 10 digits valid  number.');
       return; // Exit if the driver number is invalid
     }
+    setloader(true);
     const partnerId = await AsyncStorage.getItem('partner_id');
     const {latitude, longitude} = await GetDriverCurrentLocation();
     const payload = {
@@ -107,7 +105,6 @@ const DriverDetailScreen = ({route}) => {
       working_status: 1,
       owner_status: isChecked && 2,
     };
-
     try {
       if (updateDriverData) {
         try {
@@ -119,16 +116,17 @@ const DriverDetailScreen = ({route}) => {
           const response = await hitUpdateDriverDetails(Updatedpayload);
           if (response?.status) {
             successToast(`Driver ${name} successfully Updated.`);
-            navigation.navigate('OwnerDashboard');
+            navigation.goBack('');
+            setloader(false);
           } else {
+            setloader(false);
             errorToast(`Something went wrong while updating driver`);
           }
         } catch (error) {
-          console.log('Something went wrong while updating driver', error);
+          setloader(false);
         }
       } else {
         const resultAction = await dispatch(addDriverDetails(payload));
-        console.log('resultAction',resultAction);
         if (addDriverDetails.fulfilled.match(resultAction)) {
           const user = await AsyncStorage.getItem('user');
           let parsedUser = JSON.parse(user);
@@ -140,92 +138,102 @@ const DriverDetailScreen = ({route}) => {
           }
           await AsyncStorage.setItem('user', JSON.stringify(parsedUser));
           successToast(`Driver ${name} successfully added.`);
-          navigation.navigate('OwnerDashboard');
+          setloader(false);
+          navigation.goBack('');
         } else {
           Alert.alert(
             'Error',
             resultAction.payload?.message ||
               'An error occurred while submitting.',
           );
+          setloader(false);
         }
       }
     } catch (error) {
+      setloader(false);
       Alert.alert('Error', 'An unexpected error occurred.');
       console.error(error);
     }
   };
   const isEnabled = name && driverNumber && licenseUploaded;
   return (
-    <View style={styles.container}>
-      <ScrollView>
-        <View style={styles.formContainer}>
-          <Heading text="Driver Details" isRequired={true} />
-          <View style={styles.card}>
-            <CheckBox
-              style={{padding: 10}}
-              onClick={() => {
-                setIsChecked(!isChecked);
-                if (!isChecked) {
-                  setName(partneData?.partner_name);
-                  setDriverNumber(partneData?.phone?.replaceAll(' ', ''));
-                  setEmail(partneData?.email);
-                } else {
-                  setName('');
-                  setDriverNumber('');
-                  setEmail('');
-                }
-              }}
-              isChecked={isChecked}
-              checkBoxColor={Colors.brandBlue}
+    <>
+      <HeaderBackButton
+        headerText={'Assign Driver'}
+        onPress={() => navigation.goBack('')}
+      />
+      <View style={styles.container}>
+        <ScrollView>
+          <View style={styles.formContainer}>
+            <Heading text="Driver Details" isRequired={true} />
+            <View style={styles.card}>
+              <CheckBox
+                style={{padding: 10}}
+                onClick={() => {
+                  setIsChecked(!isChecked);
+                  if (!isChecked) {
+                    setName(partneData?.partner_name);
+                    setDriverNumber(partneData?.phone?.replaceAll(' ', ''));
+                    setEmail(partneData?.email);
+                  } else {
+                    setName('');
+                    setDriverNumber('');
+                    setEmail('');
+                  }
+                }}
+                isChecked={isChecked}
+                checkBoxColor={Colors.brandBlue}
+              />
+              <Text style={styles.confirmationText}>
+                I will be driving this vehicle
+              </Text>
+            </View>
+            <CustomTextInput
+              value={name}
+              onChangeText={setName}
+              placeholder="Driver Name"
+              label="Driver Name"
+              isRequired={true}
             />
-            <Text style={styles.confirmationText}>
-              I will be driving this vehicle
-            </Text>
+            <CustomTextInput
+              value={email}
+              onChangeText={handleEmailChange}
+              placeholder="Driver Email"
+              label="Driver Email"
+              isRequired={true}
+              // error={emailError}
+            />
+            {/* {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null} */}
+            <CustomTextInput
+              value={driverNumber}
+              onChangeText={setDriverNumber}
+              placeholder="Driver Phone Number"
+              label="Driver Phone Number"
+              isRequired={true}
+              type="number"
+              maxLength={10}
+            />
+            <Heading text=" Upload The Following" isRequired={true} />
+            <ImagePicker
+              labelText="Driver Profile Pic"
+              uploaded={driverProfilePic}
+              onImagePick={setDriverProfilePic}
+              useCamera={false}
+            />
+            <ImagePicker
+              labelText="Driver License"
+              uploaded={licenseUploaded}
+              onImagePick={setLicenseUploaded}
+              useCamera={false}
+            />
           </View>
-          <CustomTextInput
-            value={name}
-            onChangeText={setName}
-            placeholder="Driver Name"
-            label="Driver Name"
-            isRequired={true}
-          />
-          <CustomTextInput
-            value={email}
-            onChangeText={handleEmailChange}
-            placeholder="Driver Email"
-            label="Driver Email"
-            isRequired={true}
-            // error={emailError}
-          />
-          {/* {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null} */}
-          <CustomTextInput
-            value={driverNumber}
-            onChangeText={setDriverNumber}
-            placeholder="Driver Phone Number"
-            label="Driver Phone Number"
-            isRequired={true}
-            type="number"
-            maxLength={10}
-          />
-          <Heading text=" Upload The Following" isRequired={true} />
-          <ImagePicker
-            labelText="Driver Profile Pic"
-            uploaded={driverProfilePic}
-            onImagePick={setDriverProfilePic}
-            useCamera={false}
-          />
-          <ImagePicker
-            labelText="Driver License"
-            uploaded={licenseUploaded}
-            onImagePick={setLicenseUploaded}
-            useCamera={false}
-          />
-        </View>
-      </ScrollView>
-      {/* Submit Button Card */}
-      <SubmitCard onPress={handleSubmit} isEnabled={isEnabled} />
-      <PageButtons nextScreenName={'Login'} />
-    </View>
+        </ScrollView>
+        {/* Submit Button Card */}
+        <SubmitCard onPress={handleSubmit} isEnabled={isEnabled} />
+        <PageButtons nextScreenName={'Login'} />
+      </View>
+      <Loading  loading={loader}/>
+    </>
   );
 };
 const styles = StyleSheet.create({

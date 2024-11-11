@@ -46,7 +46,7 @@ const OrderDetail = ({orderDetails}) => {
 
   return (
     <TouchableOpacity
-      onPress={()=>navigation.navigate('OrderInfo',{ 
+      onPress={()=>navigation.navigate('orderinfo',{
         id:orderDetails?.order_id
       })}
     >
@@ -56,7 +56,7 @@ const OrderDetail = ({orderDetails}) => {
             <Text style={[styles.parsalNumber]}>
               {'#PAR-' + orderDetails?.order_id}
             </Text>
-            <Text style={[styles.parsalName]}>{props.parsalName}</Text>
+            <Text style={[styles.parsalName]}>{orderDetails.package_name}</Text>
           </View>
           <View
             style={[

@@ -124,10 +124,7 @@ const NotificationModal = ({
   const handleAccept = async () => {
     try {
       // Show loading
-      dispatch(setOrderData({}));
-      dispatch(setupdate_order({}));
       setLoading(true);
-
       const {latitude, longitude} = await GetDriverCurrentLocation();
 
       // Create payload
@@ -177,15 +174,16 @@ const NotificationModal = ({
           };
           hitUpdateOrderOtpApi(param)
             .then(res => {
-              console.log('res', res);
+              console.log(res);
             })
             .catch(err => {
               console.error(err);
             });
-          if (!store_data?.orderData) {
+          if (store_data?.orderData == null) {
             dispatch(setlivetripmenu(true));
+        
             dispatch(setOrderData(resWithOTP));
-            if (store_data?.update_order?.is_arrived_pickup) {
+            if (store_data?.update_order?.is_arrived_pickup) {          
               dispatch(setupdate_order(res?.newOrder));
             }
             navigation.navigate('DriverMap', {
@@ -194,9 +192,11 @@ const NotificationModal = ({
               drop_lat: payload.drop_lat,
               drop_long: payload.drop_long,
             });
+            return;
           } else {
             dispatch(setlivetripmenu(true));
             dispatch(setnextOrderData(resWithOTP));
+            return;
           }
         } else {
           console.error('Socket is not connected.');
@@ -271,6 +271,9 @@ const NotificationModal = ({
   // useEffect(() => {
   //   setIsEnabled(user_details?.working_status == 0 ? false : true);
   // }, [user_details, dispatch]);
+  console.log('====>orderDate', store_data?.orderData);
+  console.log('====>updateOrder', store_data?.update_order);
+
   return (
     <>
       <Modal
@@ -305,7 +308,7 @@ const NotificationModal = ({
 
             <View style={styles.bodyContainer}>
               {expected_price && (
-                <Text style={styles.priceText}>₹{expected_price}</Text>
+                <Text style={styles.priceText}>₹{parseFloat(expected_price).toFixed(2)}</Text>
               )}
               <View
                 style={{

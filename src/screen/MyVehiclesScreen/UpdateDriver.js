@@ -28,6 +28,7 @@ import {
   hitDeleteVehicle,
 } from '../../config/api/api';
 import Loading from '../../components/Loading/Loading';
+import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
 
 const UpdateDriver = ({route}) => {
   const {vehicle} = route?.params || {};
@@ -157,7 +158,7 @@ const UpdateDriver = ({route}) => {
       </TouchableOpacity>
     </View>
   );
-console.log('vehicle',vehicle);
+  console.log('vehicle', vehicle);
   const VehicleCard = () => (
     <Swipeable
       renderRightActions={() =>
@@ -280,19 +281,24 @@ console.log('vehicle',vehicle);
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      {loading ? (
-        <Loading loading={loading} />
-      ) : (
-        <>
-          {/* <Text style={styles.title}>Update Driver</Text> */}
-          <VehicleCard />
-          <BorderLine thickness={0.2} color={Colors.grey} margin={5} />
-          {/* <Line marginH={}/> */}
-          <DriverCard />
-        </>
-      )}
-    </SafeAreaView>
+    <>
+      <HeaderBackButton
+        onPress={() => navigation.goBack('')}
+        headerText={'Update Vehicle'}
+      />
+      <SafeAreaView style={styles.container}>
+        {loading ? (
+          <Loading loading={loading} />
+        ) : (
+          <>
+            {/* <Text style={styles.title}>Update Driver</Text> */}
+            <VehicleCard />
+            <BorderLine thickness={0.6} color={'#D8D8D8'} margin={5} />
+            <DriverCard />
+          </>
+        )}
+      </SafeAreaView>
+    </>
   );
 };
 

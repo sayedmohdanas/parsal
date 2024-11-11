@@ -15,6 +15,7 @@ import {
 import Colors from '../../common/Colors';
 import {responsiveFontSize, responsiveHeight} from '../../common/metrices';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
 
 const OwnerDetailScreen = ({navigation, route}) => {
   const {partner_id, email} = route.params;
@@ -57,7 +58,6 @@ const OwnerDetailScreen = ({navigation, route}) => {
 
       try {
         const resultAction = await dispatch(createPartner(payload));
-        // console.log('logresult========?>>>>>>>>>>',resultAction?.meta?.arg?.partnerId,'llllllll');
         const partnerId = JSON.parse(resultAction?.meta?.arg?.partnerId);
         if (createPartner.fulfilled.match(resultAction)) {
           let owner_type = 1;
@@ -73,7 +73,9 @@ const OwnerDetailScreen = ({navigation, route}) => {
           await dispatch(setParentId(partnerId));
           await AsyncStorage.setItem('user', JSON.stringify(user));
           await AsyncStorage.setItem('owner_type', JSON.stringify(owner_type));
-          navigation.replace('OwnerDashboard');
+          navigation.replace('MyVehicles', {
+            login_user: 0,
+          });
           successToast('Submitted', 'Your details have been submitted.');
           // navigation.navigate('VehicleDetail');
         } else {
@@ -96,6 +98,12 @@ const OwnerDetailScreen = ({navigation, route}) => {
 
   return (
     <>
+      <HeaderBackButton
+        headerText={'Owner Details'}
+        onPress={() => {
+          navigation.navigate('Login');
+        }}
+      />
       <View style={styles.container}>
         <View style={styles.formContainer}>
           <CustomTextInput

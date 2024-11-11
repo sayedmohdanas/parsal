@@ -35,6 +35,7 @@ import {
   hitGetLiveOrderApi,
   hitGetPartner,
   hitGetWalletBalanceApi,
+  hitMyVehicle,
 } from '../src/config/api/api';
 import {
   setOrderData,
@@ -164,11 +165,6 @@ const StackNavigator = () => {
         });
     }
   };
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     get_user_details();
-  //   }, []), // Empty dependency array to run only when the page is focused
-  // );
   useEffect(() => {
     const checkUserStatus = async () => {
       setLoading(true);
@@ -176,25 +172,42 @@ const StackNavigator = () => {
         const user = await AsyncStorage.getItem('user');
         if (!user) {
           setInitialRoute('Login');
-        } else {
-          if (user.startsWith('{')) {
-            try {
-              const parsedUser = JSON.parse(user);
-              const ownerType = parsedUser?.payload?.owner_type;
-              if (ownerType === 0) {
-                setInitialRoute('DriverDashboard');
-              } else if (ownerType == 1 || ownerType == 2) {
-                setInitialRoute('Trip');
+        } else if (user.startsWith('{')) {
+          try {
+            const parsedUser = JSON.parse(user);
+            const ownerType = parsedUser?.payload?.owner_type;
+            if (ownerType === 0) {
+              setInitialRoute('DriverDashboard');
+            } else if (ownerType === 1) {
+              const res = await hitMyVehicle({
+                partnerId: parsedUser?.payload?.partner_id,
+              });
+              if (res?.status === 1 && res?.vehicles) {
+                const hasDriverAssigned = res.vehicles.some(
+                  vehicle => vehicle.driver_id !== null,
+                );
+
+                if (hasDriverAssigned) {
+                  setInitialRoute('Trip');
+                } else {
+                  setInitialRoute('MyVehicles');
+                }
               } else {
-                setInitialRoute('Login');
+                // Handle the case where `status` is not 1 or `vehicles` is missing
+                setInitialRoute('MyVehicles');
               }
-            } catch (jsonError) {
+            } else if (ownerType === 2) {
+              setInitialRoute('Trip');
+            } else {
               setInitialRoute('Login');
             }
-          } else {
-            console.log('Invalid user data format, navigating to Login');
+          } catch (jsonError) {
+            console.error('JSON parse error:', jsonError);
             setInitialRoute('Login');
           }
+        } else {
+          console.log('Invalid user data format, navigating to Login');
+          setInitialRoute('Login');
         }
       } catch (error) {
         console.error('Error retrieving user data:', error);
@@ -204,7 +217,6 @@ const StackNavigator = () => {
       }
     };
     checkUserStatus();
-    // get_user_details();
   }, []);
 
   if (loading) {
@@ -253,7 +265,6 @@ const StackNavigator = () => {
       <Stack.Screen name="VehicleDetail" component={VehicleDetailScreen} />
       <Stack.Screen name="UpdateDriver" component={UpdateDriver} />
       <Stack.Screen name="ProfileDetail" component={ProfileDetail} />
-
       {/* Main Screens */}
       <Stack.Screen name="Notification" component={Notification} />
       <Stack.Screen

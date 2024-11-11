@@ -5,9 +5,7 @@ import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import Colors from '../../common/Colors';
 import CustomHeader from './components/CustomHeader';
 import Loading from '../../components/Loading/Loading';
-import {
-  GetDriverCurrentLocation,
-} from '../../common/CommonFunction';
+import {GetDriverCurrentLocation, custommapstyle} from '../../common/CommonFunction';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {hitDriverEarning} from '../../config/api/api';
 import BorderLine from '../../common/BorderLine.';
@@ -17,6 +15,7 @@ import {
   responsiveWidth,
 } from '../../common/metrices';
 import AppImages from '../../common/AppImages';
+import BottomNav from '../../../navigation/BottomNav';
 
 const DriverDashboard = () => {
   const navigation = useNavigation();
@@ -90,6 +89,7 @@ const DriverDashboard = () => {
         <>
           <MapView
             style={StyleSheet.absoluteFillObject}
+            customMapStyle={custommapstyle}
             initialRegion={{
               latitudeDelta: 0.1, // Adjusted to show the whole country
               longitudeDelta: 0.1,
@@ -103,15 +103,15 @@ const DriverDashboard = () => {
                   latitude: driverLocation?.latitude,
                   longitude: driverLocation?.longitude,
                 }}
-                rotation={driverLocation?.heading} // Apply heading to rotate the marker
-                anchor={{x: 0.5, y: 0.5}} // Center the marker
+                // rotation={driverLocation?.heading} // Apply heading to rotate the marker
+                // anchor={{x: 0.5, y: 0.5}} // Center the marker
               >
                 <Image
                   source={AppImages.Bike}
                   style={{
                     width: responsiveWidth(37),
                     height: responsiveHeight(37),
-                    transform: [{rotate: `${driverLocation?.heading}deg`}], // Rotate the bike image
+                    // transform: [{rotate: `${driverLocation?.heading}deg`}], // Rotate the bike image
                   }}
                   resizeMode="contain"
                 />
@@ -171,9 +171,9 @@ const DriverDashboard = () => {
       )}
 
       {/* Bottom Navigation */}
-      {/* <View style={styles.bottomNavContainer}>
+      <View style={styles.bottomNavContainer}>
         <BottomNav Trip={true} />
-      </View> */}
+      </View>
     </SafeAreaView>
   );
 };

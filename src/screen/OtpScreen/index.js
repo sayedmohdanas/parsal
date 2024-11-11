@@ -21,7 +21,7 @@ import {
 } from '../../common/CommonFunction';
 import {useDispatch, useSelector} from 'react-redux';
 import Loading from '../../components/Loading/Loading';
-import {hitPartnerVerifyOtp} from '../../config/api/api';
+import {hitMyVehicle, hitPartnerVerifyOtp} from '../../config/api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   getVehicle,
@@ -42,13 +42,12 @@ const OtpScreen = ({navigation, route}) => {
   let otpInput = useRef(null);
 
   useEffect(() => {
-    console.log(userOtp);
-
     const pId = async () => {
       if (user) {
       }
     };
     pId();
+
   }, [navigation]);
 
   // useEffect(() => {
@@ -62,7 +61,6 @@ const OtpScreen = ({navigation, route}) => {
   const handleTextChange = async text => {
     setOtp(text);
   };
-
   const handleOtp = async () => {
     const owner_type = user?.payload?.owner_type;
     const id = user?.payload?.partner_id;
@@ -77,11 +75,11 @@ const OtpScreen = ({navigation, route}) => {
       }
 
       const request = {
-        email: number,
+        email: number.replaceAll(' ', ''),
         phone: generateRandomPhoneNumber(),
       };
       // if (owner_type) {
-      console.log('user', user);
+
       await AsyncStorage.setItem('user', JSON.stringify(user));
 
       // }
@@ -92,15 +90,39 @@ const OtpScreen = ({navigation, route}) => {
         navigation.replace('DriverDashboard');
 
         return;
-      } else if (owner_type == 1 || owner_type == 2) {
+      }
+      //  else if (owner_type == 1 || owner_type == 2) {
+      // await AsyncStorage.setItem('owner_type', JSON.stringify(owner_type));
+      // await AsyncStorage.setItem('partner_id', JSON.stringify(id));
+      //   console.log(user);
+      //   //  await dispatch(setOwner(owner_type))
+      //   // navigation.replace('Trip');
+      //   return;
+      // }
+      else if (owner_type == 1) {
         await AsyncStorage.setItem('owner_type', JSON.stringify(owner_type));
         await AsyncStorage.setItem('partner_id', JSON.stringify(id));
-
-        //  await dispatch(setOwner(owner_type))
+        const res = await hitMyVehicle({
+          partnerId: JSON.stringify(id),
+        });
+        if (res?.status == 1 && res?.vehicles) {
+          const hasDriverAssigned = res.vehicles.some(
+            vehicle => vehicle.driver_id !== null,
+          );
+          if (hasDriverAssigned) {
+            navigation.replace('Trip');
+            return;
+          } else {
+            navigation.replace('MyVehicles');
+            return;
+          }
+        }
+      } else if (owner_type == 2) {
+        await AsyncStorage.setItem('owner_type', JSON.stringify(owner_type));
+        await AsyncStorage.setItem('partner_id', JSON.stringify(id));
         navigation.replace('Trip');
         return;
       }
-
       const response = await hitPartnerVerifyOtp(request);
       const partnerId = response?.partnerId;
       if (response.status === 2) {
@@ -113,6 +135,7 @@ const OtpScreen = ({navigation, route}) => {
         ) {
           navigation.replace('MyVehicles', {
             email: number,
+            login_user: 0,
           });
         } else {
           await AsyncStorage.setItem('partner_id', String(partnerId));

@@ -34,6 +34,7 @@ import {
   partnerOtpVerify,
   placeOrder,
   reviewTermsAndCondition,
+  transactionurl,
   updateDriverDetails,
   updateDriverDistanceurl,
   updateDriverLocationurl,
@@ -64,8 +65,6 @@ export const hitAddVehicle = param => {
   return apiPost(addVehicle, param);
 };
 export const hitDeleteVehicle = param => {
-  console.log(param, 'paramfromdelete');
-
   return apiPost(deleteVehicle, param);
 };
 
@@ -77,11 +76,9 @@ export const hitAddDriverDetails = param => {
   return apiPost(addDriverDetails, param);
 };
 export const hitUpdateDriverDetails = param => {
-  console.log('param-from-add-driver-page', param);
   return apiPost(updateDriverDetails, param);
 };
 export const hitDeleteDriverDetails = param => {
-  console.log(param, 'paramfromdelete');
   return apiPost(deleteDriverDetails, param);
 };
 export const hitGetDriverDetails = param => {
@@ -191,4 +188,8 @@ export const hitOrderListApi = param => {
 };
 export const hitGetUserOrderStatsApi = param => {
   return apiPost(userorderstatsurl, param);
+};
+
+export const hitGetTransactionListApi = param => {
+  return apiPost(transactionurl, param);
 };

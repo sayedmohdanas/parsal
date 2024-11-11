@@ -71,6 +71,7 @@ const DriverDetails = ({details, onPress, selectedDriver}) => {
 };
 const styles = StyleSheet.create({
   UserDetailMainContainer: {
+    // flex: 1,
     backgroundColor: Colors.white,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -86,6 +87,7 @@ const styles = StyleSheet.create({
   userDetail: {
     flexDirection: 'row',
     alignItems: 'center',
+    // justifyContent:'center'
   },
   manStyle: {
     height: responsiveHeight(30),
@@ -107,6 +109,7 @@ const styles = StyleSheet.create({
     fontSize: responsiveFontSize(10),
     fontWeight: '500',
     color: Colors.grey,
+    // marginTop: 2
   }, 
 });
 export default DriverDetails;

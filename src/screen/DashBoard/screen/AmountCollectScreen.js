@@ -19,8 +19,10 @@ import PaymentSuccessModal from '../components/PaymentSuccessModal';
 import {
   setOrderData,
   setlivetripmenu,
+  setnextOrderData,
   setupdate_order,
 } from '../../../redux/HitApis/HitApiSlice';
+import HeaderBackButton from '../../../components/HeaderBackButton/HeaderBackButton';
 
 const AmountCollectScreen = () => {
   const update_order = useSelector(
@@ -35,6 +37,7 @@ const AmountCollectScreen = () => {
   const driver_details = useSelector(
     state => state?.parsalPartner?.logindriverdetails,
   );
+  const {nextOrderData} = useSelector(state => state?.parsalPartner);
   const [order_fare_details, setorder_fare_details] = useState([]);
   const get_data = () => {
     const param = {
@@ -55,7 +58,7 @@ const AmountCollectScreen = () => {
     socket = io(socketUrl);
 
     socket.emit('registerUser', {
-      userId: orderData?.newOrder?.driver_id ||orderData?.driver_id,
+      userId: orderData?.newOrder?.driver_id || orderData?.driver_id,
       role: 'driver',
     });
 
@@ -114,45 +117,67 @@ const AmountCollectScreen = () => {
     hitCreateTransaction(param)
       .then(res => {
         if (res) {
-          dispatch(setOrderData(null));
-          dispatch(setupdate_order(null));
-          dispatch(setlivetripmenu(false));
-          socket.emit('complete_transaction_by_user', {
-            userId: orderData?.newOrder?.cust_id || orderData?.cust_id,
-          });
-          navigation.navigate('Earning');
+          if (nextOrderData) {
+            socket.emit('complete_transaction_by_user', {
+              userId: orderData?.newOrder?.cust_id || orderData?.cust_id,
+            });
+            dispatch(setOrderData(nextOrderData));
+            dispatch(setupdate_order(null));
+            dispatch(setnextOrderData(null));
+            navigation.goBack('');
+          } else {
+            socket.emit('complete_transaction_by_user', {
+              userId: orderData?.newOrder?.cust_id || orderData?.cust_id,
+            });
+            dispatch(setOrderData(null));
+            dispatch(setupdate_order(null));
+            dispatch(setlivetripmenu(false));
+            navigation.navigate('Earning');
+          }
         }
       })
       .catch(err => {
         console.error(err);
       });
   };
-  const Total_Fare = order_fare_details?.filter(item => parseInt(item?.pay_head_id) === 0);
+  const Total_Fare = order_fare_details?.filter(
+    item => parseInt(item?.pay_head_id) === 0,
+  );
   return (
-    <View style={styles.container}>
-      <View style={styles.upperHalf}>
-        <Text style={styles.amountText}>₹{Math.round(Total_Fare[0]?.amount).toFixed(2)}</Text>
-        <View
-          style={{
-            paddingHorizontal: responsiveWidth(80),
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <Text style={styles.label}>{orderData?.custName} to pay in cash</Text>
+    <>
+      <HeaderBackButton headerText={'Cash Collected'} />
+      <View style={styles.container}>
+        <View style={styles.upperHalf}>
+          <Text style={styles.amountText}>
+            ₹{Math.round(Total_Fare[0]?.amount).toFixed(2)}
+          </Text>
+          <View
+            style={{
+              paddingHorizontal: responsiveWidth(80),
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Text style={styles.label}>
+              {orderData?.custName} to pay in cash
+            </Text>
+          </View>
         </View>
-      </View>
 
-      <View style={styles.lowerHalf}>
-        <ArriveButton onPress={Complete_Order} buttonText={'Cash Collected'} />
+        <View style={styles.lowerHalf}>
+          <ArriveButton
+            onPress={Complete_Order}
+            buttonText={'Cash Collected'}
+          />
+        </View>
+        <PaymentSuccessModal
+          visible={visible}
+          onClose={() => {
+            setvisible(false);
+            navigation.navigate('Earning');
+          }}
+        />
       </View>
-      <PaymentSuccessModal
-        visible={visible}
-        onClose={() => {
-          setvisible(false);
-          navigation.navigate('Earning');
-        }}
-      />
-    </View>
+    </>
   );
 };
 

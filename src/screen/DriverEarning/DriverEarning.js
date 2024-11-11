@@ -56,12 +56,12 @@ const Earning = () => {
 
     let startDate, endDate;
     if (selectedRange === 'today') {
-      startDate = new Date();
-      endDate = null;
+      startDate = new Date(); // Use today's date as JavaScript Date object
+      endDate = null; // No end date for 'today'
     } else if (selectedRange === 'week') {
-      startDate = new Date();
-      endDate = new Date();
-      startDate.setDate(startDate.getDate() - 6);
+      startDate = new Date(); // Today's date as end of the week
+      endDate = new Date(); // Clone today's date for start calculation
+      startDate.setDate(startDate.getDate() - 6); // Subtract 6 days to get start of the week
     }
 
     setDateRange({start: startDate, end: endDate});
@@ -82,7 +82,6 @@ const Earning = () => {
         filter: selectedRange,
         customDate: dateRange,
       };
-      // console.log('parameter--->',param);
       hitDriverEarning(param)
         .then(res => {
           if (res?.success == false) {
@@ -184,11 +183,15 @@ const Earning = () => {
       );
     };
   }, [selectedDriver]);
-
+  // const formatDateForDisplay = (date) => {
+  // console.log('data',date);
+  //   return date ? date.toDateString() : ''; // Format the date when needed
+  // };
   const formatDateForDisplay = date => {
     if (date != null && date) {
       const options = {day: '2-digit', month: 'short', year: 'numeric'};
       const formattedDate = date?.toLocaleDateString('en-GB', options);
+      // Replace spaces with hyphens
       return formattedDate.replace(/ /g, '-');
     }
   };
@@ -197,9 +200,11 @@ const Earning = () => {
     const currentStartDate = new Date(dateRange.start);
 
     if (selectedRange === 'week') {
+      // Calculate previous week range
       const prevWeek = calculateWeekRange(currentStartDate, false);
       setDateRange(prevWeek);
     } else if (selectedRange === 'today') {
+      // Calculate previous day
       const prevDay = calculateDayRange(currentStartDate, false);
       setDateRange(prevDay);
     }
@@ -253,155 +258,163 @@ const Earning = () => {
     }
   };
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: Colors.homeBackground}}>
-      <View>
-        <CustomHeader
-          screenName="Earning"
-          setSelectedRange={setSelectedRange}
-          selectedRange={selectedRange}
-        />
-      </View>
-      <View style={styles.container}>
-        {loading ? (
-          <Loading loading={loading} />
-        ) : (
-          <>
-            <View
-              style={{alignSelf: 'center', marginTop: responsiveHeight(14)}}>
-              <DateRangeSelector
-                selectedRange={selectedRange}
-                setSelectedRange={setSelectedRange}
-              />
-            </View>
-            {driver_todays_earning?.individual_paid_amounts && (
-              <View style={[styles.earningDisplay, {justifyContent: 'center'}]}>
-                <View style={{justifyContent: 'center', alignItems: 'center'}}>
-                  {/* <Text style={styles.totalEarningText}>{'Total Earning'}</Text> */}
-                  {/* <DateRangeSelector selectedRange={selectedRange}  setSelectedRange={setSelectedRange}/> */}
-                  <Text style={styles.earningAmount}>
-                    ₹
-                    {!isNaN(driver_todays_earning?.total_paid_amount)
-                      ? Math.round(
-                          driver_todays_earning?.total_paid_amount,
-                        ).toFixed(2)
-                      : '0'}
-                  </Text>
-                  <View style={styles.percentageContainer}>
-                    <View style={styles.increaseContainer}>
-                      <Image
-                        source={AppImages.arrowUp}
-                        style={styles.arrowUpImage}
-                        resizeMode="contain"
-                      />
-                      <Text style={styles.percentageText}>
-                        {'3 '}
-                        {'% '}
-                      </Text>
-                    </View>
-                    <Text style={styles.heigherText}>
-                      {'higher than last day'}
-                    </Text>
-                  </View>
-                </View>
+    <>
+      <SafeAreaView style={{flex: 1, backgroundColor: Colors.homeBackground}}>
+        <View
+          style={{
+            height: responsiveHeight(60),
+            borderBottomWidth: 0.7,
+            borderColor: '#D8D8D8',
+          }}>
+          <CustomHeader
+            screenName="Earning"
+            setSelectedRange={setSelectedRange}
+            showSplash={true}
+            selectedRange={selectedRange}
+          />
+        </View>
+        <View style={styles.container}>
+          {loading ? (
+            <Loading loading={loading} />
+          ) : (
+            <>
+              <View
+                style={{alignSelf: 'center', marginTop: responsiveHeight(14)}}>
+                <DateRangeSelector
+                  selectedRange={selectedRange}
+                  setSelectedRange={setSelectedRange}
+                />
               </View>
-            )}
-            <View style={styles.earningChart}>
-              <TouchableOpacity
-                style={styles.navButton}
-                onPress={handlePrevDate}>
-                <Image
-                  source={AppImages.arrowLeft}
-                  style={styles.arrowImage}
-                  resizeMode="contain"
-                />
-              </TouchableOpacity>
-              <Text style={styles.dateText}>
-                {formatDateForDisplay(dateRange.start)}{' '}
-                {formatDateForDisplay(dateRange.end) && '-'}{' '}
-                {formatDateForDisplay(dateRange.end)}
-              </Text>
-              <TouchableOpacity
-                style={styles.navButton}
-                onPress={handleNextDate}>
-                <Image
-                  source={AppImages.arrowRight}
-                  style={styles.arrowImage}
-                  resizeMode="contain"
-                />
-              </TouchableOpacity>
-            </View>
-            {/* Bar Chart */}
-            {driver_todays_earning?.total_paid_amount && (
-              <BarChart
-                driverEarningData={driver_todays_earning}
-                selectedRange={selectedRange}
-              />
-            )}
-            {/* Order List Section */}
-            <View style={[styles.orderListContainer, {flex: 1}]}>
-              {/* <Line marginH={0}/> */}
-              {/* <BorderLine thickness={0.}/> */}
               {driver_todays_earning?.individual_paid_amounts && (
-                <Text style={styles.orderListHeadign}>{'Order List '}</Text>
-              )}
-              <FlatList
-                ListHeaderComponent={() => (
-                  <>
-                    {!driver_todays_earning?.individual_paid_amounts && (
-                      <View
-                        style={{
-                          flex: 1,
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          alignSelf: 'center',
-                          paddingVertical: 30,
-
-                          marginTop: responsiveHeight(110),
-                        }}>
-                        <ImageBackground
-                          source={AppImages.boxbackgound}
-                          style={styles.boxBackstyle}>
-                          <Image
-                            source={AppImages.emptyImage}
-                            style={styles.emptyboxStyle}
-                            resizeMode="contain"
-                          />
-                        </ImageBackground>
-                        <Text style={styles.emptyTextStyle}>
-                          {
-                            'No Order history Available, contact our support team.'
-                          }
+                <View
+                  style={[styles.earningDisplay, {justifyContent: 'center'}]}>
+                  <View
+                    style={{justifyContent: 'center', alignItems: 'center'}}>
+                    <Text style={styles.earningAmount}>
+                      ₹
+                      {!isNaN(driver_todays_earning?.total_paid_amount)
+                        ? Math.round(
+                            driver_todays_earning?.total_paid_amount,
+                          ).toFixed(2)
+                        : '0'}
+                    </Text>
+                    <View style={styles.percentageContainer}>
+                      <View style={styles.increaseContainer}>
+                        <Image
+                          source={AppImages.arrowUp}
+                          style={styles.arrowUpImage}
+                          resizeMode="contain"
+                        />
+                        <Text style={styles.percentageText}>
+                          {'3 '}
+                          {'% '}
                         </Text>
                       </View>
-                    )}
-                    {login_user?.owner_type != 0 &&
-                      driver_todays_earning?.individual_paid_amounts && (
-                        <View style={{marginLeft: 20}}>
-                          {partner_riders?.length > 1 && (
-                            <FlatList
-                              data={partner_riders}
-                              horizontal
-                              renderItem={renderRieder}
-                              keyExtractor={(item, index) => index.toString()}
+                      <Text style={styles.heigherText}>
+                        {'higher than last day'}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              )}
+              <View style={styles.earningChart}>
+                <TouchableOpacity
+                  style={styles.navButton}
+                  onPress={handlePrevDate}>
+                  <Image
+                    source={AppImages.arrowLeft}
+                    style={styles.arrowImage}
+                    resizeMode="contain"
+                  />
+                </TouchableOpacity>
+                <Text style={styles.dateText}>
+                  {formatDateForDisplay(dateRange.start)}{' '}
+                  {formatDateForDisplay(dateRange.end) && '-'}{' '}
+                  {formatDateForDisplay(dateRange.end)}
+                </Text>
+                <TouchableOpacity
+                  style={styles.navButton}
+                  onPress={handleNextDate}>
+                  <Image
+                    source={AppImages.arrowRight}
+                    style={styles.arrowImage}
+                    resizeMode="contain"
+                  />
+                </TouchableOpacity>
+              </View>
+              {/* Bar Chart */}
+              {driver_todays_earning?.total_paid_amount && (
+                <BarChart
+                  driverEarningData={driver_todays_earning}
+                  selectedRange={selectedRange}
+                />
+              )}
+              {/* Order List Section */}
+              <View style={[styles.orderListContainer, {flex: 1}]}>
+                {/* <Line marginH={0}/> */}
+                {/* <BorderLine thickness={0.}/> */}
+                {driver_todays_earning?.individual_paid_amounts && (
+                  <Text style={styles.orderListHeadign}>{'Order List '}</Text>
+                )}
+                <FlatList
+                  ListHeaderComponent={() => (
+                    <>
+                      {!driver_todays_earning?.individual_paid_amounts && (
+                        <View
+                          style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            alignSelf: 'center',
+                            paddingVertical: 30,
+
+                            marginTop: responsiveHeight(110),
+                          }}>
+                          <ImageBackground
+                            source={AppImages.boxbackgound}
+                            style={styles.boxBackstyle}>
+                            <Image
+                              source={AppImages.emptyImage}
+                              style={styles.emptyboxStyle}
+                              resizeMode="contain"
                             />
-                          )}
+                          </ImageBackground>
+                          <Text style={styles.emptyTextStyle}>
+                            {
+                              'No Order history Available, contact our support team.'
+                            }
+                          </Text>
                         </View>
                       )}
-                  </>
-                )}
-                data={driver_todays_earning?.individual_paid_amounts}
-                renderItem={renderItem}
-                keyExtractor={(item, index) => index.toString()}
-                contentContainerStyle={{flexGrow: 1,paddingBottom:responsiveHeight(80)}}
-              />
-            </View>
-          </>
-        )}
-      </View>
+                      {login_user?.owner_type != 0 &&
+                        driver_todays_earning?.individual_paid_amounts && (
+                          <View style={{marginLeft: 20}}>
+                            {partner_riders?.length > 1 && (
+                              <FlatList
+                                data={partner_riders}
+                                horizontal
+                                renderItem={renderRieder}
+                                keyExtractor={(item, index) => index.toString()}
+                              />
+                            )}
+                          </View>
+                        )}
+                    </>
+                  )}
+                  data={driver_todays_earning?.individual_paid_amounts}
+                  renderItem={renderItem}
+                  keyExtractor={(item, index) => index.toString()}
+                  contentContainerStyle={{flexGrow: 1}}
+                />
+              </View>
+            </>
+          )}
+        </View>
+      </SafeAreaView>
       <View style={styles.bottomNavContainer}>
         <BottomNav Earning={true} />
       </View>
-    </SafeAreaView>
+    </>
   );
 };
 

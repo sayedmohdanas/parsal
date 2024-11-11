@@ -9,7 +9,6 @@ import {
 import React, {useEffect, useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Colors from '../../../../common/Colors';
-import CustomHeader from '../../components/CustomHeader';
 import {Fonts, FontSizes, Spacing} from '../../../../common/Theme';
 import AppImages from '../../../../common/AppImages';
 import {
@@ -20,6 +19,7 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import {errorToast} from '../../../../common/CommonFunction';
+import HeaderBackButton from '../../../../components/HeaderBackButton/HeaderBackButton';
 
 const WalletScreen = ({route, accountNumber = '075423453453'}) => {
   const [balance, setBalance] = useState(0);
@@ -29,6 +29,7 @@ const WalletScreen = ({route, accountNumber = '075423453453'}) => {
   const maskedNumber =
     accountNumber.slice(0, 2) + '*'.repeat(accountNumber.length - 2);
 
+  // const store_data = useSelector(state => state?.parsalPartner);
   const store_data = useSelector(
     state => state.parsalPartner.wallet_balance?.new_wallet_balance || 0,
   );
@@ -44,7 +45,10 @@ const WalletScreen = ({route, accountNumber = '075423453453'}) => {
   }, [route.params?.newBalance, store_data]);
   return (
     <SafeAreaView style={styles.container}>
-      <CustomHeader screenName={'Wallet'} />
+      <HeaderBackButton
+        headerText={'Wallet'}
+        onPress={() => navigation.goBack('')}
+      />
       <View style={styles.walletcard}>
         <ImageBackground
           source={AppImages.walltetBackground}
@@ -87,11 +91,11 @@ const WalletScreen = ({route, accountNumber = '075423453453'}) => {
             </View>
           </View>
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button}
-
-              onPress={() => navigation.navigate('AddCash', { screenName: 'Add Cash' })}
-
-            >
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() =>
+                navigation.navigate('AddCash', {screenName: 'Add Cash'})
+              }>
               <Text style={styles.buttonText}>Add Cash</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -127,8 +131,7 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     alignSelf: 'flex-end',
-    margin: 8,
-    marginHorizontal:responsiveWidth(12),
+    margin: 16,
     backgroundColor: 'rgba(120, 122, 243, 1)',
     borderRadius: 5,
     padding: 4,

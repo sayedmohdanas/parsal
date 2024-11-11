@@ -75,7 +75,7 @@ const AddHelpAndSupport = () => {
         setImages('');
         setPostImages('');
         setDescription('');
-        navigation.navigate('HelpandSupport');
+        navigation.goBack('');
       } else {
         errorToast(
           'Error',
@@ -128,8 +128,8 @@ const AddHelpAndSupport = () => {
           <Image
             source={AppImages.helpSupport}
             style={{
-              height: responsiveHeight(250),
-              width: responsiveWidth(250),
+              height: responsiveHeight(200),
+              width: responsiveWidth(200),
             }}
             resizeMode="contain"
           />
@@ -138,7 +138,7 @@ const AddHelpAndSupport = () => {
         <View
           style={{
             marginHorizontal: responsiveWidth(16),
-            marginTop: responsiveHeight(20),
+            marginTop: responsiveHeight(5),
           }}>
           <Dropdown
             style={[styles.dropdown, isFocus && {borderColor: 'blue'}]}
@@ -223,7 +223,7 @@ const AddHelpAndSupport = () => {
                   style={{
                     color: 'white',
                     fontWeight: '900',
-                    fontSize: responsiveFontSize(12),
+                    fontSize: responsiveFontSize(10),
                   }}>
                   X
                 </Text>
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
     marginTop: responsiveHeight(20),
   },
   largeTextInput: {
-    height: responsiveHeight(150),
+    height: responsiveHeight(140),
     borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 8,
@@ -335,22 +335,22 @@ const styles = StyleSheet.create({
     marginRight: 10, // Adds spacing between images
   },
   imageGridContainer: {
-    marginTop: responsiveHeight(20),
+    marginTop: responsiveHeight(12),
     flexDirection: 'row',
     flexWrap: 'wrap', // Allows images to wrap to the next line
     justifyContent: 'space-between', // Space images evenly
-    paddingHorizontal: responsiveWidth(16),
+    paddingHorizontal: responsiveWidth(12),
     borderWidth: 1,
     borderStyle: 'dotted',
-    padding: 10,
+    paddingVertical: responsiveHeight(8),
     marginHorizontal: responsiveWidth(16),
     borderRadius: 10,
   },
   gridImage: {
-    width: responsiveWidth(100), // Set the width of each image
-    height: responsiveHeight(100), // Set the height of each image
+    width: responsiveWidth(80), // Set the width of each image
+    height: responsiveHeight(80), // Set the height of each image
     borderRadius: 8,
-    marginBottom: responsiveHeight(10), // Adds spacing between rows
+    marginBottom: responsiveHeight(5), // Adds spacing between rows
   },
   removeImageButton: {
     position: 'absolute',

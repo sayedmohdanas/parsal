@@ -21,9 +21,15 @@ import {
   setlogindriverdetails,
   setworking_status,
 } from '../../../redux/HitApis/HitApiSlice';
-import {getimage} from '../../../config/url';
 
-const CustomHeader = ({screenName}) => {
+const CustomHeader = ({
+  screenName,
+  onPress,
+  leftimage,
+  rotate,
+  not_show,
+  showSplash,
+}) => {
   const owner = useSelector(state => state?.parsalPartner?.owner);
   const [check_owner, setcheck_owner] = useState();
   const navigation = useNavigation();
@@ -133,40 +139,9 @@ const CustomHeader = ({screenName}) => {
     }
   };
 
-  // const driverProfile = useSelector(
-  //   state => state?.parsalPartner?.logindriverdetails,
-  // );
-  // const [user_image, setuser_image] = useState();
-  // const fetchUserData = async () => {
-  //   try {
-  //     const user = await AsyncStorage.getItem('user');
-  //     if (user) {
-  //       const parsedUser = JSON.parse(user);
-  //       const isOwnerTypeZero = parsedUser?.payload?.owner_type === 0;
-  //       const profileImageUrl = isOwnerTypeZero
-  //         ? getimage(
-  //             `partners_img/${driverProfile?.partner_id}/drivers/${driverProfile?.id}_${driverProfile?.profile_pic}`,
-  //           )
-  //         : getimage(
-  //             `partners_img/${driverProfile?.id}/${driverProfile?.profile_pic}`,
-  //           );
-
-  //       return profileImageUrl;
-  //     }
-  //   } catch (error) {
-  //     console.error('Error fetching user data:', error);
-  //     return null;
-  //   }
-  // };
-  // const fetchData = async () => {
-  //   const imgUrl = await fetchUserData();
-  //   if (imgUrl) {
-  //     setuser_image(imgUrl);
-  //   }
-  // };
   useEffect(() => {
     get_user_details();
-  }, [isEnabled, dispatch, isEnabled,]);
+  }, [isEnabled, dispatch, isEnabled]);
   const [isEnabled, setIsEnabled] = useState(
     user_details?.working_status == 0 ? false : true,
   );
@@ -175,27 +150,42 @@ const CustomHeader = ({screenName}) => {
     setIsEnabled(user_details?.working_status == 0 ? false : true);
     dispatch(
       setworking_status(user_details?.working_status == 0 ? false : true),
-    );    
+    );
   }, [user_details, dispatch]);
   return (
     <>
       <View style={styles.headerContainer}>
-        <TouchableOpacity
-          onPress={() => navigation.openDrawer()}
-          style={styles.profilePic}>
-          <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
-            {/* <Image
-              source={{
-                uri: user_image,
-              }} // Replace with your profile pic URL
-              style={styles.profilePic}
-            /> */}
-          </View>
-        </TouchableOpacity>
-
+        <View style={{position: 'absolute', left: responsiveWidth(16)}}>
+          <TouchableOpacity onPress={onPress}>
+            <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
+              {leftimage && (
+                <Image
+                  source={leftimage} // Replace with your profile pic URL
+                  style={[
+                    styles.profilePic,
+                    {transform: [{rotate: rotate ? '180deg' : '0deg'}]},
+                  ]}
+                />
+              )}
+            </View>
+          </TouchableOpacity>
+        </View>
+        {showSplash && (
+          <Image
+            source={AppImages.SplashScreenLogo}
+            style={{
+              height: responsiveHeight(30),
+              width: responsiveWidth(75),
+              position: 'absolute',
+              left: responsiveWidth(16),
+            }}
+            resizeMode="contain"
+          />
+        )}
         {/* Center: Screen Name or Switch */}
-        {check_owner != 1 ? (
-          <>
+        {check_owner != 1 && !not_show ? (
+          <View
+            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
             <Switch
               value={isEnabled}
               onValueChange={val => {
@@ -250,16 +240,24 @@ const CustomHeader = ({screenName}) => {
               switchWidthMultiplier={4.5}
               switchBorderRadius={30}
             />
-          </>
+          </View>
         ) : (
-          <Text style={styles.screenName}>{screenName}</Text>
+          <View
+            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <Text style={styles.screenName}>{screenName}</Text>
+          </View>
         )}
 
-        <TouchableOpacity onPress={() => navigation.navigate('Notification')}>
+        <TouchableOpacity
+          style={{
+            position: 'absolute',
+            right: responsiveWidth(16),
+          }}
+          onPress={() => navigation.navigate('Notification')}>
           <Image
             source={AppImages.notificationIcon}
             resizeMode="contain"
-            style={{width: responsiveWidth(20), height: responsiveHeight(20)}}
+            style={{width: responsiveWidth(22), height: responsiveHeight(22)}}
           />
         </TouchableOpacity>
       </View>
@@ -279,19 +277,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: responsiveWidth(16),
     borderBlockColor: '#D8D8D8',
     borderBottomWidth: 0.5,
+    flex: 1,
   },
   profilePic: {
-    height: responsiveHeight(32),
-    width: responsiveHeight(32),
-    borderRadius: responsiveHeight(32),
+    height: responsiveHeight(28),
+    width: responsiveWidth(28),
+    // borderRadius: responsiveHeight(32),
     // borderWidth: 1,
     // borderColor: '#D9D9D9',
   },
   screenName: {
-    fontSize: responsiveFontSize(20),
-    fontWeight: '700',
-    color: '#000000',
-    textAlign: 'center',
+    // fontSize: responsiveFontSize(20),
+    // fontWeight: '700',
+    // color: '#000000',
+    // textAlign: 'center',
+    color: Colors.black,
+    fontSize: responsiveFontSize(18),
+    fontWeight: '500',
+    marginLeft: responsiveWidth(10),
   },
   placeholder: {
     width: responsiveWidth(40),

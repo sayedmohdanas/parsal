@@ -18,7 +18,6 @@ import {
   responsiveWidth,
 } from '../../../../common/metrices';
 import {Fonts, FontSizes, Spacing} from '../../../../common/Theme';
-import CustomHeader from '../../components/CustomHeader';
 import {
   hitDeleteNotificationApi,
   hitGetNotification,
@@ -26,6 +25,8 @@ import {
 import Loading from '../../../../components/Loading/Loading';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {successToast, timeAgo} from '../../../../common/CommonFunction';
+import HeaderBackButton from '../../../../components/HeaderBackButton/HeaderBackButton';
+import {useNavigation} from '@react-navigation/native';
 
 const Notification = () => {
   const [notifications, setNotifications] = useState([
@@ -36,7 +37,7 @@ const Notification = () => {
   ]);
   const [loading, setLoading] = useState(false);
   const [expandedItemId, setExpandedItemId] = useState(null);
-
+  const navigation = useNavigation();
   useEffect(() => {
     setLoading(true);
     const fetchNotification = async () => {
@@ -147,7 +148,12 @@ const Notification = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <CustomHeader screenName={'NOTIFICATION'} />
+      <HeaderBackButton
+        headerText={'Notification'}
+        onPress={() => {
+          navigation.goBack('');
+        }}
+      />
       {loading ? (
         <Loading loading={true} />
       ) : (

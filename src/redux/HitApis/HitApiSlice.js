@@ -23,7 +23,6 @@ export const loginPartner = createAsyncThunk(
       const response = await hitPartnerLogin(credentials);
 
       // const parent_id = await AsyncStorage.getItem('partner_id')
-console.log('login--response=======>>>>',response);
 
       return response;
     } catch (error) {

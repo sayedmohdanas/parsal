@@ -6,8 +6,8 @@
 // export const socketUrl = `http://192.168.29.244:4000/`;
 
 // //
-export const API_BASE_URL ='http://52.66.236.213:9292/'
-export  const socketUrl= `http://52.66.236.213:4000/`
+export const API_BASE_URL = 'http://52.66.236.213:9292/';
+export const socketUrl = `http://52.66.236.213:4000/`;
 // export const API_BASE_URL ='http://192.168.29.237:5000/'
 // export  const socketUrl= `http://192.168.29.237:4000/`
 
@@ -35,7 +35,9 @@ export const getBankAccount = getEndpoint('partner/bank-details');
 export const addDriverDetails = getEndpoint('drivers/assign-driver-vehicles');
 export const updateDriverDetails = getEndpoint('drivers/edit-driver-profile');
 
-export const deleteDriverDetails = getEndpoint('drivers/delete-driver-vehicles');
+export const deleteDriverDetails = getEndpoint(
+  'drivers/delete-driver-vehicles',
+);
 export const getDriverDetails = getEndpoint('drivers/get-driver-details');
 export const updateWorkStatusurl = getEndpoint('drivers/update-location');
 export const placeOrder = getEndpoint('users/place-order');
@@ -44,42 +46,41 @@ export const getOrderDetail = getEndpoint('orders/get-order-details');
 export const cancelOrderurl = getEndpoint('orders/cancel-order');
 // export const driverEaring =getEndpoint('orders/cancel-order');
 export const driverEaringurl = getEndpoint('orders/driver-payments');
-export const updateDriverDistanceurl = getEndpoint('users/update-driver-distance');
+export const updateDriverDistanceurl = getEndpoint(
+  'users/update-driver-distance',
+);
 export const createtransactionurl = getEndpoint('users/create-transaction');
-export const livedriverOfPartnernurl = getEndpoint('drivers/get-live-driverOfPartner');
+export const livedriverOfPartnernurl = getEndpoint(
+  'drivers/get-live-driverOfPartner',
+);
 export const getallvehicletypeurl = getEndpoint('generic/get-all-VehicleType');
-export const reviewTermsAndCondition = getEndpoint('generic/get-terms-condition');
+export const reviewTermsAndCondition = getEndpoint(
+  'generic/get-terms-condition',
+);
 export const getTickeReply = getEndpoint('generic/get-tickets-reply');
 export const addTickeReply = getEndpoint('generic/add-tickets-reply');
 export const getNotification = getEndpoint('generic/get-notifications');
 export const getwalletbalanceurl = getEndpoint('drivers/wallet-balance');
 export const addMoney = getEndpoint('drivers/wallet-deposit');
 export const withrawMoney = getEndpoint('drivers/wallet-withdraw');
-export const updateDriverLocationurl = getEndpoint('orders/update-driverLocation');
+export const updateDriverLocationurl = getEndpoint(
+  'orders/update-driverLocation',
+);
 export const getliveorderdataurl = getEndpoint('orders/get-ongoing-order');
 export const updatefcmurl = getEndpoint('drivers/update-fcm');
 export const helpAndSupport = getEndpoint('generic/support-ticket');
 export const getSupportTickets = getEndpoint('generic/get-support-tickets');
 export const getOrderFareDetail = getEndpoint('users/get-order-fareDetails');
-export const editpartnervehicleurl = getEndpoint('partner/edit-partner-vehicle');
-export const deleteNotificationurl = getEndpoint('generic/delete-user-notifications');
+export const editpartnervehicleurl = getEndpoint(
+  'partner/edit-partner-vehicle',
+);
+export const deleteNotificationurl = getEndpoint(
+  'generic/delete-user-notifications',
+);
 export const updateotppurl = getEndpoint('orders/update-order-otp');
 export const endtripurl = getEndpoint('orders/endRide');
 export const driverarriveurl = getEndpoint('orders/driverArrived');
 export const getOrdersById = getEndpoint('orders/get-order-by-customer');
-export const userorderstatsurl = getEndpoint('users/get-cust-orderStats')
+export const userorderstatsurl = getEndpoint('users/get-cust-orderStats');
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export const transactionurl = getEndpoint('drivers/driver-transaction');

@@ -67,6 +67,7 @@ const styles = StyleSheet.create({
   iconStyle: {
     height: responsiveHeight(17),
     width: responsiveWidth(17),
+    tintColor: '#3D40D1',
   },
   optionName: {
     fontSize: responsiveFontSize(14),

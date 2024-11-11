@@ -80,7 +80,7 @@ const TermsAndCondition = ({route}) => {
             {id == 1 ? `Terms and Conditions` : 'Privacy and Policy'}
           </Text> */}
         </View>
-        <View style={{flex: 2, padding: 10}}>
+        <View style={{flex: 2, padding: 6}}>
           {loading ? (
             <Loading loading={loading} />
           ) : (
@@ -88,10 +88,10 @@ const TermsAndCondition = ({route}) => {
               style={{
                 elevation: 20,
                 backgroundColor: 'white',
-                padding: 10,
-                marginTop: responsiveWidth(-100),
+                padding: 8,
+                marginTop: responsiveWidth(-115),
                 borderRadius: 12,
-                marginHorizontal: responsiveWidth(12),
+                marginHorizontal: responsiveWidth(8),
               }}>
               <RenderHTML
                 contentWidth={width}

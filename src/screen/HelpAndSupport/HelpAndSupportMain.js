@@ -10,7 +10,11 @@ import React, {useCallback, useEffect, useState} from 'react';
 // import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton'
 import HelpAndSupportCard from './Component/HelpAndSupportCard';
 import AppImages from '../../common/AppImages';
-import {responsiveHeight, responsiveWidth} from '../../common/metrices';
+import {
+  responsiveFontSize,
+  responsiveHeight,
+  responsiveWidth,
+} from '../../common/metrices';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {getItem} from '../../common/CommonFunction';
 import {hitGetSupportTicket} from '../../config/api/api';
@@ -86,10 +90,10 @@ const HelpAndSupportMain = ({navigation}) => {
           const parsed_user = JSON.parse(user);
           const request = {
             user_id:
-            parsed_user?.payload?.owner_type == 1
-              ? parsed_user?.payload?.partner_id
-              : parsed_user?.payload?.driver_id,
-          user_type: parsed_user?.payload?.owner_type == 1 ? 3 : 2,
+              parsed_user?.payload?.owner_type == 1
+                ? parsed_user?.payload?.partner_id
+                : parsed_user?.payload?.driver_id,
+            user_type: parsed_user?.payload?.owner_type == 1 ? 3 : 2,
           };
           hitGetSupportTicket(request)
             .then(res => {
@@ -101,10 +105,10 @@ const HelpAndSupportMain = ({navigation}) => {
             })
             .catch(err => {
               setTickets([]);
-              console.error(err);
+              console.log(err);
             });
         } catch (error) {
-          console.error('error => ', error);
+          console.log('error => ', error);
         }
       };
 
@@ -130,11 +134,31 @@ const HelpAndSupportMain = ({navigation}) => {
 
   return (
     <View style={{flex: 1, backgroundColor: Colors.white}}>
-      <HeaderBackButton headerText="Help & Support" onPress={() => navigation.goBack()} />
+      <HeaderBackButton
+        headerText="Help & Support"
+        onPress={() => navigation.goBack()}
+      />
       <FlatList
         data={tickets}
         renderItem={renderItem}
         keyExtractor={item => item.id.toString()}
+        ListEmptyComponent={() => (
+          <View style={styles.emptyContainer}>
+            <Image
+              source={AppImages.empty}
+              style={{
+                height: responsiveHeight(120),
+                width: responsiveWidth(120),
+              }}
+              resizeMode="contain"
+            />
+            <Text style={[styles.emptyText, {marginTop: 20}]}>
+              {
+                'No support tickets found. \nPlease contact our support team for assistance.'
+              }
+            </Text>
+          </View>
+        )}
       />
       <View
         style={{
@@ -165,4 +189,18 @@ const HelpAndSupportMain = ({navigation}) => {
 
 export default HelpAndSupportMain;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    paddingTop: '50%',
+  },
+  emptyText: {
+    fontSize: responsiveFontSize(16),
+    color: Colors.grey,
+    textAlign: 'center',
+    paddingTop: 10,
+  },
+});

@@ -21,6 +21,7 @@ import Loading from '../../../../components/Loading/Loading';
 import {setwalletBalance} from '../../../../redux/HitApis/HitApiSlice';
 import {useDispatch} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import HeaderBackButton from '../../../../components/HeaderBackButton/HeaderBackButton';
 
 const AddCashScreen = ({route}) => {
   const [loading, setLoading] = useState(false);
@@ -63,35 +64,41 @@ const AddCashScreen = ({route}) => {
     navigation.setOptions({title: screenName});
   }, [navigation, screenName]);
   return (
-    <SafeAreaView style={styles.container}>
-      {loading ? (
-        <Loading loading={loading} />
-      ) : (
-        <>
-          <View style={{flex: 1, marginHorizontal: responsiveWidth(8)}}>
-            <View style={styles.titleContainer}>
-              <Text style={styles.titleText}>Enter the Amount {balance}</Text>
+    <>
+      <HeaderBackButton
+        headerText={'Manage Wallet'}
+        onPress={() => navigation.goBack('')}
+      />
+      <SafeAreaView style={styles.container}>
+        {loading ? (
+          <Loading loading={loading} />
+        ) : (
+          <>
+            <View style={{flex: 1, marginHorizontal: responsiveWidth(8)}}>
+              <View style={styles.titleContainer}>
+                <Text style={styles.titleText}>Enter the Amount {balance}</Text>
+              </View>
+              <TextInput
+                style={styles.amountInput}
+                placeholder="₹0"
+                keyboardType="numeric"
+                placeholderTextColor={'#3D465A'}
+                onChangeText={e => {
+                  setbalance(e);
+                }}
+              />
             </View>
-            <TextInput
-              style={styles.amountInput}
-              placeholder="₹0"
-              keyboardType="numeric"
-              placeholderTextColor={'#3D465A'}
-              onChangeText={e => {
-                setbalance(e);
-              }}
-            />
-          </View>
-          <View style={{marginBottom: responsiveWidth(10)}}>
-            <TouchableOpacity
-              style={styles.continueButton}
-              onPress={handleContinue}>
-              <Text style={styles.continueButtonText}>Continue</Text>
-            </TouchableOpacity>
-          </View>
-        </>
-      )}
-    </SafeAreaView>
+            <View style={{marginBottom: responsiveWidth(10)}}>
+              <TouchableOpacity
+                style={styles.continueButton}
+                onPress={handleContinue}>
+                <Text style={styles.continueButtonText}>Continue</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
+      </SafeAreaView>
+    </>
   );
 };
 

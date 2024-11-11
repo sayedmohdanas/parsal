@@ -34,7 +34,6 @@ export default AppImages = {
   EarningIcon: require('../assets/images/wallet-1.png'),
   EarningIconB: require('../assets/images/wallet.png'),
   SettingIcon: require('../assets/images/setting.png'),
-
   SettingIconB: require('../assets/images/setting-1.png'),
   TripIcon: require('../assets/images/trip.png'),
   TripIconB: require('../assets/images/trip-1.png'),
@@ -105,7 +104,6 @@ export default AppImages = {
   MyVehcileIcon: require('../assets/images/box-truck.png'),
   fuelIcon: require('../assets/images/fuel.png'),
   // rcIcon: require('../assets/images/rc.png'),
-
   driversList: require('../assets/images/drivers.png'),
   dashboard: require('../assets/images/dashboard.png'),
   partnerbike: require('../assets/images/delivery-bike-rbg.png'),
@@ -131,13 +129,7 @@ export default AppImages = {
   radar: require('../assets/images/radar.png'),
   close: require('../assets/images/close.png'),
   brandBlueEditIcon: require('../assets/images/brandBlueEditicon.png'),
-
-
-
-
-
-
-  
-  
-
+  addvehicle: require('../assets/images/addvehicle.png'),
+  empty: require('../assets/images/empty.png'),
+  rightarrow: require('../assets/images/rightarrow.png'),
 };

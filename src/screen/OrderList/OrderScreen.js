@@ -28,6 +28,9 @@ import {mystyles} from '../../common/Mystyle';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BottomNav from '../../../navigation/BottomNav';
 import {hitOrderListApi} from '../../config/api/api';
+import {formatDate} from '../../common/CommonFunction';
+import CustomHeader from '../DashBoard/components/CustomHeader';
+import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
 
 const OrderScreen = () => {
   const focus = useIsFocused();
@@ -50,17 +53,17 @@ const OrderScreen = () => {
       type: 1,
     };
     hitOrderListApi(request)
-    .then(res => {
-      setorders(res?.data);
-    })
-    .catch(err => {
-      console.error(err);
-    })
-    .finally(() => {
-      setloader(false);
-    });
-      };
-  
+      .then(res => {
+        setorders(res?.data);
+        setloader(false);
+      })
+      .catch(err => {
+        setloader(false);
+      })
+      .finally(() => {
+        setloader(false);
+      });
+  };
 
   useEffect(() => {
     if (focus) {
@@ -71,6 +74,7 @@ const OrderScreen = () => {
   const filter_data = data => {
     let filtered = data;
 
+    // Filter by order status based on the active button
     if (activeButton === 'Pending') {
       filtered = filtered.filter(order => order.order_status === 0);
     } else if (activeButton === 'Delivered') {
@@ -79,6 +83,7 @@ const OrderScreen = () => {
       filtered = filtered.filter(order => order.order_status === 5);
     }
 
+    // Filter based on search query (matches parcel number, parcel name, pickup address, or drop address)
     if (searchQuery.trim() !== '') {
       filtered = filtered.filter(
         order =>
@@ -145,20 +150,28 @@ const OrderScreen = () => {
             driverId={item.driver_id}
             profilePic={item.driver?.profile_pic}
             vNo={item.driver?.m_vehicle?.vehicle_number}
+            orderDate={formatDate(item?.order_date)}
             orderDetails={item}
           />
         );
       },
-    [filteredOrders, activeButton, searchQuery],
+    [filteredOrders, activeButton, searchQuery], // Dependencies could include `items` or relevant props passed to `renderOrderItem`
   );
 
   return (
     <>
       <SafeAreaView style={{flex: 1, backgroundColor: Colors.homeBackground}}>
-        <View style={{flex: 1}}>
-          <View style={{margin: 17}}>
+        <View
+          style={{
+            height: responsiveHeight(60),
+            marginBottom: responsiveHeight(10),
+          }}>
+          <CustomHeader  screenName={"Orders"} showSplash={true} />
+        </View>
+        <View style={{flex: 1, backgroundColor: Colors.homeBackground}}>
+          {/* <View style={{margin: 17}}>
             <Text style={styles.orderTextStyle}>{'Orders'}</Text>
-          </View>
+          </View> */}
 
           {/* Search bar */}
           <View style={styles.searchbarContainer}>
@@ -218,36 +231,36 @@ const OrderScreen = () => {
               data={filter_data(orders)}
               keyExtractor={(item, index) => item.id.toString()}
               renderItem={renderOrderItem}
-                ListEmptyComponent={() => (
-                  <SafeAreaView
-                    style={{
-                      flex: 1,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      marginTop: '30%',
-                    }}>
-                    <View
-                      style={{flex: 1, backgroundColor: Colors.homeBackground}}>
-                      <View style={[{flex: 1}, mystyles.center]}>
-                        <ImageBackground
-                          source={AppImages.boxbackgound}
-                          style={styles.boxBackstyle}>
-                          <Image
-                            source={AppImages.emptyImage}
-                            style={styles.emptyboxStyle}
-                            resizeMode="contain"
-                          />
-                        </ImageBackground>
-                        <Text style={[styles.emptyTextStyle, {marginTop: 10}]}>
-                          {'Order history limited to last 2 years'}
-                        </Text>
-                        <Text style={styles.emptyTextStyle}>
-                          {'For older orders, contact our support team.'}
-                        </Text>
-                      </View>
+              ListEmptyComponent={() => (
+                <SafeAreaView
+                  style={{
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginTop: '30%',
+                  }}>
+                  <View
+                    style={{flex: 1, backgroundColor: Colors.homeBackground}}>
+                    <View style={[{flex: 1}, mystyles.center]}>
+                      <ImageBackground
+                        source={AppImages.boxbackgound}
+                        style={styles.boxBackstyle}>
+                        <Image
+                          source={AppImages.emptyImage}
+                          style={styles.emptyboxStyle}
+                          resizeMode="contain"
+                        />
+                      </ImageBackground>
+                      <Text style={[styles.emptyTextStyle, {marginTop: 10}]}>
+                        {'Order history limited to last 2 years'}
+                      </Text>
+                      <Text style={styles.emptyTextStyle}>
+                        {'For older orders, contact our support team.'}
+                      </Text>
                     </View>
-                  </SafeAreaView>
-                )}
+                  </View>
+                </SafeAreaView>
+              )}
             />
           )}
         </View>

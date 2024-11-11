@@ -22,7 +22,11 @@ import {
   successToast,
 } from '../../common/CommonFunction';
 import MapViewDirections from 'react-native-maps-directions';
-import {useFocusEffect, useIsFocused} from '@react-navigation/native';
+import {
+  useFocusEffect,
+  useIsFocused,
+  useNavigation,
+} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import database from '@react-native-firebase/database';
 import Colors from '../../common/Colors';
@@ -35,6 +39,7 @@ import DriverArriveCard from '../DriverEarning/DriverArriveCard';
 import DestinationSection from './DestinationSection';
 import {hitUpdateDriverLocationApi} from '../../config/api/api';
 import NextOrder from '../../components/CustomNotificationModal/NextOrder';
+import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
 const AnimatedMarker = Animated.createAnimatedComponent(Marker);
 
 const getCenterOffsetForAnchor = (anchor, markerWidth, markerHeight) => ({
@@ -55,6 +60,7 @@ const CENTEROFFSET = getCenterOffsetForAnchor(
   MARKER_HEIGHT,
 );
 const DriverMapScreen = ({route}) => {
+  const navigation = useNavigation();
   const [heading, setHeading] = useState(0);
   const [distanceTraveled, setDistanceTraveled] = useState(0);
   const [lastPosition, setLastPosition] = useState(null);
@@ -85,11 +91,9 @@ const DriverMapScreen = ({route}) => {
     if (lastPosition) {
       let distance = haversineDistance(lastPosition, newPosition);
       distance = parseFloat(distance.toFixed(4));
-
       const param = {
         order_id: orderData?.newOrder?.id || orderData?.id,
         driver_travel_distance: distance,
-        // driver_travel_time: elapsedTravelTimeRef.current, // Use ref for the latest time
       };
       await hitUpdateDriverLocationApi(param);
       if (distance > 0.001) {
@@ -131,7 +135,7 @@ const DriverMapScreen = ({route}) => {
     }).start();
     setHeading(newHeading);
   };
-  const orderId = orderData?.newOrder?.id || orderData?.id;
+  const orderId = orderData?.newOrder?.driver_id || orderData?.driver_id;
   const isFocused = useIsFocused();
   useEffect(() => {
     let intervalId;
@@ -240,7 +244,6 @@ const DriverMapScreen = ({route}) => {
         Number(orderData?.newOrder?.pickup_long) ||
         0,
   };
-
   const [reached, setReached] = useState(false);
 
   useEffect(() => {
@@ -313,8 +316,6 @@ const DriverMapScreen = ({route}) => {
     ]),
   );
 
-
-
   const [isLoading, setIsLoading] = useState(true);
   const NextOrderHeader = useMemo(() => {
     if (nextOrderData != null) {
@@ -380,7 +381,10 @@ const DriverMapScreen = ({route}) => {
     }
     return null; // Return null if nextOrderData is null
   }, [nextOrderData, nextordermodal]);
-  
+  // console.log('===>origin',origin);
+  // console.log('===>',destination);
+  // console.log(update_order);
+
   return (
     <View style={styles.container}>
       {isLoading && (
@@ -388,7 +392,22 @@ const DriverMapScreen = ({route}) => {
           <ActivityIndicator size="large" color="blue" />
         </View>
       )}
-
+      <View
+        style={{
+          zIndex: 1000,
+          backgroundColor: Colors.white,
+          flexDirection: 'row',
+          borderTopWidth: 0.6,
+          borderBottomWidth: 0.6,
+          borderColor: '#D8D8D8',
+        }}>
+        <HeaderBackButton
+          onPress={() => {
+            navigation.goBack('');
+          }}
+          headerText={'Live Trip'}
+        />
+      </View>
       {NextOrderHeader}
       <MapView
         customMapStyle={custommapstyle}
@@ -411,6 +430,7 @@ const DriverMapScreen = ({route}) => {
             anchor={ANCHOR}
             centerOffset={CENTEROFFSET}
             flat={true}
+            // tracksViewChanges={false}
             style={{
               transform: [
                 {
@@ -449,6 +469,7 @@ const DriverMapScreen = ({route}) => {
             apikey={GOOGLE_API_KEY}
             strokeWidth={4}
             strokeColor={Colors.brandBlue}
+            tracksViewChanges={false}
           />
         ) : null}
       </MapView>
