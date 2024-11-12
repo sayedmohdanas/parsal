@@ -1,3 +1,4 @@
+
 import {
   Image,
   StyleSheet,
@@ -8,40 +9,46 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { SafeAreaView } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {SafeAreaView} from 'react-native';
+// import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
 import AppImages from '../../common/AppImages';
 import {
   responsiveFontSize,
   responsiveHeight,
   responsiveWidth,
 } from '../../common/metrices';
-import { Dropdown } from 'react-native-element-dropdown';
+import {Dropdown} from 'react-native-element-dropdown';
 import CustomButton from '../../components/CustomButton/CustomButton';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import ImagePicker from 'react-native-image-crop-picker';
-import { hitHelpAndSupport } from '../../config/api/api';
-import { errorToast, successToast } from '../../common/CommonFunction';
+import {hitHelpAndSupport} from '../../config/api/api';
+import {errorToast, successToast} from '../../common/CommonFunction';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
-import { Fonts } from '../../common/Theme';
-
-const HelpAndSupport = () => {
+import { FontSizes } from '../../common/Theme';
+import Colors from '../../common/Colors';
+const AddHelpAndSupport = () => {
   const navigation = useNavigation();
   const [value, setValue] = useState(null);
   const [isFocus, setIsFocus] = useState(false);
   const [isTextInputFocus, setIsTextInputFocus] = useState(false);
   const [images, setImages] = useState('');
   const [postImages, setPostImages] = useState([]);
-  const [description, setDescription] = useState('');
-  const [isTicketSubmitted, setIsTicketSubmitted] = useState(false);
+  const [description, setDescription] = useState();
+    const [isTicketSubmitted, setIsTicketSubmitted] = useState(false);
 
   const helpSupportOptions = [
-    { label: 'FAQ', value: 'faq' },
-    { label: 'Contact Support', value: 'contact_support' },
-    { label: 'Feedback', value: 'feedback' },
-    { label: 'Terms and Conditions', value: 'terms_conditions' },
-    { label: 'Privacy Policy', value: 'privacy_policy' },
+    { label: 'Frequently Asked Questions', value: 'Frequently Asked Questions' },
+    { label: 'Contact Customer Support', value: 'Contact Customer Support' },
+    { label: 'Provide Feedback', value: 'Provide Feedback' },
+    { label: 'Terms of Service', value: 'Terms of Service' },
+    { label: 'Privacy and Data Protection Policy', value: 'Privacy and Data Protection Policy' },
+    { label: 'Submit a Support Request', value: 'Submit a Support Request' }, // New option
+    { label: 'Access Live Support Chat', value: 'Access Live Support Chat' }, // New option
+    { label: 'Browse Help Center Articles', value: 'Browse Help Center Articles' }, // New option
+    { label: 'Report an Issue', value: 'Report an Issue' }, // New option
+    { label: 'Track Your Support Ticket', value: 'Track Your Support Ticket' }, // New option
   ];
 
   const handleHelpSupportOption = (value) => {
@@ -66,18 +73,30 @@ const HelpAndSupport = () => {
     }
   };
 
+  useEffect(() => {
+        if (isTicketSubmitted) {
+          setTimeout(() => {
+            setIsTicketSubmitted(false);
+            navigation.navigate('HelpAndSupportMain');
+          }, 2000);
+        }
+      }, [isTicketSubmitted]);
+
   const handleSubmit = async () => {
     try {
-      const getCustomerId = await AsyncStorage.getItem('customerId');
-      const randomString = Math.random().toString(36).substring(2, 10);
-      const timestamp = Date.now();
-      const imgName = `screenshot_${randomString}_${timestamp}.png`;
-
+      const user = await AsyncStorage.getItem('user');
+      const parsed_user = JSON.parse(user);
+      const randomString = Math.random().toString(36).substring(2, 10); // Generates a random string of 8 characters
+      const timestamp = Date.now(); // Gets the current timestamp
+      const imgName = `screenshot_${randomString}_${timestamp}.png`; // Example: screenshot_a1b2c3d4_1629292929292.png
       const payload = {
         topic: value,
         description: description,
-        user_id: getCustomerId,
-        user_type: 1,
+        user_id:
+          parsed_user?.payload?.owner_type == 1
+            ? parsed_user?.payload?.partner_id
+            : parsed_user?.payload?.driver_id,
+        user_type: parsed_user?.payload?.owner_type == 1 ? 3 : 2,
         support_pic: [
           {
             img_name: imgName,
@@ -86,217 +105,324 @@ const HelpAndSupport = () => {
         ],
       };
 
+
       const response = await hitHelpAndSupport(payload);
       if (response.success) {
+        successToast('Success', 'Your support ticket has been submitted.');
         setImages('');
         setPostImages('');
         setDescription('');
+        navigation.goBack('');
         setIsTicketSubmitted(true);
+
       } else {
-        errorToast('Error', response.message || 'Failed to submit support ticket.');
+        errorToast(
+          'Error',
+          response.message || 'Failed to submit support ticket.',
+        );
       }
     } catch (error) {
       console.log('Error submitting support ticket:', error);
-      Alert.alert('Error', 'An error occurred while submitting the support ticket.');
+      Alert.alert(
+        'Error',
+        'An error occurred while submitting the support ticket.',
+      );
     }
   };
-
-  useEffect(() => {
-    if (isTicketSubmitted) {
-      setTimeout(() => {
-        setIsTicketSubmitted(false);
-        navigation.navigate('HelpAndSupportMain');
-      }, 1000);
-    }
-  }, [isTicketSubmitted]);
-
   const handleImagePicker = () => {
     ImagePicker.openPicker({
+      // multiple: true,
       width: 300,
       height: 300,
       cropping: true,
       includeBase64: true,
     })
-      .then((selectedImage) => {
-        setImages(selectedImage.path);
-        setPostImages(selectedImage.data);
+      .then(selectedImages => {
+        const imagePaths = selectedImages.path;
+        const postImages = selectedImages.data;
+        setImages(imagePaths);
+        setPostImages(postImages);
       })
-      .catch((error) => {
+      .catch(error => {
         console.log('Error picking images:', error);
       });
   };
-
+  // Function to remove an image from the array
   const handleRemoveImage = () => {
     setImages('');
   };
-
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-      <HeaderBackButton
-        headerText="Help & Support"
-        onPress={() => navigation.goBack()}
-        rightButton="VIEW TICKET"
-        rightButtonColor="#3D40D1"
-        rightButtonFontSize={12}
-        onButtonPress={() => navigation.navigate('HelpAndSupportMain')}
-      />
-
-      {isTicketSubmitted ? (
-        <View style={{ flex: 1, backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
-          <View style={styles.ticketSubmittedContainer}>
-            <Image
-              source={AppImages.ticketSubmitted}
-              style={styles.ticketSubmittedImage}
-              resizeMode="contain"
+    return (
+        <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+            <HeaderBackButton
+                headerText="Help & Support"
+                onPress={() => navigation.goBack()}
+                rightButton={'VIEW TICKET'}
+                rightButtonColor={'#3D40D1'}
+                rightButtonFontSize={12}
+                onButtonPress={() => { navigation.navigate('HelpAndSupportMain') }}
             />
-          </View>
-          <Text style={styles.ticketSubmittedText}>Ticket Submitted!</Text>
-        </View>
-      ) : (
-        <ScrollView>
-          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-            <Image
-              source={AppImages.helpSupport}
-              style={{ height: responsiveHeight(245), width: responsiveWidth(300) }}
-              resizeMode="contain"
-            />
-          </View>
 
-        <View
-          style={{
-            marginHorizontal: responsiveWidth(16),
-            marginTop: responsiveHeight(5),
-          }}>
-          <Dropdown
-            style={[styles.dropdown, isFocus && {borderColor: 'blue'}]}
-            placeholderStyle={styles.placeholderStyle}
-            selectedTextStyle={styles.selectedTextStyle}
-            inputSearchStyle={styles.inputSearchStyle}
-            itemTextStyle={{color: 'black'}}
-            iconStyle={styles.iconStyle}
-            data={helpSupportOptions}
-            maxHeight={300}
-            labelField="label"
-            valueField="value"
-            placeholder={!isFocus ? 'Select Type' : '...'}
-            value={value}
-            onFocus={() => setIsFocus(true)}
-            onBlur={() => setIsFocus(false)}
-            onChange={item => {
-              setValue(item.value);
-              setIsFocus(false);
-              // handleHelpSupportOption(item.value);
-            }}
-          />
-        </View>
+            {
 
-          <View style={styles.textInputContainer}>
-            <TextInput
-              style={[styles.largeTextInput, isTextInputFocus && { borderColor: 'blue' }]}
-              multiline
-              value={description}
-              onChangeText={setDescription}
-              placeholder="Describe your issue here..."
-              placeholderTextColor="#999"
-              onFocus={() => setIsTextInputFocus(true)}
-              onBlur={() => setIsTextInputFocus(false)}
-            />
-          </View>
+                isTicketSubmitted == true
+                    ?
+                    <View style={{ flex: 1, backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
+                        <View style={{
+                            height: responsiveHeight(96),
+                            width: responsiveHeight(96),
+                            backgroundColor: '#88C94133',
+                            borderRadius: 48,
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        }}>
+                            <Image source={AppImages.ticketSubmitted}
+                                style={{
+                                    height: responsiveHeight(74),
+                                    width: responsiveWidth(74),
+                                }}
+                                resizeMode='contain'
+                            />
+                        </View>
+                        <Text style={{
+                            fontSize:responsiveFontSize(16),
+                            color:'#777777',
+                            marginTop:15,
+                            fontWeight:'500'
+                        }}>Ticket Submitted !</Text>
+                    </View>
+                    :
+                    <ScrollView>
+                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                            <Image source={AppImages.helpSupport}
+                                style={{
+                                    height: responsiveHeight(250),
+                                    width: responsiveWidth(250),
+                                }}
+                                resizeMode='contain'
+                            />
+                        </View>
 
-          <View style={styles.imagePickerContainer}>
-            <TouchableOpacity onPress={handleImagePicker} style={styles.imagePickerButton}>
-              <Text style={styles.imagePickerButtonText}>Pick Images</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      )}
-    </SafeAreaView>
-  );
-};
+                        <View style={{
+                            marginHorizontal: responsiveWidth(16),
+                            marginTop: responsiveHeight(20)
+                        }}>
+                            <Dropdown
+                                style={[styles.dropdown, isFocus && { borderColor: '#3D40D1' }]}
+                                placeholderStyle={styles.placeholderStyle}
+                                selectedTextStyle={styles.selectedTextStyle}
+                                inputSearchStyle={styles.inputSearchStyle}
+                                containerStyle={{
+                                    borderBottomLeftRadius: 10,
+                                    borderBottomRightRadius: 10
+                                    // marginTop:10
+                                }}
+                                itemTextStyle={{
+                                    color: '#232323',
+                                    fontWeight: '500',
+                                    borderBottomWidth: 1,
+                                    fontSize:FontSizes.small,
 
-export default HelpAndSupport;
+                                    paddingBottom: 10,
+                                    borderColor: '#F3F3F3',
+                                }}
+                                iconStyle={styles.iconStyle}
+                                data={helpSupportOptions}
+                                maxHeight={responsiveHeight(350)}
+                                labelField="label"
+                                valueField="value"
+                                placeholder={!isFocus ? 'Select Type' : '...'}
+                                value={value}
+                                onFocus={() => setIsFocus(true)}
+                                onBlur={() => setIsFocus(false)}
+                                onChange={item => {
+                                    setValue(item.value);
+                                    setIsFocus(false);
+                                    handleHelpSupportOption(item.value);
+                                }}
+                            />
+                        </View>
+
+                        <View style={styles.textInputContainer}>
+                            <TextInput
+                                style={[styles.largeTextInput, isTextInputFocus && { borderColor: 'blue' }]}
+                                multiline
+                                value={description}
+                                onChangeText={(e) => setDescription(e)}
+                                placeholder="Describe your issue here..."
+                                placeholderTextColor="#777777"
+                                onFocus={() => setIsTextInputFocus(true)}
+                                onBlur={() => setIsTextInputFocus(false)}
+                            />
+                        </View>
+
+                        <View style={styles.imagePickerContainer}>
+                            <TouchableOpacity onPress={handleImagePicker} style={styles.imagePickerButton}>
+                                <Text style={styles.imagePickerButtonText}>{'+ Add Image'}</Text>
+                            </TouchableOpacity>
+                        </View>
+
+
+
+                        {images != null && images != undefined && images != ''
+                            ?
+                            (
+                                <View style={styles.imageGridContainer}>
+
+                                    <View style={{}}>
+                                        <Image
+                                            source={{ uri: images }}
+                                            style={styles.gridImage}
+                                        />
+                                        {/* "X" Button to remove the image */}
+                                        <TouchableOpacity
+                                            style={styles.removeImageButton}
+                                            onPress={() => handleRemoveImage()}
+                                        >
+                                            <Text style={{ color: 'white', fontWeight: '900', fontSize: responsiveFontSize(12), }}>
+                                                X
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </View>
+
+                                </View>
+                            )
+                            :
+                            null}
+
+                        <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: responsiveHeight(30), marginBottom: responsiveHeight(100) }}>
+                            <CustomButton
+                                buttonText={'Submit'}
+                                grey={false}
+                                onPress={() => {
+                                    handleSubmit()
+                                }}
+                            />
+                        </View>
+                    </ScrollView>
+            }
+
+
+         
+        </SafeAreaView>
+
+
+
+    );
+}
+
+export default AddHelpAndSupport;
 
 const styles = StyleSheet.create({
-  ticketSubmittedContainer: {
-    height: responsiveHeight(96),
-    width: responsiveHeight(96),
-    backgroundColor: '#88C94133',
-    borderRadius: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  ticketSubmittedImage: {
-    height: responsiveHeight(74),
-    width: responsiveWidth(74),
-  },
-  ticketSubmittedText: {
-    fontSize: responsiveFontSize(16),
-    color: '#777777',
-    marginTop: 15,
-    fontWeight: '500',
-  },
-  dropdownContainer: {
-    marginHorizontal: responsiveWidth(16),
-    marginTop: responsiveHeight(20),
-  },
-  dropdown: {
-    height: responsiveHeight(50),
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    backgroundColor: '#fff',
-  },
-  placeholderStyle: {
-    fontSize: responsiveFontSize(12),
-    color: '#777777',
-    fontWeight: Fonts.semilarge,
-  },
-  selectedTextStyle: {
-    fontSize: 16,
-    color: 'black',
-  },
-  inputSearchStyle: {
-    height: 40,
-    fontSize: 16,
-  },
-  iconStyle: {
-    width: 20,
-    height: 20,
-  },
-  textInputContainer: {
-    marginHorizontal: responsiveWidth(16),
-    marginTop: responsiveHeight(20),
-  },
-  largeTextInput: {
-    height: responsiveHeight(150),
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    textAlignVertical: 'top',
-    fontSize: 16,
-    backgroundColor: '#fff',
-    color: '#000',
-  },
-  imagePickerContainer: {
-    marginHorizontal: responsiveWidth(16),
-    marginTop: responsiveHeight(20),
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  imagePickerButton: {
-    height: responsiveHeight(50),
-    width: responsiveWidth(200),
-    backgroundColor: '#3D40D1',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 8,
-  },
-  imagePickerButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
+    container: {
+        padding: 16,
+        backgroundColor: '#fff',
+        flex: 1,
+        elevation: 10,
+    },
+    label: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 8,
+    },
+    dropdown: {
+        height: responsiveHeight(50),
+        borderColor: '#ccc',
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingHorizontal: 16,
+        backgroundColor: '#fff',
+    },
+    placeholderStyle: {
+        fontSize: FontSizes.small,
+        color: Colors.grey,
+    },
+    selectedTextStyle: {
+        fontSize: 16,
+        color: 'black'
+    },
+    inputSearchStyle: {
+        height: 40,
+        fontSize: 16,
+    },
+    iconStyle: {
+        width: 20,
+        height: 20,
+    },
+    textInputContainer: {
+        marginHorizontal: responsiveWidth(16),
+        marginTop: responsiveHeight(20),
+    },
+    largeTextInput: {
+        height: responsiveHeight(150),
+        borderColor: '#ccc',
+        borderWidth: 1,
+        borderRadius: responsiveHeight(8),
+        paddingHorizontal: responsiveWidth(16),
+        paddingVertical: responsiveHeight(10),
+        textAlignVertical: 'top',
+        fontSize:FontSizes.small,
+
+        fontSize: FontSizes.small,
+        backgroundColor: '#fff',
+        color: '#000',
+    },
+    imagePickerContainer: {
+        marginHorizontal: responsiveWidth(16),
+        marginTop: responsiveHeight(20),
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    imagePickerButton: {
+        // backgroundColor: '#333',
+        padding: 10,
+        borderRadius: 8,
+        height: responsiveHeight(50),
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        // borderStyle: 'dotted',
+        borderColor: '#D8D8D8'
+    },
+    imagePickerButtonText: {
+        color: 'grey',
+        fontSize: 16,
+    },
+    selectedImage: {
+        marginTop: responsiveHeight(20),
+        width: responsiveWidth(100),
+        height: responsiveHeight(100),
+        borderRadius: 8,
+        marginRight: 10, // Adds spacing between images
+    },
+    imageGridContainer: {
+        marginTop: responsiveHeight(20),
+        flexDirection: 'row',
+        flexWrap: 'wrap', // Allows images to wrap to the next line
+        justifyContent: 'space-between', // Space images evenly
+        paddingHorizontal: responsiveWidth(16),
+        borderWidth: 1,
+        borderStyle: 'dotted',
+        padding: 10,
+        marginHorizontal: responsiveWidth(16),
+        borderRadius: 10
+    },
+    gridImage: {
+        width: responsiveWidth(100), // Set the width of each image
+        height: responsiveHeight(100), // Set the height of each image
+        borderRadius: 8,
+        marginBottom: responsiveHeight(10), // Adds spacing between rows
+    },
+    removeImageButton: {
+        position: 'absolute',
+        top: 5,
+        right: 5,
+        backgroundColor: 'black',
+        borderRadius: 12,
+        padding: 2,
+        height: 18,
+        width: 18,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
 });

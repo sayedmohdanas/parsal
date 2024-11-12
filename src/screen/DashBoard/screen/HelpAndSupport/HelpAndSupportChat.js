@@ -21,6 +21,8 @@ import { useNavigation } from '@react-navigation/native';
 // import { responsiveHeight, responsiveWidth } from '../../common/metrices';
 import { hitAddTicketReply, hitGetTicketReply } from '../../../../config/api/api';
 import { responsiveHeight, responsiveWidth } from '../../../../common/metrices';
+import HelpAndSupportChatHeader from '../../../../components/HeaderBackButton/HelpAndSupportChatHeader';
+import Line from '../../../../components/Line/Line';
 const HelpAndSupportChat = ({ route }) => {
   const navigation = useNavigation()
   const [messages, setMessages] = useState([]);
@@ -77,12 +79,16 @@ const HelpAndSupportChat = ({ route }) => {
   };
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
-      <HeaderBackButton headerText="Help & Support" onPress={() => navigation.goBack()} />
+      <HelpAndSupportChatHeader headerText="Help & Support" onPress={() => navigation.goBack()}  
+ticketId= {details?.data?.id}
+        />
       <View style={styles.quickResponsesContainer}>
-        {/* <View>
-          <Text style={styles.topicText}>{details?.data?.topic}</Text>
+        <View>
+          {/* <Text style={styles.topicText}>{details?.data?.topic}</Text> */}
           <Text style={styles.descriptionText}>{details?.data?.description}</Text>
-        </View> */}
+        </View>
+        <Line marginH={1} />
+
         {/* <View style={styles.statusContainer}>
           <View
             style={[
@@ -138,6 +144,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     flexWrap: 'wrap',
+    borderBottomWidth:0.4,
+    borderBlockColor:Colors.grey
+  
   },
   topicText: {
     color: Colors.black,
