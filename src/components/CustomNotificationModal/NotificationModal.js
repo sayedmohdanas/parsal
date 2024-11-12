@@ -73,6 +73,7 @@ const NotificationModal = ({
   cust_mobile,
   vehicle_type_id,
   timer,
+  request_id
 }) => {
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
@@ -146,6 +147,7 @@ const NotificationModal = ({
         goods_quantity,
         pay_mode,
         payment_status,
+        request_id
       };
 
       // Pass the payload into the API call
@@ -271,8 +273,6 @@ const NotificationModal = ({
   // useEffect(() => {
   //   setIsEnabled(user_details?.working_status == 0 ? false : true);
   // }, [user_details, dispatch]);
-  console.log('====>orderDate', store_data?.orderData);
-  console.log('====>updateOrder', store_data?.update_order);
 
   return (
     <>

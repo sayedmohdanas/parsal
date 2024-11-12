@@ -193,7 +193,7 @@ const NextOrder = ({isVisible, driverId, onClose, setnextordermodal}) => {
                 {nextOrderData?.newOrder?.drop_long ||
                   (nextOrderData?.drop_long && (
                     <Text style={styles.bodyText}>
-                      {' '}
+              
                       {`${
                         calculateDistanceAndTime(
                           nextOrderData?.newOrder?.pickup_lat ||
@@ -210,8 +210,7 @@ const NextOrder = ({isVisible, driverId, onClose, setnextordermodal}) => {
                   ))}
                 {nextOrderData?.newOrder?.drop_long ||
                   (nextOrderData?.drop_long && (
-                    <Text style={styles.bodyText}>
-                      {' '}
+                    <Text style={styles.bodyText}>                     
                       {`${
                         calculateDistanceAndTime(
                           nextOrderData?.newOrder?.pickup_lat ||

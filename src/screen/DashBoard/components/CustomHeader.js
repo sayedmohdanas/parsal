@@ -63,7 +63,18 @@ const CustomHeader = ({
       console.error(error);
     }
   };
-
+  const update_driver_location = async () => {
+    const {latitude, longitude} = await GetDriverCurrentLocation();
+    const unparse_driver_data = await AsyncStorage.getItem('user');
+    const parse_data = JSON.parse(unparse_driver_data);
+    const param = {
+      driver_id: parse_data?.payload?.driver_id,
+      current_lat: latitude,
+      current_long: longitude,
+      working_status: isEnabled ? 1 : 0,
+    };
+    const res = await hitUpdateDriverStatus(param);
+  };
   useFocusEffect(
     useCallback(() => {
       const fetchDriverData = async () => {
@@ -78,7 +89,7 @@ const CustomHeader = ({
 
       // Call the async function
       fetchDriverData();
-
+      update_driver_location();
       // Optional cleanup (if needed when screen is unfocused)
       return () => {
         // Cleanup logic here if required

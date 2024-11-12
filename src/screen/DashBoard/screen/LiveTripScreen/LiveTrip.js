@@ -646,6 +646,7 @@ import MapView, {Marker, Polyline} from 'react-native-maps';
 import {
   GetDriverCurrentLocation,
   custommapstyle,
+  generateNumericOTP,
 } from '../../../../common/CommonFunction';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import Loading from '../../../../components/Loading/Loading';
@@ -659,6 +660,7 @@ import {
 import AppImages from '../../../../common/AppImages';
 import BorderLine from '../../../../common/BorderLine.';
 import BottomNav from '../../../../../navigation/BottomNav';
+import Font from '../../../../common/Font';
 const LiveTripScreen = () => {
   const [selectedTrip, setSelectedTrip] = useState(1);
   const [all_flag, setall_flag] = useState(false);
@@ -881,7 +883,6 @@ const LiveTripScreen = () => {
       if (onlyPartnerDriver) get_data();
     }, [onlyPartnerDriver]),
   );
-
   return (
     <SafeAreaView style={styles.container}>
       {loading ? (
@@ -1065,6 +1066,7 @@ const LiveTripScreen = () => {
                         style={{
                           fontSize: responsiveFontSize(12),
                           paddingVertical: responsiveHeight(12),
+                          
                           color: Colors.grey,
                           fontWeight: '600',
                           // marginLeft: responsiveWidth(45),
@@ -1156,6 +1158,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     flexDirection: 'row',
     justifyContent: 'space-around',
+    shadowColor: '#000',
+    shadowOffset: { width: 1, height: 1 },
+    shadowOpacity:  0.4,
+    shadowRadius: 3,
+    elevation: 1.3,
   },
   tripCard: {
     marginHorizontal: 3,

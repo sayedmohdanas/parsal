@@ -227,7 +227,7 @@ export async function requestLocationPermission() {
       },
     );
 
-    console.log('Fine location permission status:', fineLocationGranted);
+    // console.log('Fine location permission status:', fineLocationGranted);
 
     if (fineLocationGranted === PermissionsAndroid.RESULTS.GRANTED) {
       // Check if the platform is Android 10 (API level 29) or higher
@@ -241,13 +241,13 @@ export async function requestLocationPermission() {
           },
         );
 
-        console.log(
-          'Background location permission status:',
-          backgroundLocationGranted,
-        );
+        // console.log(
+        //   'Background location permission status:',
+        //   backgroundLocationGranted,
+        // );
 
         if (backgroundLocationGranted === PermissionsAndroid.RESULTS.GRANTED) {
-          console.log('All-time location permission granted');
+          // console.log('All-time location permission granted');
           // After location permissions are granted, request notification permission
           const notificationGranted = await requestNotificationPermission();
           return notificationGranted;
@@ -261,7 +261,7 @@ export async function requestLocationPermission() {
         }
       }
 
-      console.log('Location permission granted for foreground');
+      // console.log('Location permission granted for foreground');
       // After location permissions are granted, request notification permission
       const notificationGranted = await requestNotificationPermission();
       return notificationGranted;
@@ -309,12 +309,26 @@ export async function requestNotificationPermission() {
 }
 
 export function generateNumericOTP(length = 6) {
-  let otp = '';
-  for (let i = 0; i < length; i++) {
-    otp += Math.floor(Math.random() * 10); // Generates a random digit from 0 to 9
+  if (length < 2) {
+    throw new Error('OTP length must be at least 2 to ensure non-zero first and last digits');
   }
+
+  let otp = '';
+
+  // Generate the first digit (1-9)
+  otp += Math.floor(Math.random() * 9) + 1;
+
+  // Generate the middle digits (0-9)
+  for (let i = 1; i < length - 1; i++) {
+    otp += Math.floor(Math.random() * 10);
+  }
+
+  // Generate the last digit (1-9)
+  otp += Math.floor(Math.random() * 9) + 1;
+
   return otp;
 }
+
 
 // Function to get the driver's current location
 export const GetDriverCurrentLocation = () => {

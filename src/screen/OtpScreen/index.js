@@ -34,6 +34,7 @@ import { Fonts, FontSizes } from '../../common/Theme';
 
 const OtpScreen = ({navigation, route}) => {
   const {number} = route?.params;
+
   const dispatch = useDispatch();
   const userOtp = useSelector(state => state?.parsalPartner?.user?.otp);
   const user = useSelector(state => state?.parsalPartner?.user);

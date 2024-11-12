@@ -42,18 +42,14 @@ import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton
 const VehicleDetailScreen = ({route}) => {
   const {UpdatedVehicleData} = route.params || {};
   const navigation = useNavigation();
-  // const [showEditOption, setShowEditOption] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  // const [selectedFuelType, setSelectedFuelType] = useState(0);
   const [vehicleNumber, setVehicleNumber] = useState(
     UpdatedVehicleData?.vehicle_number || '',
   );
   const [rcUploaded, setRcUploaded] = useState(
     UpdatedVehicleData?.rc_image || '',
   );
-  // const [selectedVehicleType, setSelectedVehicleType] = useState(
-  //   UpdatedVehicleData?.vehicle_type_id || null,
-  // );
+
   const [selectedCity, setSelectedCity] = useState(
     UpdatedVehicleData?.operational_city || 'Lucknow',
   );

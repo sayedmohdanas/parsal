@@ -132,4 +132,6 @@ export default AppImages = {
   addvehicle: require('../assets/images/addvehicle.png'),
   empty: require('../assets/images/empty.png'),
   rightarrow: require('../assets/images/rightarrow.png'),
+  helpAndSupportWatch:require('../assets/images/timer.png'),
+  chatSendButton:require('../assets/images/chatSendButton.png'),
 };

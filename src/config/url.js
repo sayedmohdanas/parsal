@@ -84,3 +84,5 @@ export const getOrdersById = getEndpoint('orders/get-order-by-customer');
 export const userorderstatsurl = getEndpoint('users/get-cust-orderStats');
 
 export const transactionurl = getEndpoint('drivers/driver-transaction');
+export const checkreqstatusurl = getEndpoint('drivers/check-requestId');
+

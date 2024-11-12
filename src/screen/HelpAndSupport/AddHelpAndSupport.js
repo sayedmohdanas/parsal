@@ -8,60 +8,76 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import React, {useState} from 'react';
-import {SafeAreaView} from 'react-native';
-// import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
+import React, { useEffect, useState } from 'react';
+import { SafeAreaView } from 'react-native';
 import AppImages from '../../common/AppImages';
 import {
   responsiveFontSize,
   responsiveHeight,
   responsiveWidth,
 } from '../../common/metrices';
-import {Dropdown} from 'react-native-element-dropdown';
+import { Dropdown } from 'react-native-element-dropdown';
 import CustomButton from '../../components/CustomButton/CustomButton';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import ImagePicker from 'react-native-image-crop-picker';
-import {hitHelpAndSupport} from '../../config/api/api';
-import {errorToast, successToast} from '../../common/CommonFunction';
+import { hitHelpAndSupport } from '../../config/api/api';
+import { errorToast, successToast } from '../../common/CommonFunction';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
+import { Fonts } from '../../common/Theme';
 
-const AddHelpAndSupport = () => {
+const HelpAndSupport = () => {
   const navigation = useNavigation();
   const [value, setValue] = useState(null);
   const [isFocus, setIsFocus] = useState(false);
   const [isTextInputFocus, setIsTextInputFocus] = useState(false);
   const [images, setImages] = useState('');
   const [postImages, setPostImages] = useState([]);
-  const [description, setDescription] = useState();
+  const [description, setDescription] = useState('');
+  const [isTicketSubmitted, setIsTicketSubmitted] = useState(false);
+
   const helpSupportOptions = [
-    {label: 'Frequently Asked Questions', value: 'faq'},
-    {label: 'Contact Customer Support', value: 'contact_support'},
-    {label: 'Provide Feedback', value: 'feedback'},
-    {label: 'Terms of Service', value: 'terms_conditions'},
-    {label: 'Privacy and Data Protection Policy', value: 'privacy_policy'},
-    {label: 'Submit a Support Request', value: 'submit_request'}, // New option
-    {label: 'Access Live Support Chat', value: 'live_chat'}, // New option
-    {label: 'Browse Help Center Articles', value: 'help_articles'}, // New option
-    {label: 'Report an Issue', value: 'report_issue'}, // New option
-    {label: 'Track Your Support Ticket', value: 'track_ticket'}, // New option
+    { label: 'FAQ', value: 'faq' },
+    { label: 'Contact Support', value: 'contact_support' },
+    { label: 'Feedback', value: 'feedback' },
+    { label: 'Terms and Conditions', value: 'terms_conditions' },
+    { label: 'Privacy Policy', value: 'privacy_policy' },
   ];
+
+  const handleHelpSupportOption = (value) => {
+    switch (value) {
+      case 'faq':
+        console.log('Navigate to FAQ');
+        break;
+      case 'contact_support':
+        console.log('Navigate to Contact Support');
+        break;
+      case 'feedback':
+        console.log('Navigate to Feedback');
+        break;
+      case 'terms_conditions':
+        console.log('Navigate to Terms and Conditions');
+        break;
+      case 'privacy_policy':
+        console.log('Navigate to Privacy Policy');
+        break;
+      default:
+        console.log('No action for this option');
+    }
+  };
 
   const handleSubmit = async () => {
     try {
-      const user = await AsyncStorage.getItem('user');
-      const parsed_user = JSON.parse(user);
-      const randomString = Math.random().toString(36).substring(2, 10); // Generates a random string of 8 characters
-      const timestamp = Date.now(); // Gets the current timestamp
-      const imgName = `screenshot_${randomString}_${timestamp}.png`; // Example: screenshot_a1b2c3d4_1629292929292.png
+      const getCustomerId = await AsyncStorage.getItem('customerId');
+      const randomString = Math.random().toString(36).substring(2, 10);
+      const timestamp = Date.now();
+      const imgName = `screenshot_${randomString}_${timestamp}.png`;
+
       const payload = {
         topic: value,
         description: description,
-        user_id:
-          parsed_user?.payload?.owner_type == 1
-            ? parsed_user?.payload?.partner_id
-            : parsed_user?.payload?.driver_id,
-        user_type: parsed_user?.payload?.owner_type == 1 ? 3 : 2,
+        user_id: getCustomerId,
+        user_type: 1,
         support_pic: [
           {
             img_name: imgName,
@@ -69,71 +85,82 @@ const AddHelpAndSupport = () => {
           },
         ],
       };
+
       const response = await hitHelpAndSupport(payload);
       if (response.success) {
-        successToast('Success', 'Your support ticket has been submitted.');
         setImages('');
         setPostImages('');
         setDescription('');
-        navigation.goBack('');
+        setIsTicketSubmitted(true);
       } else {
-        errorToast(
-          'Error',
-          response.message || 'Failed to submit support ticket.',
-        );
+        errorToast('Error', response.message || 'Failed to submit support ticket.');
       }
     } catch (error) {
       console.log('Error submitting support ticket:', error);
-      Alert.alert(
-        'Error',
-        'An error occurred while submitting the support ticket.',
-      );
+      Alert.alert('Error', 'An error occurred while submitting the support ticket.');
     }
   };
 
+  useEffect(() => {
+    if (isTicketSubmitted) {
+      setTimeout(() => {
+        setIsTicketSubmitted(false);
+        navigation.navigate('HelpAndSupportMain');
+      }, 1000);
+    }
+  }, [isTicketSubmitted]);
+
   const handleImagePicker = () => {
     ImagePicker.openPicker({
-      // multiple: true,
       width: 300,
       height: 300,
       cropping: true,
       includeBase64: true,
     })
-      .then(selectedImages => {
-        console.log('selected images=>', selectedImages);
-        const imagePaths = selectedImages.path;
-        const postImages = selectedImages.data;
-        setImages(imagePaths);
-        setPostImages(postImages);
+      .then((selectedImage) => {
+        setImages(selectedImage.path);
+        setPostImages(selectedImage.data);
       })
-      .catch(error => {
+      .catch((error) => {
         console.log('Error picking images:', error);
       });
   };
 
-  // Function to remove an image from the array
   const handleRemoveImage = () => {
     setImages('');
   };
 
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
       <HeaderBackButton
         headerText="Help & Support"
         onPress={() => navigation.goBack()}
+        rightButton="VIEW TICKET"
+        rightButtonColor="#3D40D1"
+        rightButtonFontSize={12}
+        onButtonPress={() => navigation.navigate('HelpAndSupportMain')}
       />
 
-      <ScrollView>
-        <View style={{justifyContent: 'center', alignItems: 'center'}}>
-          <Image
-            source={AppImages.helpSupport}
-            style={{
-              height: responsiveHeight(200),
-              width: responsiveWidth(200),
-            }}
-            resizeMode="contain"
-          />
+      {isTicketSubmitted ? (
+        <View style={{ flex: 1, backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
+          <View style={styles.ticketSubmittedContainer}>
+            <Image
+              source={AppImages.ticketSubmitted}
+              style={styles.ticketSubmittedImage}
+              resizeMode="contain"
+            />
+          </View>
+          <Text style={styles.ticketSubmittedText}>Ticket Submitted!</Text>
         </View>
+      ) : (
+        <ScrollView>
+          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+            <Image
+              source={AppImages.helpSupport}
+              style={{ height: responsiveHeight(245), width: responsiveWidth(300) }}
+              resizeMode="contain"
+            />
+          </View>
 
         <View
           style={{
@@ -151,7 +178,7 @@ const AddHelpAndSupport = () => {
             maxHeight={300}
             labelField="label"
             valueField="value"
-            placeholder={!isFocus ? 'Select an option' : '...'}
+            placeholder={!isFocus ? 'Select Type' : '...'}
             value={value}
             onFocus={() => setIsFocus(true)}
             onBlur={() => setIsFocus(false)}
@@ -163,111 +190,57 @@ const AddHelpAndSupport = () => {
           />
         </View>
 
-        <View style={styles.textInputContainer}>
-          <TextInput
-            style={[
-              styles.largeTextInput,
-              isTextInputFocus && {borderColor: 'blue'},
-            ]}
-            multiline
-            value={description}
-            onChangeText={e => setDescription(e)}
-            placeholder="Describe your issue here..."
-            placeholderTextColor="#999"
-            onFocus={() => setIsTextInputFocus(true)}
-            onBlur={() => setIsTextInputFocus(false)}
-          />
-        </View>
-
-        <View style={styles.imagePickerContainer}>
-          <TouchableOpacity
-            onPress={handleImagePicker}
-            style={styles.imagePickerButton}>
-            <Text style={styles.imagePickerButtonText}>Pick Images</Text>
-          </TouchableOpacity>
-        </View>
-
-        {
-          // images.length > 0 && (
-          //     <View style={styles.imageGridContainer}>
-          //         {images.map((img, index) => (
-          //             <View key={index} style={styles.imageContainer}>
-          //                 <Image
-          //                     source={{ uri: img }}
-          //                     style={styles.gridImage}
-          //                 />
-          //                 {/* "X" Button to remove the image */}
-          //                 <TouchableOpacity
-          //                     style={styles.removeImageButton}
-          //                     onPress={() => handleRemoveImage(index)}
-          //                 >
-          //                     <Text style={{ color: 'white', fontWeight: '900', fontSize: responsiveFontSize(12), }}>
-          //                         X
-          //                     </Text>
-          //                 </TouchableOpacity>
-          //             </View>
-          //         ))}
-          //     </View>
-          // )
-        }
-
-        {images != null && images != undefined && images != '' ? (
-          <View style={styles.imageGridContainer}>
-            <View style={{}}>
-              <Image source={{uri: images}} style={styles.gridImage} />
-              {/* "X" Button to remove the image */}
-              <TouchableOpacity
-                style={styles.removeImageButton}
-                onPress={() => handleRemoveImage()}>
-                <Text
-                  style={{
-                    color: 'white',
-                    fontWeight: '900',
-                    fontSize: responsiveFontSize(10),
-                  }}>
-                  X
-                </Text>
-              </TouchableOpacity>
-            </View>
+          <View style={styles.textInputContainer}>
+            <TextInput
+              style={[styles.largeTextInput, isTextInputFocus && { borderColor: 'blue' }]}
+              multiline
+              value={description}
+              onChangeText={setDescription}
+              placeholder="Describe your issue here..."
+              placeholderTextColor="#999"
+              onFocus={() => setIsTextInputFocus(true)}
+              onBlur={() => setIsTextInputFocus(false)}
+            />
           </View>
-        ) : null}
 
-        <View
-          style={{
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginTop: responsiveHeight(30),
-            marginBottom: responsiveHeight(100),
-          }}>
-          <CustomButton
-            buttonText={'Submit'}
-            grey={false}
-            onPress={() => {
-              handleSubmit();
-            }}
-          />
-        </View>
-      </ScrollView>
+          <View style={styles.imagePickerContainer}>
+            <TouchableOpacity onPress={handleImagePicker} style={styles.imagePickerButton}>
+              <Text style={styles.imagePickerButtonText}>Pick Images</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 };
 
-export default AddHelpAndSupport;
+export default HelpAndSupport;
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-    backgroundColor: '#fff',
-    flex: 1,
-    elevation: 10,
+  ticketSubmittedContainer: {
+    height: responsiveHeight(96),
+    width: responsiveHeight(96),
+    backgroundColor: '#88C94133',
+    borderRadius: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  label: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
+  ticketSubmittedImage: {
+    height: responsiveHeight(74),
+    width: responsiveWidth(74),
+  },
+  ticketSubmittedText: {
+    fontSize: responsiveFontSize(16),
+    color: '#777777',
+    marginTop: 15,
+    fontWeight: '500',
+  },
+  dropdownContainer: {
+    marginHorizontal: responsiveWidth(16),
+    marginTop: responsiveHeight(20),
   },
   dropdown: {
-    height: 50,
+    height: responsiveHeight(50),
     borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 8,
@@ -275,8 +248,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   placeholderStyle: {
-    fontSize: 16,
-    color: 'grey',
+    fontSize: responsiveFontSize(12),
+    color: '#777777',
+    fontWeight: Fonts.semilarge,
   },
   selectedTextStyle: {
     fontSize: 16,
@@ -295,7 +269,7 @@ const styles = StyleSheet.create({
     marginTop: responsiveHeight(20),
   },
   largeTextInput: {
-    height: responsiveHeight(140),
+    height: responsiveHeight(150),
     borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 8,
@@ -313,55 +287,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   imagePickerButton: {
-    // backgroundColor: '#333',
-    padding: 10,
-    borderRadius: 8,
     height: responsiveHeight(50),
-    width: '100%',
+    width: responsiveWidth(200),
+    backgroundColor: '#3D40D1',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderStyle: 'dotted',
+    borderRadius: 8,
   },
   imagePickerButtonText: {
-    color: 'grey',
+    color: '#fff',
     fontSize: 16,
-  },
-  selectedImage: {
-    marginTop: responsiveHeight(20),
-    width: responsiveWidth(100),
-    height: responsiveHeight(100),
-    borderRadius: 8,
-    marginRight: 10, // Adds spacing between images
-  },
-  imageGridContainer: {
-    marginTop: responsiveHeight(12),
-    flexDirection: 'row',
-    flexWrap: 'wrap', // Allows images to wrap to the next line
-    justifyContent: 'space-between', // Space images evenly
-    paddingHorizontal: responsiveWidth(12),
-    borderWidth: 1,
-    borderStyle: 'dotted',
-    paddingVertical: responsiveHeight(8),
-    marginHorizontal: responsiveWidth(16),
-    borderRadius: 10,
-  },
-  gridImage: {
-    width: responsiveWidth(80), // Set the width of each image
-    height: responsiveHeight(80), // Set the height of each image
-    borderRadius: 8,
-    marginBottom: responsiveHeight(5), // Adds spacing between rows
-  },
-  removeImageButton: {
-    position: 'absolute',
-    top: 5,
-    right: 5,
-    backgroundColor: 'black',
-    borderRadius: 12,
-    padding: 2,
-    height: 18,
-    width: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
+    fontWeight: 'bold',
   },
 });

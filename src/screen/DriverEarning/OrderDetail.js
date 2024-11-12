@@ -14,7 +14,6 @@ const OrderDetail = ({orderDetails}) => {
   const navigation =useNavigation()
   const props = {
     parsalNumber: 'ODR-123456',
-    parsalName: 'Electronics Package',
     parsalStatusTextColor: 'rgba(69, 184, 69, 0.1)',
     parsalStatusText: 'Delivered',
     textColor: '#45B845',
@@ -43,7 +42,7 @@ const OrderDetail = ({orderDetails}) => {
       },
     },
   };
-
+console.log(orderDetails);
   return (
     <TouchableOpacity
       onPress={()=>navigation.navigate('orderinfo',{

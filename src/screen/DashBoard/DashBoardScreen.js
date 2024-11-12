@@ -1,30 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, StyleSheet, TouchableOpacity} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import VehicleProfileCard from './components/VehicleprofileCard';
 import Colors from '../../common/Colors';
 import OnlineButton from './components/OnlineButton';
 import OfflineButton from './components/OfflineButton';
-import { GetDriverCurrentLocation, GetDriverCurrentLocation2, requestLocationPermission } from '../../common/CommonFunction';
+import { GetDriverCurrentLocation,requestLocationPermission } from '../../common/CommonFunction';
 import { hitUpdateDriverStatus } from '../../config/api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import ProfileSection from '../DriverMapScreen/ProfileSecrion';
-import { useSelector } from 'react-redux';
 const DashboardScreen = ({ route }) => {
-
-
-
   const [isOnline, setIsOnline] = useState(false); 
   const navigation = useNavigation();
 
   const toggleOnlineStatus = async () => {
     try {
       const unparse_driver_data = await AsyncStorage.getItem("driver_data");
-      const parse_data = JSON.parse(unparse_driver_data);
-      console.log(parse_data.driver_id,'parss---');
-
-      
-      
+      const parse_data = JSON.parse(unparse_driver_data); 
       setIsOnline(prevStatus => !prevStatus);
       if (!isOnline) {
         const { latitude, longitude } = await GetDriverCurrentLocation();

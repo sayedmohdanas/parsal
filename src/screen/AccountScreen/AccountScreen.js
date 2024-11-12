@@ -380,7 +380,7 @@ const AccountScreen = () => {
                   onPress={() => {
                     navigation.navigate('Wallet');
                   }}
-                  walletBalance={store_data.wallet_balance?.new_wallet_balance}
+                  walletBalance={parseFloat(store_data.wallet_balance?.new_wallet_balance).toFixed(2)}
                 />
 
                 <Text style={styles.optionName}>{'Other'}</Text>

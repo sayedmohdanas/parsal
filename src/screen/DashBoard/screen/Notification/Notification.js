@@ -117,11 +117,10 @@ const Notification = () => {
         <TouchableOpacity
           style={[styles.notificationItem, {backgroundColor: Colors.white}]}
           onPress={() => toggleReadStatus(item.id)}>
-          <View style={styles.notificationContent}>
-            {/* Title */}
-            {/* <Text style={styles.title}>{item.title}</Text> */}
+          {/* <View style={styles.notificationContent}>
+    
 
-            {/* Description */}
+      
             <TouchableOpacity onPress={() => handleToggleDescription(item.id)}>
               <Text
                 style={styles.description}
@@ -131,11 +130,11 @@ const Notification = () => {
               </Text>
             </TouchableOpacity>
 
-            {/* Timestamp */}
+    
             <Text style={styles.timestamp}>
               {timeAgo(new Date(item.timestamp))}
             </Text>
-          </View>
+          </View> */}
           {/* Status Icon */}
           {/* <Image
                 source={item.read ? AppImages.readIcon : AppImages.unreadIcon}
@@ -209,15 +208,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   listContainer: {
-    padding: 16,
+    // padding: 16,
   },
+  notificationText: {
+    flex: 1,
+},
   notificationItem: {
     flexDirection: 'row',
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: responsiveHeight(12),
-    alignItems: 'center',
-    justifyContent: 'space-between',
+        padding: 8,
+        backgroundColor: '#FFFFFF',
+        // borderRadius: 8,
+        // marginBottom: 16,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 4,
+        // elevation: 2,
+        borderBottomWidth: 1,
+        borderColor: '#F3F3F3'
   },
   notificationContent: {
     flex: 1,
@@ -229,10 +237,10 @@ const styles = StyleSheet.create({
     color: Colors.black,
   },
   description: {
-    fontSize: FontSizes.medium,
-    color: Colors.grey,
-    marginTop: 4,
-  },
+    fontSize: 14,
+    color: '#666',
+    // marginBottom: 8,
+},
   timestamp: {
     fontSize: responsiveFontSize(12),
     color: Colors.black,
@@ -266,6 +274,15 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.semiLarge,
     marginRight: Spacing.small,
   },
+  timeContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'flex-end',
+},
+time: {
+    fontSize: 12,
+    color: '#999',
+},
 });
 
 export default Notification;

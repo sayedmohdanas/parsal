@@ -1,99 +1,100 @@
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import React from 'react';
-import {
-  responsiveFontSize,
-  responsiveHeight,
-  responsiveWidth,
-} from '../../../common/metrices';
+import { Image, StyleSheet, Text, TouchableHighlight, TouchableOpacity, View } from 'react-native'
+import React from 'react'
+import { responsiveFontSize, responsiveHeight, responsiveWidth } from '../../../common/metrices'
+import AppImages from '../../../common/AppImages'
 
-const HelpAndSupportCard = ({
-  topic,
-  status,
-  description,
-  createdAt,
-  onPress,
-}) => {
-  const statusInfo = {
-    text: status === 1 ? 'Open' : 'Closed',
-    textColor: status === 1 ? '#567D40' : '#7D4040',
-    backgroundColor: status === 1 ? '#E5F6E6' : '#F6E5E5',
-  };
+const HelpAndSupportCard = ({ topic, status, description, createdAt, onPress }) => {
 
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      style={{
-        marginHorizontal: responsiveWidth(16),
-        backgroundColor: 'white',
-        elevation: 1,
-        marginVertical: 10,
-        borderRadius: 10,
-        padding: 10,
-      }}>
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-        }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}>
-          <Text style={styles.ticketIdText}>{topic}</Text>
+    const statusInfo = {
+        text: status === 1 ? "Open" : "Closed",
+        textColor: status === 1 ? '#567D40' : '#7D4040',
+        backgroundColor: status === 1 ? '#E5F6E6' : '#F6E5E5',
+    }
 
-          {/* Status View */}
-          <View
-            style={[
-              styles.parsalStatus,
-              {backgroundColor: statusInfo.backgroundColor},
-            ]}>
-            <Text
-              style={[styles.parsalStatusText, {color: statusInfo.textColor}]}>
-              {statusInfo.text}
-            </Text>
-          </View>
-        </View>
-        <Text style={styles.dateText}>{createdAt}</Text>
-      </View>
+    return (
+        <TouchableHighlight onPress={onPress} underlayColor={'none'}>
+            <View style={{
+                marginHorizontal: responsiveWidth(16),
+                backgroundColor: 'white',
+                // elevation: 1,
+                marginVertical: 4,
+                borderRadius: 10,
+                padding: 10,
+            }}>
+                <View style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems:'center'
+                }}>
 
-      <View style={{marginTop: responsiveHeight(1)}}>
-        <Text numberOfLines={2} style={styles.descriptionText}>
-          {description}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  );
-};
+                    <View style={{
+                        flexDirection: 'row'
+                    }}>
+                        <Image source={AppImages.helpAndSupportWatch} resizeMode='contain' style={{
+                            height: 25,
+                            width: 25,
+                            marginTop:2
+                        }} />
+                        <View style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                        }}>
+                            <Text style={styles.ticketIdText}>{topic}</Text>
+
+                            {/* Status View */}
+
+                        </View>
+                    </View>
+                    <Text style={styles.dateText}>{createdAt}</Text>
+                </View>
+                <View style={[
+                    styles.parsalStatus,
+                    { backgroundColor: statusInfo.backgroundColor }
+                ]}>
+                    <Text style={[
+                        styles.parsalStatusText,
+                        { color: statusInfo.textColor }
+                    ]}>{statusInfo.text}</Text>
+                </View>
+                {/* <View style={{ marginTop: responsiveHeight(1) }}>
+                <Text style={styles.descriptionText}>{description}</Text>
+            </View> */}
+            </View>
+        </TouchableHighlight>
+    )
+}
 
 const styles = StyleSheet.create({
-  parsalStatus: {
-    height: responsiveHeight(20),
-    paddingHorizontal: 6,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 13,
-  },
-  parsalStatusText: {
-    fontSize: responsiveFontSize(10),
-    fontWeight: '500',
-  },
-  ticketIdText: {
-    fontSize: responsiveFontSize(16),
-    fontWeight: '600',
-    color: 'black',
-    marginRight: 10,
-  },
-  dateText: {
-    color: 'grey',
-    fontSize: responsiveFontSize(12),
-  },
-  descriptionText: {
-    marginTop: 4,
-    color: 'grey',
-  },
-});
+    parsalStatus: {
+        height: responsiveHeight(20),
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 13,
+        width: responsiveWidth(55),
+        marginLeft:responsiveWidth(40),
+        marginTop:responsiveHeight(10)
+    },
+    parsalStatusText: {
+        fontSize: responsiveFontSize(12),
+        fontWeight: '500',
+    },
+    ticketIdText: {
+        fontSize: responsiveFontSize(16),
+        fontWeight: '600',
+        color: 'black',
+        marginRight: 10,
+        marginLeft: 15
+    },
+    dateText: {
+        color: 'grey',
+        fontSize: responsiveFontSize(12),
+    },
+    descriptionText: {
+        marginTop: 4,
+        color: 'grey',
+    }
+})
 
-export default HelpAndSupportCard;
+export default HelpAndSupportCard

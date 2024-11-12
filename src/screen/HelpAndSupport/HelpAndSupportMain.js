@@ -133,13 +133,15 @@ const HelpAndSupportMain = ({navigation}) => {
   };
 
   return (
-    <View style={{flex: 1, backgroundColor: Colors.white}}>
+    <View style={{flex: 1, backgroundColor: Colors.homeBackground}}>
       <HeaderBackButton
-        headerText="Help & Support"
+        headerText="Tickets"
         onPress={() => navigation.goBack()}
       />
+      
       <FlatList
         data={tickets}
+        contentContainerStyle={{marginVertical:responsiveHeight(6)}}
         renderItem={renderItem}
         keyExtractor={item => item.id.toString()}
         ListEmptyComponent={() => (

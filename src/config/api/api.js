@@ -5,6 +5,7 @@ import {
   addTickeReply,
   addVehicle,
   cancelOrderurl,
+  checkreqstatusurl,
   createPartner,
   createtransactionurl,
   deleteDriverDetails,
@@ -192,4 +193,8 @@ export const hitGetUserOrderStatsApi = param => {
 
 export const hitGetTransactionListApi = param => {
   return apiPost(transactionurl, param);
+};
+
+export const hitCheckReqStatusApi = param => {
+  return apiPost(checkreqstatusurl, param);
 };
