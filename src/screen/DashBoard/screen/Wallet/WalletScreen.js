@@ -126,14 +126,14 @@ const styles = StyleSheet.create({
   },
   walletcard: {
     flex: 0.5,
-    borderRadius: 10,
+    borderRadius: responsiveHeight(10),
     marginTop: responsiveHeight(25),
   },
   imageContainer: {
     alignSelf: 'flex-end',
-    margin: 16,
+    margin: responsiveWidth(16),
     backgroundColor: 'rgba(120, 122, 243, 1)',
-    borderRadius: 5,
+    borderRadius: responsiveHeight(5),
     padding: 4,
     paddingHorizontal:responsiveWidth(6),
     paddingVertical:responsiveHeight(8)

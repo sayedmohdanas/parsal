@@ -477,7 +477,10 @@ const DriverMapScreen = ({route}) => {
         {update_order?.is_arrived_pickup ? (
           <DestinationSection details={update_order} />
         ) : (
-          <DriverArriveCard isReachedPickup={reached} />
+          <DriverArriveCard
+            nextId={nextOrderData?.newOrder?.id || nextOrderData?.id}
+            isReachedPickup={reached}
+          />
         )}
       </View>
       <NextOrder

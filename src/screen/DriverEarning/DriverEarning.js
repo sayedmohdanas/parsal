@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -17,27 +17,27 @@ import {
   responsiveHeight,
   responsiveWidth,
 } from '../../common/metrices';
-import {ScrollView} from 'react-native-gesture-handler';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import { ScrollView } from 'react-native-gesture-handler';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import CustomHeader from '../DashBoard/components/CustomHeader';
 import BottomNav from '../../../navigation/BottomNav';
 import DateRangeSelector from '../DashBoard/components/DataRangeSelectore';
-import {hitDriverEarning, hitMyVehicle} from '../../config/api/api';
+import { hitDriverEarning, hitMyVehicle } from '../../config/api/api';
 import moment from 'moment';
 import BarChart from './BarChart';
 import DriverDetails from './DriversDetail';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import Line from '../../components/Line/Line';
-import {errorToast} from '../../common/CommonFunction';
+import { errorToast } from '../../common/CommonFunction';
 import Loading from '../../components/Loading/Loading';
-import {useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
 
 const Earning = () => {
-  const [selectedRange, setSelectedRange] = useState('today'); // date range
+  const [selectedRange, setSelectedRange] = useState('today');
   const [totalEarnings, setTotalEarnings] = useState(0);
-  const [dateRange, setDateRange] = useState({start: '', end: ''});
-  const [loading, setLoading] = useState(false); // State for loading
+  const [dateRange, setDateRange] = useState({ start: '', end: '' });
+  const [loading, setLoading] = useState(false);
 
   const navigation = useNavigation();
   useEffect(() => {
@@ -50,28 +50,28 @@ const Earning = () => {
     }, [selectedRange]),
   );
 
-  // Function to get earning data
   const getEarningData = async () => {
-    setLoading(true); // Start loading
+    setLoading(true);
 
     let startDate, endDate;
     if (selectedRange === 'today') {
-      startDate = new Date(); // Use today's date as JavaScript Date object
-      endDate = null; // No end date for 'today'
+      startDate = new Date();
+
+      endDate = null;
     } else if (selectedRange === 'week') {
-      startDate = new Date(); // Today's date as end of the week
-      endDate = new Date(); // Clone today's date for start calculation
-      startDate.setDate(startDate.getDate() - 6); // Subtract 6 days to get start of the week
+      startDate = new Date();
+      endDate = new Date();
+      startDate.setDate(startDate.getDate() - 6);
     }
 
-    setDateRange({start: startDate, end: endDate});
-    setLoading(false); // Stop loading
+    setDateRange({ start: startDate, end: endDate });
+    setLoading(false);
   };
 
   const [driver_todays_earning, setdriver_todays_earning] = useState([]);
   const [login_user, setlogin_user] = useState();
   const get_data = async driver_id => {
-    setLoading(true); // Start loading
+    setLoading(true);
 
     const user = await AsyncStorage.getItem('user');
     const parsedUser = JSON.parse(user);
@@ -87,7 +87,6 @@ const Earning = () => {
           if (res?.success == false) {
             setdriver_todays_earning([]);
           } else {
-            // console.log('res---->',res?.data);
             setdriver_todays_earning(res?.data);
           }
         })
@@ -122,7 +121,7 @@ const Earning = () => {
   const [partner_riders, setpartner_riders] = useState([]);
   const [selectedDriver, setSelectedDriver] = useState();
   const get_driver_list = async () => {
-    setLoading(true); // Start loading
+    setLoading(true);
     const user = await AsyncStorage.getItem('user');
     const parsedUser = JSON.parse(user);
     if (parsedUser?.payload?.owner_type != 0) {
@@ -153,24 +152,22 @@ const Earning = () => {
         const user = await AsyncStorage.getItem('user');
         const parsedUser = JSON.parse(user);
         if (parsedUser?.payload?.owner_type == 0) {
-          await get_data(); // Ensure to await if get_data is a promise
+          await get_data();
         }
       };
-      fetchData(); // Call the async function
-      get_driver_list(); // Call this function normally
-      // Cleanup if needed when the screen is unfocused
+      fetchData();
+      get_driver_list();
       return () => {
-        // Cleanup logic here if necessary
       };
-    }, [selectedRange, dateRange]), // The dependency array can be adjusted as needed
+    }, [selectedRange, dateRange]),
   );
   const renderItem = useMemo(() => {
-    return ({item}) => {
+    return ({ item }) => {
       return <OrderDetail orderDetails={item} />;
     };
   }, []);
   const renderRieder = useMemo(() => {
-    return ({item}) => {
+    return ({ item }) => {
       return (
         <DriverDetails
           details={item}
@@ -183,15 +180,10 @@ const Earning = () => {
       );
     };
   }, [selectedDriver]);
-  // const formatDateForDisplay = (date) => {
-  // console.log('data',date);
-  //   return date ? date.toDateString() : ''; // Format the date when needed
-  // };
   const formatDateForDisplay = date => {
     if (date != null && date) {
-      const options = {day: '2-digit', month: 'short', year: 'numeric'};
+      const options = { day: '2-digit', month: 'short', year: 'numeric' };
       const formattedDate = date?.toLocaleDateString('en-GB', options);
-      // Replace spaces with hyphens
       return formattedDate.replace(/ /g, '-');
     }
   };
@@ -200,55 +192,46 @@ const Earning = () => {
     const currentStartDate = new Date(dateRange.start);
 
     if (selectedRange === 'week') {
-      // Calculate previous week range
       const prevWeek = calculateWeekRange(currentStartDate, false);
       setDateRange(prevWeek);
     } else if (selectedRange === 'today') {
-      // Calculate previous day
       const prevDay = calculateDayRange(currentStartDate, false);
       setDateRange(prevDay);
     }
   };
   const calculateDayRange = (startDate, next = true) => {
     const start = new Date(startDate);
-    const offset = next ? 1 : -1; // Forward or backward by 1 day
+    const offset = next ? 1 : -1;
     start.setDate(start.getDate() + offset);
 
-    return {start: start, end: ''}; // Only start date for 'today'
+    return { start: start, end: '' };
   };
   const calculateWeekRange = (startDate, next = true) => {
     const start = new Date(startDate);
-    const offset = next ? 7 : -7; // Forward or backward by 7 days
+    const offset = next ? 7 : -7;
     start.setDate(start.getDate() + offset);
     const end = new Date(start);
-    end.setDate(end.getDate() + 6); // End of the week
+    end.setDate(end.getDate() + 6);
 
-    return {start: start, end: end};
+    return { start: start, end: end };
   };
   const handleNextDate = () => {
     const currentStartDate = new Date(dateRange.start);
-    const today = new Date(); // Today's date
+    const today = new Date();
 
     if (selectedRange === 'week') {
-      // Calculate next week range
       const nextWeek = calculateWeekRange(currentStartDate, true);
 
-      // Check if the next week's end date exceeds today
       if (nextWeek.end > today) {
-        // Prevent updating to next week if it exceeds today
-        // Alert.alert("Cannot go to the next week; it exceeds today's date.")
         errorToast("Cannot go to the next week; it exceeds today's date.");
         return;
       }
 
       setDateRange(nextWeek);
     } else if (selectedRange === 'today') {
-      // Calculate next day
       const nextDay = calculateDayRange(currentStartDate, true);
 
-      // Check if the next day's start date exceeds today
       if (nextDay.start > today) {
-        // Prevent updating to next day if it exceeds today
         errorToast("Cannot go to the next day; it exceeds today's date.");
 
         return;
@@ -259,7 +242,7 @@ const Earning = () => {
   };
   return (
     <>
-      <SafeAreaView style={{flex: 1, backgroundColor: Colors.homeBackground}}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: Colors.homeBackground }}>
         <View
           style={{
             height: responsiveHeight(60),
@@ -279,7 +262,7 @@ const Earning = () => {
           ) : (
             <>
               <View
-                style={{alignSelf: 'center', marginTop: responsiveHeight(14)}}>
+                style={{ alignSelf: 'center', marginTop: responsiveHeight(14) }}>
                 <DateRangeSelector
                   selectedRange={selectedRange}
                   setSelectedRange={setSelectedRange}
@@ -287,15 +270,15 @@ const Earning = () => {
               </View>
               {driver_todays_earning?.individual_paid_amounts && (
                 <View
-                  style={[styles.earningDisplay, {justifyContent: 'center'}]}>
+                  style={[styles.earningDisplay, { justifyContent: 'center' }]}>
                   <View
-                    style={{justifyContent: 'center', alignItems: 'center'}}>
+                    style={{ justifyContent: 'center', alignItems: 'center' }}>
                     <Text style={styles.earningAmount}>
                       ₹
                       {!isNaN(driver_todays_earning?.total_paid_amount)
                         ? Math.round(
-                            driver_todays_earning?.total_paid_amount,
-                          ).toFixed(2)
+                          driver_todays_earning?.total_paid_amount,
+                        ).toFixed(2)
                         : '0'}
                     </Text>
                     <View style={styles.percentageContainer}>
@@ -342,17 +325,14 @@ const Earning = () => {
                   />
                 </TouchableOpacity>
               </View>
-              {/* Bar Chart */}
               {driver_todays_earning?.total_paid_amount && (
                 <BarChart
                   driverEarningData={driver_todays_earning}
                   selectedRange={selectedRange}
                 />
               )}
-              {/* Order List Section */}
-              <View style={[styles.orderListContainer, {flex: 1}]}>
-                {/* <Line marginH={0}/> */}
-                {/* <BorderLine thickness={0.}/> */}
+              <View style={[styles.orderListContainer, { flex: 1 }]}>
+
                 {driver_todays_earning?.individual_paid_amounts && (
                   <Text style={styles.orderListHeadign}>{'Order List '}</Text>
                 )}
@@ -388,7 +368,7 @@ const Earning = () => {
                       )}
                       {login_user?.owner_type != 0 &&
                         driver_todays_earning?.individual_paid_amounts && (
-                          <View style={{marginLeft: 20}}>
+                          <View style={{ marginLeft: 20 }}>
                             {partner_riders?.length > 1 && (
                               <FlatList
                                 data={partner_riders}
@@ -404,7 +384,7 @@ const Earning = () => {
                   data={driver_todays_earning?.individual_paid_amounts}
                   renderItem={renderItem}
                   keyExtractor={(item, index) => index.toString()}
-                  contentContainerStyle={{flexGrow: 1}}
+                  contentContainerStyle={{ paddingBottom: responsiveHeight(80) }}
                 />
               </View>
             </>
@@ -522,9 +502,7 @@ const styles = StyleSheet.create({
     marginLeft: responsiveHeight(3),
   },
   orderListContainer: {
-    // marginVertical:responsiveHeight(20)
-    // paddingHorizontal: responsiveHeight(10),
-    // marginBottom:responsiveHeight(60)
+
   },
   orderListHeadign: {
     fontSize: responsiveFontSize(16),

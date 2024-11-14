@@ -16,13 +16,13 @@ const HelpAndSupportChatHeader = props => {
         backgroundColor: Colors.white,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        // justifyContent: 'flex-start',
         borderBottomColor: '#D8D8D8',
         borderBottomWidth: 0.5,
       }}>
       
       {/* Back Button (Always aligned left) */}
-      <TouchableOpacity onPress={props.onPress} style={{flexDirection: 'row', alignItems: 'center'}}>
+      <TouchableOpacity onPress={props.onPress} style={{flexDirection: 'row', alignItems: 'flex-start'}}>
         <Image
           source={AppImages.previous}
           resizeMode="contain"
@@ -46,7 +46,7 @@ const HelpAndSupportChatHeader = props => {
           style={{
             color: Colors.black,
             fontSize: responsiveFontSize(18),
-            fontWeight: '500',
+            fontWeight: '700',
             textAlign: 'left',
           }}>
           Help and Support
@@ -56,7 +56,9 @@ const HelpAndSupportChatHeader = props => {
             color: Colors.gray,
             fontSize: responsiveFontSize(14),
             textAlign: 'left',
-            marginTop: responsiveHeight(2), // Small space between header and Ticket ID
+            marginTop: responsiveHeight(2),
+            color:Colors.grey
+            // Small space between header and Ticket ID
           }}>
           Ticket ID: {props.ticketId}
         </Text>

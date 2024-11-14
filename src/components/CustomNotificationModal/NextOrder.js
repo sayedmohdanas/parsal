@@ -16,7 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useDispatch, useSelector} from 'react-redux';
 import {setOrderData, setnextOrderData} from '../../redux/HitApis/HitApiSlice';
 import {io} from 'socket.io-client';
-import {calculateDistanceAndTime} from '../../common/CommonFunction';
+import {calculateDistanceAndTime, successToast} from '../../common/CommonFunction';
 import {socketUrl} from '../../config/url';
 import BorderLine from '../../common/BorderLine.';
 import AppImages from '../../common/AppImages';
@@ -86,20 +86,21 @@ const NextOrder = ({isVisible, driverId, onClose, setnextordermodal}) => {
             text: 'Yes',
             onPress: async () => {
               // Handle the order cancellation logic here
-              dispatch(setnextOrderData(null));
               const param = {
-                order_id: nextOrderData.id || orderData?.id,
+                order_id: nextOrderData?.id || nextOrderData?.newOrder?.id,
               };
+              console.log(param);
               const res = await hitCancelOrder(param);
 
               if (res) {
                 socket.emit('cancel_order', {
-                  userId: nextOrderData.cust_id || orderData?.cust_id,
+                  userId: nextOrderData.cust_id || nextOrderData?.newOrder?.cust_id,
                   orderId: 'order789',
                   role: 'driver',
                   reason: 'Customer requested cancellation',
                 });
                 setnextordermodal(false);
+                dispatch(setnextOrderData(null));
                 successToast('Successfull', 'Order Cancel');
               }
 
@@ -154,10 +155,14 @@ const NextOrder = ({isVisible, driverId, onClose, setnextordermodal}) => {
             <View style={{width: '100%'}}>
               <DriverInformation
                 display_name={
-                  nextOrderData?.customer?.cust_name || nextOrderData?.custName
+                  nextOrderData?.customer?.cust_name ||
+                  nextOrderData?.custName ||
+                  ''
                 }
                 display_phone={
-                  nextOrderData?.customer?.mobile || nextOrderData?.custMobile
+                  nextOrderData?.customer?.mobile ||
+                  nextOrderData?.custMobile ||
+                  ''
                 }
                 propStyle={{
                   manStyle: {
@@ -190,41 +195,40 @@ const NextOrder = ({isVisible, driverId, onClose, setnextordermodal}) => {
                   marginTop: responsiveHeight(20),
                   marginBottom: responsiveHeight(8),
                 }}>
-                {nextOrderData?.newOrder?.drop_long ||
-                  (nextOrderData?.drop_long && (
-                    <Text style={styles.bodyText}>
-              
-                      {`${
-                        calculateDistanceAndTime(
-                          nextOrderData?.newOrder?.pickup_lat ||
-                            nextOrderData?.pickup_lat,
-                          nextOrderData?.newOrder?.pickup_long ||
-                            nextOrderData?.pickup_long,
-                          nextOrderData?.newOrder?.drop_lat ||
-                            nextOrderData?.drop_lat,
-                          nextOrderData?.newOrder?.drop_long ||
-                            nextOrderData?.drop_long,
-                        )?.travelTime
-                      },`}
-                    </Text>
-                  ))}
-                {nextOrderData?.newOrder?.drop_long ||
-                  (nextOrderData?.drop_long && (
-                    <Text style={styles.bodyText}>                     
-                      {`${
-                        calculateDistanceAndTime(
-                          nextOrderData?.newOrder?.pickup_lat ||
-                            nextOrderData?.pickup_lat,
-                          nextOrderData?.newOrder?.pickup_long ||
-                            nextOrderData?.pickup_long,
-                          nextOrderData?.newOrder?.drop_lat ||
-                            nextOrderData?.drop_lat,
-                          nextOrderData?.newOrder?.drop_long ||
-                            nextOrderData?.drop_long,
-                        )?.distanceKm
-                      } km `}
-                    </Text>
-                  ))}
+                {(nextOrderData?.newOrder?.drop_long ||
+                  nextOrderData?.drop_long) && (
+                  <Text style={styles.bodyText}>
+                    {`${
+                      calculateDistanceAndTime(
+                        nextOrderData?.newOrder?.pickup_lat ||
+                          nextOrderData?.pickup_lat,
+                        nextOrderData?.newOrder?.pickup_long ||
+                          nextOrderData?.pickup_long,
+                        nextOrderData?.newOrder?.drop_lat ||
+                          nextOrderData?.drop_lat,
+                        nextOrderData?.newOrder?.drop_long ||
+                          nextOrderData?.drop_long,
+                      )?.travelTime || ''
+                    },`}
+                  </Text>
+                )}
+                {(nextOrderData?.newOrder?.drop_long ||
+                  nextOrderData?.drop_long) && (
+                  <Text style={styles.bodyText}>
+                    {`${
+                      calculateDistanceAndTime(
+                        nextOrderData?.newOrder?.pickup_lat ||
+                          nextOrderData?.pickup_lat,
+                        nextOrderData?.newOrder?.pickup_long ||
+                          nextOrderData?.pickup_long,
+                        nextOrderData?.newOrder?.drop_lat ||
+                          nextOrderData?.drop_lat,
+                        nextOrderData?.newOrder?.drop_long ||
+                          nextOrderData?.drop_long,
+                      )?.distanceKm || ''
+                    } km `}
+                  </Text>
+                )}
               </View>
 
               <View
@@ -233,27 +237,29 @@ const NextOrder = ({isVisible, driverId, onClose, setnextordermodal}) => {
                   justifyContent: 'space-between',
                   paddingVertical: 8,
                 }}>
-                {nextOrderData?.newOrder?.paid_amount ||
-                  (nextOrderData?.paid_amount && (
-                    <View style={[styles.timelineContainer]}>
-                      <View style={styles.greenCircle}></View>
-                      <View style={styles.line}></View>
-                      <View style={styles.redCircle}>
-                        <View style={styles.blackCircle}></View>
-                      </View>
+                {(nextOrderData?.newOrder?.paid_amount ||
+                  nextOrderData?.paid_amount) && (
+                  <View style={[styles.timelineContainer]}>
+                    <View style={styles.greenCircle}></View>
+                    <View style={styles.line}></View>
+                    <View style={styles.redCircle}>
+                      <View style={styles.blackCircle}></View>
                     </View>
-                  ))}
+                  </View>
+                )}
                 <View style={{marginLeft: responsiveWidth(5)}}>
                   <Text
                     numberOfLines={2}
                     style={[styles.addressText, {marginVertical: 0}]}>
                     {nextOrderData?.pickup_address ||
-                      nextOrderData?.newOrder?.pickup_address}
+                      nextOrderData?.newOrder?.pickup_address ||
+                      ''}
                   </Text>
 
                   <Text numberOfLines={2} style={styles.addressText}>
                     {nextOrderData?.drop_address ||
-                      nextOrderData?.newOrder?.drop_address}
+                      nextOrderData?.newOrder?.drop_address ||
+                      ''}
                   </Text>
                 </View>
               </View>

@@ -311,9 +311,9 @@ const styles = StyleSheet.create({
   buttonStyle: {
     height: responsiveHeight(36),
     borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 16,
-    marginRight: 10,
+    borderRadius: responsiveHeight(10),
+    paddingHorizontal: responsiveWidth(16),
+    marginRight: responsiveWidth(10),
     justifyContent: 'center',
     alignItems: 'center',
     borderColor: Colors.textInputBorderColor,

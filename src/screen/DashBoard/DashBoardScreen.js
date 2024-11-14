@@ -106,7 +106,7 @@ const DashboardScreen = ({ route }) => {
        
         </View>
     </View>
-          {/* <ProfileSection /> */}
+       
            </>
 
   );

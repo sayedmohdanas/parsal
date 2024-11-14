@@ -140,6 +140,33 @@ const Notification = () => {
                 source={item.read ? AppImages.readIcon : AppImages.unreadIcon}
                 style={styles.statusIcon}
               /> */}
+                <View style={styles.notificationText}>
+                    <View style={{flexDirection:'row',marginTop:responsiveHeight(10) }}>
+                        <View style={{
+                            height: responsiveHeight(26),
+                            width: responsiveHeight(26),
+                            // paddingBottom:10,
+                            backgroundColor: '#EEF2FF',
+                            borderRadius: responsiveHeight(10),
+                            justifyContent: 'center',
+                            alignItems: 'center', marginHorizontal:responsiveWidth(8)
+                        }}>
+                            <Text style={{ color: 'black' }}>DE</Text>
+                        </View>
+                        <Text
+                            style={styles.description}
+                            // numberOfLines={isExpanded ? 0 : 2}
+                            // ellipsizeMode='tail'
+                        >
+                            {item.description}
+                        </Text>
+                    </View>
+                    <View style={styles.timeContainer}>
+                        <Text style={styles.time}>
+                            {timeAgo(item.timestamp)}
+                        </Text>
+                    </View>
+                </View>
         </TouchableOpacity>
       </Swipeable>
     );
@@ -237,8 +264,9 @@ const styles = StyleSheet.create({
     color: Colors.black,
   },
   description: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: responsiveFontSize(12),
+    // fontWeight:Fonts.semilarge,
+    color: Colors.black,
     // marginBottom: 8,
 },
   timestamp: {
@@ -262,11 +290,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.red,
     justifyContent: 'center',
     alignItems: 'flex-end',
-    width: '30%',
+    width: '25%',
     // borderRadius: 8,
-    borderTopRightRadius: 8,
-    borderBottomRightRadius: 8,
-    marginBottom: responsiveHeight(12),
+    // borderTopRightRadius: 8,
+    // borderBottomRightRadius: 8,
+    // paddingBottomBottom: responsiveHeight(12),
   },
   deleteText: {
     color: Colors.white,
@@ -280,8 +308,10 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
 },
 time: {
-    fontSize: 12,
-    color: '#999',
+    fontSize: responsiveFontSize(12),
+    color: Colors.black,
+    fontWeight:Fonts.semilarge,
+
 },
 });
 

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -36,49 +36,81 @@ import {
 import {successToast} from '../../common/CommonFunction';
 import Loading from '../../components/Loading/Loading';
 
-const DriverArriveCard = ({trip, isReachedPickup}) => {
+const DriverArriveCard = ({trip, isReachedPickup, nextId}) => {
   const [isArrived, setIsArrived] = useState(false);
   const [isSlid, setIsSlid] = useState(false);
   const navigation = useNavigation();
-  const orderData = useSelector(state => state?.parsalPartner?.orderData || {});
+  const orderData = useSelector(state => state?.parsalPartner?.orderData);
   const [otp, setOtp] = useState(0);
   const [showotp, setshowotp] = useState(false);
   const dispatch = useDispatch();
   const [loading, setLoadig] = useState(false);
-  const {nextOrderData} = useSelector(state => state?.parsalPartner);
-
+  const nextOrderData = useSelector(
+    state => state?.parsalPartner?.nextOrderData,
+  );
+  const nextIdRef = useRef(nextId);
+  // Update `nextIdRef` whenever `nextId` changes
+  useEffect(() => {
+    nextIdRef.current = nextId;
+  }, [nextId]);
+  // console.log(nextOrderDataId);
   const handleSlideComplete = () => {
     setIsSlid(true);
   };
+  // Memoized function to avoid re-creating due to re-renders
+  const getOrderStatus = useCallback(
+    (orderData, orderId) => {
+      const orderDataId = orderData?.newOrder?.id || orderData?.id;
+      const nextOrderDataId = nextIdRef.current;
+      if (orderDataId === orderId) {
+        return {status: 'first', matchedOrderId: orderDataId};
+      } else if (nextOrderDataId === orderId) {
+        return {status: 'next', matchedOrderId: nextOrderDataId};
+      } else {
+        return null; // No match found
+      }
+    },
+    [nextId], // Dependency array includes nextId
+  );
   // console.log('orderData',orderData);
   useEffect(() => {
     socket = io(socketUrl);
 
+    socket.on('connect', () => {
+      console.log('Connected to socket server');
+    });
     socket.emit('registerUser', {
       userId: orderData?.newOrder?.driver_id || orderData?.driver_id,
       role: 'driver',
     });
 
-    socket.on('connect', () => {
-      console.log('Connected to socket server');
-    });
-
     socket.on('connect_error', error => {
       console.error('Connection error:', error);
     });
-    socket.on('order_canceled', data => {
-      if (nextOrderData) {
-        dispatch(setOrderData(nextOrderData));
-        dispatch(setupdate_order(null));
-        dispatch(setnextOrderData(null));
-        return;
+    const handleOrderCancel = data => {
+      const {orderId} = data;
+      const canceledOrderStatus = getOrderStatus(orderData, orderId);
+      if (canceledOrderStatus) {
+        const {status} = canceledOrderStatus;
+        if (status === 'first') {
+          if (nextOrderData) {
+            dispatch(setOrderData(nextOrderData));
+            dispatch(setupdate_order(null));
+            dispatch(setnextOrderData(null));
+          } else {
+            dispatch(setOrderData(null));
+            dispatch(setupdate_order(null));
+            dispatch(setlivetripmenu(false));
+            navigation.goBack();
+          }
+        } else if (status === 'next') {
+          dispatch(setnextOrderData(null));
+        }
       }
-      console.log('data',data);
-      dispatch(setOrderData(null));
-      dispatch(setupdate_order(null));
-      dispatch(setlivetripmenu(false));
-      navigation.goBack('');
-    });
+    };
+
+    // Assuming `socket` is initialized and connected properly
+    socket.on('order_canceled', handleOrderCancel);
     return () => {
       if (socket) {
         // socket.disconnect();
@@ -145,7 +177,7 @@ const DriverArriveCard = ({trip, isReachedPickup}) => {
                   dispatch(setnextOrderData(null));
                   return;
                 }
-                setshowotp(false)
+                setshowotp(false);
                 dispatch(setlivetripmenu(false));
                 dispatch(setOrderData(null));
                 dispatch(setupdate_order(null));

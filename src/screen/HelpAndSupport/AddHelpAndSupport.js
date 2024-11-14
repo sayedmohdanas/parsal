@@ -104,8 +104,6 @@ const AddHelpAndSupport = () => {
           },
         ],
       };
-
-
       const response = await hitHelpAndSupport(payload);
       if (response.success) {
         successToast('Success', 'Your support ticket has been submitted.');
@@ -129,6 +127,7 @@ const AddHelpAndSupport = () => {
       );
     }
   };
+
   const handleImagePicker = () => {
     ImagePicker.openPicker({
       // multiple: true,
@@ -147,6 +146,7 @@ const AddHelpAndSupport = () => {
         console.log('Error picking images:', error);
       });
   };
+
   // Function to remove an image from the array
   const handleRemoveImage = () => {
     setImages('');

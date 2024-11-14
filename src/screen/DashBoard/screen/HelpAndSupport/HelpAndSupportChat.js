@@ -2,7 +2,7 @@
 
 
 
-import React, { useState, useEffect, } from 'react';
+import React, { useState, useEffect, useRef, useCallback, } from 'react';
 import {
   View,
   Text,
@@ -11,30 +11,80 @@ import {
   FlatList,
   StyleSheet,
   KeyboardAvoidingView,
+  Dimensions,
+  RefreshControl,
   Image,
 } from 'react-native';
-import { useSelector } from 'react-redux';
 import Colors from '../../../../common/Colors';
-// import { hitAddTicketReply, hitGetTicketReply } from '../../config/api/api';
-import HeaderBackButton from '../../../../components/HeaderBackButton/HeaderBackButton';
-import { useNavigation } from '@react-navigation/native';
-// import { responsiveHeight, responsiveWidth } from '../../common/metrices';
-import { hitAddTicketReply, hitGetTicketReply } from '../../../../config/api/api';
-import { responsiveHeight, responsiveWidth } from '../../../../common/metrices';
-import HelpAndSupportChatHeader from '../../../../components/HeaderBackButton/HelpAndSupportChatHeader';
+import {Fonts, FontSizes, Spacing} from '../../../../common/Theme';
 import Line from '../../../../components/Line/Line';
-const HelpAndSupportChat = ({ route }) => {
-  const navigation = useNavigation()
+import {
+  responsiveFontSize,
+  responsiveHeight,
+  responsiveWidth,
+} from '../../../../common/metrices';
+import {hitAddTicketReply, hitGetTicketReply} from '../../../../config/api/api';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import HeaderBackButton from '../../../../components/HeaderBackButton/HeaderBackButton';
+import {formatDate} from '../../../../common/CommonFunction';
+import HelpAndSupportChatHeader from '../../../../components/HeaderBackButton/HelpAndSupportChatHeader';
+const HelpAndSupportChat = ({route}) => {
   const [messages, setMessages] = useState([]);
   const details = route.params;
   const [messageText, setMessageText] = useState('');
-  //   const orderData = useSelector(state => state?.parsalPartner?.orderData || {});
-  useEffect(() => {
-    fetchMessages();
-  }, []);
+  const navigation = useNavigation();
+  const [visibleDate, setVisibleDate] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+  const [isScrollingUp, setIsScrollingUp] = useState(false); // Track scroll direction
+  const prevScrollY = useRef(0); // Reference for previous scroll position
+  // Fetch messages when the component is focused
+  useFocusEffect(
+    useCallback(() => {
+      fetchMessages();
+    }, []),
+  );
+  const formatDateLabel = date => {
+    const messageDate = new Date(date);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+    const dayBeforeYesterday = new Date(today);
+    dayBeforeYesterday.setDate(today.getDate() - 2);
+    // Return 'Today', 'Yesterday', 'Day Before Yesterday' based on the message date
+    if (messageDate.toDateString() === today.toDateString()) {
+      return 'Today';
+    } else if (messageDate.toDateString() === yesterday.toDateString()) {
+      return 'Yesterday';
+    } else if (
+      messageDate.toDateString() === dayBeforeYesterday.toDateString()
+    ) {
+      return 'Day Before Yesterday';
+    } else {
+      return messageDate.toLocaleDateString(); // Default format for other dates
+    }
+  };
+  const handleScroll = event => {
+    const currentScrollY = event.nativeEvent.contentOffset.y;
+    // Detect scroll direction
+    if (currentScrollY < prevScrollY.current) {
+      setIsScrollingUp(true); // Scrolling up
+    } else {
+      setIsScrollingUp(false); // Scrolling down
+    }
+    // Update the visible date based on the current message at the top
+    const visibleIndex = Math.floor(currentScrollY / 60); // Adjust scroll offset for message height
+    if (messages[visibleIndex]) {
+      const formattedDate = formatDateLabel(messages[visibleIndex].date_time);
+      setVisibleDate(formattedDate); // Set the visible date label based on the message's date
+      console.log('Visible Date:', formattedDate); // Log the visible date to the console
+    }
+    prevScrollY.current = currentScrollY; // Update previous scroll position
+  };
   const fetchMessages = async () => {
     try {
-      const response = await hitGetTicketReply({ ticket_id: details?.data?.id });
+      setRefreshing(true);
+      const response = await hitGetTicketReply({ticket_id: details?.data?.id});
+      setRefreshing(false);
       setMessages(response?.messages);
     } catch (error) {
       setMessages([]);
@@ -48,11 +98,17 @@ const HelpAndSupportChat = ({ route }) => {
         description: messageText,
         by_whom: 2,
         status: 1,
+        date_time: new Date().toISOString(),
+        // date_time: new Date(
+        //   new Date().setDate(new Date().getDate() - 1),
+        // ).toISOString(), // Adding yesterday's date-time
+        // Adding current date-time for display purposes
       };
       try {
+        setMessages(prevMessages => [...prevMessages, newMessage]);
         const response = await hitAddTicketReply(newMessage);
         if (response) {
-          fetchMessages();
+          // fetchMessages(); // Optionally, fetch the updated messages
         }
         setMessageText('');
       } catch (error) {
@@ -60,18 +116,29 @@ const HelpAndSupportChat = ({ route }) => {
       }
     }
   };
-  const renderItem = ({ item }) => (
-    <View
-      style={[
-        styles.messageContainer,
-        item.by_whom === 2 ? styles.sentMessage : styles.receivedMessage,
-      ]}>
-      <Text style={styles.messageText}>{item?.description}</Text>
-      <Text style={styles.timestamp}>
-        {new Date(item.date_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-      </Text>
-    </View>
-  );
+  const renderItem = ({item}) => {
+    const windowWidth = Dimensions.get('window').width;
+    const maxWidth = windowWidth * 0.7;
+    return (
+      <View
+        style={[
+          styles.messageContainer,
+          item.by_whom === 2 ? styles.sentMessage : styles.receivedMessage,
+          {
+            maxWidth: maxWidth,
+            minWidth: 50,
+          },
+        ]}>
+        <Text style={styles.messageText}>{item?.description}</Text>
+        <Text style={styles.timestamp}>
+          {new Date(item.date_time).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+          })}
+        </Text>
+      </View>
+    );
+  };
   const statusInfo = {
     text: details?.data?.status === 1 ? 'Open' : 'Closed',
     textColor: details?.data?.status === 1 ? '#567D40' : '#7D4040',
@@ -84,10 +151,26 @@ ticketId= {details?.data?.id}
         />
       <View style={styles.quickResponsesContainer}>
         <View>
-          {/* <Text style={styles.topicText}>{details?.data?.topic}</Text> */}
-          <Text style={styles.descriptionText}>{details?.data?.description}</Text>
+          {/* <Text
+            style={{
+              color: Colors.black,
+              fontSize: FontSizes.large,
+              fontWeight: Fonts.bold,
+              marginTop: Spacing.small,
+            }}>
+            {details?.data?.topic}
+          </Text> */}
+          <Text
+            style={{
+              color: Colors.grey,
+              fontSize: FontSizes.small,
+              fontWeight: Fonts.regular,
+              marginTop: Spacing.small,
+            }}>
+            {details?.data?.description}
+          </Text>
         </View>
-        <Line marginH={1} />
+        <Line marginH={1}  />
 
         {/* <View style={styles.statusContainer}>
           <View
@@ -113,6 +196,7 @@ ticketId= {details?.data?.id}
         data={messages}
         keyExtractor={(item, index) => index.toString()}
         renderItem={renderItem}
+        onScroll={handleScroll}
         contentContainerStyle={styles.messageList}
       />
       <View style={styles.inputContainer}>
@@ -134,18 +218,15 @@ ticketId= {details?.data?.id}
   );
 };
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.white,
-  },
+  container: {flex: 1, backgroundColor: Colors.white},
   quickResponsesContainer: {
     padding: 10,
     backgroundColor: Colors.white,
     alignItems: 'center',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    borderBottomWidth:0.4,
-    borderBlockColor:Colors.grey
+    borderBottomWidth:0.3,
+    borderBlockColor:'#B0B0B0'
   
   },
   topicText: {

@@ -17,8 +17,8 @@ const HelpAndSupportCard = ({ topic, status, description, createdAt, onPress }) 
                 marginHorizontal: responsiveWidth(16),
                 backgroundColor: 'white',
                 // elevation: 1,
-                marginVertical: 4,
-                borderRadius: 10,
+                marginVertical: responsiveHeight(4),
+                borderRadius: responsiveHeight(10),
                 padding: 10,
             }}>
                 <View style={{
@@ -31,9 +31,9 @@ const HelpAndSupportCard = ({ topic, status, description, createdAt, onPress }) 
                         flexDirection: 'row'
                     }}>
                         <Image source={AppImages.helpAndSupportWatch} resizeMode='contain' style={{
-                            height: 25,
-                            width: 25,
-                            marginTop:2
+                            height: responsiveHeight(25),
+                            width: responsiveWidth(25),
+                            marginTop:responsiveHeight(2)
                         }} />
                         <View style={{
                             flexDirection: 'row',
@@ -84,15 +84,15 @@ const styles = StyleSheet.create({
         fontSize: responsiveFontSize(16),
         fontWeight: '600',
         color: 'black',
-        marginRight: 10,
-        marginLeft: 15
+        marginRight: responsiveWidth(10),
+        marginLeft: responsiveWidth(15)
     },
     dateText: {
         color: 'grey',
         fontSize: responsiveFontSize(12),
     },
     descriptionText: {
-        marginTop: 4,
+        marginTop: responsiveHeight(4),
         color: 'grey',
     }
 })

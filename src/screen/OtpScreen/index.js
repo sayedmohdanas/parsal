@@ -47,6 +47,7 @@ const OtpScreen = ({navigation, route}) => {
       if (user) {
       }
     };
+    console.log(userOtp)
     pId();
 
   }, [navigation]);
