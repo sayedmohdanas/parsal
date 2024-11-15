@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Image,
   StyleSheet,
@@ -8,11 +8,8 @@ import {
   Easing,
   ActivityIndicator,
   AppState,
-  Platform,
-  PermissionsAndroid,
-  Linking,
 } from 'react-native';
-import MapView, {Marker} from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import AppImages from '../../common/AppImages';
 import BackgroundTimer from 'react-native-background-timer';
 import {
@@ -27,7 +24,7 @@ import {
   useIsFocused,
   useNavigation,
 } from '@react-navigation/native';
-import {useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
 import database from '@react-native-firebase/database';
 import Colors from '../../common/Colors';
 import {
@@ -37,7 +34,7 @@ import {
 } from '../../common/metrices';
 import DriverArriveCard from '../DriverEarning/DriverArriveCard';
 import DestinationSection from './DestinationSection';
-import {hitUpdateDriverLocationApi} from '../../config/api/api';
+import { hitUpdateDriverLocationApi } from '../../config/api/api';
 import NextOrder from '../../components/CustomNotificationModal/NextOrder';
 import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
 const AnimatedMarker = Animated.createAnimatedComponent(Marker);
@@ -47,34 +44,28 @@ const getCenterOffsetForAnchor = (anchor, markerWidth, markerHeight) => ({
   y: markerHeight * 0.5 - markerHeight * anchor.y,
 });
 
-/** Marker's width */
 const MARKER_WIDTH = 50;
-/** Marker's height */
 const MARKER_HEIGHT = 70;
-/** Customizable anchor prop */
-const ANCHOR = {x: 0.5, y: 1 - 10 / MARKER_HEIGHT};
-/** Center offset based on anchor */
+const ANCHOR = { x: 0.5, y: 1 - 10 / MARKER_HEIGHT };
 const CENTEROFFSET = getCenterOffsetForAnchor(
   ANCHOR,
   MARKER_WIDTH,
   MARKER_HEIGHT,
 );
-const DriverMapScreen = ({route}) => {
+const DriverMapScreen = ({ route }) => {
   const navigation = useNavigation();
   const [heading, setHeading] = useState(0);
   const [distanceTraveled, setDistanceTraveled] = useState(0);
   const [lastPosition, setLastPosition] = useState(null);
   const [appState, setAppState] = useState(AppState.currentState);
-  // const orderData = useSelector(state => state?.parsalPartner?.orderData);
-  const {orderData, update_order, nextOrderData} = useSelector(
+  const { orderData, update_order, nextOrderData } = useSelector(
     state => state?.parsalPartner,
   );
   let timerId = null;
   const [nextordermodal, setnextordermodal] = useState(false);
-  // Haversine formula to calculate distance
   const haversineDistance = (point1, point2) => {
     const toRadians = angle => (angle * Math.PI) / 180;
-    const R = 6371; // Earth radius in km
+    const R = 6371;
     const dLat = toRadians(point2.latitude - point1.latitude);
     const dLon = toRadians(point2.longitude - point1.longitude);
     const lat1 = toRadians(point1.latitude);
@@ -84,7 +75,7 @@ const DriverMapScreen = ({route}) => {
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c; // Distance in km
+    return R * c;
   };
 
   const updatePosition = async newPosition => {
@@ -119,7 +110,7 @@ const DriverMapScreen = ({route}) => {
       longitude: parseFloat(coordinate.longitude.toFixed(5)),
     };
     Animated.timing(markerPosition, {
-      toValue: {x: roundedCoordinate.longitude, y: roundedCoordinate.latitude},
+      toValue: { x: roundedCoordinate.longitude, y: roundedCoordinate.latitude },
       duration,
       easing: Easing.linear,
       useNativeDriver: false,
@@ -141,14 +132,14 @@ const DriverMapScreen = ({route}) => {
     let intervalId;
     const fetchLocation = async () => {
       try {
-        const {latitude, longitude, heading} = await GetDriverCurrentLocation();
-        const currentPosition = {latitude, longitude};
+        const { latitude, longitude, heading } = await GetDriverCurrentLocation();
+        const currentPosition = { latitude, longitude };
         if (calculateDistance(origin, destination) < 50) {
           successToast('Success', 'You Reached the Destination!');
           clearInterval(intervalId);
           return;
         }
-        setLatLong({latitude, longitude, heading});
+        setLatLong({ latitude, longitude, heading });
         setLastPosition(currentPosition);
         if (latitude && longitude) {
           database().ref(`/drivers/${orderId}/location`).set({
@@ -162,10 +153,10 @@ const DriverMapScreen = ({route}) => {
           update_order?.is_arrived_pickup &&
           calculateDistance(origin, destination) > 50
         ) {
-          const newCoordinate = {latitude, longitude};
+          const newCoordinate = { latitude, longitude };
           updatePosition(newCoordinate);
         }
-        const newCoordinate = {latitude, longitude, heading};
+        const newCoordinate = { latitude, longitude, heading };
 
         animateMarkerToCoordinate(newCoordinate, 1000);
         rotateMarker(heading);
@@ -191,7 +182,7 @@ const DriverMapScreen = ({route}) => {
     };
   }, [isFocused, update_order?.is_arrived_pickup]);
 
-  const timerIdRef = useRef(null); // Use ref for background timer ID
+  const timerIdRef = useRef(null);
 
   const handleAppStateChange = nextAppState => {
     if (nextAppState === 'active') {
@@ -201,8 +192,8 @@ const DriverMapScreen = ({route}) => {
       }
     } else if (nextAppState === 'background') {
       timerIdRef.current = BackgroundTimer.setInterval(async () => {
-        const {latitude, longitude, heading} = await GetDriverCurrentLocation();
-        const newCoordinate = {latitude, longitude};
+        const { latitude, longitude, heading } = await GetDriverCurrentLocation();
+        const newCoordinate = { latitude, longitude };
         database().ref(`/drivers/${orderId}/location`).set({
           latitude,
           longitude,
@@ -231,18 +222,18 @@ const DriverMapScreen = ({route}) => {
   const destination = {
     latitude: update_order?.is_arrived_pickup
       ? Number(orderData?.drop_lat) ||
-        Number(orderData?.newOrder?.drop_lat) ||
-        0
+      Number(orderData?.newOrder?.drop_lat) ||
+      0
       : Number(orderData?.pickup_lat) ||
-        Number(orderData?.newOrder?.pickup_lat) ||
-        0,
+      Number(orderData?.newOrder?.pickup_lat) ||
+      0,
     longitude: update_order?.is_arrived_pickup
       ? Number(orderData?.drop_long) ||
-        Number(orderData?.newOrder?.drop_long) ||
-        0
+      Number(orderData?.newOrder?.drop_long) ||
+      0
       : Number(orderData?.pickup_long) ||
-        Number(orderData?.newOrder?.pickup_long) ||
-        0,
+      Number(orderData?.newOrder?.pickup_long) ||
+      0,
   };
   const [reached, setReached] = useState(false);
 
@@ -269,7 +260,6 @@ const DriverMapScreen = ({route}) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      // Check if we should animate based on initial load or arrival at pickup
       const shouldAnimate =
         initialLoad.current ||
         (!hasArrived.current && update_order?.is_arrived_pickup === 1);
@@ -299,7 +289,6 @@ const DriverMapScreen = ({route}) => {
           1000,
         );
 
-        // Update refs to prevent further auto-zoom
         initialLoad.current = false;
         if (update_order?.is_arrived_pickup === 1) {
           hasArrived.current = true;
@@ -337,7 +326,7 @@ const DriverMapScreen = ({route}) => {
             }}>
             <Image
               source={AppImages.radar}
-              style={{height: responsiveWidth(16), width: responsiveWidth(16)}}
+              style={{ height: responsiveWidth(16), width: responsiveWidth(22) }}
               resizeMode="contain"
             />
             <Text
@@ -367,10 +356,9 @@ const DriverMapScreen = ({route}) => {
                 paddingLeft: responsiveWidth(2),
                 color: '#232323',
                 fontWeight: '600',
-                // maxWidth: '100%', // Set a maximum width here
               }}
-              numberOfLines={1} // Limits to a single line
-              ellipsizeMode="tail" // Adds ellipsis at the end if text overflows
+              numberOfLines={1}
+              ellipsizeMode="tail"
             >
               {nextOrderData?.newOrder?.pickup_address ||
                 nextOrderData?.pickup_address}
@@ -379,11 +367,8 @@ const DriverMapScreen = ({route}) => {
         </View>
       );
     }
-    return null; // Return null if nextOrderData is null
+    return null;
   }, [nextOrderData, nextordermodal]);
-  // console.log('===>origin',origin);
-  // console.log('===>',destination);
-  // console.log(update_order);
 
   return (
     <View style={styles.container}>
@@ -414,8 +399,8 @@ const DriverMapScreen = ({route}) => {
         ref={mapRef}
         style={styles.map}
         initialRegion={{
-          latitude: (origin.latitude + destination.latitude) / 2 || 0, // midpoint with default
-          longitude: (origin.longitude + destination.longitude) / 2 || 0, // midpoint with default
+          latitude: (origin.latitude + destination.latitude) / 2 || 0,
+          longitude: (origin.longitude + destination.longitude) / 2 || 0,
           latitudeDelta:
             Math.abs(origin.latitude - destination.latitude) + 0.05,
           longitudeDelta:
@@ -430,7 +415,6 @@ const DriverMapScreen = ({route}) => {
             anchor={ANCHOR}
             centerOffset={CENTEROFFSET}
             flat={true}
-            // tracksViewChanges={false}
             style={{
               transform: [
                 {
@@ -443,7 +427,7 @@ const DriverMapScreen = ({route}) => {
             }}>
             <Image
               source={AppImages.bike2}
-              style={{width: responsiveWidth(37), height: responsiveHeight(37)}}
+              style={{ width: responsiveWidth(37), height: responsiveHeight(37) }}
               resizeMode="contain"
             />
           </AnimatedMarker>
@@ -452,14 +436,14 @@ const DriverMapScreen = ({route}) => {
         <Marker coordinate={destination}>
           <Image
             source={AppImages.location}
-            style={{width: responsiveWidth(37), height: responsiveHeight(37)}}
+            style={{ width: responsiveWidth(37), height: responsiveHeight(37) }}
             resizeMode="contain"
           />
         </Marker>
         {origin.latitude &&
-        origin.longitude &&
-        destination.latitude &&
-        destination.longitude ? (
+          origin.longitude &&
+          destination.latitude &&
+          destination.longitude ? (
           <MapViewDirections
             origin={{
               latitude: latLOng?.latitude,
@@ -507,7 +491,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.7)', // Slightly opaque background
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
   },
   map: {
     ...StyleSheet.absoluteFillObject,
@@ -518,7 +502,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     width: '100%',
-    paddingHorizontal: 20,
+    paddingHorizontal: responsiveWidth(20),
   },
   cardContainer: {
     position: 'absolute',

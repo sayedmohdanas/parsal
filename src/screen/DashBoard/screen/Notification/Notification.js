@@ -117,29 +117,6 @@ const Notification = () => {
         <TouchableOpacity
           style={[styles.notificationItem, {backgroundColor: Colors.white}]}
           onPress={() => toggleReadStatus(item.id)}>
-          {/* <View style={styles.notificationContent}>
-    
-
-      
-            <TouchableOpacity onPress={() => handleToggleDescription(item.id)}>
-              <Text
-                style={styles.description}
-                numberOfLines={expandedItemId === item.id ? undefined : 1}
-                ellipsizeMode="tail">
-                {item.description}
-              </Text>
-            </TouchableOpacity>
-
-    
-            <Text style={styles.timestamp}>
-              {timeAgo(new Date(item.timestamp))}
-            </Text>
-          </View> */}
-          {/* Status Icon */}
-          {/* <Image
-                source={item.read ? AppImages.readIcon : AppImages.unreadIcon}
-                style={styles.statusIcon}
-              /> */}
                 <View style={styles.notificationText}>
                     <View style={{flexDirection:'row',marginTop:responsiveHeight(10) }}>
                         <View style={{

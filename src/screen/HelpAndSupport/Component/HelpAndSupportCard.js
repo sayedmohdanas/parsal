@@ -24,25 +24,33 @@ const HelpAndSupportCard = ({ topic, status, description, createdAt, onPress }) 
                 <View style={{
                     flexDirection: 'row',
                     justifyContent: 'space-between',
-                    alignItems:'center'
+                    alignItems: 'center',
+                    // backgroundColor:'yellow',
+                    // flex:1,
+                    // width:'20%'
                 }}>
 
                     <View style={{
-                        flexDirection: 'row'
+                        flexDirection: 'row',
+                        // backgroundColor:'pink',
+                        // flex:1,'
+                        width: '80%'
+
                     }}>
                         <Image source={AppImages.helpAndSupportWatch} resizeMode='contain' style={{
                             height: responsiveHeight(25),
                             width: responsiveWidth(25),
-                            marginTop:responsiveHeight(2)
+                            marginTop: responsiveHeight(2)
                         }} />
                         <View style={{
                             flexDirection: 'row',
                             justifyContent: 'space-between',
                             alignItems: 'center'
                         }}>
-                            <Text style={styles.ticketIdText}>{topic}</Text>
-
-                            {/* Status View */}
+                            {/* <Text style={styles.ticketIdText}>{topic}</Text> */}
+                            <Text style={styles.ticketIdText}>
+                                {topic.split(' ').length > 7 ? `${topic.split(' ').slice(0, 7).join(' ')}...` : topic}
+                            </Text>
 
                         </View>
                     </View>
@@ -57,9 +65,6 @@ const HelpAndSupportCard = ({ topic, status, description, createdAt, onPress }) 
                         { color: statusInfo.textColor }
                     ]}>{statusInfo.text}</Text>
                 </View>
-                {/* <View style={{ marginTop: responsiveHeight(1) }}>
-                <Text style={styles.descriptionText}>{description}</Text>
-            </View> */}
             </View>
         </TouchableHighlight>
     )
@@ -68,21 +73,21 @@ const HelpAndSupportCard = ({ topic, status, description, createdAt, onPress }) 
 const styles = StyleSheet.create({
     parsalStatus: {
         height: responsiveHeight(20),
-        borderRadius: 8,
+        borderRadius: responsiveHeight(8),
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: 13,
+        paddingHorizontal: responsiveWidth(13),
         width: responsiveWidth(55),
-        marginLeft:responsiveWidth(40),
-        marginTop:responsiveHeight(10)
+        marginLeft: responsiveWidth(40),
+        marginTop: responsiveHeight(10)
     },
     parsalStatusText: {
         fontSize: responsiveFontSize(12),
         fontWeight: '500',
     },
     ticketIdText: {
-        fontSize: responsiveFontSize(16),
-        fontWeight: '600',
+        fontSize: responsiveFontSize(14),
+        fontWeight: '500',
         color: 'black',
         marginRight: responsiveWidth(10),
         marginLeft: responsiveWidth(15)

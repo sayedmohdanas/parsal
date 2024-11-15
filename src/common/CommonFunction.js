@@ -2,7 +2,7 @@
 import Toast from 'react-native-toast-message';
 import {responsiveFontSize} from './metrices';
 import {useDispatch} from 'react-redux';
-import {Alert, PermissionsAndroid, Platform} from 'react-native';
+import {Alert, Linking, PermissionsAndroid, Platform} from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import {API_BASE_URL} from '../config/url';
 import AppImages from './AppImages';
@@ -216,6 +216,7 @@ export const formatVehicleNumber = number => {
 // }
 
 // Function to request location permission
+
 export async function requestLocationPermission() {
   try {
     // First, request fine location permission

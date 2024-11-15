@@ -1,6 +1,10 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {View, Text, Image, StyleSheet, TouchableOpacity} from 'react-native';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import {
   responsiveFontSize,
   responsiveHeight,
@@ -30,139 +34,97 @@ const CustomHeader = ({
   not_show,
   showSplash,
 }) => {
-  const owner = useSelector(state => state?.parsalPartner?.owner);
-  const [check_owner, setcheck_owner] = useState();
+  const [check_owner, setCheckOwner] = useState();
+  const [userDetails, setUserDetails] = useState({});
+  const [isEnabled, setIsEnabled] = useState(null);
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+
   const toggleOnlineStatus = async () => {
     try {
-      const unparse_driver_data = await AsyncStorage.getItem('user');
-      const parse_data = JSON.parse(unparse_driver_data);
-      setIsEnabled(prevStatus => !prevStatus);
-      if (!isEnabled) {
-        const {latitude, longitude} = await GetDriverCurrentLocation();
-        const param = {
-          driver_id: parse_data?.payload?.driver_id,
-          current_lat: latitude,
-          current_long: longitude,
-          working_status: 1,
-        };
-        const res = await hitUpdateDriverStatus(param);
-        dispatch(setworking_status(true));
+      const driverData = JSON.parse(await AsyncStorage.getItem('user'));
+      const {latitude, longitude} = await GetDriverCurrentLocation();
+
+      const param = {
+        driver_id: driverData?.payload?.driver_id,
+        current_lat: latitude,
+        current_long: longitude,
+        working_status: !isEnabled ? 1 : 0,
+      };
+
+      await hitUpdateDriverStatus(param);
+      setIsEnabled(!isEnabled);
+      dispatch(setworking_status(!isEnabled));
+    } catch (error) {
+      console.error('Error toggling online status:', error);
+    }
+  };
+
+  const updateDriverLocation = async () => {
+    try {
+      const {latitude, longitude} = await GetDriverCurrentLocation();
+      const driverData = JSON.parse(await AsyncStorage.getItem('user'));
+
+      const param = {
+        driver_id: driverData?.payload?.driver_id,
+        current_lat: latitude,
+        current_long: longitude,
+        working_status: null,
+      };
+      await hitUpdateDriverStatus(param);
+    } catch (error) {
+      console.error('Error updating driver location:', error);
+    }
+  };
+
+  const fetchDriverData = async () => {
+    try {
+      const driverData = JSON.parse(await AsyncStorage.getItem('user'));
+      setCheckOwner(driverData?.payload?.owner_type);
+
+      if (driverData?.payload?.owner_type === 0) {
+        const res = await hitGetDriverDetails({
+          ids: [driverData.payload.driver_id],
+        });
+        const driver = res?.drivers[0];
+        setUserDetails(driver);
+        setIsEnabled(driver.working_status === 1);
+        dispatch(setlogindriverdetails(driver));
+        dispatch(setworking_status(driver.working_status === 1));
       } else {
-        const {latitude, longitude} = await GetDriverCurrentLocation();
-        const param = {
-          driver_id: parse_data?.payload?.driver_id,
-          current_lat: latitude,
-          current_long: longitude,
-          working_status: 0,
-        };
-        const res = await hitUpdateDriverStatus(param);
-        dispatch(setworking_status(false));
+        const partnerRes = await hitGetPartner({
+          partner_id: driverData.payload.partner_id,
+        });
+        let userDetails = partnerRes?.partner;
+
+        if (driverData?.payload?.owner_type === 2) {
+          const driverRes = await hitGetDriverDetails({
+            ids: [driverData.payload.driver_id],
+          });
+          const driver = driverRes?.drivers[0];
+          userDetails = {
+            ...userDetails,
+            working_status: driver?.working_status,
+            vehicle_type_id: driver?.vehicle_type_id,
+          };
+          setIsEnabled(driver?.working_status === 1);
+          dispatch(setworking_status(driver.working_status === 1));
+        }
+        setUserDetails(userDetails);
+        dispatch(setlogindriverdetails(userDetails));
       }
     } catch (error) {
-      console.error(error);
+      console.error('Error fetching driver data:', error);
     }
   };
-  const update_driver_location = async () => {
-    const {latitude, longitude} = await GetDriverCurrentLocation();
-    const unparse_driver_data = await AsyncStorage.getItem('user');
-    const parse_data = JSON.parse(unparse_driver_data);
-    const param = {
-      driver_id: parse_data?.payload?.driver_id,
-      current_lat: latitude,
-      current_long: longitude,
-      working_status: isEnabled ? 1 : 0,
-    };
-    const res = await hitUpdateDriverStatus(param);
-  };
+
   useFocusEffect(
     useCallback(() => {
-      const fetchDriverData = async () => {
-        try {
-          const unparse_driver_data = await AsyncStorage.getItem('user');
-          const parse_data = JSON.parse(unparse_driver_data);
-          setcheck_owner(parse_data?.payload?.owner_type);
-        } catch (error) {
-          console.error('Error fetching driver data:', error);
-        }
-      };
-
-      // Call the async function
       fetchDriverData();
-      update_driver_location();
-      // Optional cleanup (if needed when screen is unfocused)
-      return () => {
-        // Cleanup logic here if required
-      };
-    }, []), // Empty dependency array means this runs on every focus
+      updateDriverLocation();
+    }, []),
   );
-  const [user_details, setuser_details] = useState([]);
-  const dispatch = useDispatch();
-  const get_user_details = async () => {
-    const user = await AsyncStorage.getItem('user');
-    const parsed_user = JSON.parse(user);
 
-    if (parsed_user?.payload?.owner_type == 0) {
-      hitGetDriverDetails({ids: [parsed_user?.payload?.driver_id]})
-        .then(res => {
-          setuser_details(res?.drivers[0]);
-          dispatch(setlogindriverdetails(res?.drivers[0]));
-        })
-        .catch(err => {
-          console.log(err);
-        });
-    } else {
-      hitGetPartner({
-        partner_id: parsed_user?.payload?.partner_id,
-      })
-        .then(res => {
-          let userDetails = res?.partner;
-
-          if (parsed_user?.payload?.owner_type == 2) {
-            hitGetDriverDetails({ids: [parsed_user?.payload?.driver_id]})
-              .then(driverRes => {
-                const driverDetails = driverRes?.drivers[0];
-                if (driverDetails) {
-                  // Add the working_status object to the user details
-                  userDetails = {
-                    ...userDetails,
-                    working_status: driverDetails.working_status,
-                    vehicle_type_id: driverDetails?.vehicle_type_id,
-                  };
-                }
-                // Update user details with the new object
-
-                dispatch(setlogindriverdetails(userDetails));
-
-                setuser_details(userDetails);
-              })
-              .catch(err => {
-                console.log(err);
-              });
-          } else {
-            // If owner_type is not 2, just set the partner details
-            setuser_details(userDetails);
-          }
-        })
-        .catch(err => {
-          console.error(err);
-        });
-    }
-  };
-
-  useEffect(() => {
-    get_user_details();
-  }, [isEnabled, dispatch, isEnabled]);
-  const [isEnabled, setIsEnabled] = useState(
-    user_details?.working_status == 0 ? false : true,
-  );
-  // Update isEnabled whenever user_details changes
-  useEffect(() => {
-    setIsEnabled(user_details?.working_status == 0 ? false : true);
-    dispatch(
-      setworking_status(user_details?.working_status == 0 ? false : true),
-    );
-  }, [user_details, dispatch]);
   return (
     <>
       <View style={styles.headerContainer}>
@@ -171,7 +133,7 @@ const CustomHeader = ({
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
               {leftimage && (
                 <Image
-                  source={leftimage} // Replace with your profile pic URL
+                  source={leftimage}
                   style={[
                     styles.profilePic,
                     {transform: [{rotate: rotate ? '180deg' : '0deg'}]},
@@ -181,6 +143,7 @@ const CustomHeader = ({
             </View>
           </TouchableOpacity>
         </View>
+
         {showSplash && (
           <Image
             source={AppImages.SplashScreenLogo}
@@ -193,19 +156,16 @@ const CustomHeader = ({
             resizeMode="contain"
           />
         )}
-        {/* Center: Screen Name or Switch */}
-        {check_owner != 1 && !not_show ? (
+
+        {check_owner !== 1 && !not_show ? (
           <View
             style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
             <Switch
               value={isEnabled}
-              onValueChange={val => {
-                //   setIsEnabled(val);
-                toggleOnlineStatus();
-              }}
+              onValueChange={toggleOnlineStatus}
               disabled={false}
-              activeText={'ONLINE'}
-              inActiveText={'OFFLINE'}
+              activeText="ONLINE"
+              inActiveText="OFFLINE"
               circleSize={20}
               barHeight={30}
               activeTextStyle={{
@@ -219,8 +179,8 @@ const CustomHeader = ({
                 fontWeight: '500',
               }}
               circleBorderWidth={3}
-              backgroundActive={'white'}
-              backgroundInactive={'white'}
+              backgroundActive="white"
+              backgroundInactive="white"
               renderInsideCircle={() => (
                 <Image
                   source={
@@ -234,7 +194,7 @@ const CustomHeader = ({
                   resizeMode="contain"
                 />
               )}
-              changeValueImmediately={true}
+              changeValueImmediately
               innerCircleStyle={{
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -244,8 +204,8 @@ const CustomHeader = ({
                 borderColor: '#D8D8D8',
                 borderRadius: 30,
               }}
-              renderActiveText={true}
-              renderInActiveText={true}
+              renderActiveText
+              renderInActiveText
               switchLeftPx={90}
               switchRightPx={90}
               switchWidthMultiplier={4.5}
@@ -260,10 +220,7 @@ const CustomHeader = ({
         )}
 
         <TouchableOpacity
-          style={{
-            position: 'absolute',
-            right: responsiveWidth(16),
-          }}
+          style={{position: 'absolute', right: responsiveWidth(16)}}
           onPress={() => navigation.navigate('Notification')}>
           <Image
             source={AppImages.notificationIcon}

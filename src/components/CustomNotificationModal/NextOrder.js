@@ -89,13 +89,11 @@ const NextOrder = ({isVisible, driverId, onClose, setnextordermodal}) => {
               const param = {
                 order_id: nextOrderData?.id || nextOrderData?.newOrder?.id,
               };
-              console.log(param);
               const res = await hitCancelOrder(param);
-
               if (res) {
                 socket.emit('cancel_order', {
                   userId: nextOrderData.cust_id || nextOrderData?.newOrder?.cust_id,
-                  orderId: 'order789',
+                  orderId:  nextOrderData?.id || nextOrderData?.newOrder?.id,
                   role: 'driver',
                   reason: 'Customer requested cancellation',
                 });

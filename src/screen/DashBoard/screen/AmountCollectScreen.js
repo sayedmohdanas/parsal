@@ -77,22 +77,33 @@ const AmountCollectScreen = () => {
       hitCreateTransaction(param)
         .then(res => {
           if (res) {
-            setvisible(true);
-            dispatch(setlivetripmenu(false));
-            dispatch(setOrderData(null));
-            dispatch(setupdate_order(null));
+            // setvisible(true);
+            // dispatch(setlivetripmenu(false));
+            // dispatch(setOrderData(null));
+            // dispatch(setupdate_order(null));
 
-            // Isolate the navigation in a separate function for consistency
-            const handleNavigation = () => {
-              setvisible(false);
+            // // Isolate the navigation in a separate function for consistency
+            // const handleNavigation = () => {
+            //   setvisible(false);
+            //   navigation.navigate('Earning');
+            // };
+
+            // // Use setTimeout with fallback to ensure it executes
+            // const timeoutId = setTimeout(handleNavigation, 5000);
+
+            // // Clear timeout in case component unmounts or dependencies change
+            // return () => clearTimeout(timeoutId);
+            if (nextOrderData) {
+              dispatch(setOrderData(nextOrderData));
+              dispatch(setupdate_order(null));
+              dispatch(setnextOrderData(null));
+              navigation.goBack('');
+            } else {
+              dispatch(setOrderData(null));
+              dispatch(setupdate_order(null));
+              dispatch(setlivetripmenu(false));
               navigation.navigate('Earning');
-            };
-
-            // Use setTimeout with fallback to ensure it executes
-            const timeoutId = setTimeout(handleNavigation, 5000);
-
-            // Clear timeout in case component unmounts or dependencies change
-            return () => clearTimeout(timeoutId);
+            }
           }
         })
         .catch(err => {
@@ -112,7 +123,7 @@ const AmountCollectScreen = () => {
       partner_id:
         store_data?.parsalPartner?.loginuserdetails?.partner_id ||
         store_data?.parsalPartner?.loginuserdetails?.id,
-      vehicle_type_id: driver_details?.vehicle_type_id,
+      vehicle_type_id: driver_details?.vehicle_type_id || "2",
     };
     hitCreateTransaction(param)
       .then(res => {
@@ -143,6 +154,7 @@ const AmountCollectScreen = () => {
   const Total_Fare = order_fare_details?.filter(
     item => parseInt(item?.pay_head_id) === 0,
   );
+  console.log('driver_details',driver_details);
   return (
     <>
       <HeaderBackButton headerText={'Cash Collected'} />

@@ -101,7 +101,17 @@ const BottomNav = props => {
                 const modifiedOrderData = {...restOrderData, otp: order_otp};
                 dispatch(setOrderData(modifiedOrderData));
                 if (res?.ongoingOrder[0]?.is_arrived_pickup) {
-                  dispatch(setupdate_order(modifiedOrderData));
+                  if (modifiedOrderData?.delivered_at) {
+                    dispatch(setupdate_order(modifiedOrderData));
+                    navigation.navigate('AmountCollected');
+                  } else {
+                    dispatch(setupdate_order(modifiedOrderData));
+                    navigation.navigate('DriverMap');
+                    return;
+                  }
+                } else {
+                  navigation.navigate('DriverMap');
+                  return;
                 }
                 if (res?.ongoingOrder?.length > 1) {
                   const {order_otp, ...restOrderData} =
@@ -111,6 +121,7 @@ const BottomNav = props => {
                     otp: order_otp,
                   };
                   dispatch(setnextOrderData(modifiedOrderData));
+                  navigation.navigate('DriverMap');
                 }
               }
             })
@@ -155,7 +166,17 @@ const BottomNav = props => {
                   const modifiedOrderData = {...restOrderData, otp: order_otp};
                   dispatch(setOrderData(modifiedOrderData));
                   if (res?.ongoingOrder[0]?.is_arrived_pickup) {
-                    dispatch(setupdate_order(modifiedOrderData));
+                    if (modifiedOrderData?.delivered_at) {
+                      dispatch(setupdate_order(modifiedOrderData));
+                      navigation.navigate('AmountCollected');
+                    } else {
+                      dispatch(setupdate_order(modifiedOrderData));
+                      navigation.navigate('DriverMap');
+                      return;
+                    }
+                  } else {
+                    navigation.navigate('DriverMap');
+                    return;
                   }
                   if (res?.ongoingOrder?.length > 1) {
                     const {order_otp, ...restOrderData} =
@@ -165,6 +186,8 @@ const BottomNav = props => {
                       otp: order_otp,
                     };
                     dispatch(setnextOrderData(modifiedOrderData));
+                    navigation.navigate('DriverMap');
+                    return;
                   }
                 }
               })
@@ -183,6 +206,12 @@ const BottomNav = props => {
       get_user_details();
     }, []),
   );
+  // navigation.navigate('DriverMap');
+  // if (res?.ongoingOrder[0]?.is_arrived_pickup) {
+  //   dispatch(setupdate_order(modifiedOrderData));
+  //   navigation.navigate('DriverMap');
+  //   return;
+  // }
   return (
     <View style={styles.container}>
       <View style={styles.row}>
@@ -237,7 +266,11 @@ const BottomNav = props => {
               style={styles.header_center}
               onPress={() => {
                 if (orderData || nextOrderData || update_order) {
-                  navigation.navigate('DriverMap');
+                  if (update_order?.delivered_at) {
+                    navigation.navigate('AmountCollected');
+                  } else {
+                    navigation.navigate('DriverMap');
+                  }
                 } else {
                   navigation.navigate('OrderScreen');
                 }
@@ -259,7 +292,7 @@ const BottomNav = props => {
                             position: 'absolute',
                             height: 8,
                             width: 8,
-                            borderRadius: responsiveHeight(5),
+                            borderRadius: 5,
                             backgroundColor: 'red',
                             zIndex: 1000,
                             right: 0,
@@ -428,10 +461,10 @@ const styles = StyleSheet.create({
     // iOS Shadow
     shadowColor: '#000', // Shadow color
     shadowOffset: {width: 0, height: 2}, // Shadow offset
-    shadowOpacity: 0.15, // Shadow opacity to match your color's alpha
+    shadowOpacity: 1, // Shadow opacity to match your color's alpha
     shadowRadius: 20, // Shadow radius
     // Android Shadow
-    elevation: 8, // Elevation controls shadow on Android
+    elevation: 12, // Elevation controls shadow on Android
   },
   menu_txt: {
     fontSize: responsiveFontSize(11),

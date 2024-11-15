@@ -48,7 +48,7 @@ const TransactionHistory = () => {
         headerText={'Transaction History'}
         onPress={() => navigation.goBack('')}
       />
-      <SafeAreaView style={{flex: 1, backgroundColor: Colors.white}}>
+      <SafeAreaView style={{flex: 1, backgroundColor: Colors.homeBackground}}>
         <FlatList
           data={data}
           renderItem={({item}) => {
@@ -72,8 +72,19 @@ const TransactionHistory = () => {
                         alignItems: 'flex-end',
                         marginBottom: responsiveHeight(10),
                       }}>
-                      <Text style={styles.text}>
-                        {' ₹ ' + parseFloat(item?.day_earning).toFixed(2)}
+                      <Text
+                        style={[
+                          styles.text,
+                          {
+                            color:
+                              item?.remark == 'Withdraw'
+                                ? Colors.red
+                                : '#49B125',
+                          },
+                        ]}>
+                        {item?.remark != 'Day Earning'
+                          ? ' ₹ ' + parseFloat(item?.online).toFixed(2)
+                          : ' ₹ ' + parseFloat(item?.day_earning).toFixed(2)}
                       </Text>
                     </View>
                   </View>

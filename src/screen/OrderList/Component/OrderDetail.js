@@ -215,9 +215,9 @@ const styles = StyleSheet.create({
       marginLeft:responsiveWidth(8)
   },
   citystart: {
-      fontSize: responsiveFontSize(14),
+      fontSize: responsiveFontSize(12),
       fontWeight: '500',
-      color: '#777777'
+      color: '#000000'
   },
   statestart: {
       fontSize: responsiveFontSize(12),
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
   cityend: {
       fontSize: responsiveFontSize(12),
       fontWeight: '500',
-      color: '#777777'
+      color: '#000000'
   },
   stateend: {
       fontSize: responsiveFontSize(12),

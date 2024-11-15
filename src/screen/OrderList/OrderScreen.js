@@ -267,12 +267,7 @@ const OrderScreen = () => {
 
         {/* Bottom Navigation */}
         <View
-          style={{
-            marginBottom: 29,
-            backgroundColor: 'transparent',
-            backfaceVisibility: 'hidden',
-            marginTop: 10,
-          }}>
+          style={styles.bottomNavContainer}>
           <BottomNav order={true} />
         </View>
       </SafeAreaView>
@@ -349,5 +344,11 @@ const styles = StyleSheet.create({
     fontSize: responsiveFontSize(13),
     fontWeight: '400',
     color: Colors.grey,
+  },
+  bottomNavContainer: {
+    position: 'absolute',
+    bottom: 13,
+    left: 0,
+    right: 0,
   },
 });

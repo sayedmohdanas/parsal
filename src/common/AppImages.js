@@ -125,7 +125,7 @@ export default AppImages = {
   help: require('../assets/images/customer-service.png'),
   addSupport: require('../assets/images/add.png'),
   helpSupport: require('../assets/images/helpSupport.jpg'),
-  bike2: require('../assets/images/bike2-removebg-preview.png'),
+  // bike2: require('../assets/images/bike2-removebg-preview.png'),
   radar: require('../assets/images/radar.png'),
   close: require('../assets/images/close.png'),
   brandBlueEditIcon: require('../assets/images/brandBlueEditicon.png'),
@@ -134,4 +134,5 @@ export default AppImages = {
   rightarrow: require('../assets/images/rightarrow.png'),
   helpAndSupportWatch:require('../assets/images/timer.png'),
   chatSendButton:require('../assets/images/chatSendButton.png'),
+  bike2: require('../assets/images/parsal_bike.png'),
 };
