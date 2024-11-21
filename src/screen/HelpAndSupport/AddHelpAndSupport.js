@@ -8,7 +8,8 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
-} from 'react-native';import React, {useEffect, useState} from 'react';
+} from 'react-native';
+import React, {useEffect, useState} from 'react';
 import {SafeAreaView} from 'react-native';
 import AppImages from '../../common/AppImages';
 import {

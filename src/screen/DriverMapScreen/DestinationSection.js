@@ -72,6 +72,7 @@ const DestinationSection = ({details}) => {
         if (res) {
           socket.emit('end_trip', {
             userId: orderData?.newOrder?.cust_id || orderData?.cust_id,
+            order_id: orderData?.newOrder?.id || orderData?.id,
           });
           navigation.navigate('AmountCollected');
         }

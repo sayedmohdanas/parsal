@@ -154,7 +154,6 @@ const AmountCollectScreen = () => {
   const Total_Fare = order_fare_details?.filter(
     item => parseInt(item?.pay_head_id) === 0,
   );
-  console.log('driver_details',driver_details);
   return (
     <>
       <HeaderBackButton headerText={'Cash Collected'} />

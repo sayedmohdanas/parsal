@@ -121,7 +121,7 @@ const DriverDashboard = () => {
 
           {/* Header and Trip details */}
           <View style={styles.content}>
-            <CustomHeader screenName={'Live Trips'} />
+            <CustomHeader showSplash={true} screenName={'Live Trips'} />
             <View style={styles.tripContainer}>
               <View>
                 <View style={[styles.tripCard]}>

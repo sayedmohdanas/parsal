@@ -392,7 +392,6 @@ const MyVehiclesScreen = ({route}) => {
           </View>
         </View>
       </View>
-      
       <Modal
         animationType="slide"
         transparent={true}
@@ -403,7 +402,6 @@ const MyVehiclesScreen = ({route}) => {
             <Text style={styles.modalText}>
               Are you sure you want to logout?
             </Text>
-            
             <View style={styles.modalButtons}>
               <TouchableOpacity
                 onPress={() => setLogoutModalVisible(false)}

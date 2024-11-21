@@ -57,7 +57,6 @@ const styles = StyleSheet.create({
         marginVertical: responsiveHeight(10),
         color: Colors.black,
     },
-  
     bottomNavContainer: {
         position: 'absolute',
         bottom: 13,

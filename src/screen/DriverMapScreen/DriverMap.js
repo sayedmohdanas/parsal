@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   AppState,
 } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, {Marker} from 'react-native-maps';
 import AppImages from '../../common/AppImages';
 import BackgroundTimer from 'react-native-background-timer';
 import {
@@ -24,7 +24,7 @@ import {
   useIsFocused,
   useNavigation,
 } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
+import {useSelector} from 'react-redux';
 import database from '@react-native-firebase/database';
 import Colors from '../../common/Colors';
 import {
@@ -34,9 +34,10 @@ import {
 } from '../../common/metrices';
 import DriverArriveCard from '../DriverEarning/DriverArriveCard';
 import DestinationSection from './DestinationSection';
-import { hitUpdateDriverLocationApi } from '../../config/api/api';
+import {hitUpdateDriverLocationApi} from '../../config/api/api';
 import NextOrder from '../../components/CustomNotificationModal/NextOrder';
 import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const AnimatedMarker = Animated.createAnimatedComponent(Marker);
 
 const getCenterOffsetForAnchor = (anchor, markerWidth, markerHeight) => ({
@@ -46,19 +47,19 @@ const getCenterOffsetForAnchor = (anchor, markerWidth, markerHeight) => ({
 
 const MARKER_WIDTH = 50;
 const MARKER_HEIGHT = 70;
-const ANCHOR = { x: 0.5, y: 1 - 10 / MARKER_HEIGHT };
+const ANCHOR = {x: 0.5, y: 1 - 10 / MARKER_HEIGHT};
 const CENTEROFFSET = getCenterOffsetForAnchor(
   ANCHOR,
   MARKER_WIDTH,
   MARKER_HEIGHT,
 );
-const DriverMapScreen = ({ route }) => {
+const DriverMapScreen = ({route}) => {
   const navigation = useNavigation();
   const [heading, setHeading] = useState(0);
   const [distanceTraveled, setDistanceTraveled] = useState(0);
   const [lastPosition, setLastPosition] = useState(null);
   const [appState, setAppState] = useState(AppState.currentState);
-  const { orderData, update_order, nextOrderData } = useSelector(
+  const {orderData, update_order, nextOrderData} = useSelector(
     state => state?.parsalPartner,
   );
   let timerId = null;
@@ -110,7 +111,7 @@ const DriverMapScreen = ({ route }) => {
       longitude: parseFloat(coordinate.longitude.toFixed(5)),
     };
     Animated.timing(markerPosition, {
-      toValue: { x: roundedCoordinate.longitude, y: roundedCoordinate.latitude },
+      toValue: {x: roundedCoordinate.longitude, y: roundedCoordinate.latitude},
       duration,
       easing: Easing.linear,
       useNativeDriver: false,
@@ -132,14 +133,14 @@ const DriverMapScreen = ({ route }) => {
     let intervalId;
     const fetchLocation = async () => {
       try {
-        const { latitude, longitude, heading } = await GetDriverCurrentLocation();
-        const currentPosition = { latitude, longitude };
+        const {latitude, longitude, heading} = await GetDriverCurrentLocation();
+        const currentPosition = {latitude, longitude};
         if (calculateDistance(origin, destination) < 50) {
           successToast('Success', 'You Reached the Destination!');
           clearInterval(intervalId);
           return;
         }
-        setLatLong({ latitude, longitude, heading });
+        setLatLong({latitude, longitude, heading});
         setLastPosition(currentPosition);
         if (latitude && longitude) {
           database().ref(`/drivers/${orderId}/location`).set({
@@ -153,10 +154,10 @@ const DriverMapScreen = ({ route }) => {
           update_order?.is_arrived_pickup &&
           calculateDistance(origin, destination) > 50
         ) {
-          const newCoordinate = { latitude, longitude };
+          const newCoordinate = {latitude, longitude};
           updatePosition(newCoordinate);
         }
-        const newCoordinate = { latitude, longitude, heading };
+        const newCoordinate = {latitude, longitude, heading};
 
         animateMarkerToCoordinate(newCoordinate, 1000);
         rotateMarker(heading);
@@ -192,8 +193,8 @@ const DriverMapScreen = ({ route }) => {
       }
     } else if (nextAppState === 'background') {
       timerIdRef.current = BackgroundTimer.setInterval(async () => {
-        const { latitude, longitude, heading } = await GetDriverCurrentLocation();
-        const newCoordinate = { latitude, longitude };
+        const {latitude, longitude, heading} = await GetDriverCurrentLocation();
+        const newCoordinate = {latitude, longitude};
         database().ref(`/drivers/${orderId}/location`).set({
           latitude,
           longitude,
@@ -222,18 +223,18 @@ const DriverMapScreen = ({ route }) => {
   const destination = {
     latitude: update_order?.is_arrived_pickup
       ? Number(orderData?.drop_lat) ||
-      Number(orderData?.newOrder?.drop_lat) ||
-      0
+        Number(orderData?.newOrder?.drop_lat) ||
+        0
       : Number(orderData?.pickup_lat) ||
-      Number(orderData?.newOrder?.pickup_lat) ||
-      0,
+        Number(orderData?.newOrder?.pickup_lat) ||
+        0,
     longitude: update_order?.is_arrived_pickup
       ? Number(orderData?.drop_long) ||
-      Number(orderData?.newOrder?.drop_long) ||
-      0
+        Number(orderData?.newOrder?.drop_long) ||
+        0
       : Number(orderData?.pickup_long) ||
-      Number(orderData?.newOrder?.pickup_long) ||
-      0,
+        Number(orderData?.newOrder?.pickup_long) ||
+        0,
   };
   const [reached, setReached] = useState(false);
 
@@ -244,7 +245,8 @@ const DriverMapScreen = ({ route }) => {
       destination.latitude &&
       destination.longitude
     ) {
-      const distance = calculateDistance(origin, destination);
+      const distance = calculateDistance(origin, destination);  
+    
       if (distance <= 50) {
         setReached(true);
       } else {
@@ -358,8 +360,7 @@ const DriverMapScreen = ({ route }) => {
                 fontWeight: '600',
               }}
               numberOfLines={1}
-              ellipsizeMode="tail"
-            >
+              ellipsizeMode="tail">
               {nextOrderData?.newOrder?.pickup_address ||
                 nextOrderData?.pickup_address}
             </Text>
@@ -369,7 +370,27 @@ const DriverMapScreen = ({ route }) => {
     }
     return null;
   }, [nextOrderData, nextordermodal]);
+  const [smoothedOrigin, setSmoothedOrigin] = useState({
+    latitude: latLOng?.latitude,
+    longitude: latLOng?.longitude,
+  });
 
+  // useEffect(() => {
+  //   let timeoutId;
+
+  //   // Update smoothedOrigin with a delay
+  //   if (latLOng) {
+  //     timeoutId = setTimeout(() => {
+  //       setSmoothedOrigin({
+  //         latitude: latLOng.latitude,
+  //         longitude: latLOng.longitude,
+  //       });
+  //     }, 500); // Adjust delay as needed
+  //   }
+
+  //   return () => clearTimeout(timeoutId); // Cleanup timeout on component unmount or latLOng change
+  // }, [latLOng]);
+ 
   return (
     <View style={styles.container}>
       {isLoading && (
@@ -415,6 +436,7 @@ const DriverMapScreen = ({ route }) => {
             anchor={ANCHOR}
             centerOffset={CENTEROFFSET}
             flat={true}
+            // tracksViewChanges={false}
             style={{
               transform: [
                 {
@@ -427,33 +449,38 @@ const DriverMapScreen = ({ route }) => {
             }}>
             <Image
               source={AppImages.bike2}
-              style={{ width: responsiveWidth(37), height: responsiveHeight(37) }}
+              style={{width: responsiveWidth(37), height: responsiveHeight(37)}}
               resizeMode="contain"
             />
           </AnimatedMarker>
         ) : null}
 
-        <Marker coordinate={destination}>
+        <Marker coordinate={destination} >
           <Image
             source={AppImages.location}
-            style={{ width: responsiveWidth(37), height: responsiveHeight(37) }}
+            style={{width: responsiveWidth(37), height: responsiveHeight(37)}}
             resizeMode="contain"
           />
         </Marker>
         {origin.latitude &&
-          origin.longitude &&
-          destination.latitude &&
-          destination.longitude ? (
+        origin.longitude &&
+        destination.latitude &&
+        destination.longitude ? (
           <MapViewDirections
             origin={{
-              latitude: latLOng?.latitude,
-              longitude: latLOng?.longitude,
+              latitude:latLOng?.latitude,
+              longitude:latLOng?.longitude
             }}
             destination={destination}
             apikey={GOOGLE_API_KEY}
             strokeWidth={4}
-            strokeColor={Colors.brandBlue}
-            tracksViewChanges={false}
+            strokeColor={Colors.black}
+            tracksViewChanges={false} // Prevent unnecessary renders
+            onReady={result => {
+            }}
+            onError={errorMessage => {
+              console.log('MapViewDirections error: ', errorMessage);
+            }}
           />
         ) : null}
       </MapView>

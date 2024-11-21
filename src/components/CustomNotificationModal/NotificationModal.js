@@ -73,7 +73,8 @@ const NotificationModal = ({
   cust_mobile,
   vehicle_type_id,
   timer,
-  request_id
+  request_id,
+  insured,
 }) => {
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
@@ -147,7 +148,8 @@ const NotificationModal = ({
         goods_quantity,
         pay_mode,
         payment_status,
-        request_id
+        request_id,
+        insured,
       };
 
       // Pass the payload into the API call
@@ -182,10 +184,10 @@ const NotificationModal = ({
               console.error(err);
             });
           if (store_data?.orderData == null) {
-            dispatch(setlivetripmenu(true));
-        
-            dispatch(setOrderData(resWithOTP));
-            if (store_data?.update_order?.is_arrived_pickup) {          
+
+            dispatch(setlivetripmenu(true));            
+            dispatch(setOrderData(resWithOTP));    
+            if (store_data?.update_order?.is_arrived_pickup) {    
               dispatch(setupdate_order(res?.newOrder));
             }
             navigation.navigate('DriverMap', {
@@ -308,7 +310,9 @@ const NotificationModal = ({
 
             <View style={styles.bodyContainer}>
               {expected_price && (
-                <Text style={styles.priceText}>₹{parseFloat(expected_price).toFixed(2)}</Text>
+                <Text style={styles.priceText}>
+                  ₹{parseFloat(expected_price).toFixed(2)}
+                </Text>
               )}
               <View
                 style={{

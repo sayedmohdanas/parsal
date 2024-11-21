@@ -26,7 +26,7 @@ const aggregateEarningsByHour = data => {
   const earnings = Array(24).fill(0); // Array for 24 hours, each initialized to 0
   data.forEach(entry => {
     const orderDate = new Date(entry.order_date);
-    // if (orderDate) {
+    // if (isToday(orderDate)) {
       const hour = orderDate.getHours(); // Get the hour (0-23)
       earnings[hour] += entry.paid_amount; // Add paid amount to the corresponding hour
     // }
