@@ -8,10 +8,8 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
-} from 'react-native';
-import React, {useEffect, useState} from 'react';
+} from 'react-native';import React, {useEffect, useState} from 'react';
 import {SafeAreaView} from 'react-native';
-// import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
 import AppImages from '../../common/AppImages';
 import {
   responsiveFontSize,
@@ -26,7 +24,7 @@ import {hitHelpAndSupport} from '../../config/api/api';
 import {errorToast, successToast} from '../../common/CommonFunction';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
-import { FontSizes } from '../../common/Theme';
+import {Fonts, FontSizes, Spacing} from '../../common/Theme';
 import Colors from '../../common/Colors';
 const AddHelpAndSupport = () => {
   const navigation = useNavigation();
@@ -35,8 +33,11 @@ const AddHelpAndSupport = () => {
   const [isTextInputFocus, setIsTextInputFocus] = useState(false);
   const [images, setImages] = useState('');
   const [postImages, setPostImages] = useState([]);
-  const [description, setDescription] = useState();
-    const [isTicketSubmitted, setIsTicketSubmitted] = useState(false);
+  const [isTicketSubmitted, setIsTicketSubmitted] = useState(false);
+  const maxLength = 150; // Maximum character limit
+  const [description, setDescription] = useState(''); // Default to empty string
+
+  const remainingCount = maxLength - description.length; // Calculate
 
   const helpSupportOptions = [
     { label: 'Frequently Asked Questions', value: 'Frequently Asked Questions' },
@@ -74,13 +75,13 @@ const AddHelpAndSupport = () => {
   };
 
   useEffect(() => {
-        if (isTicketSubmitted) {
-          setTimeout(() => {
-            setIsTicketSubmitted(false);
-            navigation.navigate('HelpAndSupportMain');
-          }, 2000);
-        }
-      }, [isTicketSubmitted]);
+    if (isTicketSubmitted) {
+      setTimeout(() => {
+        setIsTicketSubmitted(false);
+        navigation.navigate('HelpAndSupportMain');
+      }, 2000);
+    }
+  }, [isTicketSubmitted]);
 
   const handleSubmit = async () => {
     try {
@@ -151,278 +152,324 @@ const AddHelpAndSupport = () => {
   const handleRemoveImage = () => {
     setImages('');
   };
-    return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-            <HeaderBackButton
-                headerText="Help & Support"
-                onPress={() => navigation.goBack()}
-                rightButton={'VIEW TICKET'}
-                rightButtonColor={'#3D40D1'}
-                rightButtonFontSize={12}
-                onButtonPress={() => { navigation.navigate('HelpAndSupportMain') }}
-            />
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+      <HeaderBackButton
+        headerText="Help & Support"
+        onPress={() => navigation.goBack()}
+        rightButton={'VIEW TICKET'}
+        rightButtonColor={'#3D40D1'}
+        rightButtonFontSize={12}
+        onButtonPress={() => { navigation.navigate('HelpAndSupportMain') }}
+      />
 
-            {
+      {
 
-                isTicketSubmitted == true
-                    ?
-                    <View style={{ flex: 1, backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
-                        <View style={{
-                            height: responsiveHeight(96),
-                            width: responsiveHeight(96),
-                            backgroundColor: '#88C94133',
-                            borderRadius: 48,
-                            justifyContent: 'center',
-                            alignItems: 'center'
-                        }}>
-                            <Image source={AppImages.ticketSubmitted}
-                                style={{
-                                    height: responsiveHeight(74),
-                                    width: responsiveWidth(74),
-                                }}
-                                resizeMode='contain'
-                            />
-                        </View>
-                        <Text style={{
-                            fontSize:responsiveFontSize(16),
-                            color:'#777777',
-                            marginTop:15,
-                            fontWeight:'500'
-                        }}>Ticket Submitted !</Text>
-                    </View>
-                    :
-                    <ScrollView>
-                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                            <Image source={AppImages.helpSupport}
-                                style={{
-                                    height: responsiveHeight(250),
-                                    width: responsiveWidth(250),
-                                }}
-                                resizeMode='contain'
-                            />
-                        </View>
+        isTicketSubmitted == true
+          ?
+          <View style={{ flex: 1, backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{
+              height: responsiveHeight(96),
+              width: responsiveHeight(96),
+              backgroundColor: '#88C94133',
+              borderRadius: 48,
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}>
+              <Image source={AppImages.ticketSubmitted}
+                style={{
+                  height: responsiveHeight(74),
+                  width: responsiveWidth(74),
+                }}
+                resizeMode='contain'
+              />
+            </View>
+            <Text style={{
+              fontSize: responsiveFontSize(16),
+              color: '#777777',
+              marginTop: 15,
+              fontWeight: '500'
+            }}>Ticket Submitted !</Text>
+          </View>
+          :
+          <View>
+            <View style={{ justifyContent: 'center', alignItems: 'center', }}>
+              <Image source={AppImages.helpSupport}
+                style={{
+                  height: responsiveHeight(220),
+                  width: responsiveWidth(250),
+                  marginBottom:Spacing.small
+                }}
+                resizeMode='contain'
+              />
+            </View>
 
-                        <View style={{
-                            marginHorizontal: responsiveWidth(16),
-                            marginTop: responsiveHeight(20)
-                        }}>
-                            <Dropdown
-                                style={[styles.dropdown, isFocus && { borderColor: '#3D40D1' }]}
-                                placeholderStyle={styles.placeholderStyle}
-                                selectedTextStyle={styles.selectedTextStyle}
-                                inputSearchStyle={styles.inputSearchStyle}
-                                containerStyle={{
-                                    borderBottomLeftRadius: 10,
-                                    borderBottomRightRadius: 10
-                                    // marginTop:10
-                                }}
-                                itemTextStyle={{
-                                    color: '#232323',
-                                    fontWeight: '500',
-                                    borderBottomWidth: 1,
-                                    fontSize:FontSizes.small,
+            <View style={{
+              marginHorizontal: responsiveWidth(16),
+            }}>
+              <Dropdown
+                style={[styles.dropdown, isFocus && { borderColor: '#3D40D1' }]}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                containerStyle={{
+                  borderBottomLeftRadius: 10,
+                  borderBottomRightRadius: 10
+                  // marginTop:10
+                }}
+                itemTextStyle={{
+                  color: '#232323',
+                  fontWeight: '500',
+                  borderBottomWidth: 1,
+                  fontSize: FontSizes.medium,
 
-                                    paddingBottom: 10,
-                                    borderColor: '#F3F3F3',
-                                }}
-                                iconStyle={styles.iconStyle}
-                                data={helpSupportOptions}
-                                maxHeight={responsiveHeight(350)}
-                                labelField="label"
-                                valueField="value"
-                                placeholder={!isFocus ? 'Select Type' : '...'}
-                                value={value}
-                                onFocus={() => setIsFocus(true)}
-                                onBlur={() => setIsFocus(false)}
-                                onChange={item => {
-                                    setValue(item.value);
-                                    setIsFocus(false);
-                                    handleHelpSupportOption(item.value);
-                                }}
-                            />
-                        </View>
+                  paddingBottom: 10,
+                  borderColor: '#F3F3F3',
+                }}
+                iconStyle={styles.iconStyle}
+                data={helpSupportOptions}
+                maxHeight={responsiveHeight(350)}
+                labelField="label"
+                valueField="value"
+                placeholder={!isFocus ? 'Select Type' : '...'}
+                value={value}
+                onFocus={() => setIsFocus(true)}
+                onBlur={() => setIsFocus(false)}
+                onChange={item => {
+                  setValue(item.value);
+                  setIsFocus(false);
+                  handleHelpSupportOption(item.value);
+                }}
+              />
+            </View>
 
-                        <View style={styles.textInputContainer}>
-                            <TextInput
-                                style={[styles.largeTextInput, isTextInputFocus && { borderColor: 'blue' }]}
-                                multiline
-                                value={description}
-                                onChangeText={(e) => setDescription(e)}
-                                placeholder="Describe your issue here..."
-                                placeholderTextColor="#777777"
-                                onFocus={() => setIsTextInputFocus(true)}
-                                onBlur={() => setIsTextInputFocus(false)}
-                            />
-                        </View>
-
-                        <View style={styles.imagePickerContainer}>
-                            <TouchableOpacity onPress={handleImagePicker} style={styles.imagePickerButton}>
-                                <Text style={styles.imagePickerButtonText}>{'+ Add Image'}</Text>
-                            </TouchableOpacity>
-                        </View>
+            <View style={styles.textInputContainer}>
+              <TextInput
+                style={[styles.largeTextInput, isTextInputFocus && { borderColor: 'blue' }]}
+                multiline
+                value={description}
+                onChangeText={(e) => setDescription(e)}
+                placeholder="Describe your issue here..."
+                placeholderTextColor="#777777"
+                onFocus={() => setIsTextInputFocus(true)}
+                onBlur={() => setIsTextInputFocus(false)}
+                maxLength={maxLength}
+              />
+              <Text style={styles.remainingCount}>
+                {remainingCount} / {maxLength}
+              </Text>
+            </View>
 
 
-
-                        {images != null && images != undefined && images != ''
-                            ?
-                            (
-                                <View style={styles.imageGridContainer}>
-
-                                    <View style={{}}>
-                                        <Image
-                                            source={{ uri: images }}
-                                            style={styles.gridImage}
-                                        />
-                                        {/* "X" Button to remove the image */}
-                                        <TouchableOpacity
-                                            style={styles.removeImageButton}
-                                            onPress={() => handleRemoveImage()}
-                                        >
-                                            <Text style={{ color: 'white', fontWeight: '900', fontSize: responsiveFontSize(12), }}>
-                                                X
-                                            </Text>
-                                        </TouchableOpacity>
-                                    </View>
-
-                                </View>
-                            )
-                            :
-                            null}
-
-                        <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: responsiveHeight(30), marginBottom: responsiveHeight(100) }}>
-                            <CustomButton
-                                buttonText={'Submit'}
-                                grey={false}
-                                onPress={() => {
-                                    handleSubmit()
-                                }}
-                            />
-                        </View>
-                    </ScrollView>
-            }
-
-
-         
-        </SafeAreaView>
+            {/* <View style={styles.imagePickerContainer}>
+              <TouchableOpacity onPress={handleImagePicker} style={styles.imagePickerButton}>
+                <Text style={styles.imagePickerButtonText}>{'+ Add Image'}</Text>
+              </TouchableOpacity>
+            </View> */}
 
 
 
-    );
+            {images != null && images != undefined && images != ''
+              ?
+              (
+                <View style={styles.imageGridContainer}>
+
+                  <View style={{}}>
+                    <Image
+                      source={{ uri: images }}
+                      style={styles.gridImage}
+                    />
+                    {/* "X" Button to remove the image */}
+                    <TouchableOpacity
+                      style={styles.removeImageButton}
+                      onPress={() => handleRemoveImage()}
+                    >
+                      <Text style={{ color: 'white', fontWeight: '900', fontSize: responsiveFontSize(12), }}>
+                        X
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                  <View style={styles.imagePickerContainer2}>
+              <TouchableOpacity onPress={handleImagePicker} style={styles.imagePickerButton2}>
+                <Text style={styles.imagePickerButtonText}>{'+ Add Image'}</Text>
+              </TouchableOpacity>
+            </View>
+
+
+                </View>
+              )
+              :
+              <View style={styles.imagePickerContainer}>
+              <TouchableOpacity onPress={handleImagePicker} style={styles.imagePickerButton}>
+                <Text style={styles.imagePickerButtonText}>{'+ Add Image'}</Text>
+              </TouchableOpacity>
+            </View>}
+
+            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: responsiveHeight(30), marginBottom: responsiveHeight(100) }}>
+              <CustomButton
+                buttonText={'Submit'}
+                grey={false}
+                onPress={() => {
+                  handleSubmit()
+                }}
+              />
+            </View>
+          </View>
+      }
+
+
+
+    </SafeAreaView>
+
+
+
+  );
 }
 
 export default AddHelpAndSupport;
 
 const styles = StyleSheet.create({
-    container: {
-        padding: 16,
-        backgroundColor: '#fff',
-        flex: 1,
-        elevation: 10,
-    },
-    label: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 8,
-    },
-    dropdown: {
-        height: responsiveHeight(50),
-        borderColor: '#ccc',
-        borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: 16,
-        backgroundColor: '#fff',
-    },
-    placeholderStyle: {
-        fontSize: FontSizes.small,
-        color: Colors.grey,
-    },
-    selectedTextStyle: {
-        fontSize: 16,
-        color: 'black'
-    },
-    inputSearchStyle: {
-        height: 40,
-        fontSize: 16,
-    },
-    iconStyle: {
-        width: 20,
-        height: 20,
-    },
-    textInputContainer: {
-        marginHorizontal: responsiveWidth(16),
-        marginTop: responsiveHeight(20),
-    },
-    largeTextInput: {
-        height: responsiveHeight(150),
-        borderColor: '#ccc',
-        borderWidth: 1,
-        borderRadius: responsiveHeight(8),
-        paddingHorizontal: responsiveWidth(16),
-        paddingVertical: responsiveHeight(10),
-        textAlignVertical: 'top',
-        fontSize:FontSizes.small,
-
-        fontSize: FontSizes.small,
-        backgroundColor: '#fff',
-        color: '#000',
-    },
-    imagePickerContainer: {
-        marginHorizontal: responsiveWidth(16),
-        marginTop: responsiveHeight(20),
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    imagePickerButton: {
-        // backgroundColor: '#333',
-        padding: 10,
-        borderRadius: 8,
-        height: responsiveHeight(50),
-        width: '100%',
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 1,
-        // borderStyle: 'dotted',
-        borderColor: '#D8D8D8'
-    },
-    imagePickerButtonText: {
-        color: 'grey',
-        fontSize: 16,
-    },
-    selectedImage: {
-        marginTop: responsiveHeight(20),
-        width: responsiveWidth(100),
-        height: responsiveHeight(100),
-        borderRadius: 8,
-        marginRight: 10, // Adds spacing between images
-    },
-    imageGridContainer: {
-        marginTop: responsiveHeight(20),
-        flexDirection: 'row',
-        flexWrap: 'wrap', // Allows images to wrap to the next line
-        justifyContent: 'space-between', // Space images evenly
-        paddingHorizontal: responsiveWidth(16),
-        borderWidth: 1,
-        borderStyle: 'dotted',
-        padding: 10,
-        marginHorizontal: responsiveWidth(16),
-        borderRadius: 10
-    },
-    gridImage: {
-        width: responsiveWidth(100), // Set the width of each image
-        height: responsiveHeight(100), // Set the height of each image
-        borderRadius: 8,
-        marginBottom: responsiveHeight(10), // Adds spacing between rows
-    },
-    removeImageButton: {
-        position: 'absolute',
-        top: 5,
-        right: 5,
-        backgroundColor: 'black',
-        borderRadius: 12,
-        padding: 2,
-        height: 18,
-        width: 18,
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
+  container: {
+    padding: 16,
+    backgroundColor: '#fff',
+    flex: 1,
+    elevation: 10,
+  },
+  label: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  dropdown: {
+    height: responsiveHeight(50),
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    backgroundColor: '#fff',
+  },
+  placeholderStyle: {
+    fontSize: FontSizes.medium,
+    color: Colors.grey,
+    fontWeight: Fonts.semilarge
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+    color: 'black'
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 16,
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  textInputContainer: {
+    marginHorizontal: responsiveWidth(16),
+    marginTop: responsiveHeight(20),
+    position: 'relative', 
+  },
+  largeTextInput: {
+    height: responsiveHeight(150),
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: responsiveHeight(8),
+    paddingHorizontal: responsiveWidth(10),
+    paddingVertical: responsiveHeight(10),
+    textAlignVertical: 'top',
+    fontSize: FontSizes.medium,
+    backgroundColor: '#fff',
+    color: '#000',
+    letterSpacing: 0.3,
+    lineHeight:20,
+    paddingRight: responsiveWidth(40),
+  },
+  remainingCount: {
+    position: 'absolute',
+    bottom: responsiveHeight(12), 
+    right: responsiveWidth(16), 
+    fontSize: FontSizes.small,
+    color: '#777777',
+  },
+  imagePickerContainer: {
+    marginHorizontal: responsiveWidth(16),
+    marginTop: responsiveHeight(20),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  imagePickerContainer2: {
+    marginHorizontal: responsiveWidth(16),
+    // marginVertical:responsiveHeight(19),
+    // marginTop: responsiveHeight(20),
+    // backgroundColor:'yellow',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  imagePickerButton2: {
+    // backgroundColor: '#333',
+    padding: 10,
+    borderRadius: Spacing.small,
+    height: responsiveHeight(100),
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    // borderStyle: 'dotted',
+    borderColor: '#D8D8D8'
+  },
+  imagePickerButton: {
+    // backgroundColor: '#333',
+    padding: 10,
+    borderRadius: Spacing.small,
+    // height: responsiveHeight(100),
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    // borderStyle: 'dotted',
+    borderColor: '#D8D8D8'
+  },
+  imagePickerButtonText: {
+    color: 'grey',
+    fontSize: 16,
+  },
+  selectedImage: {
+    marginTop: responsiveHeight(20),
+    width: responsiveWidth(100),
+    height: responsiveHeight(100),
+    borderRadius: 8,
+    marginRight: 10, // Adds spacing between images
+  },
+  imageGridContainer: {
+    marginTop: responsiveHeight(20),
+    flexDirection: 'row',
+    flexWrap: 'wrap', // Allows images to wrap to the next line
+    // justifyContent: 'space-between', // Space images evenly
+    // paddingHorizontal: responsiveWidth(16),
+    borderWidth: 1,
+    borderStyle: 'dotted',
+    padding: 10,
+    marginHorizontal: responsiveWidth(16),
+    borderRadius: 10,
+  },
+  gridImage: {
+    width: responsiveWidth(100), // Set the width of each image
+    height: responsiveHeight(100), // Set the height of each image
+    borderRadius: 8,
+    backgroundColor:'pink'
+    // marginBottom: responsiveHeight(10), // Adds spacing between rows
+  },
+  removeImageButton: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    backgroundColor: 'black',
+    borderRadius: 12,
+    // padding: 2,
+    height: 18,
+    width: responsiveWidth(18),
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
 });

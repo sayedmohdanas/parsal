@@ -57,9 +57,13 @@ const styles = StyleSheet.create({
         marginVertical: responsiveHeight(10),
         color: Colors.black,
     },
+  
     bottomNavContainer: {
-        marginBottom: responsiveHeight(12),
-    },
+        position: 'absolute',
+        bottom: 13,
+        left: 0,
+        right: 0,
+      },
 });
 
 export default SettingScreen;

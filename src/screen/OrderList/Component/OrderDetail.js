@@ -12,7 +12,7 @@ import AppImages from '../../../common/AppImages';
 import {useNavigation} from '@react-navigation/native';
 import {getimage} from '../../../config/url';
 
-const OrderDetail = props => {
+const OrderDetail = ({...props })=> {
   // console.log('console--check====>>>>>>',props.orderDetails);
   
   const navigation = useNavigation();
@@ -27,49 +27,30 @@ const OrderDetail = props => {
       <View style={[styles.container]}>
         <View style={[styles.section1]}>
           <View>
-            <Text style={[styles.parsalNumber]}>{props.parsalNumber}</Text>
-            <Text style={[styles.parsalName]}>{props.parsalName}</Text>
+            <Text style={[styles.parsalNumber]}>{props?.parsalNumber}</Text>
+            <Text style={[styles.parsalName]}>{props?.parsalName}</Text>
           </View>
           <View>
             <View
               style={[
                 styles.parsalStatus,
                 mystyles.center,
-                {backgroundColor: props.parsalStatusTextColor},
+                {backgroundColor: props?.parsalStatusTextColor},
               ]}>
-              <Text style={[styles.parsalStatusText, {color: props.textColor}]}>
-                {props.parsalStatusText}
+              <Text style={[styles.parsalStatusText, {color: props?.textColor}]}>
+                {props?.parsalStatusText}
               </Text>
             </View>
           </View>
         </View>
         <Line marginH={0} />
         <View style={[styles.section2]}>
-          {/* <View style={[styles.LocationMainContainer]}>
-            <View style={[styles.fromLocation]}>
-              <Text style={[styles.citystart]}>
-                {`${props.citystart.split(' ').slice(0, 2).join(' ')}...`}
-              </Text>
-            </View>
-
-            <Image
-              source={AppImages.rightarrow}
-              resizeMode="contain"
-              style={styles.rightArrowStyle}
-            />
-
-            <View style={[styles.toLocation]}>
-              <Text style={[styles.cityend]}>
-                {`${props.cityend.split(' ').slice(0, 2).join(' ')}...`}
-              </Text>
-            </View>
-          </View> */}
+      
           <View style={[styles.LocationMainContainer]}>
             <View style={[styles.fromLocation]}>
               <Text style={[styles.citystart]}>
-                {`${props.citystart.split(' ').slice(0, 5).join(' ')}...`}
+                {`${props?.citystart.split(' ').slice(0, 5).join(' ')}...`}
               </Text>
-              {/* <Text style={[styles.statestart]}>{props.statestart}</Text> */}
             </View>
 
             <Image
@@ -80,9 +61,8 @@ const OrderDetail = props => {
 
             <View style={[styles.toLocation]}>
               <Text style={[styles.cityend]}>
-                {`${props.cityend.split(' ').slice(0, 5).join(' ')}...`}
+                {`${props?.cityend.split(' ').slice(0, 5).join(' ')}...`}
               </Text>
-              {/* <Text style={[styles.stateend]}>{props.stateend}</Text> */}
             </View>
           </View>
 
@@ -91,29 +71,28 @@ const OrderDetail = props => {
               <Image
                 source={{
                   uri: getimage(
-                    `partners_img/${props.partnerId}/drivers/${props.driverId}_${props.profilePic}`,
+                    `partners_img/${props?.partnerId}/drivers/${props?.driverId}_${props?.profilePic}`,
                   ),
                 }}
                 style={styles.manStyle}
               />
               <View style={styles.userNameAddress}>
                 <Text style={[styles.name, {fontSize: responsiveFontSize(14)}]}>
-                  {props.name}
+                  {props?.name}
                 </Text>
                 <Text
                   style={[
                     styles.name,
                     {color: 'grey', fontSize: responsiveFontSize(12)},
                   ]}>
-                  {props.vNo}
+                  {props?.vNo}
                 </Text>
-                {/* <Text style={[styles.address]}>{props.address}</Text> */}
               </View>
             </View>
 
             <View>
               <Text style={[styles.name, {fontWeight: '700', fontSize: responsiveFontSize(16),alignSelf:"flex-end"}]}>
-                {"₹"}{props.tripCost}
+                {"₹"}{props?.tripCost}
               </Text>
               <Text
                 style={[
@@ -124,7 +103,7 @@ const OrderDetail = props => {
                     color: 'grey',
                   },
                 ]}>
-                {props.orderDate}
+                {props?.orderDate}
               </Text>
             </View>
           </View>
@@ -142,7 +121,6 @@ const styles = StyleSheet.create({
       backgroundColor: Colors.white,
       marginHorizontal: responsiveWidth(16),
       borderRadius: responsiveHeight(10),
-      // paddingVertical: responsiveHeight(16),
       paddingTop:responsiveHeight(6),
       paddingBottom:responsiveHeight(12),
       paddingHorizontal: responsiveWidth(12),
@@ -150,14 +128,12 @@ const styles = StyleSheet.create({
   },
   section1: {
       flex: 1,
-      // backgroundColor: 'green',
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems:'center'
   },
   section2: {
       flex: 2,
-      // backgroundColor: 'orange'
   },
   parsalNumber: {
       fontSize: responsiveFontSize(16),
@@ -171,7 +147,6 @@ const styles = StyleSheet.create({
   },
   parsalStatus: {
       backgroundColor: Colors.black,
-      // height: responsiveHeight(27),
       alignItems:'center',
       justifyContent:'center',
       paddingVertical: responsiveHeight(6),
@@ -183,29 +158,24 @@ const styles = StyleSheet.create({
       color: Colors.black,
       lineHeight:10
 
-      // fontWeight: '500'
   },
   LocationMainContainer: {
       flex: 1,
-      // backgroundColor: 'yellow',
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center'
   },
   UserDetailMainContainer: {
       flex: 1,
-      // backgroundColor: 'pink', 
       flexDirection: 'row',
       justifyContent: 'space-between',
       marginTop: responsiveHeight(10),
       alignItems: 'center',
-      // backgroundColor:'red'
   },
   fromLocation: {
       alignItems: 'flex-start',
       flex: 1.8,
       marginLeft:responsiveWidth(5)
-      // backgroundColor:'green'
   },
   toLocation: {
       alignItems: 'flex-start',
@@ -215,7 +185,7 @@ const styles = StyleSheet.create({
       marginLeft:responsiveWidth(8)
   },
   citystart: {
-      fontSize: responsiveFontSize(12),
+      fontSize: responsiveFontSize(11),
       fontWeight: '500',
       color: '#000000'
   },
@@ -226,9 +196,9 @@ const styles = StyleSheet.create({
       marginTop: 1
   },
   rightArrowStyle: {
-      height: responsiveHeight(24),
-      width: responsiveWidth(20),
-      marginTop: responsiveHeight(10)
+      height: responsiveHeight(12),
+      width: responsiveWidth(12),
+      marginRight:responsiveWidth(15)
   },
   cityend: {
       fontSize: responsiveFontSize(12),
@@ -247,7 +217,6 @@ const styles = StyleSheet.create({
       width: responsiveHeight(30),
       borderRadius: responsiveHeight(30),
       resizeMode:'contain'
-      // backgroundColor:'yellow'
   },
   userNameAddress: {
       marginLeft: responsiveWidth(10),
@@ -261,7 +230,7 @@ const styles = StyleSheet.create({
       fontSize: responsiveFontSize(10),
       fontWeight: '500',
       color: Colors.grey,
-      marginTop: 2
+      marginTop: responsiveHeight(2)
   },
   userDetail: {
       flexDirection: 'row',

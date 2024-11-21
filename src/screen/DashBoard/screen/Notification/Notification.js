@@ -186,7 +186,7 @@ const Notification = () => {
                   source={AppImages.notificationIcon}
                   resizeMode="contain"
                   style={{
-                    width: responsiveWidth(30),
+                    width: responsiveHeight(30),
                     height: responsiveHeight(30),
                   }}
                   tintColor={Colors.white}

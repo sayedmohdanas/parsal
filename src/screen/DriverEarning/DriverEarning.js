@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   FlatList,
   ImageBackground,
-  Alert,
+  
 } from 'react-native';
 import AppImages from '../../common/AppImages';
 import Colors from '../../common/Colors';
@@ -346,8 +346,7 @@ const Earning = () => {
                             justifyContent: 'center',
                             alignItems: 'center',
                             alignSelf: 'center',
-                            paddingVertical: 30,
-
+                            paddingVertical: responsiveHeight(30),
                             marginTop: responsiveHeight(110),
                           }}>
                           <ImageBackground
@@ -452,7 +451,6 @@ const styles = StyleSheet.create({
     paddingTop: responsiveHeight(10),
     paddingHorizontal: responsiveHeight(50),
     flexDirection: 'row',
-    // marginBottom: responsiveHeight(16),
   },
   navButton: {
     justifyContent: 'center',
@@ -502,6 +500,7 @@ const styles = StyleSheet.create({
     marginLeft: responsiveHeight(3),
   },
   orderListContainer: {
+    backgroundColor:Colors.homeBackground,
 
   },
   orderListHeadign: {
@@ -509,7 +508,8 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginLeft: responsiveHeight(22),
     color: Colors.black,
-    marginBottom: 10,
+    marginBottom: responsiveHeight(10),
+    marginTop:responsiveHeight(16)
   },
   scrollView: {
     paddingBottom: responsiveHeight(40),

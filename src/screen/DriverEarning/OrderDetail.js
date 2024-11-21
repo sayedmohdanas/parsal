@@ -2,7 +2,7 @@ import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import Line from '../../components/Line/Line';
 import AppImages from '../../common/AppImages';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import {
   responsiveFontSize,
   responsiveHeight,
@@ -10,23 +10,13 @@ import {
 } from '../../common/metrices';
 import Colors from '../../common/Colors';
 
-const OrderDetail = ({orderDetails}) => {
-  const navigation =useNavigation()
+const OrderDetail = ({ orderDetails }) => {
+  const navigation = useNavigation()
   const props = {
     parsalNumber: 'ODR-123456',
     parsalStatusTextColor: 'rgba(69, 184, 69, 0.1)',
     parsalStatusText: 'Delivered',
     textColor: '#45B845',
-    citystart: 'New York, NY',
-    cityend: 'Los Angeles, CA',
-    partnerId: 'partner123',
-    driverId: 'driver789',
-    profilePic: 'profile.jpg',
-    name: 'Your Name',
-    vNo: 'CA-5678-XZ',
-    tripCost: '$120',
-    statestart: 'Uttar Pradesh',
-    stateend: 'America',
     orderDetails: {
       orderId: 'ODR-123456',
       items: [
@@ -66,15 +56,14 @@ console.log(orderDetails);
                 alignItems: 'center',
               },
             ]}>
-            {/* <Text style={[styles.parsalStatusText, { color: props.textColor }]}>{props.parsalStatusText}</Text> */}
-            <Text style={[styles.parsalStatusText, {color: props.textColor}]}>
+            <Text style={[styles.parsalStatusText, { color: props.textColor }]}>
               ₹ {parseFloat(orderDetails?.paid_amount).toFixed(2)}
             </Text>
           </View>
         </View>
 
-        <View style={{marginVertical: 5}}>
-          <Line marginH={1} />
+        <View style={{}}>
+          <Line marginH={0} />
         </View>
         <View style={[styles.section2]}>
           <View style={[styles.LocationMainContainer, {}]}>
@@ -85,18 +74,13 @@ console.log(orderDetails);
             </View>
 
             <Image
-              source={AppImages.arrowRight}
+              source={AppImages.rightarrow} 
               resizeMode="contain"
               style={styles.rightArrowStyle}
             />
 
             <View style={[styles.toLocation]}>
               <Text style={[styles.cityend]}>
-                {/* {`${props.cityend.split(' ').slice(0, 2).join(' ')}...`}
-                {`${orderDetails?.drop_address
-                  .split(' ')
-                  .slice(0, 2)
-                  .join(' ')}...`} */}
                 {`${orderDetails?.drop_address?.slice(0, 45)}...`}
               </Text>
             </View>
@@ -111,21 +95,28 @@ export default OrderDetail;
 
 const styles = StyleSheet.create({
   container: {
-    height: responsiveHeight(115),
     backgroundColor: Colors.white,
     marginHorizontal: responsiveWidth(16),
-    borderRadius: 10,
-    paddingHorizontal: responsiveWidth(16),
+    borderRadius: responsiveHeight(10),
+    paddingHorizontal: responsiveWidth(12),
     marginVertical: responsiveHeight(5),
-    borderWidth: 0.5,
-    borderColor: Colors.buttonGrey,
-    // elevation:0.6
+    paddingVertical: responsiveHeight(10),
+  },
+  container: {
+    backgroundColor: Colors.white,
+    marginHorizontal: responsiveWidth(16),
+    borderRadius: responsiveHeight(10),
+    paddingTop: responsiveHeight(6),
+    paddingBottom: responsiveHeight(12),
+    paddingHorizontal: responsiveWidth(12),
+    marginVertical: responsiveHeight(8),
   },
   section1: {
     flex: 0.5,
-    marginVertical: responsiveHeight(10),
+
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center'
   },
   section2: {
     flex: 1,
@@ -141,11 +132,11 @@ const styles = StyleSheet.create({
     color: Colors.grey,
   },
   parsalStatus: {
-    height: responsiveHeight(27),
     borderWidth: 1,
     borderColor: '#45B845',
-    paddingHorizontal: responsiveWidth(6),
-    borderRadius: 10,
+    paddingHorizontal: responsiveWidth(4),
+    paddingVertical: responsiveHeight(3),
+    borderRadius: responsiveHeight(6),
   },
   parsalStatusText: {
     fontSize: responsiveFontSize(12),
@@ -173,7 +164,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   citystart: {
-    fontSize: responsiveFontSize(10),
+    fontSize: responsiveFontSize(11),
     fontWeight: '500',
     color: Colors.black,
   },
@@ -183,13 +174,13 @@ const styles = StyleSheet.create({
     color: Colors.grey,
     marginTop: responsiveHeight(1),
   },
-  rightArrowStyle: {
+  rightArrowStyle: { 
     height: responsiveHeight(12),
     width: responsiveWidth(12),
-    marginTop: responsiveHeight(10),
+    marginTop: responsiveHeight(5),
   },
   cityend: {
-    fontSize: responsiveFontSize(10),
+    fontSize: responsiveFontSize(11),
     fontWeight: '500',
     color: Colors.black,
   },

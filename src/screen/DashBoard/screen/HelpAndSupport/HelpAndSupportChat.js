@@ -83,7 +83,7 @@ const HelpAndSupportChat = ({route}) => {
   const fetchMessages = async () => {
     try {
       setRefreshing(true);
-      const response = await hitGetTicketReply({ticket_id: details?.data?.id});
+      const response = await hitGetTicketReply({ ticket_id: details?.data?.id });
       setRefreshing(false);
       setMessages(response?.messages);
     } catch (error) {
@@ -116,7 +116,7 @@ const HelpAndSupportChat = ({route}) => {
       }
     }
   };
-  const renderItem = ({item}) => {
+  const renderItem = ({ item }) => {
     const windowWidth = Dimensions.get('window').width;
     const maxWidth = windowWidth * 0.7;
     return (
@@ -146,9 +146,9 @@ const HelpAndSupportChat = ({route}) => {
   };
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
-      <HelpAndSupportChatHeader headerText="Help & Support" onPress={() => navigation.goBack()}  
-ticketId= {details?.data?.id}
-        />
+      <HelpAndSupportChatHeader headerText="Help & Support" onPress={() => navigation.goBack()}
+        ticketId={details?.data?.id}
+      />
       <View style={styles.quickResponsesContainer}>
         <View>
           {/* <Text
@@ -161,16 +161,16 @@ ticketId= {details?.data?.id}
             {details?.data?.topic}
           </Text> */}
           <Text
-            style={{
-              color: Colors.grey,
-              fontSize: FontSizes.small,
-              fontWeight: Fonts.regular,
-              marginTop: Spacing.small,
-            }}>
-            {details?.data?.description}
+            style={[
+              styles.descriptionText,
+              details?.data?.description ? {} : styles.emptyDescriptionText, // Conditional style if no description
+            ]}
+          >
+            {details?.data?.description || "No description available"}
           </Text>
+
         </View>
-        <Line marginH={1}  />
+        <Line marginH={1} />
 
         {/* <View style={styles.statusContainer}>
           <View
@@ -218,16 +218,17 @@ ticketId= {details?.data?.id}
   );
 };
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: Colors.white},
+  container: { flex: 1, backgroundColor: Colors.homeBackground },
   quickResponsesContainer: {
     padding: 10,
+    marginTop: Spacing.small,
     backgroundColor: Colors.white,
     alignItems: 'center',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    borderBottomWidth:0.3,
-    borderBlockColor:'#B0B0B0'
-  
+    borderBottomWidth: 0.3,
+    borderBlockColor: '#B0B0B0'
+
   },
   topicText: {
     color: Colors.black,
@@ -316,6 +317,18 @@ const styles = StyleSheet.create({
   sendButtonText: {
     color: Colors.white,
     fontSize: 16,
+  },
+  descriptionText: {
+    color: Colors.grey,
+    fontSize: FontSizes.small,
+    fontWeight: Fonts.regular,
+    marginTop: Spacing.small,
+    letterSpacing: 0.2,
+    lineHeight: 18, 
+  },
+  emptyDescriptionText: {
+    color: Colors.grey, 
+    // fontStyle: 'italic', // Optional styling for empty message
   },
 });
 export default HelpAndSupportChat;

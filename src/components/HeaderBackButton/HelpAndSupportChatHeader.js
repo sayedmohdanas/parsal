@@ -10,76 +10,72 @@ import AppImages from '../../common/AppImages';
 
 const HelpAndSupportChatHeader = props => {
   return (
-    <View
-      style={{
-        height: responsiveHeight(80), // Increase height to fit both texts
-        backgroundColor: Colors.white,
-        flexDirection: 'row',
-        alignItems: 'center',
-        // justifyContent: 'flex-start',
-        borderBottomColor: '#D8D8D8',
-        borderBottomWidth: 0.5,
-      }}>
-      
-      {/* Back Button (Always aligned left) */}
-      <TouchableOpacity onPress={props.onPress} style={{flexDirection: 'row', alignItems: 'flex-start'}}>
+    <View style={styles.container}>
+      {/* Back Button */}
+      <TouchableOpacity onPress={props.onPress} style={styles.backButton}>
         <Image
           source={AppImages.previous}
           resizeMode="contain"
-          style={{
-            height: responsiveHeight(28),
-            width: responsiveWidth(28),
-            marginLeft: responsiveWidth(10),
-          }}
+          style={styles.backIcon}
         />
       </TouchableOpacity>
 
-      {/* Header Text (Fixed as "Help and Support" with Ticket ID below it) */}
-      <View
-        style={{
-          flex: 1,
-          justifyContent: 'center', // Center vertically to accommodate both lines
-          paddingHorizontal: responsiveWidth(10),
-          marginLeft: responsiveWidth(10),
-        }}>
-        <Text
-          style={{
-            color: Colors.black,
-            fontSize: responsiveFontSize(18),
-            fontWeight: '700',
-            textAlign: 'left',
-          }}>
-          Help and Support
-        </Text>
-        <Text
-          style={{
-            color: Colors.gray,
-            fontSize: responsiveFontSize(14),
-            textAlign: 'left',
-            marginTop: responsiveHeight(2),
-            color:Colors.grey
-            // Small space between header and Ticket ID
-          }}>
-          Ticket ID: {props.ticketId}
-        </Text>
+      {/* Header Text */}
+      <View style={styles.textContainer}>
+        <Text style={styles.headerText}>Help and Support</Text>
+        <Text style={styles.subHeaderText}>Ticket ID: {props.ticketId}</Text>
       </View>
 
-      {/* Right Button (optional) */}
+      {/* Optional Right Button */}
       {props.rightButton && (
         <TouchableOpacity onPress={props.onButtonPress}>
-          <Text
-            style={{
-              color: Colors.black,
-              fontSize: responsiveFontSize(16),
-              fontWeight: '500',
-              marginRight: responsiveWidth(14),
-            }}>
-            {props.rightButton}
-          </Text>
+          <Text style={styles.rightButton}>{props.rightButton}</Text>
         </TouchableOpacity>
       )}
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: Colors.white,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderBottomColor: '#D8D8D8',
+    borderBottomWidth: 0.5,
+    paddingVertical: responsiveHeight(10),
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: responsiveWidth(6),
+  },
+  backIcon: {
+    height: responsiveHeight(28),
+    width: responsiveWidth(28),
+  },
+  textContainer: {
+    flex: 1,
+    paddingHorizontal: responsiveWidth(10),
+    marginLeft: responsiveWidth(10),
+    justifyContent: 'center',
+  },
+  headerText: {
+    color: Colors.black,
+    fontSize: responsiveFontSize(18),
+    fontWeight: '700',
+  },
+  subHeaderText: {
+    color: Colors.grey,
+    fontSize: responsiveFontSize(14),
+    marginTop: responsiveHeight(2),
+  },
+  rightButton: {
+    color: Colors.black,
+    fontSize: responsiveFontSize(16),
+    fontWeight: '500',
+    marginRight: responsiveWidth(14),
+  },
+});
 
 export default HelpAndSupportChatHeader;

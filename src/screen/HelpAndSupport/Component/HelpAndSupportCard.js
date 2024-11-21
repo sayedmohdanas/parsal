@@ -2,8 +2,10 @@ import { Image, StyleSheet, Text, TouchableHighlight, TouchableOpacity, View } f
 import React from 'react'
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from '../../../common/metrices'
 import AppImages from '../../../common/AppImages'
+import { FontSizes } from '../../../common/Theme'
+import Colors from '../../../common/Colors'
 
-const HelpAndSupportCard = ({ topic, status, description, createdAt, onPress }) => {
+const HelpAndSupportCard = ({ topic, status, description, createdAt, onPress,ticketId }) => {
 
     const statusInfo = {
         text: status === 1 ? "Open" : "Closed",
@@ -14,7 +16,7 @@ const HelpAndSupportCard = ({ topic, status, description, createdAt, onPress }) 
     return (
         <TouchableHighlight onPress={onPress} underlayColor={'none'}>
             <View style={{
-                marginHorizontal: responsiveWidth(16),
+                marginHorizontal: responsiveWidth(8),
                 backgroundColor: 'white',
                 // elevation: 1,
                 marginVertical: responsiveHeight(4),
@@ -43,20 +45,20 @@ const HelpAndSupportCard = ({ topic, status, description, createdAt, onPress }) 
                             marginTop: responsiveHeight(2)
                         }} />
                         <View style={{
-                            flexDirection: 'row',
+                            // flexDirection: 'row',
                             justifyContent: 'space-between',
-                            alignItems: 'center'
+                            // alignItems: 'center'
                         }}>
-                            {/* <Text style={styles.ticketIdText}>{topic}</Text> */}
                             <Text style={styles.ticketIdText}>
                                 {topic.split(' ').length > 7 ? `${topic.split(' ').slice(0, 7).join(' ')}...` : topic}
                             </Text>
+                            <Text style={[styles.ticketIdText,{fontSize:FontSizes.small,color:Colors.grey}]}>{`Ticket ID ${ticketId}`}</Text>
+
 
                         </View>
                     </View>
-                    <Text style={styles.dateText}>{createdAt}</Text>
-                </View>
-                <View style={[
+                    <View style={{alignItems:'center',justifyContent:'center'}}>
+                    <View style={[
                     styles.parsalStatus,
                     { backgroundColor: statusInfo.backgroundColor }
                 ]}>
@@ -65,6 +67,9 @@ const HelpAndSupportCard = ({ topic, status, description, createdAt, onPress }) 
                         { color: statusInfo.textColor }
                     ]}>{statusInfo.text}</Text>
                 </View>
+                    <Text style={styles.dateText}>{createdAt}</Text>
+                    </View>
+                </View>
             </View>
         </TouchableHighlight>
     )
@@ -72,14 +77,12 @@ const HelpAndSupportCard = ({ topic, status, description, createdAt, onPress }) 
 
 const styles = StyleSheet.create({
     parsalStatus: {
-        height: responsiveHeight(20),
         borderRadius: responsiveHeight(8),
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: responsiveWidth(13),
-        width: responsiveWidth(55),
-        marginLeft: responsiveWidth(40),
-        marginTop: responsiveHeight(10)
+        paddingHorizontal: responsiveWidth(10),
+        paddingVertical:responsiveHeight(2),
+        marginBottom:responsiveHeight(3)
     },
     parsalStatusText: {
         fontSize: responsiveFontSize(12),

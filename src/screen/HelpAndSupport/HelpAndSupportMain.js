@@ -120,6 +120,7 @@ const HelpAndSupportMain = ({navigation}) => {
     return (
       <HelpAndSupportCard
         topic={item.topic}
+        ticketId={item?.id}
         status={item.status}
         createdAt={timeAgo(new Date(item.createdAt))}
         description={item.description}
@@ -129,13 +130,14 @@ const HelpAndSupportMain = ({navigation}) => {
           });
         }}
       />
+      // null
     );
   };
 
   return (
     <View style={{flex: 1, backgroundColor: Colors.homeBackground}}>
       <HeaderBackButton
-        headerText="Tickets"
+        headerText="Tickets Support"
         onPress={() => navigation.goBack()}
       />
       
@@ -178,8 +180,8 @@ const HelpAndSupportMain = ({navigation}) => {
             source={AppImages.addSupport}
             resizeMode="contain"
             style={{
-              height: responsiveHeight(50),
-              width: responsiveWidth(50),
+              height: responsiveHeight(38),
+              width: responsiveWidth(38),
               padding: 20,
             }}
           />

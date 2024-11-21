@@ -51,10 +51,10 @@ const OrderInfo = ({ route }) => {
     fetchData();
   }, [navigation]);
   const region = {
-    latitude: 26.85, // Hazratganj Latitude
-    longitude: 80.9462, // Longitude for Lucknow
-    latitudeDelta: 0.009, // Control zoom level (adjust as needed)
-    longitudeDelta: 0.009, // Control zoom level (adjust as needed)
+    latitude: 26.85, 
+    longitude: 80.9462, 
+    latitudeDelta: 0.009, 
+    longitudeDelta: 0.009,
   };
   const origin = {
     latitude: orderDetails?.pickup_lat
@@ -153,7 +153,7 @@ const OrderInfo = ({ route }) => {
                 longitude: destination?.longitude,
               }, // Hazratganj
             ]}
-            strokeColor={Colors.black} // Customize line color
+            strokeColor={Colors.black} 
             strokeWidth={4} // Customize line width
             lineDashPattern={[10, 5]} // Creates a dotted line (10px dash, 5px gap)
           />
