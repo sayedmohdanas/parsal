@@ -242,13 +242,13 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: responsiveFontSize(12),
-    // fontWeight:Fonts.semilarge,
+    fontWeight:Fonts.semilarge,
     color: Colors.black,
     // marginBottom: 8,
 },
   timestamp: {
     fontSize: responsiveFontSize(12),
-    color: Colors.black,
+    color: Colors.grey,
     marginTop: Spacing.small,
     textAlign: 'right',
   },
@@ -285,8 +285,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
 },
 time: {
-    fontSize: responsiveFontSize(12),
-    color: Colors.black,
+    fontSize: responsiveFontSize(10),
+    color: Colors.grey,
     fontWeight:Fonts.semilarge,
 
 },

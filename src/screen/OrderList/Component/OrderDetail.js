@@ -22,6 +22,7 @@ const OrderDetail = ({...props })=> {
       onPress={() => {
         navigation.navigate('orderinfo', {
           id: props.orderDetails?.id,
+          prod_name:props.orderDetails?.m_good?.product_category
         });
       }}>
       <View style={[styles.container]}>
@@ -209,14 +210,16 @@ const styles = StyleSheet.create({
       fontSize: responsiveFontSize(12),
       fontWeight: '500',
       color: Colors.grey,
-      marginTop: 10
+      marginTop: responsiveHeight(10),
   },
  
   manStyle: {
       height: responsiveHeight(30),
       width: responsiveHeight(30),
       borderRadius: responsiveHeight(30),
-      resizeMode:'contain'
+      resizeMode:'contain',
+      borderWidth:0.4,
+      borderColor:Colors.grey
   },
   userNameAddress: {
       marginLeft: responsiveWidth(10),

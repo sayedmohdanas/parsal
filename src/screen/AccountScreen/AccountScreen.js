@@ -342,6 +342,11 @@ const AccountScreen = () => {
                       </TouchableOpacity> */}
                     </View>
                   </View>
+                  <TouchableOpacity >
+                    <Image source={AppImages.EditButton} resizeMethod='contain' style={{width:responsiveWidth(18),height:responsiveHeight(18)}}/>
+                 
+                  </TouchableOpacity>
+                
                 </View>
                 <View style={styles.udSection2}>
                   <TouchableOpacity
@@ -358,16 +363,17 @@ const AccountScreen = () => {
                   <View style={styles.dataContainer}>
                     <Data
                       number={orderStats?.totalOrderCount || 0}
-                      dataName={'Shipments'}
+                      dataName={'Shiped'}
                     />
                     <Data
                       number={orderStats?.totalOrderCount || 0}
                       dataName={'Transactions'}
                     />
-                    <Data
-                      number={'₹' + orderStats?.totalPaidAmount || 0}
-                      dataName={'Spending'}
-                    />
+               <Data
+  number={`₹${isNaN(orderStats?.totalPaidAmount) ? 0 : orderStats?.totalPaidAmount}`}
+  dataName={'Spent'}
+/>
+
                   </View>
                 </View>
               </View>
@@ -473,11 +479,11 @@ const AccountScreen = () => {
                 />
 
                 <Text style={styles.optionName}>{'Settings'}</Text>
-                <ProfileScreenOptions
+                {/* <ProfileScreenOptions
                   Icon={AppImages.languageIcon}
                   optionName={'Choose Language'}
                   onPress={() => {}}
-                />
+                /> */}
                 <ProfileScreenOptions
                   Icon={AppImages.logoutIcon}
                   onPress={() => {
@@ -561,7 +567,9 @@ const styles = StyleSheet.create({
   },
   udSection1: {
     flex: 1,
+    flexDirection:'row',
     // backgroundColor: 'green',
+    justifyContent:'space-between',
     marginTop: 10,
   },
   udSection2: {

@@ -23,36 +23,39 @@ import MapView, { Marker, Polyline } from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 import { Fonts, FontSizes } from '../../../../common/Theme';
 import HeaderBackButton from '../../../../components/HeaderBackButton/HeaderBackButton';
-import { formatDate } from '../../../../common/CommonFunction';
+import { custommapstyle, formatDate } from '../../../../common/CommonFunction';
 const OrderInfo = ({ route }) => {
   const GOOGLE_API_KEY = 'AIzaSyAbwv5P-iff_vVB7TpstiQ1RI1kvktza48';
   const navigation = useNavigation();
-  const order_info = route.params?.id;
-  const order_id = order_info;
+  const order_info = route.params;
+  const order_id = order_info?.id;
+  const productName = order_info?.prod_name
   const [orderDetails, setOrderDetails] = useState(null);
   const [loading, setLoading] = useState(true); // Loading state added
+  console.log('orderdetails=======>>anas==>>>', route.params);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true); // Start loading
+        setLoading(true);
         const response = await hitGetOrderDetails({ order_id });
         if (response.status == 1) {
           setOrderDetails(response?.orderDetails);
         } else {
-          setOrderDetails(null); // Handle case for no data
+          setOrderDetails(null);
         }
       } catch (error) {
         console.log(error);
       } finally {
-        setLoading(false); // Stop loading
+        setLoading(false);
       }
     };
     fetchData();
   }, [navigation]);
   const region = {
-    latitude: 26.85, 
-    longitude: 80.9462, 
-    latitudeDelta: 0.009, 
+    latitude: 26.85,
+    longitude: 80.9462,
+    latitudeDelta: 0.009,
     longitudeDelta: 0.009,
   };
   const origin = {
@@ -99,11 +102,9 @@ const OrderInfo = ({ route }) => {
         longitude: (minLng + maxLng) / 2,
       };
 
-      // Calculate the appropriate span, with added padding
-      const latSpan = maxLat - minLat + 0.02; // Increased padding
-      const lngSpan = maxLng - minLng + 0.02; // Increased padding
+      const latSpan = maxLat - minLat + 0.02; 
+      const lngSpan = maxLng - minLng + 0.02; 
 
-      // Animate the map to the region
       mapRef.current.animateToRegion(
         {
           latitude: midPoint.latitude,
@@ -111,7 +112,7 @@ const OrderInfo = ({ route }) => {
           latitudeDelta: latSpan,
           longitudeDelta: lngSpan,
         },
-        1000, // Animation duration in milliseconds
+        1000, 
       );
     };
 
@@ -121,28 +122,23 @@ const OrderInfo = ({ route }) => {
     <SafeAreaView style={{ flex: 1 }}>
       <Loading loading={loading} />
       <View style={[styles.section1]}>
-        {/* <CustomHeader
-          screenName={'Order Information'}
-          leftimage={AppImages.previous}
-          onPress={() => {
-            navigation.goBack('');
-          }}
-        /> */}
+       
         <HeaderBackButton
           headerText={'Order Details'}
           onPress={() => navigation.goBack('')}
         />
         <MapView
-          ref={mapRef} // Assign the reference to the MapView
+          ref={mapRef} 
+          customMapStyle={custommapstyle}
           style={{ flex: 1 }}
           initialRegion={{
             latitude: origin?.latitude,
             longitude: origin?.longitude,
-            latitudeDelta: 0.1, // Initial zoom level
+            latitudeDelta: 0.1, 
             longitudeDelta: 0.1,
           }}
           zoomEnabled={true}
-          scrollEnabled={true} // Enable scrolling
+          scrollEnabled={true}
         >
           <Polyline
             coordinates={[
@@ -150,11 +146,11 @@ const OrderInfo = ({ route }) => {
               {
                 latitude: destination?.latitude,
                 longitude: destination?.longitude,
-              }, // Hazratganj
+              }, 
             ]}
-            strokeColor={Colors.black} 
-            strokeWidth={4} // Customize line width
-            lineDashPattern={[10, 5]} // Creates a dotted line (10px dash, 5px gap)
+            strokeColor={Colors.black}
+            strokeWidth={4} 
+            lineDashPattern={[10, 5]} 
           />
           <Marker coordinate={origin} title="Pick-up Location">
             <Image
@@ -177,18 +173,16 @@ const OrderInfo = ({ route }) => {
           <>
             <View style={[styles.dateContainer]}>
               <View>
-                <Text style={{ color: 'black', fontWeight: '700', fontSize: responsiveFontSize(16) }}>{`# ${order_id}`}</Text>
+                <View style={{ flexDirection: 'row' }}>
+
+                  <Text style={{ color: 'black', fontWeight: '600', fontSize: responsiveFontSize(16) }}>{`# ${order_id} | `}</Text>
+                  <Text style={{ color: 'black', fontWeight: '600', fontSize: responsiveFontSize(14) }}>{productName}</Text>
+                </View>
 
                 <View style={{ flexDirection: 'row' }}>
                   <Text style={{ color: Colors.grey, fontWeight: '500' }}>{formatDate(orderDetails?.order_date)}</Text>
 
-                  {/* <Text
-                    style={{
-                      color: orderStatusColor,
-                      marginLeft: responsiveWidth(10),
-                    }}>
-                    {orderStatusText}
-                  </Text> */}
+
                 </View>
               </View>
               <View style={{ alignItems: 'flex-end' }}>
@@ -265,7 +259,7 @@ const OrderInfo = ({ route }) => {
             </View>
             <Line marginH={16} />
             <View style={[styles.dateContainer]}>
-              <FlatList
+              {/* <FlatList
                 data={orderDetails?.transactions}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item, index }) => (
@@ -289,6 +283,39 @@ const OrderInfo = ({ route }) => {
                     </View>
                   </View>
                 )}
+              /> */}
+              <FlatList
+                data={orderDetails?.transactions}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({ item, index }) => (
+                  <View>
+                    {/* Render the line only for the last item */}
+                    {index === orderDetails?.transactions?.length - 1 && <Line marginH={0} />}
+
+                    {/* Main row content */}
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        padding: 1, // Optional: For spacing
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color:  'black',
+                          fontWeight: index === orderDetails?.transactions?.length - 1 ? '700' : '400',
+                        }}
+                      >
+                        {item.pay_head_name}
+                      </Text>
+
+                      <Text style={{ color: 'black',fontWeight:index === orderDetails?.transactions?.length - 1 ? '700' : '400',fontSize:index === orderDetails?.transactions?.length - 1 ? FontSizes.semiLarge : FontSizes.medium }}>
+                        {` ${parseFloat(item.amount).toFixed(2)}`}
+                      </Text>
+                    </View>
+                  </View>
+                )}
+              // contentContainerStyle={{ paddingBottom: 20 }} // Optional: Prevent clipping of last item
               />
 
             </View>

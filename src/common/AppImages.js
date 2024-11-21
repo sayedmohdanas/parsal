@@ -135,4 +135,5 @@ export default AppImages = {
   helpAndSupportWatch:require('../assets/images/timer.png'),
   chatSendButton:require('../assets/images/chatSendButton.png'),
   bike2: require('../assets/images/parsal_bike.png'),
+  EditButton: require('../assets/images/brandBlueEditicon.png'),
 };

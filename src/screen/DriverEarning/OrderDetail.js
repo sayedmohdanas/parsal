@@ -11,6 +11,8 @@ import {
 import Colors from '../../common/Colors';
 
 const OrderDetail = ({ orderDetails }) => {
+  // console.log('anas---orderdetails===>>>>>>',orderDetails);
+  
   const navigation = useNavigation()
   const props = {
     parsalNumber: 'ODR-123456',
@@ -36,7 +38,9 @@ console.log(orderDetails);
   return (
     <TouchableOpacity
       onPress={()=>navigation.navigate('orderinfo',{
-        id:orderDetails?.order_id
+        id:orderDetails?.order_id,
+        prod_name:orderDetails?.package_name
+
       })}
     >
       <View style={[styles.container]}>

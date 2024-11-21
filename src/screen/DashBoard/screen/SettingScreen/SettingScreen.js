@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
-import BottomNav from '../../../../../navigation/BottomNav';// import { responsiveHeight, responsiveFontSize } from '../../common/metrices';
+import BottomNav from '../../../../../navigation/BottomNav';
 import Colors from '../../../../common/Colors';
 import { responsiveFontSize, responsiveHeight } from '../../../../common/metrices';
 import CustomHeader from '../../components/CustomHeader';

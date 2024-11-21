@@ -33,9 +33,9 @@ const ProfileScreenOptions = props => {
           {props.walletBalance ? (
             <Text
               style={{
-                fontSize: responsiveFontSize(15),
+                fontSize: responsiveFontSize(16),
                 color: 'black',
-                fontWeight: '400',
+                fontWeight: '600',
                 textAlign: 'right',
               }}>
               {'₹' + (props.walletBalance || 0) + ''}
