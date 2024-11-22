@@ -7,10 +7,11 @@ import {
   TouchableOpacity,
   FlatList,
   ImageBackground,
-  
+
 } from 'react-native';
 import AppImages from '../../common/AppImages';
 import Colors from '../../common/Colors';
+
 import OrderDetail from './OrderDetail';
 import {
   responsiveFontSize,
@@ -240,6 +241,8 @@ const Earning = () => {
       setDateRange(nextDay);
     }
   };
+  const nextDay = calculateDayRange(new Date(dateRange.start), true);
+
   return (
     <>
       <SafeAreaView style={{ flex: 1, backgroundColor: Colors.homeBackground }}>
@@ -268,19 +271,19 @@ const Earning = () => {
                   setSelectedRange={setSelectedRange}
                 />
               </View>
-              {driver_todays_earning?.individual_paid_amounts && (
+              <View
+                style={[styles.earningDisplay, { justifyContent: 'center' }]}>
                 <View
-                  style={[styles.earningDisplay, { justifyContent: 'center' }]}>
-                  <View
-                    style={{ justifyContent: 'center', alignItems: 'center' }}>
-                    <Text style={styles.earningAmount}>
-                      ₹
-                      {!isNaN(driver_todays_earning?.total_paid_amount)
-                        ? Math.round(
-                          driver_todays_earning?.total_paid_amount,
-                        ).toFixed(2)
-                        : '0'}
-                    </Text>
+                  style={{ justifyContent: 'center', alignItems: 'center' }}>
+                  <Text style={styles.earningAmount}>
+                     ₹
+                    {!isNaN(driver_todays_earning?.total_paid_amount)
+                      ? Math.round(
+                        driver_todays_earning?.total_paid_amount,
+                      ).toFixed(2)
+                      : '0.00'}
+                  </Text>
+                  {driver_todays_earning?.individual_paid_amounts ? (
                     <View style={styles.percentageContainer}>
                       <View style={styles.increaseContainer}>
                         <Image
@@ -297,9 +300,37 @@ const Earning = () => {
                         {'higher than last day'}
                       </Text>
                     </View>
-                  </View>
+                  ) : (
+                    <View style={styles.percentageContainer}>
+
+                      <View style={styles.increaseContainer}>
+                        {/* <Image
+                        source={AppImages.arrowUp}
+                        style={styles.arrowUpImage}
+                        resizeMode="contain"
+                      /> */}
+                        {/* <Text style={styles.percentageText}>
+                        {'3 '}
+                        {'% '}
+                      </Text> */}
+                      </View>
+
+                      <Text style={{
+                        color: 'black', fontSize: responsiveFontSize(10),
+                        fontWeight: '400', lineHeight: responsiveHeight(13),
+                        marginLeft: responsiveHeight(3),
+                      }}>
+                        {'No earning '}
+                      </Text>
+
+
+                    </View>
+                  )}
                 </View>
-              )}
+
+              </View>
+
+
               <View style={styles.earningChart}>
                 <TouchableOpacity
                   style={styles.navButton}
@@ -316,12 +347,22 @@ const Earning = () => {
                   {formatDateForDisplay(dateRange.end)}
                 </Text>
                 <TouchableOpacity
-                  style={styles.navButton}
-                  onPress={handleNextDate}>
+                  style={[
+                    styles.navButton,
+                    nextDay.start > new Date() && styles.disabledButton,
+                    
+                    // Apply disabled styling
+                  ]}
+                  onPress={handleNextDate}
+                  disabled={nextDay.start > new Date()} // Disable the button based on the condition
+                >
                   <Image
                     source={AppImages.arrowRight}
                     style={styles.arrowImage}
                     resizeMode="contain"
+                    tintColor={nextDay.start > new Date() ? '#A9A9A9' : Colors.black} // Change tint color dynamically
+
+
                   />
                 </TouchableOpacity>
               </View>
@@ -441,7 +482,7 @@ const styles = StyleSheet.create({
   earningDisplay: {
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: responsiveHeight(10),
+    padding: responsiveHeight(18),
     paddingHorizontal: responsiveHeight(30),
     flexDirection: 'row',
   },
@@ -449,12 +490,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingTop: responsiveHeight(10),
+    paddingBottom: responsiveHeight(10),
     paddingHorizontal: responsiveHeight(50),
     flexDirection: 'row',
   },
   navButton: {
     justifyContent: 'center',
     alignItems: 'center',
+    paddingVertical:responsiveHeight(10),
+    paddingHorizontal:responsiveWidth(15),
+    // backgroundColor:'pink'
   },
   arrowImage: {
     width: responsiveHeight(18),
@@ -566,6 +611,9 @@ const styles = StyleSheet.create({
     bottom: 13,
     left: 0,
     right: 0,
+  },
+  disabledButton: {
+    // backgroundColor: '#A9A9A9', // Grey color to indicate disabled state
   },
 });
 
