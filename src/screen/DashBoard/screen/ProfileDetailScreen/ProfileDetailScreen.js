@@ -5,7 +5,7 @@ import AppImages from '../../../../common/AppImages';
 import HeaderBackButton from '../../../../components/HeaderBackButton/HeaderBackButton';
 
 const ProfileDetail = ({ route, navigation }) => {
-  const { image, name ,status} = route?.params;    
+  const { image, name, status } = route?.params;
 
   // React.useLayoutEffect(() => {
   //   navigation.setOptions({

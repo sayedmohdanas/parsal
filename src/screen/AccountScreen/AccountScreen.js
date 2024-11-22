@@ -293,7 +293,7 @@ const AccountScreen = () => {
           style={{
             height: responsiveHeight(60),
           }}>
-          <CustomHeader screenName={"Account"} showSplash={true} />
+          <CustomHeader screenName={'Account'} showSplash={true} />
         </View>
         <SafeAreaView
           style={{backgroundColor: '#F5F6F7', flex: 1, marginHorizontal: 16}}>
@@ -342,11 +342,16 @@ const AccountScreen = () => {
                       </TouchableOpacity> */}
                     </View>
                   </View>
-                  <TouchableOpacity >
-                    <Image source={AppImages.EditButton} resizeMethod='contain' style={{width:responsiveWidth(18),height:responsiveHeight(18)}}/>
-                 
+                  <TouchableOpacity>
+                    <Image
+                      source={AppImages.EditButton}
+                      resizeMode="contain"
+                      style={{
+                        width: responsiveWidth(18),
+                        height: responsiveHeight(18),
+                      }}
+                    />
                   </TouchableOpacity>
-                
                 </View>
                 <View style={styles.udSection2}>
                   <TouchableOpacity
@@ -369,11 +374,14 @@ const AccountScreen = () => {
                       number={orderStats?.totalOrderCount || 0}
                       dataName={'Transactions'}
                     />
-               <Data
-  number={`₹${isNaN(orderStats?.totalPaidAmount) ? 0 : orderStats?.totalPaidAmount}`}
-  dataName={'Spent'}
-/>
-
+                    <Data
+                      number={`₹${
+                        isNaN(orderStats?.totalPaidAmount)
+                          ? 0
+                          : orderStats?.totalPaidAmount
+                      }`}
+                      dataName={'Spent'}
+                    />
                   </View>
                 </View>
               </View>
@@ -386,7 +394,13 @@ const AccountScreen = () => {
                   onPress={() => {
                     navigation.navigate('Wallet');
                   }}
-                  walletBalance={parseFloat(store_data.wallet_balance?.new_wallet_balance).toFixed(2)}
+                  walletBalance={
+                    isNaN(store_data.wallet_balance?.new_wallet_balance)
+                      ? '0.00'
+                      : parseFloat(
+                          store_data.wallet_balance?.new_wallet_balance,
+                        ).toFixed(2)
+                  }
                 />
 
                 <Text style={styles.optionName}>{'Other'}</Text>
@@ -567,9 +581,9 @@ const styles = StyleSheet.create({
   },
   udSection1: {
     flex: 1,
-    flexDirection:'row',
+    flexDirection: 'row',
     // backgroundColor: 'green',
-    justifyContent:'space-between',
+    justifyContent: 'space-between',
     marginTop: 10,
   },
   udSection2: {

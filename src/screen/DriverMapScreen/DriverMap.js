@@ -246,7 +246,6 @@ const DriverMapScreen = ({route}) => {
       destination.longitude
     ) {
       const distance = calculateDistance(origin, destination);  
-    
       if (distance <= 50) {
         setReached(true);
       } else {
@@ -390,7 +389,7 @@ const DriverMapScreen = ({route}) => {
 
   //   return () => clearTimeout(timeoutId); // Cleanup timeout on component unmount or latLOng change
   // }, [latLOng]);
- 
+
   return (
     <View style={styles.container}>
       {isLoading && (
@@ -409,7 +408,7 @@ const DriverMapScreen = ({route}) => {
         }}>
         <HeaderBackButton
           onPress={() => {
-            navigation.goBack('');
+            navigation.navigate('OrderScreen');
           }}
           headerText={'Live Trip'}
         />

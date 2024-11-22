@@ -41,19 +41,25 @@ const AddHelpAndSupport = () => {
   const remainingCount = maxLength - description.length; // Calculate
 
   const helpSupportOptions = [
-    { label: 'Frequently Asked Questions', value: 'Frequently Asked Questions' },
-    { label: 'Contact Customer Support', value: 'Contact Customer Support' },
-    { label: 'Provide Feedback', value: 'Provide Feedback' },
-    { label: 'Terms of Service', value: 'Terms of Service' },
-    { label: 'Privacy and Data Protection Policy', value: 'Privacy and Data Protection Policy' },
-    { label: 'Submit a Support Request', value: 'Submit a Support Request' }, // New option
-    { label: 'Access Live Support Chat', value: 'Access Live Support Chat' }, // New option
-    { label: 'Browse Help Center Articles', value: 'Browse Help Center Articles' }, // New option
-    { label: 'Report an Issue', value: 'Report an Issue' }, // New option
-    { label: 'Track Your Support Ticket', value: 'Track Your Support Ticket' }, // New option
+    {label: 'Frequently Asked Questions', value: 'Frequently Asked Questions'},
+    {label: 'Contact Customer Support', value: 'Contact Customer Support'},
+    {label: 'Provide Feedback', value: 'Provide Feedback'},
+    {label: 'Terms of Service', value: 'Terms of Service'},
+    {
+      label: 'Privacy and Data Protection Policy',
+      value: 'Privacy and Data Protection Policy',
+    },
+    {label: 'Submit a Support Request', value: 'Submit a Support Request'}, // New option
+    {label: 'Access Live Support Chat', value: 'Access Live Support Chat'}, // New option
+    {
+      label: 'Browse Help Center Articles',
+      value: 'Browse Help Center Articles',
+    }, // New option
+    {label: 'Report an Issue', value: 'Report an Issue'}, // New option
+    {label: 'Track Your Support Ticket', value: 'Track Your Support Ticket'}, // New option
   ];
 
-  const handleHelpSupportOption = (value) => {
+  const handleHelpSupportOption = value => {
     switch (value) {
       case 'faq':
         console.log('Navigate to FAQ');
@@ -114,7 +120,6 @@ const AddHelpAndSupport = () => {
         setDescription('');
         navigation.goBack('');
         setIsTicketSubmitted(true);
-
       } else {
         errorToast(
           'Error',
@@ -129,7 +134,7 @@ const AddHelpAndSupport = () => {
       );
     }
   };
-
+  const [imagesarray, setimagesarray] = useState([]);
   const handleImagePicker = () => {
     ImagePicker.openPicker({
       // multiple: true,
@@ -139,10 +144,19 @@ const AddHelpAndSupport = () => {
       includeBase64: true,
     })
       .then(selectedImages => {
+        if (imagesarray.length >= 3) {
+          console.log('Maximum limit of 3 images reached.');
+          return;
+        }
         const imagePaths = selectedImages.path;
         const postImages = selectedImages.data;
         setImages(imagePaths);
         setPostImages(postImages);
+        const imageObject = {
+          id: imagesarray?.length + 1, // Generate a unique ID for each image
+          path: imagePaths,
+        };
+        setimagesarray([...imagesarray, imageObject]);
       })
       .catch(error => {
         console.log('Error picking images:', error);
@@ -150,182 +164,203 @@ const AddHelpAndSupport = () => {
   };
 
   // Function to remove an image from the array
-  const handleRemoveImage = () => {
-    setImages('');
+  const handleDeleteImage = id => {
+    setimagesarray(imagesarray.filter(image => image.id !== id));
   };
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <HeaderBackButton
         headerText="Help & Support"
         onPress={() => navigation.goBack()}
         rightButton={'VIEW TICKET'}
         rightButtonColor={'#3D40D1'}
         rightButtonFontSize={12}
-        onButtonPress={() => { navigation.navigate('HelpAndSupportMain') }}
+        onButtonPress={() => {
+          navigation.navigate('HelpAndSupportMain');
+        }}
       />
 
-      {
-
-        isTicketSubmitted == true
-          ?
-          <View style={{ flex: 1, backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
-            <View style={{
+      {isTicketSubmitted == true ? (
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: 'white',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <View
+            style={{
               height: responsiveHeight(96),
               width: responsiveHeight(96),
               backgroundColor: '#88C94133',
               borderRadius: 48,
               justifyContent: 'center',
-              alignItems: 'center'
+              alignItems: 'center',
             }}>
-              <Image source={AppImages.ticketSubmitted}
-                style={{
-                  height: responsiveHeight(74),
-                  width: responsiveWidth(74),
-                }}
-                resizeMode='contain'
-              />
-            </View>
-            <Text style={{
+            <Image
+              source={AppImages.ticketSubmitted}
+              style={{
+                height: responsiveHeight(74),
+                width: responsiveWidth(74),
+              }}
+              resizeMode="contain"
+            />
+          </View>
+          <Text
+            style={{
               fontSize: responsiveFontSize(16),
               color: '#777777',
               marginTop: 15,
-              fontWeight: '500'
-            }}>Ticket Submitted !</Text>
+              fontWeight: '500',
+            }}>
+            Ticket Submitted !
+          </Text>
+        </View>
+      ) : (
+        <View>
+          <View style={{justifyContent: 'center', alignItems: 'center'}}>
+            <Image
+              source={AppImages.helpSupport}
+              style={{
+                height: responsiveHeight(220),
+                width: responsiveWidth(250),
+                marginBottom: Spacing.small,
+              }}
+              resizeMode="contain"
+            />
           </View>
-          :
-          <View>
-            <View style={{ justifyContent: 'center', alignItems: 'center', }}>
-              <Image source={AppImages.helpSupport}
-                style={{
-                  height: responsiveHeight(220),
-                  width: responsiveWidth(250),
-                  marginBottom:Spacing.small
-                }}
-                resizeMode='contain'
-              />
-            </View>
 
-            <View style={{
+          <View
+            style={{
               marginHorizontal: responsiveWidth(16),
             }}>
-              <Dropdown
-                style={[styles.dropdown, isFocus && { borderColor: '#3D40D1' }]}
-                placeholderStyle={styles.placeholderStyle}
-                selectedTextStyle={styles.selectedTextStyle}
-                inputSearchStyle={styles.inputSearchStyle}
-                containerStyle={{
-                  borderBottomLeftRadius: 10,
-                  borderBottomRightRadius: 10
-                  // marginTop:10
-                }}
-                itemTextStyle={{
-                  color: '#232323',
-                  fontWeight: '500',
-                  borderBottomWidth: 1,
-                  fontSize: FontSizes.medium,
+            <Dropdown
+              style={[styles.dropdown, isFocus && {borderColor: '#3D40D1'}]}
+              placeholderStyle={styles.placeholderStyle}
+              selectedTextStyle={styles.selectedTextStyle}
+              inputSearchStyle={styles.inputSearchStyle}
+              containerStyle={{
+                borderBottomLeftRadius: 10,
+                borderBottomRightRadius: 10,
+                // marginTop:10
+              }}
+              itemTextStyle={{
+                color: '#232323',
+                fontWeight: '500',
+                borderBottomWidth: 1,
+                fontSize: FontSizes.medium,
 
-                  paddingBottom: 10,
-                  borderColor: '#F3F3F3',
-                }}
-                iconStyle={styles.iconStyle}
-                data={helpSupportOptions}
-                maxHeight={responsiveHeight(350)}
-                labelField="label"
-                valueField="value"
-                placeholder={!isFocus ? 'Select Type' : '...'}
-                value={value}
-                onFocus={() => setIsFocus(true)}
-                onBlur={() => setIsFocus(false)}
-                onChange={item => {
-                  setValue(item.value);
-                  setIsFocus(false);
-                  handleHelpSupportOption(item.value);
-                }}
-              />
-            </View>
-
-            <View style={styles.textInputContainer}>
-              <TextInput
-                style={[styles.largeTextInput, isTextInputFocus && { borderColor: 'blue' }]}
-                multiline
-                value={description}
-                onChangeText={(e) => setDescription(e)}
-                placeholder="Describe your issue here..."
-                placeholderTextColor="#777777"
-                onFocus={() => setIsTextInputFocus(true)}
-                onBlur={() => setIsTextInputFocus(false)}
-                maxLength={maxLength}
-              />
-              <Text style={styles.remainingCount}>
-                {remainingCount} / {maxLength}
-              </Text>
-            </View>
-
-
-            {/* <View style={styles.imagePickerContainer}>
-              <TouchableOpacity onPress={handleImagePicker} style={styles.imagePickerButton}>
-                <Text style={styles.imagePickerButtonText}>{'+ Add Image'}</Text>
-              </TouchableOpacity>
-            </View> */}
-
-
-
-            {images != null && images != undefined && images != ''
-              ?
-              (
-                <View style={styles.imageGridContainer}>
-
-                  <View style={{}}>
-                    <Image
-                      source={{ uri: images }}
-                      style={styles.gridImage}
-                    />
-                    {/* "X" Button to remove the image */}
-                    <TouchableOpacity
-                      style={styles.removeImageButton}
-                      onPress={() => handleRemoveImage()}
-                    >
-                      <Text style={{ color: 'white', fontWeight: '900', fontSize: responsiveFontSize(12), }}>
-                        X
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                  <View style={styles.imagePickerContainer2}>
-              <TouchableOpacity onPress={handleImagePicker} style={styles.imagePickerButton2}>
-                <Text style={styles.imagePickerButtonText}>{'+ Add Image'}</Text>
-              </TouchableOpacity>
-            </View>
-
-
-                </View>
-              )
-              :
-              <View style={styles.imagePickerContainer}>
-              <TouchableOpacity onPress={handleImagePicker} style={styles.imagePickerButton}>
-                <Text style={styles.imagePickerButtonText}>{'+ Add Image'}</Text>
-              </TouchableOpacity>
-            </View>}
-
-            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: responsiveHeight(30), marginBottom: responsiveHeight(100) }}>
-              <CustomButton
-                buttonText={'Submit'}
-                grey={false}
-                onPress={() => {
-                  handleSubmit()
-                }}
-              />
-            </View>
+                paddingBottom: 10,
+                borderColor: '#F3F3F3',
+              }}
+              iconStyle={styles.iconStyle}
+              data={helpSupportOptions}
+              maxHeight={responsiveHeight(350)}
+              labelField="label"
+              valueField="value"
+              placeholder={!isFocus ? 'Select Type' : '...'}
+              value={value}
+              onFocus={() => setIsFocus(true)}
+              onBlur={() => setIsFocus(false)}
+              onChange={item => {
+                setValue(item.value);
+                setIsFocus(false);
+                handleHelpSupportOption(item.value);
+              }}
+            />
           </View>
-      }
 
+          <View style={styles.textInputContainer}>
+            <TextInput
+              style={[
+                styles.largeTextInput,
+                isTextInputFocus && {borderColor: 'blue'},
+              ]}
+              multiline
+              value={description}
+              onChangeText={e => setDescription(e)}
+              placeholder="Describe your issue here..."
+              placeholderTextColor="#777777"
+              onFocus={() => setIsTextInputFocus(true)}
+              onBlur={() => setIsTextInputFocus(false)}
+              maxLength={maxLength}
+            />
+            <Text style={styles.remainingCount}>
+              {remainingCount} / {maxLength}
+            </Text>
+          </View>
 
+          {images != null && images != undefined && images != '' ? (
+            <View style={styles.imageGridContainer}>
+              {imagesarray?.map(item => {
+                return (
+                  <>
+                    <View style={{marginHorizontal: responsiveWidth(4)}}>
+                      <Image
+                        source={{uri: item?.path}}
+                        style={styles.gridImage}
+                      />
+                      <TouchableOpacity
+                        style={styles.removeImageButton}
+                        onPress={() => handleDeleteImage(item?.id)}>
+                        <Text
+                          style={{
+                            color: 'white',
+                            fontWeight: '900',
+                            fontSize: responsiveFontSize(10),
+                          }}>
+                          X
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </>
+                );
+              })}
+              {imagesarray?.length != 3 && (
+                <View style={styles.imagePickerContainer2}>
+                  <TouchableOpacity
+                    onPress={handleImagePicker}
+                    style={styles.imagePickerButton2}>
+                    <Text style={styles.imagePickerButtonText}>
+                      {'+ Add Image'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+          ) : (
+            <View style={styles.imagePickerContainer}>
+              <TouchableOpacity
+                onPress={handleImagePicker}
+                style={styles.imagePickerButton}>
+                <Text style={styles.imagePickerButtonText}>
+                  {'+ Add Image'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
+          <View
+            style={{
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginTop: responsiveHeight(30),
+              marginBottom: responsiveHeight(100),
+            }}>
+            <CustomButton
+              buttonText={'Submit'}
+              grey={false}
+              onPress={() => {
+                handleSubmit();
+              }}
+            />
+          </View>
+        </View>
+      )}
     </SafeAreaView>
-
-
-
   );
-}
+};
 
 export default AddHelpAndSupport;
 
@@ -352,11 +387,11 @@ const styles = StyleSheet.create({
   placeholderStyle: {
     fontSize: FontSizes.medium,
     color: Colors.grey,
-    fontWeight: Fonts.semilarge
+    fontWeight: Fonts.semilarge,
   },
   selectedTextStyle: {
     fontSize: 16,
-    color: 'black'
+    color: 'black',
   },
   inputSearchStyle: {
     height: 40,
@@ -369,7 +404,7 @@ const styles = StyleSheet.create({
   textInputContainer: {
     marginHorizontal: responsiveWidth(16),
     marginTop: responsiveHeight(20),
-    position: 'relative', 
+    position: 'relative',
   },
   largeTextInput: {
     height: responsiveHeight(150),
@@ -383,13 +418,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     color: '#000',
     letterSpacing: 0.3,
-    lineHeight:20,
+    lineHeight: 20,
     paddingRight: responsiveWidth(40),
   },
   remainingCount: {
     position: 'absolute',
-    bottom: responsiveHeight(12), 
-    right: responsiveWidth(16), 
+    bottom: responsiveHeight(12),
+    right: responsiveWidth(16),
     fontSize: FontSizes.small,
     color: '#777777',
   },
@@ -400,24 +435,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   imagePickerContainer2: {
-    marginHorizontal: responsiveWidth(16),
+    marginLeft: responsiveWidth(2),
     // marginVertical:responsiveHeight(19),
     // marginTop: responsiveHeight(20),
     // backgroundColor:'yellow',
-    justifyContent: 'center',
-    alignItems: 'center',
+    // justifyContent: 'center',
+    // alignItems: 'center',
   },
   imagePickerButton2: {
     // backgroundColor: '#333',
-    padding: 10,
     borderRadius: Spacing.small,
     height: responsiveHeight(100),
-    width: '100%',
+    width: responsiveWidth(85),
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    // borderStyle: 'dotted',
-    borderColor: '#D8D8D8'
+    borderColor: '#D8D8D8',
   },
   imagePickerButton: {
     // backgroundColor: '#333',
@@ -429,7 +462,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     // borderStyle: 'dotted',
-    borderColor: '#D8D8D8'
+    borderColor: '#D8D8D8',
   },
   imagePickerButtonText: {
     color: 'grey',
@@ -455,22 +488,22 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   gridImage: {
-    width: responsiveWidth(100), // Set the width of each image
+    width: responsiveWidth(85), // Set the width of each image
     height: responsiveHeight(100), // Set the height of each image
     borderRadius: 8,
-    backgroundColor:'pink'
+
     // marginBottom: responsiveHeight(10), // Adds spacing between rows
   },
   removeImageButton: {
     position: 'absolute',
     top: 5,
     right: 5,
-    backgroundColor: 'black',
+    backgroundColor: 'rgba(0,0,0,0.6)',
     borderRadius: 12,
     // padding: 2,
-    height: 18,
-    width: responsiveWidth(18),
+    height: responsiveWidth(12),
+    width: responsiveWidth(12),
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
 });

@@ -7,11 +7,10 @@ import {
   TouchableOpacity,
   FlatList,
   ImageBackground,
-
+  
 } from 'react-native';
 import AppImages from '../../common/AppImages';
 import Colors from '../../common/Colors';
-
 import OrderDetail from './OrderDetail';
 import {
   responsiveFontSize,

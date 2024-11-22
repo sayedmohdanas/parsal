@@ -1,4 +1,4 @@
-import React, {useEffect, useLayoutEffect, useState} from 'react';
+import React, {useCallback, useEffect, useLayoutEffect, useState} from 'react';
 import {View, Text, StyleSheet, SafeAreaView, Image} from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
@@ -7,7 +7,7 @@ import CustomHeader from './components/CustomHeader';
 import Loading from '../../components/Loading/Loading';
 import {GetDriverCurrentLocation, custommapstyle} from '../../common/CommonFunction';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {hitDriverEarning} from '../../config/api/api';
+import {hitDriverEarning, hitGetDriverDetails, hitGetLiveOrderApi, hitGetWalletBalanceApi} from '../../config/api/api';
 import BorderLine from '../../common/BorderLine.';
 import {
   responsiveFontSize,
@@ -16,6 +16,7 @@ import {
 } from '../../common/metrices';
 import AppImages from '../../common/AppImages';
 import BottomNav from '../../../navigation/BottomNav';
+import { setOrderData, setlivetripmenu, setloginuserdetails, setnextOrderData, setupdate_order, setwalletBalance } from '../../redux/HitApis/HitApiSlice';
 
 const DriverDashboard = () => {
   const navigation = useNavigation();
@@ -78,6 +79,144 @@ const DriverDashboard = () => {
   useFocusEffect(
     React.useCallback(() => {
       get_data();
+    }, []),
+  );
+  const get_user_details = async () => {
+    const user = await AsyncStorage.getItem('user');
+    const parsed_user = JSON.parse(user);
+    // setparsed_data(parsed_user);
+    if (parsed_user?.payload?.owner_type == 0) {
+      hitGetDriverDetails({ids: [parsed_user?.payload?.driver_id]})
+        .then(res => {
+          dispatch(setloginuserdetails(res?.drivers[0]));
+          const param = {driver_id: parsed_user?.payload?.driver_id};
+          hitGetWalletBalanceApi(param)
+            .then(res => {
+              dispatch(setwalletBalance(res));
+            })
+            .catch(err => {
+              console.error(err);
+            });
+          const parameter = {
+            user_id: parsed_user?.payload?.driver_id,
+            type: 'driver',
+          };
+          hitGetLiveOrderApi(parameter)
+            .then(res => {
+              if (res?.ongoingOrder.length == 0) {
+                // setshow_live(false);
+                dispatch(setlivetripmenu(false));
+              } else {
+                // setshow_live(true);
+                dispatch(setlivetripmenu(true));
+                const {order_otp, ...restOrderData} =
+                  res?.ongoingOrder[0] || {};
+                const modifiedOrderData = {...restOrderData, otp: order_otp};
+                dispatch(setOrderData(modifiedOrderData));
+                if (res?.ongoingOrder[0]?.is_arrived_pickup) {
+                  if (modifiedOrderData?.delivered_at) {
+                    dispatch(setupdate_order(modifiedOrderData));
+                    navigation.navigate('AmountCollected');
+                  } else {
+                    dispatch(setupdate_order(modifiedOrderData));
+                    navigation.navigate('DriverMap');
+                    return;
+                  }
+                } else {
+                  navigation.navigate('DriverMap');
+                  return;
+                }
+                if (res?.ongoingOrder?.length > 1) {
+                  const {order_otp, ...restOrderData} =
+                    res?.ongoingOrder[1] || {};
+                  const modifiedOrderData = {
+                    ...restOrderData,
+                    otp: order_otp,
+                  };
+                  dispatch(setnextOrderData(modifiedOrderData));
+                  navigation.navigate('DriverMap');
+                }
+              }
+            })
+            .catch(err => {
+              console.error(err);
+            });
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    } else {
+      hitGetPartner({
+        partner_id: parsed_user?.payload?.partner_id,
+      })
+        .then(res => {
+          // setuser_details(res?.partner);
+          dispatch(setloginuserdetails(res?.partner));
+          if (parsed_user?.payload?.owner_type == 2) {
+            const param = {driver_id: parsed_user?.payload?.driver_id};
+            hitGetWalletBalanceApi(param)
+              .then(res => {
+                dispatch(setwalletBalance(res));
+              })
+              .catch(err => {
+                console.error(err);
+              });
+            const parameter = {
+              user_id: parsed_user?.payload?.driver_id,
+              type: 'driver',
+            };
+            hitGetLiveOrderApi(parameter)
+              .then(res => {
+                if (res?.ongoingOrder?.length == 0) {
+                  // setshow_live(false);
+                  dispatch(setlivetripmenu(false));
+                  return;
+                } else {
+                  // setshow_live(true);
+                  dispatch(setlivetripmenu(true));
+                  const {order_otp, ...restOrderData} =
+                    res?.ongoingOrder[0] || {};
+                  const modifiedOrderData = {...restOrderData, otp: order_otp};
+                  dispatch(setOrderData(modifiedOrderData));
+                  if (res?.ongoingOrder[0]?.is_arrived_pickup) {
+                    if (modifiedOrderData?.delivered_at) {
+                      dispatch(setupdate_order(modifiedOrderData));
+                      navigation.navigate('AmountCollected');
+                    } else {
+                      dispatch(setupdate_order(modifiedOrderData));
+                      navigation.navigate('DriverMap');
+                      return;
+                    }
+                  } else {
+                    navigation.navigate('DriverMap');
+                    return;
+                  }
+                  if (res?.ongoingOrder?.length > 1) {
+                    const {order_otp, ...restOrderData} =
+                      res?.ongoingOrder[1] || {};
+                    const modifiedOrderData = {
+                      ...restOrderData,
+                      otp: order_otp,
+                    };
+                    dispatch(setnextOrderData(modifiedOrderData));
+                    navigation.navigate('DriverMap');
+                    return;
+                  }
+                }
+              })
+              .catch(err => {
+                console.error(err);
+              });
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    }
+  };
+  useFocusEffect(
+    useCallback(() => {
+      get_user_details();
     }, []),
   );
 

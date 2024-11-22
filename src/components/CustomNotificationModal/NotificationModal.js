@@ -11,10 +11,7 @@ import {
 } from 'react-native';
 import Colors from '../../common/Colors';
 import {
-  hitGetDriverDetails,
-  hitGetPartner,
   hitlPaceOrder,
-  hitMyVehicle,
   hitUpdateOrderOtpApi,
 } from '../../config/api/api';
 import {useNavigation} from '@react-navigation/native';
@@ -184,10 +181,9 @@ const NotificationModal = ({
               console.error(err);
             });
           if (store_data?.orderData == null) {
-
-            dispatch(setlivetripmenu(true));            
-            dispatch(setOrderData(resWithOTP));    
-            if (store_data?.update_order?.is_arrived_pickup) {    
+            dispatch(setlivetripmenu(true));
+            dispatch(setOrderData(resWithOTP));
+            if (store_data?.update_order?.is_arrived_pickup) {
               dispatch(setupdate_order(res?.newOrder));
             }
             navigation.navigate('DriverMap', {
@@ -275,12 +271,15 @@ const NotificationModal = ({
   // useEffect(() => {
   //   setIsEnabled(user_details?.working_status == 0 ? false : true);
   // }, [user_details, dispatch]);
-
   return (
     <>
       <Modal
         transparent={true}
-        visible={isVisible && store_data?.is_online}
+        visible={
+          isVisible &&
+          store_data?.is_online &&
+          !(store_data?.orderData && store_data?.nextOrderData)
+        }
         animationType="slide"
         onRequestClose={onClose}>
         <View style={styles.modalBackground}>
