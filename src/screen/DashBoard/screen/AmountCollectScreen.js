@@ -66,6 +66,7 @@ const AmountCollectScreen = () => {
       console.log('Connected to socket server');
     });
     socket.on('complete_transaction_by_user_ack', data => {
+      console.log('data', data);
       const param = {
         orderId: data?.order_id,
         partner_id:
@@ -76,23 +77,8 @@ const AmountCollectScreen = () => {
 
       hitCreateTransaction(param)
         .then(res => {
+          console.log('res', res);
           if (res) {
-            // setvisible(true);
-            // dispatch(setlivetripmenu(false));
-            // dispatch(setOrderData(null));
-            // dispatch(setupdate_order(null));
-
-            // // Isolate the navigation in a separate function for consistency
-            // const handleNavigation = () => {
-            //   setvisible(false);
-            //   navigation.navigate('Earning');
-            // };
-
-            // // Use setTimeout with fallback to ensure it executes
-            // const timeoutId = setTimeout(handleNavigation, 5000);
-
-            // // Clear timeout in case component unmounts or dependencies change
-            // return () => clearTimeout(timeoutId);
             if (nextOrderData) {
               dispatch(setOrderData(nextOrderData));
               dispatch(setupdate_order(null));
@@ -110,12 +96,6 @@ const AmountCollectScreen = () => {
           console.error('Error in transaction:', err);
         });
     });
-
-    return () => {
-      if (socket) {
-        console.log('Socket disconnected');
-      }
-    };
   }, []);
   const Complete_Order = () => {
     const param = {
@@ -123,10 +103,11 @@ const AmountCollectScreen = () => {
       partner_id:
         store_data?.parsalPartner?.loginuserdetails?.partner_id ||
         store_data?.parsalPartner?.loginuserdetails?.id,
-      vehicle_type_id: driver_details?.vehicle_type_id || "2",
+      vehicle_type_id: driver_details?.vehicle_type_id || '2',
     };
     hitCreateTransaction(param)
       .then(res => {
+        console.log('res', res);
         if (res) {
           if (nextOrderData) {
             socket.emit('complete_transaction_by_user', {

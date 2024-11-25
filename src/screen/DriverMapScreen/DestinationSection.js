@@ -51,6 +51,13 @@ const DestinationSection = ({details}) => {
 
   useEffect(() => {
     socket = io(socketUrl);
+    socket.on('connect', () => {
+      console.log('Connected to socket server');
+    });
+    socket.emit('registerUser', {
+      userId: orderData?.newOrder?.driver_id || orderData?.driver_id,
+      role: 'driver',
+    });
     return () => {
       if (socket) {
         // socket.disconnect();
@@ -81,7 +88,7 @@ const DestinationSection = ({details}) => {
         console.log(err);
       });
   };
- 
+
   return (
     <>
       <View style={styles.profileContainer}>

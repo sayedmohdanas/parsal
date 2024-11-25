@@ -367,6 +367,9 @@ const styles = StyleSheet.create({
   textInputContainers: {
     flex: 9,
   },
+  shareButton:{
+    color:'red'
+  },
   greenCircle: {
     height: responsiveHeight(10),
     width: responsiveHeight(10),

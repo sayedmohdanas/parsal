@@ -50,12 +50,7 @@ import {
 import {useDispatch, useSelector} from 'react-redux';
 const LiveTripScreen = () => {
   const navigation = useNavigation();
-  const {orderData, update_order, nextOrderData} = useSelector(
-    state => state?.parsalPartner,
-  );
-  const driverProfile = useSelector(
-    state => state?.parsalPartner?.logindriverdetails,
-  );
+
   const [selectedTrip, setSelectedTrip] = useState(1);
   const [all_flag, setall_flag] = useState(false);
   const dispatch = useDispatch();

@@ -35,6 +35,7 @@ import {
 } from '../../redux/HitApis/HitApiSlice';
 import {successToast} from '../../common/CommonFunction';
 import Loading from '../../components/Loading/Loading';
+import database from '@react-native-firebase/database';
 
 const DriverArriveCard = ({trip, isReachedPickup, nextId}) => {
   const [isArrived, setIsArrived] = useState(false);
@@ -90,6 +91,7 @@ const DriverArriveCard = ({trip, isReachedPickup, nextId}) => {
     const handleOrderCancel = data => {
       const {orderId} = data;
       const canceledOrderStatus = getOrderStatus(orderData, orderId);
+
       if (canceledOrderStatus) {
         const {status} = canceledOrderStatus;
         if (status === 'first') {
@@ -135,6 +137,19 @@ const DriverArriveCard = ({trip, isReachedPickup, nextId}) => {
       const response = await hitUpdateOrder(payload);
       if (response) {
         dispatch(setupdate_order(response?.order));
+        // const notificationPayload = {
+        //   order_id: payload.order_id,
+        //   driver_id: orderData?.newOrder?.driver_id || orderData?.driver_id,
+        //   customer_id: orderData?.newOrder?.cust_id || orderData?.cust_id,
+        //   message: 'Your trip has ended. Thank you for riding with us!',
+        //   timestamp: new Date().toISOString(),
+        //   type: 1,
+        // };
+
+        // // Send notification to the customer using Firebase
+        // console.log('notificationPayload', notificationPayload);
+        // const customerPath = `customers/${payload.order_id}/notifications`;
+        // await database.ref(customerPath).push(notificationPayload);
         socket.emit('driver_pickup', response, acknowledgment => {
           console.log('Data sent, acknowledgment:', acknowledgment);
         });
@@ -175,13 +190,39 @@ const DriverArriveCard = ({trip, isReachedPickup, nextId}) => {
                   dispatch(setOrderData(nextOrderData));
                   dispatch(setupdate_order(null));
                   dispatch(setnextOrderData(null));
+                  // const notificationPayload = {
+                  //   order_id: param.order_id,
+                  //   driver_id:
+                  //     orderData?.newOrder?.driver_id || orderData?.driver_id,
+                  //   customer_id:
+                  //     orderData?.newOrder?.cust_id || orderData?.cust_id,
+                  //   message:
+                  //     'Your trip has cacnellled. Thank you for riding with us!',
+                  //   timestamp: new Date().toISOString(),
+                  //   type: 2,
+                  // };
+                  // const customerPath = `customers/${param.order_id}/notifications`;
+                  // await database.ref(customerPath).push(notificationPayload);
                   return;
                 }
                 setshowotp(false);
                 dispatch(setlivetripmenu(false));
                 dispatch(setOrderData(null));
                 dispatch(setupdate_order(null));
-
+                // const notificationPayload = {
+                //   order_id: param.order_id,
+                //   driver_id:
+                //     orderData?.newOrder?.driver_id || orderData?.driver_id,
+                //   customer_id:
+                //     orderData?.newOrder?.cust_id || orderData?.cust_id,
+                //   message:
+                //     'Your trip has cacnelled. Thank you for riding with us!',
+                //   timestamp: new Date().toISOString(),
+                //   type: 2,
+                // };
+                // // Send notification to the customer using Firebase
+                // const customerPath = `customers/${param.order_id}/notifications`;
+                // await database.ref(customerPath).push(notificationPayload);
                 navigation.goBack('');
               }
 

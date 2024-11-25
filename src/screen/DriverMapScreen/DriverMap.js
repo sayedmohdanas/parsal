@@ -245,7 +245,8 @@ const DriverMapScreen = ({route}) => {
       destination.latitude &&
       destination.longitude
     ) {
-      const distance = calculateDistance(origin, destination);  
+      const distance = calculateDistance(origin, destination);
+
       if (distance <= 50) {
         setReached(true);
       } else {
@@ -327,7 +328,7 @@ const DriverMapScreen = ({route}) => {
             }}>
             <Image
               source={AppImages.radar}
-              style={{ height: responsiveWidth(16), width: responsiveWidth(22) }}
+              style={{height: responsiveWidth(16), width: responsiveWidth(22)}}
               resizeMode="contain"
             />
             <Text
@@ -454,7 +455,7 @@ const DriverMapScreen = ({route}) => {
           </AnimatedMarker>
         ) : null}
 
-        <Marker coordinate={destination} >
+        <Marker coordinate={destination}>
           <Image
             source={AppImages.location}
             style={{width: responsiveWidth(37), height: responsiveHeight(37)}}
@@ -467,16 +468,15 @@ const DriverMapScreen = ({route}) => {
         destination.longitude ? (
           <MapViewDirections
             origin={{
-              latitude:latLOng?.latitude,
-              longitude:latLOng?.longitude
+              latitude: latLOng?.latitude,
+              longitude: latLOng?.longitude,
             }}
             destination={destination}
             apikey={GOOGLE_API_KEY}
             strokeWidth={4}
             strokeColor={Colors.black}
             tracksViewChanges={false} // Prevent unnecessary renders
-            onReady={result => {
-            }}
+            onReady={result => {}}
             onError={errorMessage => {
               console.log('MapViewDirections error: ', errorMessage);
             }}

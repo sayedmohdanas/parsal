@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   FlatList,
   ImageBackground,
-
+  ActivityIndicator,
+  
 } from 'react-native';
 import AppImages from '../../common/AppImages';
 import Colors from '../../common/Colors';
@@ -32,6 +33,7 @@ import Line from '../../components/Line/Line';
 import { errorToast } from '../../common/CommonFunction';
 import Loading from '../../components/Loading/Loading';
 import { useSelector } from 'react-redux';
+import { mystyles } from '../../common/Mystyle';
 
 const Earning = () => {
   const [selectedRange, setSelectedRange] = useState('today');
@@ -260,7 +262,10 @@ const Earning = () => {
         </View>
         <View style={styles.container}>
           {loading ? (
-            <Loading loading={loading} />
+            // <Loading loading={loading} />
+            <View style={mystyles.center}>
+            <ActivityIndicator size="large" color={Colors.brandBlue} />
+          </View>
           ) : (
             <>
               <View
@@ -611,6 +616,10 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
   },
+  center: {
+    justifyContent: 'center',
+    alignItems: 'center',
+},
   disabledButton: {
     // backgroundColor: '#A9A9A9', // Grey color to indicate disabled state
   },

@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
     height: responsiveHeight(35),    
     // borderBottomWidth: 0.5,
     padding: 8,
-    width: responsiveWidth(110),
+    width: responsiveWidth(115),
     // backgroundColor: 'white',
     borderRadius: 8,
     borderWidth: 0.4,
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   itemText: {
-    fontSize: responsiveFontSize(9),
+    fontSize: responsiveFontSize(11),
     color: Colors.grey, // Item text color
   },
 });

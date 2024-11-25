@@ -9,6 +9,7 @@ import {
   hitMyVehicle,
   hitPartnerLogin,
   hitPartnerVerifyOtp,
+  hitUpdateDriverStatus,
 } from '../../config/api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Alert, LogBox} from 'react-native';
@@ -150,6 +151,15 @@ export const getDriverEaningData = createAsyncThunk(
     }
   },
 );
+export const updateDriverStatus = createAsyncThunk('parsalPartner/updateDriverStatus', async (credentials, { rejectWithValue }) => {
+  
+  try {
+    const response = await hitUpdateDriverStatus(credentials);
+    return response;
+  } catch (error) {
+    return rejectWithValue(error.response || error);
+  }
+});
 
 const initialState = {
   user: null,
@@ -226,6 +236,9 @@ const HitApiSlice = createSlice({
     },
     setnextOrderData(state, action) {
       state.nextOrderData = action.payload;
+    },
+    setWorkingStatus(state, action) {
+      state.is_online = action.payload; // <-- Properly manage the online/offline status
     },
   },
   extraReducers: builder => {
@@ -365,7 +378,14 @@ const HitApiSlice = createSlice({
         state.status = 'failed';
         state.loading = false;
         state.error = action.payload || 'Failed to add driver details';
+      })
+      .addCase(updateDriverStatus.fulfilled, (state, action) => {
+        // You can modify the state after the update status API call succeeds
+      })
+      .addCase(updateDriverStatus.rejected, (state, action) => {
+        // Handle any error in case of failure
       });
+  
 
     ///DriverEarning
     // .addCase(getDriverEaningData.pending, (state) => {
@@ -386,8 +406,11 @@ const HitApiSlice = createSlice({
     // });
   },
 });
+// export const { setWorkingStatus } = parsalPartnerSlice.actions;
+export const selectWorkingStatus = (state) => state.HitApiSlice.isEnabled;
 
 export const {
+  setWorkingStatus,
   setParentId,
   setMyVehicleData,
   setDriverId,
