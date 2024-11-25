@@ -376,9 +376,9 @@ const styles = StyleSheet.create({
   },
   slideButtonThumb: {
     backgroundColor: '#45B845',
-    height: responsiveHeight(50),
-    width: responsiveWidth(70),
-    borderRadius: 30,
+    height: responsiveHeight(40),
+    width: responsiveHeight(70),
+    borderRadius: responsiveHeight(30),
   },
   slideButtonUnderlay: {
     backgroundColor: '#90EE90',

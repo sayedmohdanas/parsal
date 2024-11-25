@@ -45,7 +45,9 @@ const LoginScreen = ({navigation, route}) => {
         return;
       }
       const request = {
-        email: number?.replaceAll(' ', ''),
+        // email: number?.replaceAll(' ', ''),
+        email: number?.replaceAll(' ', '').charAt(0).toLowerCase() + number?.slice(1).replaceAll(' ', ''),
+
         // mobile: mobile
         fcm_token: await getToken(),
       };

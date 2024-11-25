@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Alert,
   Image,
   Modal,
@@ -9,7 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {Children, useCallback, useEffect, useState} from 'react';
+import React, { Children, useCallback, useEffect, useState } from 'react';
 import Colors from '../../common/Colors';
 import {
   responsiveFontSize,
@@ -30,7 +31,7 @@ import {
   setItem,
   successToast,
 } from '../../common/CommonFunction';
-import {useDispatch, useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   hitGetDriverDetails,
   hitGetLiveOrderApi,
@@ -40,7 +41,7 @@ import {
   hitUpdateDriverStatus,
   hitVerifyEmail,
 } from '../../config/api/api';
-import {Button, Dialog, Portal} from 'react-native-paper';
+import { Button, Dialog, Portal } from 'react-native-paper';
 import BottomNav from '../../../navigation/BottomNav';
 import AppImages from '../../common/AppImages';
 import {
@@ -52,9 +53,11 @@ import {
   setupdate_order,
   setwalletBalance,
 } from '../../redux/HitApis/HitApiSlice';
-import {getimage} from '../../config/url';
+import { getimage } from '../../config/url';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomHeader from '../DashBoard/components/CustomHeader';
+import Loading from '../../components/Loading/Loading';
+import { mystyles } from '../../common/Mystyle';
 
 const AccountScreen = () => {
   const navigation = useNavigation();
@@ -64,16 +67,18 @@ const AccountScreen = () => {
   const store_data = useSelector(state => state?.parsalPartner);
   const [parse_data, setparsed_data] = useState([]);
   const [show_live, setshow_live] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Loading state
+
   const get_user_details = async () => {
     const user = await AsyncStorage.getItem('user');
     const parsed_user = JSON.parse(user);
     setparsed_data(parsed_user);
     if (parsed_user?.payload?.owner_type == 0) {
-      hitGetDriverDetails({ids: [parsed_user?.payload?.driver_id]})
+      hitGetDriverDetails({ ids: [parsed_user?.payload?.driver_id] })
         .then(res => {
           setuser_details(res?.drivers[0]);
           dispatch(setloginuserdetails(res?.drivers[0]));
-          const param = {driver_id: parsed_user?.payload?.driver_id};
+          const param = { driver_id: parsed_user?.payload?.driver_id };
           hitGetWalletBalanceApi(param)
             .then(res => {
               dispatch(setwalletBalance(res));
@@ -95,9 +100,9 @@ const AccountScreen = () => {
                 setshow_live(true);
                 dispatch(setlivetripmenu(true));
 
-                const {order_otp, ...restOrderData} =
+                const { order_otp, ...restOrderData } =
                   res?.ongoingOrder[0] || {};
-                const modifiedOrderData = {...restOrderData, otp: order_otp};
+                const modifiedOrderData = { ...restOrderData, otp: order_otp };
 
                 dispatch(setOrderData(modifiedOrderData));
 
@@ -105,7 +110,7 @@ const AccountScreen = () => {
                   dispatch(setupdate_order(modifiedOrderData));
                 }
                 if (res?.ongoingOrder?.length > 1) {
-                  const {order_otp, ...restOrderData} =
+                  const { order_otp, ...restOrderData } =
                     res?.ongoingOrder[1] || {};
                   const modifiedOrderData = {
                     ...restOrderData,
@@ -129,8 +134,10 @@ const AccountScreen = () => {
         .then(res => {
           setuser_details(res?.partner);
           dispatch(setloginuserdetails(res?.partner));
+          setIsLoading(false); // Set loading to false when data is fetched
+
           if (parsed_user?.payload?.owner_type == 2) {
-            const param = {driver_id: parsed_user?.payload?.driver_id};
+            const param = { driver_id: parsed_user?.payload?.driver_id };
             hitGetWalletBalanceApi(param)
               .then(res => {
                 dispatch(setwalletBalance(res));
@@ -152,9 +159,9 @@ const AccountScreen = () => {
                   setshow_live(true);
                   dispatch(setlivetripmenu(true));
 
-                  const {order_otp, ...restOrderData} =
+                  const { order_otp, ...restOrderData } =
                     res?.ongoingOrder[0] || {};
-                  const modifiedOrderData = {...restOrderData, otp: order_otp};
+                  const modifiedOrderData = { ...restOrderData, otp: order_otp };
 
                   dispatch(setOrderData(modifiedOrderData));
 
@@ -162,7 +169,7 @@ const AccountScreen = () => {
                     dispatch(setupdate_order(modifiedOrderData));
                   }
                   if (res?.ongoingOrder?.length > 1) {
-                    const {order_otp, ...restOrderData} =
+                    const { order_otp, ...restOrderData } =
                       res?.ongoingOrder[1] || {};
                     const modifiedOrderData = {
                       ...restOrderData,
@@ -180,6 +187,8 @@ const AccountScreen = () => {
         })
         .catch(err => {
           console.error(err);
+          setIsLoading(false);
+
         });
     }
   };
@@ -228,11 +237,11 @@ const AccountScreen = () => {
         const isOwnerTypeZero = parsedUser?.payload?.owner_type == 0;
         const profileImageUrl = isOwnerTypeZero
           ? getimage(
-              `partners_img/${driverProfile?.partner_id}/drivers/${driverProfile?.id}_${driverProfile?.profile_pic}`,
-            )
+            `partners_img/${driverProfile?.partner_id}/drivers/${driverProfile?.id}_${driverProfile?.profile_pic}`,
+          )
           : getimage(
-              `partners_img/${parsedUser?.payload?.partner_id}/${user_details?.profile_pic}`,
-            );
+            `partners_img/${parsedUser?.payload?.partner_id}/${user_details?.profile_pic}`,
+          );
         return profileImageUrl;
       }
     } catch (error) {
@@ -262,7 +271,7 @@ const AccountScreen = () => {
       const unparse_driver_data = await AsyncStorage.getItem('user');
       const parse_data = JSON.parse(unparse_driver_data);
       if (parse_data?.payload?.owner_type != 1) {
-        const {latitude, longitude} = await GetDriverCurrentLocation();
+        const { latitude, longitude } = await GetDriverCurrentLocation();
         const param = {
           driver_id: parse_data?.payload?.driver_id,
           current_lat: latitude,
@@ -288,7 +297,7 @@ const AccountScreen = () => {
 
   return (
     <>
-      <View style={{flex: 1, backgroundColor: '#F5F6F7'}}>
+      <View style={{ flex: 1, backgroundColor: '#F5F6F7' }}>
         <View
           style={{
             height: responsiveHeight(60),
@@ -296,43 +305,48 @@ const AccountScreen = () => {
           <CustomHeader screenName={'Account'} showSplash={true} />
         </View>
         <SafeAreaView
-          style={{backgroundColor: '#F5F6F7', flex: 1, marginHorizontal: 16}}>
+          style={{ backgroundColor: '#F5F6F7', flex: 1, marginHorizontal: 16 }}>
           <ScrollView showsVerticalScrollIndicator={false}>
-            {/* <View style={styles.profileSection}>
-              <Text style={styles.profileTextStyle}>{`Profile`}</Text>
-          
-            </View> */}
+            {isLoading ? (
+              // <Loading loading={isLoading} />
 
-            <View
-              style={{flex: 1, backgroundColor: '#F5F6F7', marginBottom: 10}}>
-              <View style={styles.userDetailSection}>
-                <View style={styles.udSection1}>
-                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    {!user_image ? (
-                      <Image
-                        source={AppImages.man}
-                        style={{
-                          height: responsiveHeight(70),
-                          width: responsiveHeight(70),
-                          borderRadius: responsiveHeight(70),
-                        }}
-                      />
-                    ) : (
-                      <Image
-                        source={{
-                          uri: user_image,
-                        }}
-                        style={{
-                          height: responsiveHeight(70),
-                          width: responsiveHeight(70),
-                          borderRadius: responsiveHeight(70),
-                        }}
-                      />
-                    )}
-                    <View style={styles.userTextContainer}>
-                      <Text style={styles.name}>{name}</Text>
-                      <Text style={styles.email}> {email}</Text>
-                      {/* <TouchableOpacity
+
+              <View style={mystyles.center}>
+                <ActivityIndicator size="large" color={Colors.brandBlue} />
+              </View>
+
+            ) : (
+
+              <View
+                style={{ flex: 1, backgroundColor: '#F5F6F7', marginBottom: 10 }}>
+                <View style={styles.userDetailSection}>
+                  <View style={styles.udSection1}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      {!user_image ? (
+                        <Image
+                          source={AppImages.man}
+                          style={{
+                            height: responsiveHeight(70),
+                            width: responsiveHeight(70),
+                            borderRadius: responsiveHeight(70),
+                          }}
+                        />
+                      ) : (
+                        <Image
+                          source={{
+                            uri: user_image,
+                          }}
+                          style={{
+                            height: responsiveHeight(70),
+                            width: responsiveHeight(70),
+                            borderRadius: responsiveHeight(70),
+                          }}
+                        />
+                      )}
+                      <View style={styles.userTextContainer}>
+                        <Text style={styles.name}>{name}</Text>
+                        <Text style={styles.email}> {email}</Text>
+                        {/* <TouchableOpacity
                         onPress={() => {
                           handleVerifyEmail();
                         }}>
@@ -340,68 +354,99 @@ const AccountScreen = () => {
                           {'Verify Email ID'}
                         </Text>
                       </TouchableOpacity> */}
+                      </View>
                     </View>
-                  </View>
-                  <TouchableOpacity>
-                    <Image
-                      source={AppImages.EditButton}
-                      resizeMode="contain"
-                      style={{
-                        width: responsiveWidth(18),
-                        height: responsiveHeight(18),
-                      }}
-                    />
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.udSection2}>
-                  <TouchableOpacity
-                    onPress={() => {
-                      navigation.navigate('GstDetailScreen');
-                    }}
-                    activeOpacity={0.7}>
-                    <View style={styles.gstButtonContainer}>
-                      <Text style={styles.gstButtonText}>
-                        {'Edit GST Details'}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                  <View style={styles.dataContainer}>
-                    <Data
-                      number={orderStats?.totalOrderCount || 0}
-                      dataName={'Shiped'}
-                    />
-                    <Data
-                      number={orderStats?.totalOrderCount || 0}
-                      dataName={'Transactions'}
-                    />
-                    <Data
-                      number={`₹${
-                        isNaN(orderStats?.totalPaidAmount)
-                          ? 0
-                          : orderStats?.totalPaidAmount
-                      }`}
-                      dataName={'Spent'}
-                    />
-                  </View>
-                </View>
-              </View>
+                    <TouchableOpacity>
+                      <Image
+                        source={AppImages.EditButton}
+                        resizeMode="contain"
+                        style={{
+                          width: responsiveWidth(18),
+                          height: responsiveHeight(18),
 
-              <View style={styles.optionSection}>
-                <Text style={styles.optionName}>{'Wallet'}</Text>
-                <ProfileScreenOptions
-                  Icon={AppImages.wallet_menu}
-                  optionName={'Wallet Balance'}
-                  onPress={() => {
-                    navigation.navigate('Wallet');
-                  }}
-                  walletBalance={
-                    isNaN(store_data.wallet_balance?.new_wallet_balance)
-                      ? '0.00'
-                      : parseFloat(
+                        }}
+                        resizeMethod='contain'
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  {/* {orderStats}
+                  <View style={styles.udSection2}>
+                    <TouchableOpacity
+                      onPress={() => {
+                        navigation.navigate('GstDetailScreen');
+                      }}
+                      activeOpacity={0.7}>
+                      <View style={styles.gstButtonContainer}>
+                        <Text style={styles.gstButtonText}>
+                          {'Edit GST Details'}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                    <View style={styles.dataContainer}>
+                      <Data
+                        number={orderStats?.totalOrderCount || 0}
+                        dataName={'Shiped'}
+                      />
+                      <Data
+                        number={orderStats?.totalOrderCount || 0}
+                        dataName={'Transactions'}
+                      />
+                      <Data
+                        number={`₹${isNaN(orderStats?.totalPaidAmount)
+                            ? 0
+                            : orderStats?.totalPaidAmount
+                          }`}
+                        dataName={'Earned'}
+                      />
+                    </View>
+                  </View> */}
+                  {orderStats && (
+                    <View style={styles.udSection2}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          navigation.navigate('GstDetailScreen');
+                        }}
+                        activeOpacity={0.7}
+                      >
+                        <View style={styles.gstButtonContainer}>
+                          <Text style={styles.gstButtonText}>Edit GST Details</Text>
+                        </View>
+                      </TouchableOpacity>
+                      <View style={styles.dataContainer}>
+                        <Data
+                          number={orderStats?.totalOrderCount || 0}
+                          dataName={'Shipped'}
+                        />
+                        <Data
+                          number={orderStats?.totalOrderCount || 0}
+                          dataName={'Transactions'}
+                        />
+                        <Data
+                          number={`₹${isNaN(orderStats?.totalPaidAmount) ? 0 : orderStats?.totalPaidAmount}`}
+                          dataName={'Earned'}
+                        />
+                      </View>
+                    </View>
+                  )}
+
+                </View>
+
+                <View style={styles.optionSection}>
+                  <Text style={styles.optionName}>{'Wallet'}</Text>
+                  <ProfileScreenOptions
+                    Icon={AppImages.wallet_menu}
+                    optionName={'Wallet Balance'}
+                    onPress={() => {
+                      navigation.navigate('Wallet');
+                    }}
+                    walletBalance={
+                      isNaN(store_data.wallet_balance?.new_wallet_balance)
+                        ? '0.00'
+                        : parseFloat(
                           store_data.wallet_balance?.new_wallet_balance,
                         ).toFixed(2)
-                  }
-                />
+                    }
+                  />
 
                 <Text style={styles.optionName}>{'Other'}</Text>
                 <ProfileScreenOptions
@@ -425,35 +470,35 @@ const AccountScreen = () => {
                   />
                 )}
 
-                <ProfileScreenOptions
-                  Icon={AppImages.earningImage}
-                  optionName={'Earning'}
-                  onPress={() => {
-                    navigation.navigate('Earning');
-                  }}
-                />
-                <ProfileScreenOptions
-                  Icon={AppImages.ledgerImage}
-                  optionName={'Ledger'}
-                  onPress={() => {
-                    navigation.navigate('HelpAndSupportMain');
-                  }}
-                />
-                <ProfileScreenOptions
-                  Icon={AppImages.paymentsImage}
-                  optionName={'Payment'}
-                  onPress={() => {
-                    navigation.navigate('HelpAndSupportMain');
-                  }}
-                />
-                <ProfileScreenOptions
-                  Icon={AppImages.trainingImage}
-                  optionName={'Traning'}
-                  onPress={() => {
-                    // navigation.navigate('HelpAndSupportMain');
-                  }}
-                />
-                {/* <Text style={styles.optionName}>{'Address'}</Text>
+                  <ProfileScreenOptions
+                    Icon={AppImages.earningImage}
+                    optionName={'Earning'}
+                    onPress={() => {
+                      navigation.navigate('Earning');
+                    }}
+                  />
+                  <ProfileScreenOptions
+                    Icon={AppImages.ledgerImage}
+                    optionName={'Ledger'}
+                    onPress={() => {
+                      navigation.navigate('HelpAndSupportMain');
+                    }}
+                  />
+                  <ProfileScreenOptions
+                    Icon={AppImages.paymentsImage}
+                    optionName={'Payment'}
+                    onPress={() => {
+                      navigation.navigate('HelpAndSupportMain');
+                    }}
+                  />
+                  <ProfileScreenOptions
+                    Icon={AppImages.trainingImage}
+                    optionName={'Traning'}
+                    onPress={() => {
+                      // navigation.navigate('HelpAndSupportMain');
+                    }}
+                  />
+                  {/* <Text style={styles.optionName}>{'Address'}</Text>
                 <ProfileScreenOptions
                   Icon={AppImages.savedAddress}
                   optionName={'Saved & Address'}
@@ -461,53 +506,53 @@ const AccountScreen = () => {
                     navigation.navigate('SaveAddress');
                   }}
                 /> */}
-                <Text style={styles.optionName}>{'Support & Legal'}</Text>
+                  <Text style={styles.optionName}>{'Support & Legal'}</Text>
 
-                <ProfileScreenOptions
-                  Icon={AppImages.helpIcon}
-                  optionName={'Help & Support'}
-                  onPress={() => {
-                    navigation.navigate('HelpAndSupport');
-                  }}
-                />
-                <ProfileScreenOptions
-                  Icon={AppImages.privacyPolicyImage}
-                  optionName={'Privacy Policy'}
-                  onPress={() => {
-                    navigation.navigate('TermsCondition', {
-                      id: 3,
-                      heading: 'Privacy Policy',
-                    });
-                  }}
-                />
+                  <ProfileScreenOptions
+                    Icon={AppImages.helpIcon}
+                    optionName={'Help & Support'}
+                    onPress={() => {
+                      navigation.navigate('HelpAndSupport');
+                    }}
+                  />
+                  <ProfileScreenOptions
+                    Icon={AppImages.privacyPolicyImage}
+                    optionName={'Privacy Policy'}
+                    onPress={() => {
+                      navigation.navigate('TermsCondition', {
+                        id: 2,
+                        heading: 'Privacy Policy',
+                      });
+                    }}
+                  />
 
-                <ProfileScreenOptions
-                  Icon={AppImages.termsAndCondition}
-                  optionName={'Terms & Conditions'}
-                  onPress={() => {
-                    navigation.navigate('TermsCondition', {
-                      id: 1,
-                      heading: 'Terms & Condition',
-                    });
-                  }}
-                />
+                  <ProfileScreenOptions
+                    Icon={AppImages.termsAndCondition}
+                    optionName={'Terms & Conditions'}
+                    onPress={() => {
+                      navigation.navigate('TermsCondition', {
+                        id: 1,
+                        heading: 'Terms & Condition',
+                      });
+                    }}
+                  />
 
-                <Text style={styles.optionName}>{'Settings'}</Text>
-                {/* <ProfileScreenOptions
+                  <Text style={styles.optionName}>{'Settings'}</Text>
+                  {/* <ProfileScreenOptions
                   Icon={AppImages.languageIcon}
                   optionName={'Choose Language'}
                   onPress={() => {}}
                 /> */}
-                <ProfileScreenOptions
-                  Icon={AppImages.logoutIcon}
-                  onPress={() => {
-                    setLogoutModalVisible(prev => !prev);
-                  }}
-                  optionName={'Logout'}
-                />
+                  <ProfileScreenOptions
+                    Icon={AppImages.logoutIcon}
+                    onPress={() => {
+                      setLogoutModalVisible(prev => !prev);
+                    }}
+                    optionName={'Logout'}
+                  />
+                </View>
               </View>
-            </View>
-
+            )}
             <Modal
               animationType="slide"
               transparent={true}
@@ -533,10 +578,11 @@ const AccountScreen = () => {
                 </View>
               </View>
             </Modal>
+
           </ScrollView>
         </SafeAreaView>
       </View>
-      <View style={{marginBottom: 10, backgroundColor: '#F5F6F7'}}>
+      <View style={{ marginBottom: 10, backgroundColor: '#F5F6F7' }}>
         <BottomNav Setting={true} account={true} />
       </View>
     </>
@@ -614,6 +660,10 @@ const styles = StyleSheet.create({
   },
   userTextContainer: {
     marginLeft: responsiveWidth(15),
+  },
+  center: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   gstButtonText: {
     fontSize: responsiveFontSize(12),

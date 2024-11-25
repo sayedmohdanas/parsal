@@ -94,7 +94,7 @@ const WalletScreen = ({route, accountNumber = '075423453453'}) => {
             <TouchableOpacity
               style={styles.button}
               onPress={() =>
-                navigation.navigate('AddCash', {screenName: 'Add Cash'})
+                navigation.navigate('AddCash', {screenName: 'Add Cash',remaningBalance:balance})
               }>
               <Text style={styles.buttonText}>Add Cash</Text>
             </TouchableOpacity>
@@ -105,7 +105,7 @@ const WalletScreen = ({route, accountNumber = '075423453453'}) => {
                   errorToast('Insufficient balance to cash out.');
                   return; // Add return here to prevent navigation if balance is less than 0
                 }
-                navigation.navigate('AddCash', {screenName: 'Withdraw'});
+                navigation.navigate('AddCash', {screenName: 'Withdraw',remaningBalance:balance});
               }}>
               <Text style={styles.buttonText}>Cash Out</Text>
             </TouchableOpacity>

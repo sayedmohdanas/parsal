@@ -287,6 +287,7 @@ const OrderInfo = ({ route }) => {
               <FlatList
                 data={orderDetails?.transactions}
                 keyExtractor={(item, index) => index.toString()}
+                
                 renderItem={({ item, index }) => (
                   <View>
                     {/* Render the line only for the last item */}
@@ -315,7 +316,7 @@ const OrderInfo = ({ route }) => {
                     </View>
                   </View>
                 )}
-              // contentContainerStyle={{ paddingBottom: 20 }} // Optional: Prevent clipping of last item
+              contentContainerStyle={{ paddingBottom: responsiveHeight(230) }} // Optional: Prevent clipping of last item
               />
 
             </View>

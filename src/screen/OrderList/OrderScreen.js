@@ -231,6 +231,8 @@ const OrderScreen = () => {
               data={filter_data(orders)}
               keyExtractor={(item, index) => item.id.toString()}
               renderItem={renderOrderItem}
+              contentContainerStyle={styles.listContentContainer} // This helps manage spacing within the list.
+
               ListEmptyComponent={() => (
                 <SafeAreaView
                   style={{
@@ -339,6 +341,12 @@ const styles = StyleSheet.create({
     width: responsiveWidth(277),
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  listContentContainer: {
+    paddingBottom: responsiveHeight(80), // Prevents clipping at the bottom
+    // paddingHorizontal: responsiveWidth(5),
+    // marginTop:responsiveHeight(5)
+    // Adds padding on both sides of the list
   },
   emptyTextStyle: {
     fontSize: responsiveFontSize(13),

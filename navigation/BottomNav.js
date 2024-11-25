@@ -103,14 +103,14 @@ const BottomNav = props => {
                 if (res?.ongoingOrder[0]?.is_arrived_pickup) {
                   if (modifiedOrderData?.delivered_at) {
                     dispatch(setupdate_order(modifiedOrderData));
-                    navigation.navigate('AmountCollected');
+                    // navigation.navigate('AmountCollected');
                   } else {
                     dispatch(setupdate_order(modifiedOrderData));
-                    navigation.navigate('DriverMap');
+                    // navigation.navigate('DriverMap');
                     return;
                   }
                 } else {
-                  navigation.navigate('DriverMap');
+                  // navigation.navigate('DriverMap');
                   return;
                 }
                 if (res?.ongoingOrder?.length > 1) {
@@ -121,7 +121,7 @@ const BottomNav = props => {
                     otp: order_otp,
                   };
                   dispatch(setnextOrderData(modifiedOrderData));
-                  navigation.navigate('DriverMap');
+                  // navigation.navigate('DriverMap');
                 }
               }
             })
@@ -168,14 +168,14 @@ const BottomNav = props => {
                   if (res?.ongoingOrder[0]?.is_arrived_pickup) {
                     if (modifiedOrderData?.delivered_at) {
                       dispatch(setupdate_order(modifiedOrderData));
-                      navigation.navigate('AmountCollected');
+                      // navigation.navigate('AmountCollected');
                     } else {
                       dispatch(setupdate_order(modifiedOrderData));
-                      navigation.navigate('DriverMap');
+                      // navigation.navigate('DriverMap');
                       return;
                     }
                   } else {
-                    navigation.navigate('DriverMap');
+                    // navigation.navigate('DriverMap');
                     return;
                   }
                   if (res?.ongoingOrder?.length > 1) {
@@ -186,7 +186,7 @@ const BottomNav = props => {
                       otp: order_otp,
                     };
                     dispatch(setnextOrderData(modifiedOrderData));
-                    navigation.navigate('DriverMap');
+                    // navigation.navigate('DriverMap');
                     return;
                   }
                 }

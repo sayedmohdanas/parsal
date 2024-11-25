@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {View, Text, Image, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, Text, Image, StyleSheet, TouchableOpacity, TouchableWithoutFeedback} from 'react-native';
 import {
   useFocusEffect,
   useNavigation,
@@ -37,28 +37,39 @@ const CustomHeader = ({
   const [check_owner, setCheckOwner] = useState();
   const [userDetails, setUserDetails] = useState({});
   const [isEnabled, setIsEnabled] = useState(null);
+  const [isLoading, setIsLoading] = useState(false); // To block rapid toggles
+
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
   const toggleOnlineStatus = async () => {
+    const previousState = isEnabled; // Store the current state
     try {
+      setIsEnabled(!isEnabled); // Optimistic update
+  
       const driverData = JSON.parse(await AsyncStorage.getItem('user'));
-      const {latitude, longitude} = await GetDriverCurrentLocation();
-
+      const { latitude, longitude } = await GetDriverCurrentLocation();
+  
       const param = {
         driver_id: driverData?.payload?.driver_id,
         current_lat: latitude,
         current_long: longitude,
         working_status: !isEnabled ? 1 : 0,
       };
-
+  
       await hitUpdateDriverStatus(param);
-      setIsEnabled(!isEnabled);
-      dispatch(setworking_status(!isEnabled));
+      dispatch(setworking_status(!isEnabled)); // Sync with Redux
     } catch (error) {
       console.error('Error toggling online status:', error);
+  
+      // Revert state in case of failure
+      setIsEnabled(previousState);
+      dispatch(setworking_status(previousState));
     }
   };
+  
+  
+
 
   const updateDriverLocation = async () => {
     try {
@@ -160,6 +171,7 @@ const CustomHeader = ({
         {check_owner !== 1 && !not_show ? (
           <View
             style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+              <TouchableOpacity  onPress={toggleOnlineStatus} style={{paddingHorizontal:responsiveWidth(10),paddingVertical:responsiveHeight(8)}}>
             <Switch
               value={isEnabled}
               onValueChange={toggleOnlineStatus}
@@ -211,6 +223,7 @@ const CustomHeader = ({
               switchWidthMultiplier={4.5}
               switchBorderRadius={30}
             />
+            </TouchableOpacity>
           </View>
         ) : (
           <View

@@ -136,4 +136,5 @@ export default AppImages = {
   chatSendButton:require('../assets/images/chatSendButton.png'),
   bike2: require('../assets/images/parsal_bike.png'),
   EditButton: require('../assets/images/brandBlueEditicon.png'),
+  ticketSubmitted: require('../assets/images/ticketSubmitted.png'),
 };

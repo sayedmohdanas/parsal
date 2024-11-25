@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   FlatList,
   ImageBackground,
-  
+
 } from 'react-native';
 import AppImages from '../../common/AppImages';
 import Colors from '../../common/Colors';
@@ -349,7 +349,7 @@ const Earning = () => {
                   style={[
                     styles.navButton,
                     nextDay.start > new Date() && styles.disabledButton,
-                    
+
                     // Apply disabled styling
                   ]}
                   onPress={handleNextDate}
@@ -496,8 +496,8 @@ const styles = StyleSheet.create({
   navButton: {
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical:responsiveHeight(10),
-    paddingHorizontal:responsiveWidth(15),
+    paddingVertical: responsiveHeight(10),
+    paddingHorizontal: responsiveWidth(15),
     // backgroundColor:'pink'
   },
   arrowImage: {
@@ -544,7 +544,7 @@ const styles = StyleSheet.create({
     marginLeft: responsiveHeight(3),
   },
   orderListContainer: {
-    backgroundColor:Colors.homeBackground,
+    backgroundColor: Colors.homeBackground,
 
   },
   orderListHeadign: {
@@ -553,7 +553,7 @@ const styles = StyleSheet.create({
     marginLeft: responsiveHeight(22),
     color: Colors.black,
     marginBottom: responsiveHeight(10),
-    marginTop:responsiveHeight(16)
+    marginTop: responsiveHeight(16)
   },
   scrollView: {
     paddingBottom: responsiveHeight(40),

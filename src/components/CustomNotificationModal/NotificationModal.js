@@ -81,6 +81,7 @@ const NotificationModal = ({
   const pay_mode = 'cash';
   const payment_status = 'pending';
   const store_data = useSelector(state => state?.parsalPartner);
+// console.log('timer===>>',timer);
 
   useEffect(() => {
     const initializeSocket = async () => {

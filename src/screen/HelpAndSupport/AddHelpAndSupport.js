@@ -85,9 +85,11 @@ const AddHelpAndSupport = () => {
     if (isTicketSubmitted) {
       setTimeout(() => {
         setIsTicketSubmitted(false);
-        navigation.navigate('HelpAndSupportMain');
+
+        navigation.navigate('HelpAndSupport');
       }, 2000);
     }
+    
   }, [isTicketSubmitted]);
 
   const handleSubmit = async () => {
@@ -118,7 +120,7 @@ const AddHelpAndSupport = () => {
         setImages('');
         setPostImages('');
         setDescription('');
-        navigation.goBack('');
+        // navigation.goBack('');
         setIsTicketSubmitted(true);
       } else {
         errorToast(
@@ -291,7 +293,7 @@ const AddHelpAndSupport = () => {
             </Text>
           </View>
 
-          {images != null && images != undefined && images != '' ? (
+          {images != null && images != undefined && images != '' &&imagesarray?.length !=0? (
             <View style={styles.imageGridContainer}>
               {imagesarray?.map(item => {
                 return (
@@ -436,6 +438,7 @@ const styles = StyleSheet.create({
   },
   imagePickerContainer2: {
     marginLeft: responsiveWidth(2),
+    // backgroundColor:'red'
     // marginVertical:responsiveHeight(19),
     // marginTop: responsiveHeight(20),
     // backgroundColor:'yellow',

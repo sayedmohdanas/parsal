@@ -143,7 +143,7 @@ const HelpAndSupportMain = ({navigation}) => {
       
       <FlatList
         data={tickets}
-        contentContainerStyle={{marginVertical:responsiveHeight(6)}}
+        contentContainerStyle={styles.listContentContainer} // This helps manage spacing within the list.
         renderItem={renderItem}
         keyExtractor={item => item.id.toString()}
         ListEmptyComponent={() => (
@@ -156,10 +156,8 @@ const HelpAndSupportMain = ({navigation}) => {
               }}
               resizeMode="contain"
             />
-            <Text style={[styles.emptyText, {marginTop: 20}]}>
-              {
-                'No support tickets found. \nPlease contact our support team for assistance.'
-              }
+            <Text style={styles.emptyText}>
+              {'No support tickets found. \nPlease contact our support team for assistance.'}
             </Text>
           </View>
         )}
@@ -206,5 +204,11 @@ const styles = StyleSheet.create({
     color: Colors.grey,
     textAlign: 'center',
     paddingTop: 10,
+  },
+  listContentContainer: {
+    paddingBottom: responsiveHeight(15), // Prevents clipping at the bottom
+    paddingHorizontal: responsiveWidth(5),
+    marginTop:responsiveHeight(5)
+    // Adds padding on both sides of the list
   },
 });
