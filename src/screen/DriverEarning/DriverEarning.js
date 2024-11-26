@@ -234,6 +234,7 @@ const Earning = () => {
       const nextDay = calculateDayRange(currentStartDate, true);
 
       if (nextDay.start > today) {
+
         errorToast("Cannot go to the next day; it exceeds today's date.");
 
         return;
@@ -242,7 +243,9 @@ const Earning = () => {
       setDateRange(nextDay);
     }
   };
-  const nextDay = calculateDayRange(new Date(dateRange.start), true);
+  // const nextDay = calculateDayRange(new Date(dateRange.start), true);
+  const nextDay = selectedRange === 'today' ? calculateDayRange(new Date(dateRange.start), true) : calculateWeekRange(new Date(dateRange.start), true);
+
 
   return (
     <>
