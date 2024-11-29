@@ -22,6 +22,7 @@ import {useDispatch} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HeaderBackButton from '../../../../components/HeaderBackButton/HeaderBackButton';
 import {successToast} from '../../../../common/CommonFunction';
+import { useEffect, useState } from 'react';
 
 const AddCashScreen = ({route}) => {
   const [loading, setLoading] = useState(false);
@@ -68,7 +69,6 @@ const AddCashScreen = ({route}) => {
 
   const handleAmountChange = (amount) => {
     setBalance(amount);
-    // Apply validation only for "Withdraw"
     if (screenName === 'Withdraw' && Number(amount) > remaningBalance) {
       setErrorMessage('Insufficient Balance');
     } else {

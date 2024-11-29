@@ -8,7 +8,7 @@ import {
   FlatList,
   ImageBackground,
   ActivityIndicator,
-  
+
 } from 'react-native';
 import AppImages from '../../common/AppImages';
 import Colors from '../../common/Colors';
@@ -40,6 +40,8 @@ const Earning = () => {
   const [totalEarnings, setTotalEarnings] = useState(0);
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
   const [loading, setLoading] = useState(false);
+  const [isEarningLoading, setIsEarningLoading] = useState(false);
+  const [isDriverListLoading, setIsDriverListLoading] = useState(false);
 
   const navigation = useNavigation();
   useEffect(() => {
@@ -96,6 +98,8 @@ const Earning = () => {
           console.error(err);
         })
         .finally(() => {
+          setIsEarningLoading(false);  // Set loading to false after data is fetched
+
           setLoading(false);
         });
     } else {
@@ -104,6 +108,7 @@ const Earning = () => {
         filter: selectedRange,
         customDate: dateRange,
       };
+
       hitDriverEarning(param)
         .then(res => {
           if (res?.success == false) {
@@ -116,6 +121,8 @@ const Earning = () => {
           console.error(err);
         })
         .finally(() => {
+          setIsEarningLoading(false);  // Set loading to false after data is fetched
+
           setLoading(false);
         });
     }
@@ -143,6 +150,8 @@ const Earning = () => {
           console.error(err);
         })
         .finally(() => {
+          setIsDriverListLoading(false);  // Set loading to false after driver list is fetched
+
           setLoading(false);
         });
     }
@@ -264,11 +273,10 @@ const Earning = () => {
           />
         </View>
         <View style={styles.container}>
-          {loading ? (
-            // <Loading loading={loading} />
+          {(isEarningLoading || isDriverListLoading) ? (
             <View style={mystyles.center}>
-            <ActivityIndicator size="large" color={Colors.brandBlue} />
-          </View>
+              <ActivityIndicator size="large" color={Colors.brandBlue} />
+            </View>
           ) : (
             <>
               <View
@@ -283,7 +291,7 @@ const Earning = () => {
                 <View
                   style={{ justifyContent: 'center', alignItems: 'center' }}>
                   <Text style={styles.earningAmount}>
-                     ₹
+                    ₹
                     {!isNaN(driver_todays_earning?.total_paid_amount)
                       ? Math.round(
                         driver_todays_earning?.total_paid_amount,
@@ -384,7 +392,7 @@ const Earning = () => {
                 {driver_todays_earning?.individual_paid_amounts && (
                   <Text style={styles.orderListHeadign}>{'Order List '}</Text>
                 )}
-                <FlatList
+                {/* <FlatList
                   ListHeaderComponent={() => (
                     <>
                       {!driver_todays_earning?.individual_paid_amounts && (
@@ -432,7 +440,70 @@ const Earning = () => {
                   renderItem={renderItem}
                   keyExtractor={(item, index) => index.toString()}
                   contentContainerStyle={{ paddingBottom: responsiveHeight(80) }}
+                /> */}
+                <FlatList
+                  ListHeaderComponent={() => (
+                    <>
+                      {loading ? (
+                        // Show a loading indicator when data is being fetched
+                        <View
+                          style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            alignSelf: 'center',
+                            paddingVertical: responsiveHeight(30),
+                            marginTop: responsiveHeight(110),
+                          }}>
+                          <ActivityIndicator size="large" color={Colors.brandBlue} />
+                        </View>
+                      ) : !driver_todays_earning?.individual_paid_amounts ? (
+                        // If no data is available, show an empty state
+                        <View
+                          style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            alignSelf: 'center',
+                            paddingVertical: responsiveHeight(30),
+                            marginTop: responsiveHeight(110),
+                          }}>
+                          <ImageBackground
+                            source={AppImages.boxbackgound}
+                            style={styles.boxBackstyle}>
+                            <Image
+                              source={AppImages.emptyImage}
+                              style={styles.emptyboxStyle}
+                              resizeMode="contain"
+                            />
+                          </ImageBackground>
+                          <Text style={styles.emptyTextStyle}>
+                            {'No Order history Available, contact our support team.'}
+                          </Text>
+                        </View>
+                      ) : (
+                        // If data is available, show the partner rider list
+                        login_user?.owner_type !== 0 && driver_todays_earning?.individual_paid_amounts && (
+                          <View style={{ marginLeft: 20 }}>
+                            {partner_riders?.length > 1 && (
+                              <FlatList
+                                data={partner_riders}
+                                horizontal
+                                renderItem={renderRieder}
+                                keyExtractor={(item, index) => index.toString()}
+                              />
+                            )}
+                          </View>
+                        )
+                      )}
+                    </>
+                  )}
+                  data={driver_todays_earning?.individual_paid_amounts}
+                  renderItem={renderItem}
+                  keyExtractor={(item, index) => index.toString()}
+                  contentContainerStyle={{ paddingBottom: responsiveHeight(80) }}
                 />
+
               </View>
             </>
           )}
@@ -622,7 +693,7 @@ const styles = StyleSheet.create({
   center: {
     justifyContent: 'center',
     alignItems: 'center',
-},
+  },
   disabledButton: {
     // backgroundColor: '#A9A9A9', // Grey color to indicate disabled state
   },

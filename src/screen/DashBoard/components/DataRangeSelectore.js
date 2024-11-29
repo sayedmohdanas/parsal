@@ -11,7 +11,6 @@ const data = [
 ];
 
 const DateRangeSelector = ({selectedRange, setSelectedRange}) => {
-  const [value, setValue] = useState();
 
   return (
     // <View>
@@ -67,8 +66,8 @@ const styles = StyleSheet.create({
     // Item text color
   },
   iconStyle: {
-    width: 20,
-    height: 20,
+    width: responsiveWidth(20),
+    height: responsiveHeight(20),
   },
   inputSearchStyle: {
     height: 40,

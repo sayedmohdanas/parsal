@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -9,42 +9,22 @@ import {
 import CustomTextInput from '../../components/CustomTextInput/CustomTextInput';
 import Colors from '../../common/Colors';
 import ImagePicker from 'react-native-image-crop-picker';
-import {useSelector} from 'react-redux';
-import {hitAddBankAccount} from '../../config/api/api';
+import { useSelector } from 'react-redux';
+import { hitAddBankAccount } from '../../config/api/api';
 import Loading from '../../components/Loading/Loading';
-import {errorToast, successToast} from '../../common/CommonFunction';
+import { errorToast, successToast } from '../../common/CommonFunction';
 import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
+import ImagePickerComponent from '../../components/ImagePickerComponent/ImagePicker';
+import { responsiveFontSize, responsiveHeight } from '../../common/metrices';
 // import { successToast Assuming you have a utility function for showing toasts
 
-const UpdateBankDetailsScreen = ({navigation}) => {
+const UpdateBankDetailsScreen = ({ navigation }) => {
   const [accountNumber, setAccountNumber] = useState('');
   const [ifscCode, setIfscCode] = useState('');
   const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
   const [loading, setLoading] = useState(false);
-  // Function to pick an image or use the camera
-  const pickImage = async (useCamera = false) => {
-    try {
-      const response = useCamera
-        ? await ImagePicker.openCamera({cropping: true})
-        : await ImagePicker.openPicker({
-            width: 800,
-            height: 800,
-            cropping: true,
-            includeBase64: true,
-          });
+  const [bankDocument, setBankDocument] = useState(null)
 
-      if (response) {
-        const base64Data = `data:${response.mime};base64,${response.data}`;
-        const imagePath = response.path;
-
-        // Handle the image data, pass it wherever needed
-        console.log('Image URI:', imagePath);
-        console.log('Base64 Data:', base64Data);
-      }
-    } catch (error) {
-      console.error('Error picking image: ', error);
-    }
-  };
 
   const handleAddAccount = async () => {
     try {
@@ -57,7 +37,10 @@ const UpdateBankDetailsScreen = ({navigation}) => {
       const response = await hitAddBankAccount(payload);
       if (response.success) {
         successToast('successfully!', 'Bank details added successfully!');
-        navigation.navigate('Trip');
+        setAccountNumber('');
+        setIfscCode('');
+        setBankDocument(null);
+        navigation.navigate('Trip'); 
       } else {
         console.log(response);
         errorToast(response.message || response.error, 'Something went wrong!');
@@ -72,11 +55,14 @@ const UpdateBankDetailsScreen = ({navigation}) => {
       setLoading(false);
     }
   };
+  
+  const disabled = accountNumber.length < 10 || ifscCode.length < 8 || !bankDocument;
+  console.log(disabled)
 
   return (
     <>
       <HeaderBackButton
-        headerText={'Add Bank Details'}
+        headerText={'Manage Bank Account'}
         onPress={() => {
           navigation.goBack('');
         }}
@@ -85,33 +71,47 @@ const UpdateBankDetailsScreen = ({navigation}) => {
         <Loading loading={loading} />
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>Update Bank Details</Text>
             <CustomTextInput
               value={accountNumber}
               onChangeText={setAccountNumber}
               placeholder="Account Number"
               label="Bank Account No"
-              isRequired={false}
+              isRequired={true}
             />
             <CustomTextInput
               value={ifscCode}
               onChangeText={setIfscCode}
               placeholder="IFSC Code"
               label="IFSC Code"
-              isRequired={false}
+              isRequired={true}
+            />
+
+          </View>
+          <View style={{
+            marginTop: responsiveHeight(12), borderRadius: responsiveHeight(8),
+          }}>
+            <ImagePickerComponent
+              labelText="Passbook / Checkbook"
+              uploaded={bankDocument}
+              onImagePick={setBankDocument}
+              useCamera={false}
             />
           </View>
         </ScrollView>
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={handleAddAccount}>
+          <TouchableOpacity style={[
+            styles.button,
+            disabled && { backgroundColor: Colors.grey },
+          ]}
+
+            onPress={handleAddAccount}
+            disabled={disabled}
+
+          >
             <Text style={styles.buttonText}>Proceed</Text>
           </TouchableOpacity>
-          <View style={{alignItems: 'center', marginTop: 10}}>
-            <TouchableOpacity onPress={() => pickImage(false)}>
-              <Text style={{color: Colors.brandBlue}}>
-                Don't have the details? Upload Document
-              </Text>
-            </TouchableOpacity>
+          <View style={{ alignItems: 'center', marginTop: 10 }}>
+
           </View>
         </View>
       </View>
@@ -130,13 +130,13 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: 'white',
-    borderRadius: 8,
-    padding: 20,
+    borderRadius: responsiveHeight(8),
+    padding: 15,
   },
   cardTitle: {
-    fontSize: 20,
+    fontSize: responsiveFontSize(16),
     fontWeight: 'bold',
-    marginBottom: 20,
+    // marginBottom: 20,
     color: Colors.black,
   },
   buttonContainer: {
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: Colors.brandBlue,
     padding: 15,
-    borderRadius: 5,
+    borderRadius: responsiveHeight(5),
     alignItems: 'center',
   },
   buttonText: {

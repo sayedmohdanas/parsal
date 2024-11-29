@@ -1,4 +1,5 @@
 import {
+  Alert,
   Image,
   ImageBackground,
   StyleSheet,
@@ -20,11 +21,14 @@ import {useNavigation} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import {errorToast} from '../../../../common/CommonFunction';
 import HeaderBackButton from '../../../../components/HeaderBackButton/HeaderBackButton';
+import { hitGetBankAccount } from '../../../../config/api/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const WalletScreen = ({route, accountNumber = '075423453453'}) => {
+
+const WalletScreen = ({route}) => {
   const [balance, setBalance] = useState(0);
   const [isHidden, setIsHidden] = useState(true); // State to control visibility
-
+  const [accountNumber,setAccountNumber]=useState('0754234')
   // Generate the masked number: Keep the first two digits, replace the rest with stars
   const maskedNumber =
     accountNumber.slice(0, 2) + '*'.repeat(accountNumber.length - 2);
@@ -36,13 +40,51 @@ const WalletScreen = ({route, accountNumber = '075423453453'}) => {
 
   const navigation = useNavigation();
 
-  useEffect(() => {
+//   useEffect(() => {
+//     if (route.params?.newBalance) {
+//       setBalance(route.params.newBalance);
+//     } else {
+//       setBalance(store_data);
+//     }
+// try {
+//   const response = await hitGetBankAccount
+// } catch (error) {
+  
+// }
+//   }, [route.params?.newBalance, store_data]);
+
+useEffect(() => {
+  // Define the async function inside useEffect
+  const fetchBankAccountDetails = async () => {
     if (route.params?.newBalance) {
       setBalance(route.params.newBalance);
     } else {
       setBalance(store_data);
     }
-  }, [route.params?.newBalance, store_data]);
+
+    try {
+      const user = await AsyncStorage.getItem('user');
+      const parsedUser = JSON.parse(user);
+
+      const param = {
+        partnerId: parsedUser?.payload?.partner_id,
+      };
+      const response = await hitGetBankAccount({partner_id: param?.partnerId});
+      console.log(response,'response---->>')
+      if (response) {
+        setAccountNumber(response?.data?.account_no || '');
+      } else {
+        console.error('Error fetching bank account details:', response.statusText);
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
+  };
+
+  // Call the async function
+  fetchBankAccountDetails();
+}, [route.params?.newBalance, store_data]);
+
   return (
     <SafeAreaView style={styles.container}>
       <HeaderBackButton
@@ -83,7 +125,7 @@ const WalletScreen = ({route, accountNumber = '075423453453'}) => {
             </View>
             <View style={styles.accountInfo}>
               <TouchableOpacity onPress={() => setIsHidden(!isHidden)}>
-                <Text style={[styles.accountText, {letterSpacing: 1.5}]}>
+                <Text style={[styles.accountText, {letterSpacing: 1}]}>
                   {isHidden ? maskedNumber : accountNumber}
                 </Text>
               </TouchableOpacity>

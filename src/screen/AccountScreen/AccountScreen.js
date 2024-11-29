@@ -126,6 +126,8 @@ const AccountScreen = () => {
         })
         .catch(err => {
           console.log(err);
+        }).finally(() => {
+          setIsLoading(false); // Example: Ensure to properly call the function
         });
     } else {
       hitGetPartner({
@@ -306,7 +308,11 @@ const AccountScreen = () => {
         </View>
         <SafeAreaView
           style={{ backgroundColor: '#F5F6F7', flex: 1, marginHorizontal: 16 }}>
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <ScrollView showsVerticalScrollIndicator={false} 
+         contentContainerStyle={{ 
+          paddingBottom: responsiveHeight(80) 
+        }}
+          > 
             {isLoading ? (
               // <Loading loading={isLoading} />
 
@@ -582,7 +588,7 @@ const AccountScreen = () => {
           </ScrollView>
         </SafeAreaView>
       </View>
-      <View style={{ marginBottom: 10, backgroundColor: '#F5F6F7' }}>
+      <View style={styles.bottomNavContainer}>
         <BottomNav Setting={true} account={true} />
       </View>
     </>
@@ -729,5 +735,11 @@ const styles = StyleSheet.create({
   modalButtonText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  bottomNavContainer: {
+    position: 'absolute',
+    bottom: 13,
+    left: 0,
+    right: 0,
   },
 });

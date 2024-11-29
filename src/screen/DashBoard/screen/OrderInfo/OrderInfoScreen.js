@@ -24,6 +24,9 @@ import MapViewDirections from 'react-native-maps-directions';
 import { Fonts, FontSizes } from '../../../../common/Theme';
 import HeaderBackButton from '../../../../components/HeaderBackButton/HeaderBackButton';
 import { custommapstyle, formatDate } from '../../../../common/CommonFunction';
+import ViewShot, { captureRef } from 'react-native-view-shot';
+import Share from 'react-native-share';
+
 const OrderInfo = ({ route }) => {
   const GOOGLE_API_KEY = 'AIzaSyAbwv5P-iff_vVB7TpstiQ1RI1kvktza48';
   const navigation = useNavigation();
@@ -32,6 +35,27 @@ const OrderInfo = ({ route }) => {
   const productName = order_info?.prod_name
   const [orderDetails, setOrderDetails] = useState(null);
   const [loading, setLoading] = useState(true); // Loading state added
+  const viewRef = useRef();
+
+
+  const handleScreenshotAndShare = async () => {
+    try {
+        const uri = await captureRef(viewRef, {
+            format: 'png',
+            quality: 0.8,
+        });
+        await Share.open({
+            url: uri,
+            title: 'Order Details',
+            message: 'Here are the details of my order.',
+        });
+        ToastAndroid.show('Screenshot shared successfully!', ToastAndroid.SHORT);
+    } catch (error) {
+        console.error('Error capturing and sharing screenshot:', error);
+        ToastAndroid.show('Failed to share screenshot.', ToastAndroid.SHORT);
+    }
+};
+  
   console.log('orderdetails=======>>anas==>>>', route.params);
 
   useEffect(() => {
@@ -121,12 +145,20 @@ const OrderInfo = ({ route }) => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Loading loading={loading} />
-      <View style={[styles.section1]}>
-       
-        <HeaderBackButton
+      <HeaderBackButton
           headerText={'Order Details'}
           onPress={() => navigation.goBack('')}
+          rightButton={AppImages.shareIcon}
+          onButtonPress={handleScreenshotAndShare}
         />
+      <ViewShot
+                ref={viewRef}
+                options={{ fileName: 'OrderDetails', format: 'jpg', quality: 0.9 }}
+                style={{ flex: 1 }}
+            >
+      <View style={[styles.section1]}>
+       
+      
         <MapView
           ref={mapRef} 
           customMapStyle={custommapstyle}
@@ -318,7 +350,7 @@ const OrderInfo = ({ route }) => {
                 )}
               contentContainerStyle={{ paddingBottom: responsiveHeight(230) }} // Optional: Prevent clipping of last item
               />
-
+ 
             </View>
           </>
         ) : (
@@ -333,6 +365,7 @@ const OrderInfo = ({ route }) => {
           </View>
         )}
       </View>
+      </ViewShot>
     </SafeAreaView>
   );
 };

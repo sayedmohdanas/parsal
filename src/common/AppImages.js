@@ -116,6 +116,7 @@ export default AppImages = {
   wallet_menu: require('../assets/images/wallet_menu.png'),
   my_wallet: require('../assets/images/my_wallet.png'),
   transectionList: require('../assets/images/transectionList.png'),
+  transectionIcon: require('../assets/images/transaction.png'),
   walltetBackground: require('../assets/images/walletBackground.png'),
   terms: require('../assets/images/terms-and-conditions.png'),
   compliant: require('../assets/images/compliant.png'),
@@ -137,4 +138,5 @@ export default AppImages = {
   bike2: require('../assets/images/parsal_bike.png'),
   EditButton: require('../assets/images/brandBlueEditicon.png'),
   ticketSubmitted: require('../assets/images/ticketSubmitted.png'),
+  shareIcon:require('../assets/images/share_Icon.png'),
 };

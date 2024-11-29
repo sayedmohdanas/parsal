@@ -45,8 +45,8 @@ const LoginScreen = ({navigation, route}) => {
         return;
       }
       const request = {
-        // email: number?.replaceAll(' ', ''),
-        email: number?.replaceAll(' ', '').charAt(0).toLowerCase() + number?.slice(1).replaceAll(' ', ''),
+        email: number?.replaceAll(' ', '').toLowerCase(),
+        // email: number?.replaceAll(' ', '').charAt(0).toLowerCase() + number?.slice(1).replaceAll(' ', ''),
 
         // mobile: mobile
         fcm_token: await getToken(),
@@ -78,7 +78,7 @@ const LoginScreen = ({navigation, route}) => {
   };
   const handlePrivacyPress = () => {
     navigation.navigate('TermsCondition', {
-      id: 3,
+      id: 2,
       heading: 'Privacy Policy',
     });
 

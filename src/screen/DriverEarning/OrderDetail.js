@@ -9,6 +9,7 @@ import {
   responsiveWidth,
 } from '../../common/metrices';
 import Colors from '../../common/Colors';
+import { formatDate } from '../../common/CommonFunction';
 
 const OrderDetail = ({ orderDetails }) => {
   // console.log('anas---orderdetails===>>>>>>',orderDetails);
@@ -49,7 +50,12 @@ console.log(orderDetails);
             <Text style={[styles.parsalNumber]}>
               {'#PAR-' + orderDetails?.order_id}
             </Text>
+            <View style={{flexDirection:'row'}}>
+
+            <Text style={[styles.parsalName]}>{formatDate( orderDetails.order_date)} | </Text>
+
             <Text style={[styles.parsalName]}>{orderDetails.package_name}</Text>
+            </View>
           </View>
           <View
             style={[
@@ -132,8 +138,9 @@ const styles = StyleSheet.create({
   },
   parsalName: {
     fontSize: responsiveFontSize(10),
-    fontWeight: '400',
+    // fontWeight: '700',
     color: Colors.grey,
+    // fontWeight:'500'
   },
   parsalStatus: {
     borderWidth: 1,
