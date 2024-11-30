@@ -18,7 +18,7 @@ import { useNavigation } from '@react-navigation/native';
 import { hitAddMoney, hitAddWithraw } from '../../../../config/api/api';
 import Loading from '../../../../components/Loading/Loading';
 import { setwalletBalance } from '../../../../redux/HitApis/HitApiSlice';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HeaderBackButton from '../../../../components/HeaderBackButton/HeaderBackButton';
 import { errorToast, successToast } from '../../../../common/CommonFunction';
@@ -32,6 +32,25 @@ const AddCashScreen = ({ route }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const navigation = useNavigation();
   const dispatch = useDispatch();
+
+  const store_data = useSelector(state => state?.parsalPartner);
+  const fetchedData = store_data?.wallet_balance;
+
+  // Safely clone the data object to avoid direct mutation
+  // const updatedData = {
+  //   ...fetchedData,
+  //   data: {
+  //     ...fetchedData?.data,
+  //     new_balance: fetchedData?.data?.new_balance + 90, // Update the value
+  //   },
+  // };
+
+  // // Updated logic
+  // const updatedNewBalance = updatedData.data.new_balance + 100;
+
+  // // Dispatch updated data if necessary
+  // console.log(updatedData.data.new_balance); // This will now correctly log 90
+
 
   // Set default value for remaningBalance
   const { screenName, remaningBalance = 0 } = route?.params || {
@@ -103,9 +122,19 @@ const AddCashScreen = ({ route }) => {
             };
 
             const response = await hitAddMoney(params); // Backend API to add money
-            const newBalance = response?.new_wallet_balance;
-            dispatch(setwalletBalance(newBalance));
-            navigation.navigate('Wallet', { newBalance });
+            // const newBalance = response?.new_wallet_balance;
+            // const fetchedData = store_data.wallet_balance;
+            // const updatedNewBalance = fetchedData?.data.new_balance + 100; // Update logic here
+            // fetchedData.data.new_balance = updatedNewBalance;
+            const updatedData = {
+              ...fetchedData,
+              data: {
+                ...fetchedData?.data,
+                new_balance: fetchedData?.data?.new_balance + Number(balance), // Update the value
+              },
+            };
+            dispatch(setwalletBalance(updatedData));
+            navigation.navigate('Wallet', { updatedData });
             successToast('Success', 'Cash added to wallet successfully');
           } catch (error) {
             console.error('Error adding money:', error);
@@ -136,9 +165,18 @@ const AddCashScreen = ({ route }) => {
         };
 
         const response = await hitAddWithraw(params); // Backend API for withdrawal
-        const newBalance = response?.new_wallet_balance;
-        dispatch(setwalletBalance(newBalance));
-        navigation.navigate('Wallet', { newBalance });
+        // const newBalance = response?.new_wallet_balance;
+        // dispatch(setwalletBalance(newBalance));
+        const updatedData = {
+          ...fetchedData,
+          data: {
+            ...fetchedData?.data,
+            new_balance: fetchedData?.data?.new_balance - Number(balance), // Update the value
+          },
+        };
+        dispatch(setwalletBalance(updatedData));
+        navigation.navigate('Wallet', { updatedData });
+        // navigation.navigate('Wallet', { newBalance });
         successToast('Success', 'Cash withdrawn successfully');
       } catch (error) {
         console.error('Error withdrawing money:', error);
@@ -166,7 +204,7 @@ const AddCashScreen = ({ route }) => {
       setErrorMessage('');
     }
   };
-  
+
   useEffect(() => {
     navigation.setOptions({ title: screenName });
   }, [navigation, screenName]);
@@ -182,7 +220,7 @@ const AddCashScreen = ({ route }) => {
           <Loading loading={loading} />
         ) : (
           <>
-            <View style={{flex: 1, marginHorizontal: responsiveWidth(8)}}>
+            <View style={{ flex: 1, marginHorizontal: responsiveWidth(8) }}>
               {screenName === 'Withdraw' && (
                 <>
                   {/* Display Remaining Balance for Withdraw */}
@@ -271,20 +309,20 @@ const styles = StyleSheet.create({
     color: Colors.black,
   },
   amountInput: {
-        width: '100%',
-        alignSelf: 'center',
-        backgroundColor: Colors.white,
-        borderRadius: 10,
-        paddingHorizontal: Spacing.medium,
-        fontSize: responsiveFontSize(34),
-        borderWidth: 0.5,
-        borderColor: Colors.grey,
-        color: '#3D465A',
-        fontWeight: Fonts.bold,
-        marginBottom: Spacing.large,
-        paddingVertical: responsiveHeight(40), // Adjusted for proper padding
-        textAlign: 'center', // Center text alignment
-      },
+    width: '100%',
+    alignSelf: 'center',
+    backgroundColor: Colors.white,
+    borderRadius: 10,
+    paddingHorizontal: Spacing.medium,
+    fontSize: responsiveFontSize(34),
+    borderWidth: 0.5,
+    borderColor: Colors.grey,
+    color: '#3D465A',
+    fontWeight: Fonts.bold,
+    marginBottom: Spacing.large,
+    paddingVertical: responsiveHeight(40), // Adjusted for proper padding
+    textAlign: 'center', // Center text alignment
+  },
   errorText: {
     fontSize: responsiveFontSize(14),
     color: Colors.red,
@@ -292,18 +330,18 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.large,
   },
   continueButton: {
-        backgroundColor: Colors.brandBlue,
-        borderRadius: 10,
-        paddingVertical: Spacing.medium,
-        alignItems: 'center',
-        marginTop: Spacing.large,
-        alignSelf: 'center',
-        width: '100%',
-        marginBottom: Spacing.small,
-      },
-      continueButtonText: {
-        color: Colors.white,
-        fontSize: FontSizes.medium,
-        fontWeight: Fonts.semilarge,
-      },
+    backgroundColor: Colors.brandBlue,
+    borderRadius: 10,
+    paddingVertical: Spacing.medium,
+    alignItems: 'center',
+    marginTop: Spacing.large,
+    alignSelf: 'center',
+    width: '100%',
+    marginBottom: Spacing.small,
+  },
+  continueButtonText: {
+    color: Colors.white,
+    fontSize: FontSizes.medium,
+    fontWeight: Fonts.semilarge,
+  },
 });

@@ -29,6 +29,8 @@ const AddCashScreen = ({route}) => {
   const navigation = useNavigation();
   const [balance, setbalance] = useState(0);
   const dispatch = useDispatch();
+  const store_data = useSelector(state => state?.parsalPartner);
+// console.log('store_data.wallet_balance',store_data.wallet_balance);
 
   const {screenName} = route?.params || {screenName: 'Add Cash'};
 
