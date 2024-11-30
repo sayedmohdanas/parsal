@@ -139,4 +139,5 @@ export default AppImages = {
   EditButton: require('../assets/images/brandBlueEditicon.png'),
   ticketSubmitted: require('../assets/images/ticketSubmitted.png'),
   shareIcon:require('../assets/images/share_Icon.png'),
+  downloadIcon:require('../assets/images/downloadIcon.png'),
 };
