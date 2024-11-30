@@ -1,23 +1,23 @@
-import React, {useEffect, useState} from 'react';
-import {View, Text, StyleSheet, Alert, ScrollView} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Alert, ScrollView } from 'react-native';
 import CustomTextInput from '../../components/CustomTextInput/CustomTextInput';
 import ImagePicker from '../../components/ImagePickerComponent/ImagePicker';
 import SubmitCard from '../../components/SumbmitButton/SubmitButton';
 import CheckBox from 'react-native-check-box';
 import Heading from '../../components/Heading/Heading';
 import PageButtons from '../../components/TempBtn/TempBtn';
-import {useDispatch, useSelector} from 'react-redux';
-import {addDriverDetails} from '../../redux/HitApis/HitApiSlice';
-import {useNavigation} from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { addDriverDetails } from '../../redux/HitApis/HitApiSlice';
+import { useNavigation } from '@react-navigation/native';
 import Colors from '../../common/Colors';
 import {
   errorToast,
   GetDriverCurrentLocation,
   successToast,
 } from '../../common/CommonFunction';
-import {getMessaging} from '@react-native-firebase/messaging';
+import { getMessaging } from '@react-native-firebase/messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {hitGetPartner, hitUpdateDriverDetails} from '../../config/api/api';
+import { hitGetPartner, hitUpdateDriverDetails } from '../../config/api/api';
 import {
   responsiveFontSize,
   responsiveHeight,
@@ -25,8 +25,8 @@ import {
 } from '../../common/metrices';
 import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
 import Loading from '../../components/Loading/Loading';
-const DriverDetailScreen = ({route}) => {
-  const {v_id, updateDriverData} = route.params || {};
+const DriverDetailScreen = ({ route }) => {
+  const { v_id, updateDriverData } = route.params || {};
   const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
   const dispatch = useDispatch();
   const [name, setName] = useState(updateDriverData?.driver?.driver_name || '');
@@ -49,7 +49,7 @@ const DriverDetailScreen = ({route}) => {
   useEffect(() => {
     const fetchPartnerDetails = async () => {
       try {
-        const response = await hitGetPartner({partner_id: partnerId});
+        const response = await hitGetPartner({ partner_id: partnerId });
         setPartnerData(response?.partner);
       } catch (error) {
         console.error('Error fetching partner details:', error);
@@ -81,10 +81,10 @@ const DriverDetailScreen = ({route}) => {
     }
     setloader(true);
     const partnerId = await AsyncStorage.getItem('partner_id');
-    const {latitude, longitude} = await GetDriverCurrentLocation();
+    const { latitude, longitude } = await GetDriverCurrentLocation();
     const payload = {
       partner_id: partnerId,
-      email: email.replaceAll(' ', ''),
+      email: email.replaceAll(' ', '')?.toLocaleLowerCase(),
       vehicle_id: v_id,
       driver_name: name,
       phone: driverNumber,
@@ -104,7 +104,7 @@ const DriverDetailScreen = ({route}) => {
       status: 1,
       working_status: 1,
       owner_status: isChecked && 2,
-    };
+    };    
     try {
       if (updateDriverData) {
         try {
@@ -144,7 +144,7 @@ const DriverDetailScreen = ({route}) => {
           Alert.alert(
             'Error',
             resultAction.payload?.message ||
-              'An error occurred while submitting.',
+            'An error occurred while submitting.',
           );
           setloader(false);
         }
@@ -168,7 +168,7 @@ const DriverDetailScreen = ({route}) => {
             <Heading text="Driver Details" isRequired={true} />
             <View style={styles.card}>
               <CheckBox
-                style={{padding: 10}}
+                style={{ padding: 10 }}
                 onClick={() => {
                   setIsChecked(!isChecked);
                   if (!isChecked) {
@@ -201,7 +201,7 @@ const DriverDetailScreen = ({route}) => {
               placeholder="Driver Email"
               label="Driver Email"
               isRequired={true}
-              // error={emailError}
+            // error={emailError}
             />
             {/* {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null} */}
             <CustomTextInput
@@ -232,7 +232,7 @@ const DriverDetailScreen = ({route}) => {
         <SubmitCard onPress={handleSubmit} isEnabled={isEnabled} />
         <PageButtons nextScreenName={'Login'} />
       </View>
-      <Loading  loading={loader}/>
+      <Loading loading={loader} />
     </>
   );
 };

@@ -45,7 +45,7 @@ const LoginScreen = ({navigation, route}) => {
         return;
       }
       const request = {
-        email: number?.replaceAll(' ', '').toLowerCase(),
+        email: number?.replaceAll(' ', '').toLocaleLowerCase(),
         // email: number?.replaceAll(' ', '').charAt(0).toLowerCase() + number?.slice(1).replaceAll(' ', ''),
 
         // mobile: mobile

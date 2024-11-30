@@ -6,25 +6,27 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Colors from '../../../../common/Colors';
-import {FontSizes, Fonts, Spacing} from '../../../../common/Theme';
+import { FontSizes, Fonts, Spacing } from '../../../../common/Theme';
 import {
   responsiveFontSize,
   responsiveHeight,
   responsiveWidth,
 } from '../../../../common/metrices';
-import {useNavigation} from '@react-navigation/native';
-import {hitAddMoney, hitAddWithraw} from '../../../../config/api/api';
+import { useNavigation } from '@react-navigation/native';
+import { hitAddMoney, hitAddWithraw } from '../../../../config/api/api';
 import Loading from '../../../../components/Loading/Loading';
-import {setwalletBalance} from '../../../../redux/HitApis/HitApiSlice';
-import {useDispatch} from 'react-redux';
+import { setwalletBalance } from '../../../../redux/HitApis/HitApiSlice';
+import { useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HeaderBackButton from '../../../../components/HeaderBackButton/HeaderBackButton';
-import {successToast} from '../../../../common/CommonFunction';
+import { errorToast, successToast } from '../../../../common/CommonFunction';
 import { useEffect, useState } from 'react';
+import RazorpayCheckout from 'react-native-razorpay';
 
-const AddCashScreen = ({route}) => {
+
+const AddCashScreen = ({ route }) => {
   const [loading, setLoading] = useState(false);
   const [balance, setBalance] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
@@ -32,52 +34,141 @@ const AddCashScreen = ({route}) => {
   const dispatch = useDispatch();
 
   // Set default value for remaningBalance
-  const {screenName, remaningBalance = 0} = route?.params || {
+  const { screenName, remaningBalance = 0 } = route?.params || {
     screenName: 'Add Cash',
     remaningBalance: 0,
   };
 
+  // const handleContinue = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const user = await AsyncStorage.getItem('user');
+  //     const parsed_user = JSON.parse(user);
+  //     const params = {
+  //       driver_id: parsed_user?.payload?.driver_id,
+  //       online: Number(balance),
+  //       cash: 0,
+  //     };
+  //     if (screenName === 'Add Cash') {
+  //       const response = await hitAddMoney(params);
+  //       const newBalance = response?.new_wallet_balance;
+  //       dispatch(setwalletBalance(newBalance));
+  //       navigation.navigate('Wallet', {newBalance});
+  //       successToast('Success', 'Cash deposited successfully');
+  //     } else if (screenName === 'Withdraw') {
+  //       const response = await hitAddWithraw(params);
+  //       const newBalance = response?.new_wallet_balance;
+  //       dispatch(setwalletBalance(newBalance));
+  //       navigation.navigate('Wallet', {newBalance});
+  //       successToast('Success', 'Cash withdrawn successfully');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error from Add/Withdraw:', error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   const handleContinue = async () => {
-    setLoading(true);
-    try {
-      const user = await AsyncStorage.getItem('user');
-      const parsed_user = JSON.parse(user);
-      const params = {
-        driver_id: parsed_user?.payload?.driver_id,
-        online: Number(balance),
-        cash: 0,
+    if (screenName === 'Add Cash') {
+      const options = {
+        description: 'Add cash to wallet',
+        image: 'https://drive.google.com/file/d/1SExuiUtMBtQj_KZot2-5TpzX5jUrW9fe/view?usp=sharing', // Optional company logo
+        currency: 'INR',
+        key: 'rzp_test_XZXlIZEFXyAYyU', // Replace with your Razorpay key
+        amount: Number(balance) * 100, // Razorpay expects the amount in paisa
+        name: 'PARSAL',
+        prefill: {
+          email: 'example@example.com', // Optional prefilled data
+          contact: '9999999999',
+          name: 'Test User',
+        },
+        theme: { color: Colors.brandBlue },
       };
-      if (screenName === 'Add Cash') {
-        const response = await hitAddMoney(params);
-        const newBalance = response?.new_wallet_balance;
-        dispatch(setwalletBalance(newBalance));
-        navigation.navigate('Wallet', {newBalance});
-        successToast('Success', 'Cash deposited successfully');
-      } else if (screenName === 'Withdraw') {
-        const response = await hitAddWithraw(params);
-        const newBalance = response?.new_wallet_balance;
-        dispatch(setwalletBalance(newBalance));
-        navigation.navigate('Wallet', {newBalance});
-        successToast('Success', 'Cash withdrawn successfully');
+
+      RazorpayCheckout.open(options)
+        .then(async (data) => {
+          // On Success
+          const paymentId = data.razorpay_payment_id;
+          successToast('Payment Successful', `Payment ID: ${paymentId}`);
+
+          // Update balance in backend
+          setLoading(true);
+          try {
+            const user = await AsyncStorage.getItem('user');
+            const parsed_user = JSON.parse(user);
+            const params = {
+              driver_id: parsed_user?.payload?.driver_id,
+              online: Number(balance), // Amount added
+              cash: 0,
+            };
+
+            const response = await hitAddMoney(params); // Backend API to add money
+            const newBalance = response?.new_wallet_balance;
+            dispatch(setwalletBalance(newBalance));
+            navigation.navigate('Wallet', { newBalance });
+            successToast('Success', 'Cash added to wallet successfully');
+          } catch (error) {
+            console.error('Error adding money:', error);
+          } finally {
+            setLoading(false);
+          }
+        })
+        .catch((error) => {
+          // On Failure
+          console.error(`Payment Error: ${error.code} | ${error.description}`);
+          errorToast('Something Went Wrong', 'Try Again');
+        });
+    } else if (screenName === 'Withdraw') {
+      // Withdraw logic remains the same
+      if (Number(balance) > remaningBalance) {
+        setErrorMessage('Insufficient Balance');
+        return;
       }
-    } catch (error) {
-      console.error('Error from Add/Withdraw:', error);
-    } finally {
-      setLoading(false);
+
+      setLoading(true);
+      try {
+        const user = await AsyncStorage.getItem('user');
+        const parsed_user = JSON.parse(user);
+        const params = {
+          driver_id: parsed_user?.payload?.driver_id,
+          online: 0,
+          cash: Number(balance), // Amount withdrawn
+        };
+
+        const response = await hitAddWithraw(params); // Backend API for withdrawal
+        const newBalance = response?.new_wallet_balance;
+        dispatch(setwalletBalance(newBalance));
+        navigation.navigate('Wallet', { newBalance });
+        successToast('Success', 'Cash withdrawn successfully');
+      } catch (error) {
+        console.error('Error withdrawing money:', error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
+  // const handleAmountChange = (amount) => {
+  //   setBalance(amount);
+  //   if (screenName === 'Withdraw' && Number(amount) > remaningBalance) {
+  //     setErrorMessage('Insufficient Balance');
+  //   } else {
+  //     setErrorMessage('');
+  //   }
+  // };
   const handleAmountChange = (amount) => {
     setBalance(amount);
-    if (screenName === 'Withdraw' && Number(amount) > remaningBalance) {
+    if (Number(amount) <= 0) {
+      setErrorMessage('Please enter a valid amount.');
+    } else if (screenName === 'Withdraw' && Number(amount) > remaningBalance) {
       setErrorMessage('Insufficient Balance');
     } else {
       setErrorMessage('');
     }
   };
-
+  
   useEffect(() => {
-    navigation.setOptions({title: screenName});
+    navigation.setOptions({ title: screenName });
   }, [navigation, screenName]);
 
   return (
@@ -103,7 +194,7 @@ const AddCashScreen = ({route}) => {
                       marginBottom: Spacing.medium,
                       textAlign: 'center',
                     }}>
-                     Balance: ₹{Number(remaningBalance).toFixed(2)}
+                    Balance: ₹{Number(remaningBalance).toFixed(2)}
                   </Text>
                 </>
               )}
@@ -135,16 +226,17 @@ const AddCashScreen = ({route}) => {
             </View>
 
             {/* Continue Button */}
-            <View style={{marginBottom: responsiveWidth(10)}}>
+            <View style={{ marginBottom: responsiveWidth(10) }}>
               <TouchableOpacity
                 style={[
                   styles.continueButton,
-                  errorMessage && {backgroundColor: Colors.grey},
+                  (!!errorMessage || Number(balance) <= 0) && { backgroundColor: Colors.grey },
                 ]}
                 onPress={handleContinue}
-                disabled={!!errorMessage}>
+                disabled={!!errorMessage || Number(balance) <= 0}>
                 <Text style={styles.continueButtonText}>Continue</Text>
               </TouchableOpacity>
+
             </View>
           </>
         )}

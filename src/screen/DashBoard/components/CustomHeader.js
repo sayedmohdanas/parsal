@@ -47,29 +47,29 @@
 //     const previousState = isEnabled; // Store the current state
 //     try {
 //       setIsEnabled(!isEnabled); // Optimistic update
-  
+
 //       const driverData = JSON.parse(await AsyncStorage.getItem('user'));
 //       const { latitude, longitude } = await GetDriverCurrentLocation();
-  
+
 //       const param = {
 //         driver_id: driverData?.payload?.driver_id,
 //         current_lat: latitude,
 //         current_long: longitude,
 //         working_status: !isEnabled ? 1 : 0,
 //       };
-  
+
 //       await hitUpdateDriverStatus(param);
 //       dispatch(setworking_status(!isEnabled)); // Sync with Redux
 //     } catch (error) {
 //       console.error('Error toggling online status:', error);
-  
+
 //       // Revert state in case of failure
 //       setIsEnabled(previousState);
 //       dispatch(setworking_status(previousState));
 //     }
 //   };
-  
-  
+
+
 
 
 //   const updateDriverLocation = async () => {
@@ -363,7 +363,7 @@ const CustomHeader = ({
   // const [isEnabled, setIsEnabled] = useState(null);
   const isEnabled = useSelector(state => state.parsalPartner.is_online);
 
-  
+
   const [isLoading, setIsLoading] = useState(false); // To block rapid toggles
 
   const navigation = useNavigation();
@@ -373,8 +373,8 @@ const CustomHeader = ({
     const previousState = isEnabled; // Store the current state
     try {
       // setIsEnabled(!isEnabled); // Optimistic update
-      console.log('status===>>',!isEnabled);
-      
+      console.log('status===>>', !isEnabled);
+
       dispatch(setWorkingStatus(!isEnabled)); // Toggle online/offline status
 
       const driverData = JSON.parse(await AsyncStorage.getItem('user'));
@@ -405,16 +405,17 @@ const CustomHeader = ({
 
   const updateDriverLocation = async () => {
     try {
-      const { latitude, longitude } = await GetDriverCurrentLocation();
       const driverData = JSON.parse(await AsyncStorage.getItem('user'));
-
-      const param = {
-        driver_id: driverData?.payload?.driver_id,
-        current_lat: latitude,
-        current_long: longitude,
-        working_status: null,
-      };
-      await hitUpdateDriverStatus(param);
+      if (driverData?.payload?.owner_type == 0 || driverData?.payload?.owner_type == 2) {
+        const { latitude, longitude } = await GetDriverCurrentLocation();
+        const param = {
+          driver_id: driverData?.payload?.driver_id,
+          current_lat: latitude,
+          current_long: longitude,
+          working_status: null,
+        };
+        await hitUpdateDriverStatus(param);
+      }
     } catch (error) {
       console.error('Error updating driver location:', error);
     }
@@ -453,8 +454,8 @@ const CustomHeader = ({
             working_status: driver?.working_status,
             vehicle_type_id: driver?.vehicle_type_id,
           };
-          console.log(driver.working_status === 1,'heyyy');
-          
+          console.log(driver.working_status === 1, 'heyyy');
+
           dispatch(setWorkingStatus(driver.working_status === 1)); // Toggle online/offline status
 
           // setIsEnabled(driver?.working_status === 1);
@@ -483,17 +484,17 @@ const CustomHeader = ({
       const updateStatus = async () => {
         try {
           const driverData = JSON.parse(await AsyncStorage.getItem('user'));
-          const { latitude, longitude } = await GetDriverCurrentLocation();
+          if (driverData?.payload?.owner_type == 0 || driverData?.payload?.owner_type == 2) {
+            const { latitude, longitude } = await GetDriverCurrentLocation();
+            const param = {
+              driver_id: driverData?.payload?.driver_id,
+              current_lat: latitude,
+              current_long: longitude,
+              working_status: isEnabled ? 1 : 0,
+            };
 
-          const param = {
-            driver_id: driverData?.payload?.driver_id,
-            current_lat: latitude,
-            current_long: longitude,
-            working_status: isEnabled ? 1 : 0,
-          };
-
-          const response = await hitUpdateDriverStatus(param); // Call the API to update status
-          console.log('response=====>>>>>',response?.driver?.working_status)
+            const response = await hitUpdateDriverStatus(param); // Call the API to update status   
+          }
         } catch (error) {
           console.error('Error updating status:', error);
         }
@@ -637,7 +638,7 @@ const styles = StyleSheet.create({
 
   },
   screenName: {
- 
+
     color: Colors.black,
     fontSize: responsiveFontSize(18),
     fontWeight: '500',

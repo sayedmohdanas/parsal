@@ -35,7 +35,7 @@ const WalletScreen = ({route}) => {
 
   // const store_data = useSelector(state => state?.parsalPartner);
   const store_data = useSelector(
-    state => state.parsalPartner.wallet_balance?.new_wallet_balance || 0,
+    state => state.parsalPartner.wallet_balance?.data?.new_balance || 0,
   );
 
   const navigation = useNavigation();

@@ -142,6 +142,8 @@ const AccountScreen = () => {
             const param = { driver_id: parsed_user?.payload?.driver_id };
             hitGetWalletBalanceApi(param)
               .then(res => {
+                // console.log(store_data,'log==============----dddd---->>>>>',res);
+                
                 dispatch(setwalletBalance(res));
               })
               .catch(err => {
@@ -446,10 +448,10 @@ const AccountScreen = () => {
                       navigation.navigate('Wallet');
                     }}
                     walletBalance={
-                      isNaN(store_data.wallet_balance?.new_wallet_balance)
+                      isNaN(store_data.wallet_balance?.data?.new_balance)
                         ? '0.00'
                         : parseFloat(
-                          store_data.wallet_balance?.new_wallet_balance,
+                          store_data.wallet_balance?.data?.new_balance,
                         ).toFixed(2)
                     }
                   />

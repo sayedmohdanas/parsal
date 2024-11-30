@@ -56,7 +56,7 @@ const OrderInfo = ({ route }) => {
     }
 };
   
-  console.log('orderdetails=======>>anas==>>>', route.params);
+  // console.log('orderdetails=======>>anas==>>>',orderDetails);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -97,6 +97,8 @@ const OrderInfo = ({ route }) => {
       ? Number(orderDetails?.drop_long)
       : 80.9462, // Hazratganj Longitude
   };
+
+
   let orderStatusText = '';
   let orderStatusColor = '';
   if (orderDetails?.order_status === 3) {
@@ -208,7 +210,7 @@ const OrderInfo = ({ route }) => {
                 <View style={{ flexDirection: 'row' }}>
 
                   <Text style={{ color: 'black', fontWeight: '600', fontSize: responsiveFontSize(16) }}>{`# ${order_id} | `}</Text>
-                  <Text style={{ color: 'black', fontWeight: '600', fontSize: responsiveFontSize(14) }}>{productName}</Text>
+                  <Text style={{ color: 'black', fontWeight: '600', fontSize: responsiveFontSize(14) }}>{orderDetails?.goods?.name}</Text>
                 </View>
 
                 <View style={{ flexDirection: 'row' }}>
