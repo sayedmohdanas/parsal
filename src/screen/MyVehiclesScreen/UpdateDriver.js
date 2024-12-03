@@ -29,9 +29,11 @@ import {
 } from '../../config/api/api';
 import Loading from '../../components/Loading/Loading';
 import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const UpdateDriver = ({route}) => {
   const {vehicle} = route?.params || {};
+  // console.log('vehicle',vehicle);
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
   const vehicledatadummy = {
@@ -59,8 +61,6 @@ const UpdateDriver = ({route}) => {
               if (response) {
                 navigation.goBack();
               }
-              console.log('respone-from-delete-vehcile=====>>>>', response);
-              console.log('Vehcile profile deleted:', vehicle);
             } catch (error) {
               console.log(
                 'Something went wrong while deleting vehcile===>',
@@ -103,7 +103,7 @@ const UpdateDriver = ({route}) => {
               console.log('Driver profile deleted:', vehicle?.driver_id);
             } catch (error) {
               console.log(
-                'omething went wrog while deletign driver==>>>',
+                'something went wrog while deletign driver==>>>',
                 error,
               );
             } finally {
@@ -115,12 +115,23 @@ const UpdateDriver = ({route}) => {
     );
   };
 
-  const handleProfileEdit = () => {
-    navigation.navigate('DriverDetail', {
-      updateDriverData: vehicle,
-    });
+  const handleProfileEdit = async () => {
+    const user = await AsyncStorage.getItem('user');
+    const parsedUser = JSON.parse(user);
+    if (vehicle?.driver_id == parsedUser?.payload?.driver_id) {
+      const updatedVehicle = {
+        ...vehicle,
+        owner_type: parsedUser?.payload?.owner_type,
+      };
+      navigation.navigate('DriverDetail', {
+        updateDriverData: updatedVehicle,
+      });
+    } else {
+      navigation.navigate('DriverDetail', {
+        updateDriverData: vehicle,
+      });
+    }
   };
-
   const renderRightActions = (onEdit, onDelete) => (
     <View style={styles.leftActions}>
       <TouchableOpacity
@@ -158,7 +169,6 @@ const UpdateDriver = ({route}) => {
       </TouchableOpacity>
     </View>
   );
-  console.log('vehicle', vehicle);
   const VehicleCard = () => (
     <Swipeable
       renderRightActions={() =>

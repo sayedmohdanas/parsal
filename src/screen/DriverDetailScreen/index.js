@@ -26,7 +26,7 @@ import {
 import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
 import Loading from '../../components/Loading/Loading';
 const DriverDetailScreen = ({ route }) => {
-  const { v_id, updateDriverData } = route.params || {};
+  const { v_id, updateDriverData, vehicle_num } = route.params || {};
   const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
   const dispatch = useDispatch();
   const [name, setName] = useState(updateDriverData?.driver?.driver_name || '');
@@ -35,7 +35,7 @@ const DriverDetailScreen = ({ route }) => {
     updateDriverData?.driver?.phone || '',
   );
   const [isChecked, setIsChecked] = useState(
-    updateDriverData?.driving == 1 ? true : false || false,
+    updateDriverData?.owner_type == 2 ? true : false || false,
   );
   const [driverProfilePic, setDriverProfilePic] = useState(
     updateDriverData?.driver?.profile_pic || '',
@@ -79,7 +79,7 @@ const DriverDetailScreen = ({ route }) => {
       errorToast('Invalid Number', 'Please enter 10 digits valid  number.');
       return; // Exit if the driver number is invalid
     }
-    setloader(true);
+    // setloader(true);
     const partnerId = await AsyncStorage.getItem('partner_id');
     const { latitude, longitude } = await GetDriverCurrentLocation();
     const payload = {
@@ -104,20 +104,48 @@ const DriverDetailScreen = ({ route }) => {
       status: 1,
       working_status: 1,
       owner_status: isChecked && 2,
-    };    
+    };
     try {
       if (updateDriverData) {
         try {
           const Updatedpayload = {
             ...payload,
             driver_id: updateDriverData?.driver_id,
+            owner_status:
+              updateDriverData?.owner_type == 2 ? (!isChecked ? 1 : 2) : 0,
           };
-
           const response = await hitUpdateDriverDetails(Updatedpayload);
+          // if (response?.status) {
+          //   successToast(`Driver ${name} successfully Updated.`);
+          //   navigation.goBack('');
+          //   setloader(false);
+          // } else {
+          //   setloader(false);
+          //   errorToast(`Something went wrong while updating driver`);
+          // }
           if (response?.status) {
             successToast(`Driver ${name} successfully Updated.`);
+
+            // Update AsyncStorage after successful response
+            const user = await AsyncStorage.getItem('user');
+            let parsedUser = JSON.parse(user);
+
+            if (updateDriverData?.owner_type == 2 && !isChecked) {
+              // Update for partner who is also a driver
+              parsedUser.payload.owner_type = 1; // Set as only partner
+              parsedUser.payload.driver_id = null; // Clear driver ID
+              parsedUser.payload.vehicle_type_id = null; // Clear vehicle type
+            } else if (isChecked) {
+              // Update for partner becoming a driver
+              parsedUser.payload.owner_type = 2; // Set as both partner and driver
+              parsedUser.payload.driver_id = response?.payload?.driver_id; // Assign driver ID
+              parsedUser.payload.phone = payload?.phone; // Update phone number
+              parsedUser.payload.vehicle_type_id = payload?.payload; // Update vehicle type
+            }
+
+            await AsyncStorage.setItem('user', JSON.stringify(parsedUser));
+
             navigation.goBack('');
-            setloader(false);
           } else {
             setloader(false);
             errorToast(`Something went wrong while updating driver`);
@@ -156,6 +184,7 @@ const DriverDetailScreen = ({ route }) => {
     }
   };
   const isEnabled = name && driverNumber && licenseUploaded;
+
   return (
     <>
       <HeaderBackButton
@@ -169,7 +198,42 @@ const DriverDetailScreen = ({ route }) => {
             <View style={styles.card}>
               <CheckBox
                 style={{ padding: 10 }}
-                onClick={() => {
+                onClick={async () => {
+                  const user = await AsyncStorage.getItem('user');
+                  const parsedUser = JSON.parse(user);
+                  if (parsedUser?.payload?.owner_type == 2) {
+                    // Display confirmation dialog
+                    if (updateDriverData) {
+                      setIsChecked(!isChecked);
+                      return;
+                    }
+                    Alert.alert(
+                      'Confirmation',
+                      `You are already driving the vehicle with number: ${vehicle_num}. Are you sure you want to drive this vehicle as well?`,
+                      [
+                        { text: 'Cancel', onPress: () => { }, style: 'cancel' },
+                        {
+                          text: 'Yes',
+                          onPress: () => {
+                            setIsChecked(!isChecked);
+                            if (!isChecked) {
+                              setName(partneData?.partner_name);
+                              setDriverNumber(
+                                partneData?.phone?.replaceAll(' ', ''),
+                              );
+                              setEmail(partneData?.email);
+                            } else {
+                              setName('');
+                              setDriverNumber('');
+                              setEmail('');
+                            }
+                          },
+                        },
+                      ],
+                    );
+                    return; // Exit early to prevent further execution
+                  }
+
                   setIsChecked(!isChecked);
                   if (!isChecked) {
                     setName(partneData?.partner_name);

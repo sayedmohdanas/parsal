@@ -279,8 +279,15 @@ const MyVehiclesScreen = ({route}) => {
   }, []);
   // Handle card press
   const handleCardPress = vehicleId => {
+    console.log(
+      'vehicleId',
+      vehicleData?.filter(item => item?.id == vehicleId)[0],
+    );
+    console.log('vehicleId', vehicleId);
     navigation.navigate('DriverDetail', {
       v_id: vehicleId,
+      vehicle_num: vehicleData?.filter(item => item?.id == vehicleId)[0]
+        ?.vehicle_number,
       onUpdate: refreshData,
     });
   };
