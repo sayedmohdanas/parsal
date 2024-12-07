@@ -85,7 +85,10 @@ const LoginScreen = ({navigation, route}) => {
     console.log('Privacy Policy clicked');
   };
   const handleTDSPress = () => {
-    console.log('TDS Declaration clicked');
+    navigation.navigate('TermsCondition', {
+      id: 4,
+      heading: 'TDS Declarationk',
+    });
   };
   return (
     <>

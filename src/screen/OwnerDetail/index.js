@@ -136,6 +136,8 @@ const OwnerDetailScreen = ({navigation, route}) => {
             uploaded={selfieUploaded}
             onImagePick={setSelfieUploaded}
             useCamera={false}
+            isForProfile={true}
+
           />
         </View>
 

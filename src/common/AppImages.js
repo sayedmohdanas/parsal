@@ -140,4 +140,5 @@ export default AppImages = {
   ticketSubmitted: require('../assets/images/ticketSubmitted.png'),
   shareIcon:require('../assets/images/share_Icon.png'),
   downloadIcon:require('../assets/images/downloadIcon.png'),
+  calendarIcon:require('../assets/images/calendar.png'),
 };

@@ -30,6 +30,7 @@ import {useDispatch} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Loading from '../src/components/Loading/Loading';
 import AccountScreen from '../src/screen/AccountScreen/AccountScreen';
+import LedgerScreen from '../src/screen/DashBoard/screen/LedgerScreen';
 import {
   hitGetDriverDetails,
   hitGetLiveOrderApi,
@@ -265,6 +266,7 @@ const StackNavigator = () => {
       <Stack.Screen name="VehicleDetail" component={VehicleDetailScreen} />
       <Stack.Screen name="UpdateDriver" component={UpdateDriver} />
       <Stack.Screen name="ProfileDetail" component={ProfileDetail} />
+      <Stack.Screen name="Ledger" component={LedgerScreen} />
       {/* Main Screens */}
       <Stack.Screen name="Notification" component={Notification} />
       <Stack.Screen

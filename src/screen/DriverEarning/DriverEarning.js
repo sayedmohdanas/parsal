@@ -121,7 +121,7 @@ const Earning = () => {
           console.error(err);
         })
         .finally(() => {
-          setIsEarningLoading(false);  // Set loading to false after data is fetched
+          setIsEarningLoading(false); 
 
           setLoading(false);
         });
@@ -150,7 +150,7 @@ const Earning = () => {
           console.error(err);
         })
         .finally(() => {
-          setIsDriverListLoading(false);  // Set loading to false after driver list is fetched
+          setIsDriverListLoading(false); 
 
           setLoading(false);
         });
@@ -381,6 +381,7 @@ const Earning = () => {
                   />
                 </TouchableOpacity>
               </View>
+              <ScrollView>
               {driver_todays_earning?.total_paid_amount && (
                 <BarChart
                   driverEarningData={driver_todays_earning}
@@ -392,55 +393,7 @@ const Earning = () => {
                 {driver_todays_earning?.individual_paid_amounts && (
                   <Text style={styles.orderListHeadign}>{'Order List '}</Text>
                 )}
-                {/* <FlatList
-                  ListHeaderComponent={() => (
-                    <>
-                      {!driver_todays_earning?.individual_paid_amounts && (
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            alignSelf: 'center',
-                            paddingVertical: responsiveHeight(30),
-                            marginTop: responsiveHeight(110),
-                          }}>
-                          <ImageBackground
-                            source={AppImages.boxbackgound}
-                            style={styles.boxBackstyle}>
-                            <Image
-                              source={AppImages.emptyImage}
-                              style={styles.emptyboxStyle}
-                              resizeMode="contain"
-                            />
-                          </ImageBackground>
-                          <Text style={styles.emptyTextStyle}>
-                            {
-                              'No Order history Available, contact our support team.'
-                            }
-                          </Text>
-                        </View>
-                      )}
-                      {login_user?.owner_type != 0 &&
-                        driver_todays_earning?.individual_paid_amounts && (
-                          <View style={{ marginLeft: 20 }}>
-                            {partner_riders?.length > 1 && (
-                              <FlatList
-                                data={partner_riders}
-                                horizontal
-                                renderItem={renderRieder}
-                                keyExtractor={(item, index) => index.toString()}
-                              />
-                            )}
-                          </View>
-                        )}
-                    </>
-                  )}
-                  data={driver_todays_earning?.individual_paid_amounts}
-                  renderItem={renderItem}
-                  keyExtractor={(item, index) => index.toString()}
-                  contentContainerStyle={{ paddingBottom: responsiveHeight(80) }}
-                /> */}
+               
                 <FlatList
                   ListHeaderComponent={() => (
                     <>
@@ -505,6 +458,7 @@ const Earning = () => {
                 />
 
               </View>
+              </ScrollView>
             </>
           )}
         </View>

@@ -258,6 +258,8 @@ const DriverDetailScreen = ({ route }) => {
               placeholder="Driver Name"
               label="Driver Name"
               isRequired={true}
+              editable={!isChecked?true:false}
+
             />
             <CustomTextInput
               value={email}
@@ -265,6 +267,8 @@ const DriverDetailScreen = ({ route }) => {
               placeholder="Driver Email"
               label="Driver Email"
               isRequired={true}
+              editable={!isChecked?true:false}
+
             // error={emailError}
             />
             {/* {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null} */}
@@ -276,6 +280,7 @@ const DriverDetailScreen = ({ route }) => {
               isRequired={true}
               type="number"
               maxLength={10}
+              editable={!isChecked?true:false}
             />
             <Heading text=" Upload The Following" isRequired={true} />
             <ImagePicker
@@ -283,6 +288,8 @@ const DriverDetailScreen = ({ route }) => {
               uploaded={driverProfilePic}
               onImagePick={setDriverProfilePic}
               useCamera={false}
+              isForProfile={true}
+
             />
             <ImagePicker
               labelText="Driver License"

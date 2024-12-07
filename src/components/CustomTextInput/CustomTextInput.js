@@ -9,7 +9,8 @@ const CustomTextInput = ({ value,
   isRequired,
   type = 'text',
   autoCapitalize,
-  isUpperCase = false,  // Default to 'text' if type is not provided
+  isUpperCase = false,
+  editable=true,  // Default to 'text' if type is not provided
   maxLength }) => {
   const labelAnimation = useRef(new Animated.Value(0)).current;
   const labelTop = labelAnimation.interpolate({
@@ -51,7 +52,9 @@ const CustomTextInput = ({ value,
           {label}{isRequired && <Text style={styles.redAsterisk}>*</Text>}
         </Animated.Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, !editable && styles.disabledInput]}
+
+          // style={styles.input}
           value={value}
           onChangeText={(text) => handleChange(isUpperCase ? text.toUpperCase() : text)}
           placeholder={placeholder}
@@ -60,7 +63,8 @@ const CustomTextInput = ({ value,
           keyboardType={type === 'number' ? 'numeric' : 'default'}
           maxLength={maxLength}
           autoCapitalize={autoCapitalize}
-        />
+          editable={editable} 
+          />
       </View>
     </View>
   );
@@ -91,6 +95,12 @@ const styles = StyleSheet.create({
   },
   redAsterisk: {
     color: 'red',
+  },
+  disabledInput: {
+    // backgroundColor: '#f0f0f0', // Example: Light gray
+    color: '#a0a0a0',
+    
+    // Example: Muted text color
   },
 });
 export default CustomTextInput;

@@ -74,7 +74,6 @@ const OrderScreen = () => {
   const filter_data = data => {
     let filtered = data;
 
-    // Filter by order status based on the active button
     if (activeButton === 'Pending') {
       filtered = filtered.filter(order => order.order_status === 0);
     } else if (activeButton === 'Delivered') {
@@ -83,7 +82,6 @@ const OrderScreen = () => {
       filtered = filtered.filter(order => order.order_status === 5);
     }
 
-    // Filter based on search query (matches parcel number, parcel name, pickup address, or drop address)
     if (searchQuery.trim() !== '') {
       filtered = filtered.filter(
         order =>
@@ -106,7 +104,6 @@ const OrderScreen = () => {
   const handleButtonPress = item => {
     setActiveButton(item);
   };
-  // Render each order item
   const renderOrderItem = useMemo(
     () =>
       ({item}) => {
@@ -155,7 +152,7 @@ const OrderScreen = () => {
           />
         );
       },
-    [filteredOrders, activeButton, searchQuery], // Dependencies could include `items` or relevant props passed to `renderOrderItem`
+    [filteredOrders, activeButton, searchQuery],
   );
 
   return (
@@ -169,9 +166,7 @@ const OrderScreen = () => {
           <CustomHeader  screenName={"Orders"} showSplash={true} />
         </View>
         <View style={{flex: 1, backgroundColor: Colors.homeBackground}}>
-          {/* <View style={{margin: 17}}>
-            <Text style={styles.orderTextStyle}>{'Orders'}</Text>
-          </View> */}
+
 
           {/* Search bar */}
           <View style={styles.searchbarContainer}>

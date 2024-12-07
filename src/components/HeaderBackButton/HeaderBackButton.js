@@ -97,7 +97,14 @@ const HeaderBackButton = props => {
       </TouchableOpacity>
 
       {/* Center Section (Title) */}
+      <View>
+
       <Text style={styles.headerText}>{props.headerText}</Text>
+{props.middleHeaderText&&(
+      <Text style={styles.middleHeaderText}> as on {props.middleHeaderText}</Text>
+
+)}
+      </View>
 
       {/* Right Section (Button or Icon) */}
       {props.rightButton ? (
@@ -142,12 +149,20 @@ const styles = StyleSheet.create({
     width: responsiveWidth(28),
   },
   headerText: {
-    flex: 1,
+    // flex: 1,
     textAlign: 'center',
     color: Colors.black,
     fontSize: responsiveFontSize(18),
     fontWeight: '500',
   },
+  middleHeaderText: {
+    // flex: 1,
+    textAlign: 'center',
+    color: Colors.black,
+    fontSize: responsiveFontSize(12),
+    // fontWeight: '500',
+  },
+
   rightButtonContainer: {
     padding: responsiveWidth(5),
   },

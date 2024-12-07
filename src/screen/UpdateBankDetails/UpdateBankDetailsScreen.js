@@ -56,7 +56,7 @@ const UpdateBankDetailsScreen = ({ navigation }) => {
     }
   };
   
-  const disabled = accountNumber.length < 10 || ifscCode.length < 8 || !bankDocument;
+  const disabled = accountNumber.length < 10 || ifscCode.length < 8
   console.log(disabled)
 
   return (

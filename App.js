@@ -423,7 +423,7 @@ export default function App() {
 
     // Add the back event listener
     BackHandler.addEventListener('hardwareBackPress', backAction);
-
+// 
     // Clean up the event listener when the component unmounts
     return () =>
       BackHandler.removeEventListener('hardwareBackPress', backAction);

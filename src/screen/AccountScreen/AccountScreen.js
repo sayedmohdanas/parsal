@@ -489,7 +489,7 @@ const AccountScreen = () => {
                     Icon={AppImages.ledgerImage}
                     optionName={'Ledger'}
                     onPress={() => {
-                      navigation.navigate('HelpAndSupportMain');
+                      navigation.navigate('Ledger');
                     }}
                   />
                   <ProfileScreenOptions

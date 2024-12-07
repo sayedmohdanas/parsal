@@ -33,7 +33,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const UpdateDriver = ({route}) => {
   const {vehicle} = route?.params || {};
-  // console.log('vehicle',vehicle);
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
   const vehicledatadummy = {
@@ -244,20 +243,17 @@ const UpdateDriver = ({route}) => {
             style={styles.rcImage}
           />
 
-          {/* <Image source={vehicledatadummy.rc_image} style={styles.rcImage} /> */}
         </TouchableOpacity>
       </View>
     </Swipeable>
   );
 
-  // Driver card component
   const DriverCard = () => (
     <Swipeable
       renderRightActions={() =>
         renderRightActions(handleProfileEdit, handleProfileDelete)
       }>
       <View style={styles.card}>
-        {/* <Image source={driverdummy.driver_profile} style={styles.profileImage} /> */}
         <Image
           source={{
             uri: vehicle?.driver?.driver_name
@@ -318,37 +314,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    // padding: 16,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    // marginBottom: 16,
   },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: responsiveWidth(25),
-    paddingVertical: responsiveHeight(21),
-    // padding:20,
-    // marginHorizontal:10,
-    // borderWidth: 1,
-    // borderBottomWidth:1,
-    // backgroundColor: 'red',
-    borderRadius: 10,
-    // marginBottom: responsiveHeight(3),
+
+    borderRadius: responsiveHeight(10),
   },
   rcImage: {
     width: responsiveWidth(75),
     height: responsiveHeight(75),
-    // marginRight: 10,
     borderRadius: 10,
   },
   profileImage: {
     width: responsiveHeight(55),
     height: responsiveHeight(55),
     borderRadius: responsiveHeight(55),
-    marginRight: 10,
+    marginRight: responsiveHeight(10),
   },
   vehicleInfo: {
     flex: 1,
@@ -382,14 +369,12 @@ const styles = StyleSheet.create({
     color: Colors.grey,
   },
   leftActions: {
-    // flexDirection: 'row',
-    // alignItems: 'center',
+   
     backgroundColor: '#f9f9f9',
     justifyContent: 'space-between',
     marginBottom: responsiveHeight(12),
-    borderRadius: 10,
+    borderRadius:responsiveHeight(10),
 
-    // padding: 15,
   },
   actionIcon: {
     width: responsiveWidth(15),

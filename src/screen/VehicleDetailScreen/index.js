@@ -38,6 +38,7 @@ import {
 import {getimage} from '../../config/url';
 import {FontSizes} from '../../common/Theme';
 import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
+import Line from '../../components/Line/Line';
 
 const VehicleDetailScreen = ({route}) => {
   const {UpdatedVehicleData} = route.params || {};
@@ -48,6 +49,15 @@ const VehicleDetailScreen = ({route}) => {
   );
   const [rcUploaded, setRcUploaded] = useState(
     UpdatedVehicleData?.rc_image || '',
+  );
+  const [insuranceUploaded, setInsuranceUploaded] = useState(
+    UpdatedVehicleData?.insurance_image || '',
+  );
+  const [pollutionUploaded, setPollutionUploaded] = useState(
+    UpdatedVehicleData?.pollution_image || '',
+  );
+  const [fitnessUploaded, setFitnessUploaded] = useState(
+    UpdatedVehicleData?.fitness_image || '',
   );
 
   const [selectedCity, setSelectedCity] = useState(
@@ -116,6 +126,24 @@ const VehicleDetailScreen = ({route}) => {
             img_name: `${vehicleNumber}_rc.png`,
             img_src: rcUploaded?.base64 || '-',
           },
+          // {
+          //   partner_id: partnerId,
+          //   doc_id: 3,
+          //   img_name: `${vehicleNumber}_insurance.png`,
+          //   img_src: insuranceUploaded?.base64 || '-',
+          // },
+          // {
+          //   partner_id: partnerId,
+          //   doc_id: 3,
+          //   img_name: `${vehicleNumber}_pollution.png`,
+          //   img_src: pollutionUploaded?.base64 || '-',
+          // },
+          // {
+          //   partner_id: partnerId,
+          //   doc_id: 3,
+          //   img_name: `${vehicleNumber}_fitness.png`,
+          //   img_src: fitnessUploaded?.base64 || '-',
+          // },
         ],
       };
       hitEditParnterVehicle(payload)
@@ -282,7 +310,7 @@ const VehicleDetailScreen = ({route}) => {
       />
       <View style={styles.container}>
         <ScrollView style={styles.formContainer}>
-          <Heading text="Add RC Details" isRequired={false} />
+          {/* <Heading text="Add RC Details" isRequired={false} /> */}
 
           <CustomTextInput
             value={vehicleNumber}
@@ -299,7 +327,27 @@ const VehicleDetailScreen = ({route}) => {
             onImagePick={setRcUploaded}
             useCamera={false}
           />
+             <ImagePicker
+            labelText="Insurance"
+            uploaded={insuranceUploaded}
+            onImagePick={setInsuranceUploaded}
+            useCamera={false}
+          />
+            <ImagePicker
+            labelText="Pollution"
+            uploaded={pollutionUploaded}
+            onImagePick={setPollutionUploaded}
+            useCamera={false}
+          />
 
+           <ImagePicker
+            labelText="Fintness"
+            uploaded={fitnessUploaded}
+            onImagePick={setFitnessUploaded}
+            useCamera={false}
+            required={false}
+          />
+          <Line marginH={0}/>
           <Heading text="Select the city of Operation" isRequired={false} />
 
           <View style={styles.cityDripDownCard}>
@@ -471,7 +519,7 @@ const VehicleDetailScreen = ({route}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    paddingHorizontal:responsiveWidth(15),
     backgroundColor: Colors.homeBackground,
   },
   selected_vehicle: {borderWidth: 1, borderColor: Colors.brandBlue},

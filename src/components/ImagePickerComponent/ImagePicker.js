@@ -5,23 +5,25 @@ import AppImages from '../../common/AppImages';
 import Colors from '../../common/Colors';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from '../../common/metrices';
 const uplodedImage = require('../../assets/images/uploded.png');
-const ImagePickerComponent = ({ labelText, uploaded, onImagePick, useCamera = false }) => {
+const ImagePickerComponent = ({ labelText, uploaded, onImagePick, useCamera = false,required=true ,isForProfile=false}) => {
   const pickImage = async () => {
     try {
       const response = useCamera
         ? await ImagePicker.openCamera({ cropping: true })
         : await ImagePicker.openPicker({
-          width: 800,
-          height: 800,
+          width: isForProfile ? 400 : 800, // Smaller width for profile images
+          height: isForProfile ? 400 : 800, // Smaller height for profile images
           cropping: true,
-          includeBase64: true
+          cropperToolbarTitle: 'Crop Your Image', 
+          cropperCircleOverlay: isForProfile ? true : false, // Circular crop for profile images
+          compressImageQuality: 0.7, // Compress quality
+          compressImageMaxWidth: isForProfile ? 400 : 800, // Maximum width for profile
+          compressImageMaxHeight: isForProfile ? 400 : 800, // Maximum height for profile
+          includeBase64: true,
+          freeStyleCropEnabled: true, // Restricts free cropping to maintain aspect ratio
+
         })
-      // if (response) {
-      //    const imagePath = response.path;
-      // const base64Data = `data:${response.mime};base64,${response.data}`;
-      //   console.log(response?.path, 'image sqsqwdqedpicker test');
-      //   onImagePick(response); // Pass the actual image response
-      // }
+
       if (response) {
         // const base64Data = response.data;
         // const base64Data = response.data;
@@ -35,8 +37,7 @@ const ImagePickerComponent = ({ labelText, uploaded, onImagePick, useCamera = fa
         });
       }
     } catch (error) {
-      // Alert.alert('Error', 'An error occurred while picking the image.');
-      console.error(error);
+      console.log(error);
     }
   };
   return (
@@ -45,7 +46,9 @@ const ImagePickerComponent = ({ labelText, uploaded, onImagePick, useCamera = fa
         <View style={styles.uploadLabelContainer}>
           <Text style={styles.uploadLabel}>
             {labelText}
+            {required &&(
             <Text style={styles.redAsterisk}>*</Text>
+)}
           </Text>
           {uploaded &&
             <View style={styles.uplodedIConView}>
@@ -66,11 +69,9 @@ const ImagePickerComponent = ({ labelText, uploaded, onImagePick, useCamera = fa
               <Image
                 source={AppImages.cameraImage}
                 style={{
-                  // position: 'absolute',
                   height: responsiveWidth(16),
                   width: responsiveWidth(16),
-                  // right: responsiveWidth(43),
-                  // top: responsiveHeight(27)
+           
                 }}
                 resizeMode='contain'
               />
@@ -81,16 +82,8 @@ const ImagePickerComponent = ({ labelText, uploaded, onImagePick, useCamera = fa
               source={AppImages.editPen}
               resizeMode='contain'
               style={{ height: 20, width: 20 }}
-            // style={{
-            //     position: 'absolute',
-            //     height: responsiveHeight(35),
-            //     width: responsiveWidth(42),
-            //     right: responsiveWidth(43),
-            //     top: responsiveHeight(27)
-            // }}
-            // resizeMode='contain'
+           
             />
-            // <Text style={styles.editButtonText}>Edit</Text>
           )}
         </TouchableOpacity>
       </View>
