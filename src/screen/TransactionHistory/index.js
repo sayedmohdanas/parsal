@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   FlatList,
   Image,
@@ -23,13 +23,14 @@ import Colors from '../../common/Colors';
 import Font from '../../common/Font';
 import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
 import { useNavigation } from '@react-navigation/native';
-import { hitGetTransactionListApi } from '../../config/api/api';
+import { hitGetPartnerDriverApi, hitGetTransactionListApi } from '../../config/api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppImages from '../../common/AppImages';
 import { formatDate } from '../../common/CommonFunction';
 import { Fonts, FontSizes } from '../../common/Theme';
 import Data from '../AccountScreen/Component/Data';
 import TransactionMode from './TransactionMode';
+import DriverDetails from '../DriverEarning/DriversDetail';
 
 const TransactionHistory = () => {
   const navigation = useNavigation();
@@ -40,6 +41,10 @@ const TransactionHistory = () => {
   const [isModalVisible, setIsModalVisible] = useState(false); // Added state for modal visibility
   const [headerText, setHeaderText] = useState('');
   const [totalAmount, setTotalAmount] = useState(0);
+  const [partner_riders, setpartner_riders] = useState([]);
+  const [selectedDriver, setSelectedDriver] = useState();
+
+
   const calculateTotalAmount = (filteredData) => {
     let total = 0;
     filteredData.forEach((item) => {
@@ -104,8 +109,10 @@ const TransactionHistory = () => {
         setIsLoading(false);
         return;
       }
+      const { owner_type, partner_id, driver_id } = parsedUser.payload || {};
 
-      const param = { driverId: parsedUser.payload.driver_id };
+      const id = (owner_type === 1 || owner_type === 2) ? partner_id : driver_id;
+      const param = { driverId:id };
       const res = await hitGetTransactionListApi(param);
       console.log(res, 'res---history');
 
@@ -129,6 +136,23 @@ const TransactionHistory = () => {
     }
   };
 
+  const fetchDriver = async () => {
+    const user = await AsyncStorage.getItem('user');
+    const parsedUser = JSON.parse(user);
+    if (parsedUser?.payload?.owner_type != 0) {
+      const param = {
+        // partnerId: parsedUser?.payload?.partner_id,
+        partner_id: parsedUser?.payload?.partner_id,
+      };
+      try {
+        const response = await hitGetPartnerDriverApi(param)
+        setpartner_riders(response?.data)
+        console.log(response?.data)
+      } catch (error) {
+
+      }
+    }
+  }
   const handleSearch = (text) => {
     setSearchText(text);
 
@@ -169,18 +193,19 @@ const TransactionHistory = () => {
 
   useEffect(() => {
     get_data();
+    fetchDriver()
   }, []);
 
   const applyFilter = (filterType) => {
     const today = new Date();
     today.setHours(23, 59, 59, 999);
-    const todayFormatted = today.toLocaleDateString(); 
+    const todayFormatted = today.toLocaleDateString();
 
     const startOfToday = new Date();
-    startOfToday.setHours(0, 0, 0, 0); 
+    startOfToday.setHours(0, 0, 0, 0);
 
     const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(today.getDate() - 6); 
+    sevenDaysAgo.setDate(today.getDate() - 6);
     sevenDaysAgo.setHours(0, 0, 0, 0);
 
     const startOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
@@ -189,7 +214,7 @@ const TransactionHistory = () => {
     const startOfThreeMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 3, 1);
 
     let filtered = data;
-    let headerText = ''; 
+    let headerText = '';
     if (filterType === 'today') {
       filtered = data.filter((txn) => {
         const txnDate = new Date(txn.txn_date);
@@ -224,23 +249,38 @@ const TransactionHistory = () => {
     setIsModalVisible(false);
   };
 
-const handlePaymentModeFilter=(mode)=>{
+  const handlePaymentModeFilter = (mode) => {
 
-  if(mode=='default'){
+    if (mode == 'default') {
 
-    setFilteredData(data)
-  }else if(mode=='0'){
-    const filterd=data?.filter(item=>item.mode=='0')
-    setFilteredData(filterd)
-  }else if(mode=='1'){
+      setFilteredData(data)
+    } else if (mode == '0') {
+      const filterd = data?.filter(item => item.mode == '0')
+      setFilteredData(filterd)
+    } else if (mode == '1') {
 
-    const filterd=data?.filter(item=>item.mode=='1')
-    setFilteredData(filterd)
-  }else if(mode=='2'){
-    const filterd=data?.filter(item=>item.mode=='2')
-    setFilteredData(filterd)
+      const filterd = data?.filter(item => item.mode == '1')
+      setFilteredData(filterd)
+    } else if (mode == '2') {
+      const filterd = data?.filter(item => item.mode == '2')
+      setFilteredData(filterd)
+    }
+
   }
-}
+  const renderRieder = useMemo(() => {
+    return ({ item }) => {
+      return (
+        <DriverDetails
+          details={item}
+          selectedDriver={selectedDriver}
+          onPress={() => {
+            setSelectedDriver(item);
+            get_data(item?.driver_id);
+          }}
+        />
+      );
+    };
+  }, []);
 
 
   return (
@@ -262,9 +302,9 @@ const handlePaymentModeFilter=(mode)=>{
           <>
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-around', backgroundColor: 'white' }}>
-              <TouchableHighlight style={{ padding: 5, marginVertical: responsiveHeight(8) }} 
-               onPress={()=>handlePaymentModeFilter('default')}
-               underlayColor={'none'}
+              <TouchableHighlight style={{ padding: 5, marginVertical: responsiveHeight(8) }}
+                onPress={() => handlePaymentModeFilter('default')}
+                underlayColor={'none'}
               >
                 <TransactionMode
                   // number={totalAmount}
@@ -275,20 +315,20 @@ const handlePaymentModeFilter=(mode)=>{
 
               </TouchableHighlight>
               <TouchableHighlight style={{ padding: 5, marginVertical: responsiveHeight(8) }}
-              onPress={()=>handlePaymentModeFilter('0')}
-              underlayColor={'none'}
+                onPress={() => handlePaymentModeFilter('0')}
+                underlayColor={'none'}
               >
                 <TransactionMode
                   number={filteredData.filter(item => item.mode == "0").reduce((acc, item) => acc + parseFloat(item.amount), 0).toFixed(2)}
                   dataName={'Cash'}
-                  
+
                 />
 
               </TouchableHighlight>
 
 
               <TouchableHighlight style={{ padding: 5, marginVertical: responsiveHeight(8) }}
-                onPress={()=>handlePaymentModeFilter('1')}
+                onPress={() => handlePaymentModeFilter('1')}
                 underlayColor={'none'}
               >
 
@@ -304,7 +344,7 @@ const handlePaymentModeFilter=(mode)=>{
 
               </TouchableHighlight>
               <TouchableHighlight style={{ padding: 5, marginVertical: responsiveHeight(8) }}
-                onPress={()=>handlePaymentModeFilter('2')}
+                onPress={() => handlePaymentModeFilter('2')}
                 underlayColor={'none'}
               >
                 <TransactionMode
@@ -321,7 +361,7 @@ const handlePaymentModeFilter=(mode)=>{
 
             </View>
             {/* Search Bar */}
-            <View style={styles.searchbarContainer}>
+            {/* <View style={styles.searchbarContainer}>
               <Image
                 source={AppImages.searchIcon}
                 style={styles.searchIconStyle}
@@ -334,6 +374,16 @@ const handlePaymentModeFilter=(mode)=>{
                 value={searchText}
                 onChangeText={handleSearch}
               />
+            </View> */}
+            <View style={{ marginLeft: 20,marginTop:responsiveHeight(5)  }}>
+              {partner_riders?.length > 1 && (
+                <FlatList
+                  data={partner_riders}
+                  horizontal
+                  renderItem={renderRieder}
+                  keyExtractor={(item, index) => index.toString()}
+                />
+              )}
             </View>
             {/* <TouchableOpacity style={{ paddingHorizontal: responsiveWidth(9), alignItems: 'center', paddingVertical: responsiveHeight(8), backgroundColor: '#D8D9FF', alignSelf: 'flex-start', borderRadius: responsiveHeight(40), flexDirection: 'row', marginVertical: responsiveHeight(8) }}>
               <Text style={{ fontSize: responsiveFontSize(12), fontWeight: '500', color: 'black' }}>Download Statement</Text>
@@ -469,7 +519,7 @@ const handlePaymentModeFilter=(mode)=>{
             />
           </>
         )}
-   
+
         <Modal
           visible={isModalVisible}
           transparent={true}
@@ -530,6 +580,26 @@ const handlePaymentModeFilter=(mode)=>{
 
 
       </SafeAreaView>
+      <View style={styles.bottomNavContainer}>
+        <View style={{ flex: 1 }}>
+
+          <Text style={styles.leftText}>Total Earning</Text>
+        </View>
+        <View style={{}}>
+
+          <View style={styles.separator} />
+
+        </View>
+        <View style={{ flex: 1, alignItems: 'flex-end', }}>
+
+          <Text style={styles.rightText}>
+
+            {filteredData.filter(item => item.amount).reduce((acc, item) => acc + parseFloat(item.amount), 0).toFixed(2)}
+
+          </Text>
+        </View>
+
+      </View>
     </>
   );
 };
@@ -610,7 +680,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
     width: '80%',
@@ -632,6 +702,33 @@ const styles = StyleSheet.create({
     fontSize: responsiveFontSize(14),
     fontFamily: Fonts.medium,
     color: 'black'
+  },
+  bottomNavContainer: {
+    position: 'absolute',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    // backgroundColor:'aqua',
+    bottom: responsiveHeight(5),
+    paddingVertical: 10,
+    left: 0,
+    right: 0,
+    paddingHorizontal: responsiveWidth(15),
+    backgroundColor: 'white'
+  },
+  leftText: {
+    color: 'black',
+    fontSize: responsiveFontSize(18),
+  },
+  rightText: {
+    color: 'black',
+    fontSize: responsiveFontSize(16),
+
+  },
+  separator: {
+    width: 1,
+    height: '100%',
+    backgroundColor: 'grey',
+    marginHorizontal: 10,
   },
 
 });

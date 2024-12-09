@@ -30,14 +30,12 @@ import BottomNav from '../../../navigation/BottomNav';
 import {hitOrderListApi} from '../../config/api/api';
 import {formatDate} from '../../common/CommonFunction';
 import CustomHeader from '../DashBoard/components/CustomHeader';
-import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
 
 const OrderScreen = () => {
   const focus = useIsFocused();
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const [activeButton, setActiveButton] = useState('All');
-  const [filteredOrders, setFilteredOrders] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [orders, setorders] = useState([]);
   const [loader, setloader] = useState(false);
@@ -47,10 +45,15 @@ const OrderScreen = () => {
     const parsed_user = JSON.parse(user);
     const request = {
       id:
-        parsed_user?.payload?.owner_type != 1
+        parsed_user?.payload?.owner_type == 0 ||
+        parsed_user?.payload?.owner_type == 2
           ? parsed_user?.payload?.driver_id
-          : '0',
-      type: 1,
+          : parsed_user?.payload?.partner_id,
+      type:
+        parsed_user?.payload?.owner_type == 0 ||
+        parsed_user?.payload?.owner_type == 2
+          ? 1
+          : 2,
     };
     hitOrderListApi(request)
       .then(res => {
@@ -74,6 +77,7 @@ const OrderScreen = () => {
   const filter_data = data => {
     let filtered = data;
 
+    // Filter by order status based on the active button
     if (activeButton === 'Pending') {
       filtered = filtered.filter(order => order.order_status === 0);
     } else if (activeButton === 'Delivered') {
@@ -82,6 +86,7 @@ const OrderScreen = () => {
       filtered = filtered.filter(order => order.order_status === 5);
     }
 
+    // Filter based on search query (matches parcel number, parcel name, pickup address, or drop address)
     if (searchQuery.trim() !== '') {
       filtered = filtered.filter(
         order =>
@@ -104,6 +109,7 @@ const OrderScreen = () => {
   const handleButtonPress = item => {
     setActiveButton(item);
   };
+  // Render each order item
   const renderOrderItem = useMemo(
     () =>
       ({item}) => {
@@ -141,7 +147,7 @@ const OrderScreen = () => {
             cityend={item.drop_address}
             stateend={'State Name'}
             name={item.driver?.driver_name}
-            address={'Driver Address'} 
+            address={'Driver Address'}
             tripCost={parseFloat(item?.paid_amount || 0).toFixed(2)}
             partnerId={item.driver?.partner_id}
             driverId={item.driver_id}
@@ -152,7 +158,7 @@ const OrderScreen = () => {
           />
         );
       },
-    [filteredOrders, activeButton, searchQuery],
+    [ activeButton, searchQuery], // Dependencies could include `items` or relevant props passed to `renderOrderItem`
   );
 
   return (
@@ -163,10 +169,12 @@ const OrderScreen = () => {
             height: responsiveHeight(60),
             marginBottom: responsiveHeight(10),
           }}>
-          <CustomHeader  screenName={"Orders"} showSplash={true} />
+          <CustomHeader screenName={'Orders'} showSplash={true} />
         </View>
         <View style={{flex: 1, backgroundColor: Colors.homeBackground}}>
-
+          {/* <View style={{margin: 17}}>
+            <Text style={styles.orderTextStyle}>{'Orders'}</Text>
+          </View> */}
 
           {/* Search bar */}
           <View style={styles.searchbarContainer}>
@@ -227,7 +235,6 @@ const OrderScreen = () => {
               keyExtractor={(item, index) => item.id.toString()}
               renderItem={renderOrderItem}
               contentContainerStyle={styles.listContentContainer} // This helps manage spacing within the list.
-
               ListEmptyComponent={() => (
                 <SafeAreaView
                   style={{
@@ -263,8 +270,7 @@ const OrderScreen = () => {
         </View>
 
         {/* Bottom Navigation */}
-        <View
-          style={styles.bottomNavContainer}>
+        <View style={styles.bottomNavContainer}>
           <BottomNav order={true} />
         </View>
       </SafeAreaView>

@@ -35,7 +35,6 @@ const OrderDetail = ({ orderDetails }) => {
       },
     },
   };
-console.log(orderDetails);
   return (
     <TouchableOpacity
       onPress={()=>navigation.navigate('orderinfo',{

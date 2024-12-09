@@ -1,13 +1,13 @@
-import {StyleSheet, View, Text, Image, TouchableHighlight} from 'react-native';
+import { StyleSheet, View, Text, Image, TouchableHighlight } from 'react-native';
 import {
   responsiveFontSize,
   responsiveHeight,
   responsiveWidth,
 } from '../../common/metrices';
 import Colors from '../../common/Colors';
-import {getimage} from '../../config/url';
+import { getimage } from '../../config/url';
 
-const DriverDetails = ({details, onPress, selectedDriver}) => {
+const DriverDetails = ({ details, onPress, selectedDriver }) => {
   return (
     <TouchableHighlight
       onPress={onPress}
@@ -26,11 +26,11 @@ const DriverDetails = ({details, onPress, selectedDriver}) => {
           source={{
             uri: getimage(
               'partners_img/' +
-                details?.partner_id +
-                '/drivers/' +
-                details?.driver_id +
-                '_' +
-                details?.driver?.profile_pic,
+              details?.partner_id +
+              '/drivers/' +
+              details?.driver_id +
+              '_' +
+              details?.profile_pic,
             ),
           }}
           style={styles.manStyle}
@@ -48,7 +48,7 @@ const DriverDetails = ({details, onPress, selectedDriver}) => {
                     : Colors.black,
               },
             ]}>
-            {details?.driver?.driver_name}
+            {details?.driver_name}
           </Text>
           <Text
             style={[
@@ -61,7 +61,7 @@ const DriverDetails = ({details, onPress, selectedDriver}) => {
                 fontSize: responsiveFontSize(8),
               },
             ]}>
-            {details?.vehicle_number}
+            {details?.vehicles[0]?.vehicle_number}
           </Text>
           {/* <Text style={[styles.address]}>{props.address}</Text> */}
         </View>
@@ -82,8 +82,8 @@ const styles = StyleSheet.create({
     // paddingHorizontal:responsiveWidth(15),
     marginRight: responsiveWidth(8),
     alignItems: 'center',
-    borderWidth: 0.5,
-    borderColor: Colors.buttonGrey,
+    // borderWidth: 0.5,
+    // borderColor: Colors.buttonGrey,
     marginRight: responsiveWidth(10),
     marginBottom: responsiveHeight(10),
   },
@@ -94,8 +94,8 @@ const styles = StyleSheet.create({
   },
   manStyle: {
     height: responsiveHeight(30),
-    width: responsiveHeight(30), 
-    borderRadius: responsiveHeight(15), 
+    width: responsiveHeight(30),
+    borderRadius: responsiveHeight(15),
     marginLeft: responsiveWidth(8),
     resizeMode: 'cover'
   },
@@ -113,6 +113,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: Colors.grey,
     // marginTop: 2
-  }, 
+  },
 });
 export default DriverDetails;

@@ -268,7 +268,7 @@ const DriverDashboard = () => {
                   <Text style={styles.tripName}>
                     {driver_todays_earning?.length == 0
                       ? '0'
-                      : driver_todays_earning?.individual_paid_amounts?.length}
+                      : driver_todays_earning[3]?.individualPaidAmounts?.length}
                   </Text>
                 </View>
               </View>
@@ -283,9 +283,9 @@ const DriverDashboard = () => {
                   <Text style={styles.tripTime}>Operator Bill</Text>
                   <Text style={styles.tripName}>
                     ₹
-                    {!isNaN(driver_todays_earning?.total_paid_amount)
+                    {!isNaN(driver_todays_earning[3]?.totalPaidAmount)
                       ? Math.round(
-                          driver_todays_earning?.total_paid_amount,
+                        driver_todays_earning[3]?.totalPaidAmount,
                         ).toFixed(2)
                       : '0'}
                   </Text>

@@ -126,7 +126,8 @@ const AccountScreen = () => {
         })
         .catch(err => {
           console.log(err);
-        }).finally(() => {
+        })
+        .finally(() => {
           setIsLoading(false); // Example: Ensure to properly call the function
         });
     } else {
@@ -138,12 +139,19 @@ const AccountScreen = () => {
           dispatch(setloginuserdetails(res?.partner));
           setIsLoading(false); // Set loading to false when data is fetched
 
-          if (parsed_user?.payload?.owner_type == 2) {
-            const param = { driver_id: parsed_user?.payload?.driver_id };
+          if (
+            parsed_user?.payload?.owner_type == 2 ||
+            parsed_user?.payload?.owner_type == 1
+          ) {
+            const param = {
+              driver_id:
+                parsed_user?.payload?.driver_id == null
+                  ? ''
+                  : parsed_user?.payload?.driver_id,
+              partner_id: parsed_user?.payload?.partner_id,
+            };
             hitGetWalletBalanceApi(param)
               .then(res => {
-                // console.log(store_data,'log==============----dddd---->>>>>',res);
-                
                 dispatch(setwalletBalance(res));
               })
               .catch(err => {
@@ -192,7 +200,6 @@ const AccountScreen = () => {
         .catch(err => {
           console.error(err);
           setIsLoading(false);
-
         });
     }
   };
@@ -214,9 +221,12 @@ const AccountScreen = () => {
     const request = {
       id:
         parsedUser?.payload?.owner_type == 1
-          ? '1'
+          ? parsedUser?.payload?.partner_id
           : parsedUser?.payload?.driver_id,
-      type: 1,
+      type:
+        parsedUser?.payload?.owner_type == 1
+          ? 2
+          : 1,
     };
     hitGetUserOrderStatsApi(request)
       .then(res => {
@@ -310,21 +320,18 @@ const AccountScreen = () => {
         </View>
         <SafeAreaView
           style={{ backgroundColor: '#F5F6F7', flex: 1, marginHorizontal: 16 }}>
-          <ScrollView showsVerticalScrollIndicator={false} 
-         contentContainerStyle={{ 
-          paddingBottom: responsiveHeight(80) 
-        }}
-          > 
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{
+              paddingBottom: responsiveHeight(80),
+            }}>
             {isLoading ? (
               // <Loading loading={isLoading} />
-
 
               <View style={mystyles.center}>
                 <ActivityIndicator size="large" color={Colors.brandBlue} />
               </View>
-
             ) : (
-
               <View
                 style={{ flex: 1, backgroundColor: '#F5F6F7', marginBottom: 10 }}>
                 <View style={styles.userDetailSection}>
@@ -371,9 +378,8 @@ const AccountScreen = () => {
                         style={{
                           width: responsiveWidth(18),
                           height: responsiveHeight(18),
-
                         }}
-                        resizeMethod='contain'
+                        resizeMethod="contain"
                       />
                     </TouchableOpacity>
                   </View>
@@ -414,10 +420,11 @@ const AccountScreen = () => {
                         onPress={() => {
                           navigation.navigate('GstDetailScreen');
                         }}
-                        activeOpacity={0.7}
-                      >
+                        activeOpacity={0.7}>
                         <View style={styles.gstButtonContainer}>
-                          <Text style={styles.gstButtonText}>Edit GST Details</Text>
+                          <Text style={styles.gstButtonText}>
+                            Edit GST Details
+                          </Text>
                         </View>
                       </TouchableOpacity>
                       <View style={styles.dataContainer}>
@@ -430,13 +437,15 @@ const AccountScreen = () => {
                           dataName={'Transactions'}
                         />
                         <Data
-                          number={`₹${isNaN(orderStats?.totalPaidAmount) ? 0 : orderStats?.totalPaidAmount}`}
+                          number={`₹${isNaN(orderStats?.totalPaidAmount)
+                              ? 0
+                              : orderStats?.totalPaidAmount
+                            }`}
                           dataName={'Earned'}
                         />
                       </View>
                     </View>
                   )}
-
                 </View>
 
                 <View style={styles.optionSection}>
@@ -456,27 +465,27 @@ const AccountScreen = () => {
                     }
                   />
 
-                <Text style={styles.optionName}>{'Other'}</Text>
-                <ProfileScreenOptions
-                  Icon={AppImages.live}
-                  optionName={'Live Order'}
-                  onPress={() => {
-                    if (show_live) {
-                      navigation.navigate('DriverMap');
-                    }
-                  }}
-                />
-                {parse_data?.payload?.owner_type != 0 && (
+                  <Text style={styles.optionName}>{'Other'}</Text>
                   <ProfileScreenOptions
-                    Icon={AppImages.addvehicle}
-                    optionName={'Manage Vehicles'}
+                    Icon={AppImages.live}
+                    optionName={'Live Order'}
                     onPress={() => {
-                      navigation.navigate('MyVehicles', {
-                        login_user: 1,
-                      });
+                      if (show_live) {
+                        navigation.navigate('DriverMap');
+                      }
                     }}
                   />
-                )}
+                  {parse_data?.payload?.owner_type != 0 && (
+                    <ProfileScreenOptions
+                      Icon={AppImages.addvehicle}
+                      optionName={'Manage Vehicles'}
+                      onPress={() => {
+                        navigation.navigate('MyVehicles', {
+                          login_user: 1,
+                        });
+                      }}
+                    />
+                  )}
 
                   <ProfileScreenOptions
                     Icon={AppImages.earningImage}

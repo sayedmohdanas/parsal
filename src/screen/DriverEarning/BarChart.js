@@ -1,4 +1,3 @@
-
 // import React, {useEffect, useState} from 'react';
 // import {View} from 'react-native';
 // import {VictoryChart, VictoryAxis, VictoryBar} from 'victory-native';
@@ -103,7 +102,7 @@
 //         }
 //       } else if (selectedRange === 'week') {
 //         const currentDay = getDayOfWeek(new Date());
-        
+
 //         if (data.day === currentDay) {
 //           color = '#3D40D1'; // Highlight current day
 //         }
@@ -235,10 +234,6 @@
 // };
 
 // export default BarChart;
-
-
-
-
 
 // import React, { useEffect, useState } from 'react';
 // import { View } from 'react-native';
@@ -379,194 +374,139 @@
 
 // export default BarChart;
 
+import React, {useEffect, useState} from 'react';
+import {View, Text, StyleSheet, Alert} from 'react-native';
+import {VictoryChart, VictoryAxis, VictoryBar} from 'victory-native';
+import {responsiveHeight, responsiveWidth} from '../../common/metrices';
 
-
-
-
-
-
-
-
-
-
-
-
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
-import { VictoryChart, VictoryAxis, VictoryBar } from 'victory-native';
-import { responsiveHeight, responsiveWidth } from '../../common/metrices';
-
-const getDayOfWeek = (dateString) => {
+const getDayOfWeek = dateString => {
   const date = new Date(dateString);
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   return days[date.getDay()];
 };
 
-const isToday = (date) => {
-  const today = new Date();
-  const givenDate = new Date(date);
-  return (
-    today.getDate() === givenDate.getDate() &&
-    today.getMonth() === givenDate.getMonth() &&
-    today.getFullYear() === givenDate.getFullYear()
-  );
-};
+const aggregateEarningsByCustomWeek = (data, startDate) => {
+  const start = new Date(startDate);
+  const earnings = Array(7)
+    .fill(0)
+    .map((_, index) => {
+      const current = new Date(start);
+      current.setDate(start.getDate() + index);
+      return {
+        day:
+          new Date(current).toLocaleDateString('en-GB', {
+            day: 'numeric',
+            month: 'short',
+          }) +
+          '\n' +
+          getDayOfWeek(current),
+        date: current,
+        value: 0,
+        color: '#3D40D1', // Default color
+      };
+    });
 
-const aggregateEarningsByHour = (data) => {
-  const earnings = Array(24).fill(0); 
-  data.forEach((entry) => {
+  data.forEach(entry => {
     const orderDate = new Date(entry.order_date);
-    const hour = orderDate.getHours(); 
-    earnings[hour] += entry.paid_amount; 
-  });
-  return earnings.map((value, hour) => ({ hour, value }));
-};
+    const matchingDay = earnings.find(earning => {
+      return orderDate.toDateString() === earning.date.toDateString();
+    });
 
-// Aggregating earnings by days of the week
-// const aggregateEarningsByDay = (data) => {
-//   // Alert.alert('hi')
-//   const earnings = {
-//     Mon: 0,
-//     Tue: 0,
-//     Wed: 4,
-//     Thu: 0,
-//     Fri: 0,
-//     Sat: 0,
-//     Sun: 0,
-//   };
-
-//   // let amount =;
-//   data.forEach((entry) => {
-//     const day = getDayOfWeek(entry.order_date);
-//     console.log(day,'dayyyy--->>')
-//     earnings[day] += entry.paid_amount;
-
-//     console.log(day,'dayyyy--->>',earnings[day] )
-
-//   });
-
-//   return Object.keys(earnings).map((day) => ({
-//     day,
-//     value: earnings[day],
-//   }));
-// };
-
-const aggregateEarningsByDay = (data) => {
-  const earnings = {
-    Mon: 0,
-    Tue: 0,
-    Wed: 0,
-    Thu: 0,
-    Fri: 0,
-    Sat: 0,
-    Sun: 0,
-  };
-
-  data.forEach((entry) => {
-    const orderDate = new Date(entry.order_date);
-    const day = getDayOfWeek(orderDate);
-    
-    console.log(`Order date: ${orderDate}, Day: ${day}, Paid amount: ${entry.paid_amount}`);
-
-    // Check if the day exists in the earnings object and add the paid amount
-    if (earnings[day] !== undefined) {
-      earnings[day] += entry.paid_amount;
-    } else {
-      console.log(`Unexpected day found: ${day}`);
+    if (matchingDay) {
+      matchingDay.value += entry.paid_amount;
     }
-
-    // Debug: Log the current state of earnings after processing each entry
-    console.log('Current earnings state:', earnings);
   });
 
-  // Convert the earnings object into an array for VictoryBar
-  return Object.keys(earnings).map((day) => ({
+  // Remove `date` before returning for chart compatibility
+  return earnings.map(({day, value, color, date}) => ({
     day,
-    value: earnings[day],
+    value,
+    color,
+    date,
   }));
 };
 
+const aggregateEarningsByHour = data => {
+  const earnings = Array(24).fill(0);
+  data.forEach(entry => {
+    const orderDate = new Date(entry.order_date);
+    const hour = orderDate.getHours();
+    earnings[hour] += entry.paid_amount;
+  });
+  return earnings.map((value, hour) => ({hour, value}));
+};
 
-
-const BarChart = ({ driverEarningData, selectedRange }) => {
+const BarChart = ({driverEarningData, selectedRange, week_start_date}) => {
   const [chartData, setChartData] = useState([]);
-  const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0, value: null });
+  const [tooltip, setTooltip] = useState({
+    visible: false,
+    x: 0,
+    y: 0,
+    value: null,
+  });
 
   const handleBarPress = (event, props) => {
-    const { datum, x, y } = props; // Access data and position of the bar
-  
+    const {datum, x, y} = props; // Access data and position of the bar
+
     setTooltip({
       visible: true,
       x,
       y,
       value: datum.value,
     });
-  
+
     // Automatically hide tooltip after 2 seconds (2000ms)
     setTimeout(() => {
-      setTooltip({ visible: false, x: 0, y: 0, value: null });
+      setTooltip({visible: false, x: 0, y: 0, value: null});
     }, 4000); // Adjust time (in milliseconds) as needed
   };
-  
 
   const handleBarRelease = () => {
     // setTooltip({ visible: false, x: 0, y: 0, value: null });
   };
-
   useEffect(() => {
-    const filteredData = driverEarningData?.individual_paid_amounts || [];
-    // console.log(filteredData?.individual_paid_amounts,'filterData--');
-    
+    const filteredData = driverEarningData?.individualPaidAmounts || [];
     let aggregatedData = [];
 
     if (selectedRange === 'today') {
-      aggregatedData = aggregateEarningsByHour(filteredData); // Aggregate by hour for today
-      // console.log("dayby------",aggregatedData)
-
+      aggregatedData = aggregateEarningsByHour(filteredData);
     } else if (selectedRange === 'week') {
-      aggregatedData = aggregateEarningsByDay(filteredData);
-      // console.log("weeekly------",aggregatedData)
-      // Aggregate by day for the week
+      const startOfWeek = new Date(week_start_date); // Adjust to your desired start date
+      aggregatedData = aggregateEarningsByCustomWeek(filteredData, startOfWeek);
     }
-     
-    // console.log('aggregatedData====>>>w__rev',aggregatedData);
-    
-    // aggregatedData = aggregatedData.reverse();
-    // console.log('aggregatedData====>>>a__rev',aggregatedData);
 
-    const updatedData = aggregatedData.map((data) => {
+    const updatedData = aggregatedData.map(data => {
       let color = '#3D40D1'; // Default bar color
       if (selectedRange === 'today') {
         const currentHour = new Date().getHours();
         if (data.hour === currentHour) {
-          color = '#3D40D1'; // Highlight current hour
+          color = '#3D40D1'; // Highlight the current hour with a different color (e.g., Tomato)
         }
       } else if (selectedRange === 'week') {
         const currentDay = getDayOfWeek(new Date());
         if (data.day === currentDay) {
-          color = '#3D40D1'; // Highlight current day
+          color = '#3D40D1'; // Highlight the current day with a different color (e.g., Tomato)
         }
       }
-      return {
-        ...data,
-        color,
-      };
+      return {...data, color}; // Assign color dynamically based on the condition
     });
-   console.log('anas======>>>>>>>>',updatedData);
-   
+
     setChartData(updatedData);
-  }, [driverEarningData, selectedRange]);
+  }, [driverEarningData, selectedRange, week_start_date]);
 
   if (!chartData.length) {
     return null;
   }
+  const filteredData = driverEarningData?.individual_paid_amounts || [];
+  const startOfWeek = new Date(week_start_date);
+  let aggregatedData = aggregateEarningsByCustomWeek(filteredData, startOfWeek);
 
   return (
     <View>
       <VictoryChart height={220} domainPadding={20}>
         <VictoryAxis
           style={{
-            axis: { stroke: '#232323' },
+            axis: {stroke: '#232323'},
             tickLabels: {
               fontSize: 10,
               padding: 5,
@@ -574,20 +514,22 @@ const BarChart = ({ driverEarningData, selectedRange }) => {
             },
           }}
           tickValues={
-            selectedRange === 'today'
-              ? [0, 3, 6, 9, 12, 15, 18, 21,24] // 3-hour intervals for today
-              : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] // Days of the week
+            selectedRange == 'today'
+              ? [0, 3, 6, 9, 12, 15, 18, 21, 24] // Hourly intervals for today
+              : aggregatedData.map(item => item.day) // Convert the Date object to timestamp
           }
-          tickFormat={(t, index) =>
-            selectedRange === 'today' ? `${t}:00` : `${index + 1}\n${t}`
-          }
+          tickFormat={t => {
+            const formattedTick = selectedRange == 'today' ? `${t}:00` : `${t}`;
+            return formattedTick;
+          }}
         />
+
         <VictoryAxis
           dependentAxis
-          tickFormat={(x) => `₹${x}`} // Show earnings as they are
+          tickFormat={x => `₹${x}`} // Show earnings
           style={{
-            axis: { stroke: 'transparent' },
-            grid: { stroke: '#D8D8D8', strokeDasharray: '0' },
+            axis: {stroke: 'transparent'},
+            grid: {stroke: '#D8D8D8', strokeDasharray: '0'},
             tickLabels: {
               fontSize: 10,
               padding: 5,
@@ -602,11 +544,11 @@ const BarChart = ({ driverEarningData, selectedRange }) => {
           y="value"
           style={{
             data: {
-              fill: ({ datum }) => datum.color,
+              fill: ({datum}) => datum.color,
               width: selectedRange === 'today' ? responsiveWidth(10) : 25,
             },
           }}
-          cornerRadius={{ top: 2 }}
+          cornerRadius={{top: 2}}
           events={[
             {
               target: 'data',
@@ -620,18 +562,18 @@ const BarChart = ({ driverEarningData, selectedRange }) => {
           ]}
         />
       </VictoryChart>
+
       {tooltip.visible && (
         <View
           style={[
             styles.tooltip,
             {
-              left: tooltip.x - 30, 
-              top: tooltip.y - 40, 
+              left: tooltip.x - 30,
+              top: tooltip.y - 40,
             },
-          ]}
-        >
-<Text style={styles.tooltipText}>₹{tooltip?.value?.toFixed(2)}</Text>
-</View>
+          ]}>
+          <Text style={styles.tooltipText}>₹{tooltip?.value?.toFixed(2)}</Text>
+        </View>
       )}
     </View>
   );

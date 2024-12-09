@@ -141,4 +141,5 @@ export default AppImages = {
   shareIcon:require('../assets/images/share_Icon.png'),
   downloadIcon:require('../assets/images/downloadIcon.png'),
   calendarIcon:require('../assets/images/calendar.png'),
+  suspendedIcon:require('../assets/images/suspended.png'),
 };

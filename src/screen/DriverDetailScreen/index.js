@@ -1,23 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Alert, ScrollView } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, Text, StyleSheet, Alert, ScrollView} from 'react-native';
 import CustomTextInput from '../../components/CustomTextInput/CustomTextInput';
 import ImagePicker from '../../components/ImagePickerComponent/ImagePicker';
 import SubmitCard from '../../components/SumbmitButton/SubmitButton';
 import CheckBox from 'react-native-check-box';
 import Heading from '../../components/Heading/Heading';
 import PageButtons from '../../components/TempBtn/TempBtn';
-import { useDispatch, useSelector } from 'react-redux';
-import { addDriverDetails } from '../../redux/HitApis/HitApiSlice';
-import { useNavigation } from '@react-navigation/native';
+import {useDispatch, useSelector} from 'react-redux';
+import {addDriverDetails} from '../../redux/HitApis/HitApiSlice';
+import {useNavigation} from '@react-navigation/native';
 import Colors from '../../common/Colors';
 import {
   errorToast,
   GetDriverCurrentLocation,
   successToast,
 } from '../../common/CommonFunction';
-import { getMessaging } from '@react-native-firebase/messaging';
+import {getMessaging} from '@react-native-firebase/messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { hitGetPartner, hitUpdateDriverDetails } from '../../config/api/api';
+import {
+  hitGetPartner,
+  hitPartnerDriverToVehicleurlApi,
+  hitUpdateDriverDetails,
+} from '../../config/api/api';
 import {
   responsiveFontSize,
   responsiveHeight,
@@ -25,8 +29,9 @@ import {
 } from '../../common/metrices';
 import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
 import Loading from '../../components/Loading/Loading';
-const DriverDetailScreen = ({ route }) => {
-  const { v_id, updateDriverData, vehicle_num } = route.params || {};
+const DriverDetailScreen = ({route}) => {
+  const {v_id, updateDriverData, vehicle_num} = route.params || {};
+  // console.log('updateDriverData',updateDriverData);
   const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
   const dispatch = useDispatch();
   const [name, setName] = useState(updateDriverData?.driver?.driver_name || '');
@@ -49,7 +54,7 @@ const DriverDetailScreen = ({ route }) => {
   useEffect(() => {
     const fetchPartnerDetails = async () => {
       try {
-        const response = await hitGetPartner({ partner_id: partnerId });
+        const response = await hitGetPartner({partner_id: partnerId});
         setPartnerData(response?.partner);
       } catch (error) {
         console.error('Error fetching partner details:', error);
@@ -79,13 +84,16 @@ const DriverDetailScreen = ({ route }) => {
       errorToast('Invalid Number', 'Please enter 10 digits valid  number.');
       return; // Exit if the driver number is invalid
     }
-    // setloader(true);
+    setloader(true);
+    // vehicle_id: updateDriverData?.id,
+    const user = await AsyncStorage.getItem('user');
+    const parsedUser = JSON.parse(user);
     const partnerId = await AsyncStorage.getItem('partner_id');
-    const { latitude, longitude } = await GetDriverCurrentLocation();
+    const {latitude, longitude} = await GetDriverCurrentLocation();
     const payload = {
       partner_id: partnerId,
       email: email.replaceAll(' ', '')?.toLocaleLowerCase(),
-      vehicle_id: v_id,
+      vehicle_id: v_id || updateDriverData?.id,
       driver_name: name,
       phone: driverNumber,
       profile_pic: {
@@ -114,46 +122,93 @@ const DriverDetailScreen = ({ route }) => {
             owner_status:
               updateDriverData?.owner_type == 2 ? (!isChecked ? 1 : 2) : 0,
           };
-          const response = await hitUpdateDriverDetails(Updatedpayload);
-          // if (response?.status) {
-          //   successToast(`Driver ${name} successfully Updated.`);
-          //   navigation.goBack('');
-          //   setloader(false);
-          // } else {
-          //   setloader(false);
-          //   errorToast(`Something went wrong while updating driver`);
-          // }
-          if (response?.status) {
-            successToast(`Driver ${name} successfully Updated.`);
-
-            // Update AsyncStorage after successful response
-            const user = await AsyncStorage.getItem('user');
-            let parsedUser = JSON.parse(user);
-
-            if (updateDriverData?.owner_type == 2 && !isChecked) {
-              // Update for partner who is also a driver
-              parsedUser.payload.owner_type = 1; // Set as only partner
-              parsedUser.payload.driver_id = null; // Clear driver ID
-              parsedUser.payload.vehicle_type_id = null; // Clear vehicle type
-            } else if (isChecked) {
-              // Update for partner becoming a driver
-              parsedUser.payload.owner_type = 2; // Set as both partner and driver
-              parsedUser.payload.driver_id = response?.payload?.driver_id; // Assign driver ID
-              parsedUser.payload.phone = payload?.phone; // Update phone number
-              parsedUser.payload.vehicle_type_id = payload?.payload; // Update vehicle type
-            }
-
-            await AsyncStorage.setItem('user', JSON.stringify(parsedUser));
-
-            navigation.goBack('');
+          const user = await AsyncStorage.getItem('user');
+          const parsedUser = JSON.parse(user);
+          if (
+            parsedUser?.payload?.owner_type == 2 &&
+            parsedUser?.payload?.driver_id != updateDriverData?.driver_id &&
+            isChecked
+          ) {
+            const param = {
+              partner_driver_id: parsedUser?.payload?.driver_id,
+              old_user_driver_id: updateDriverData?.driver_id,
+              partner_id: partnerId,
+              vehicle_id: updateDriverData?.id,
+              payload: null,
+            };
+            hitPartnerDriverToVehicleurlApi(param)
+              .then(async res => {
+                if (res) {
+                  parsedUser.payload.owner_type = 2; // Set as only partner
+                  parsedUser.payload.driver_id = null; // Clear driver ID
+                  parsedUser.payload.vehicle_type_id = null; // Clear vehicle type
+                  await AsyncStorage.setItem(
+                    'user',
+                    JSON.stringify(parsedUser),
+                  );
+                  navigation.navigate('MyVehicles');
+                }
+              })
+              .catch(err => {
+                console.error(err);
+              });
+            return;
           } else {
-            setloader(false);
-            errorToast(`Something went wrong while updating driver`);
+            const response = await hitUpdateDriverDetails(Updatedpayload);
+            if (response?.status) {
+              successToast(`Driver ${name} successfully Updated.`);
+              // Update AsyncStorage after successful response
+              const user = await AsyncStorage.getItem('user');
+              let parsedUser = JSON.parse(user);
+              if (updateDriverData?.owner_type == 2 && !isChecked) {
+                // Update for partner who is also a driver
+                parsedUser.payload.owner_type = 1; // Set as only partner
+                parsedUser.payload.driver_id = null; // Clear driver ID
+                parsedUser.payload.vehicle_type_id = null; // Clear vehicle type
+                await AsyncStorage.setItem('user', JSON.stringify(parsedUser));
+                navigation.goBack('');
+                setloader(false);
+              } else if (isChecked) {
+                // Update for partner becoming a driver
+                parsedUser.payload.owner_type = 2; // Set as both partner and driver
+                parsedUser.payload.driver_id = response?.payload?.driver_id; // Assign driver ID
+                parsedUser.payload.phone = payload?.phone; // Update phone number
+                parsedUser.payload.vehicle_type_id = payload?.payload; // Update vehicle type
+                await AsyncStorage.setItem('user', JSON.stringify(parsedUser));
+                navigation.goBack('');
+                setloader(false);
+              }
+            } else {
+              setloader(false);
+              errorToast(`Something went wrong while updating driver`);
+            }
           }
         } catch (error) {
           setloader(false);
         }
       } else {
+        if (
+          parsedUser?.payload?.owner_type == 2 &&
+          updateDriverData?.driver_id != parsedUser?.payload?.driver_id &&
+          isChecked
+        ) {
+          const param = {
+            partner_driver_id: parsedUser?.payload?.driver_id,
+            old_user_driver_id: updateDriverData?.driver_id,
+            partner_id: partnerId,
+            vehicle_id: v_id,
+            owner_type: 2,
+            payload: null,
+          };
+          hitPartnerDriverToVehicleurlApi(param)
+            .then(res => {
+              if (res) navigation.goBack('');
+            })
+            .catch(err => {
+              console.error(err);
+            });
+          return;
+        }
         const resultAction = await dispatch(addDriverDetails(payload));
         if (addDriverDetails.fulfilled.match(resultAction)) {
           const user = await AsyncStorage.getItem('user');
@@ -172,7 +227,7 @@ const DriverDetailScreen = ({ route }) => {
           Alert.alert(
             'Error',
             resultAction.payload?.message ||
-            'An error occurred while submitting.',
+              'An error occurred while submitting.',
           );
           setloader(false);
         }
@@ -184,6 +239,18 @@ const DriverDetailScreen = ({ route }) => {
     }
   };
   const isEnabled = name && driverNumber && licenseUploaded;
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const user = await AsyncStorage.getItem('user');
+        const parsedUser = JSON.parse(user);
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+    };
+
+    fetchUser(); // Call the async function
+  }, []);
 
   return (
     <>
@@ -197,21 +264,32 @@ const DriverDetailScreen = ({ route }) => {
             <Heading text="Driver Details" isRequired={true} />
             <View style={styles.card}>
               <CheckBox
-                style={{ padding: 10 }}
+                style={{padding: 10}}
                 onClick={async () => {
                   const user = await AsyncStorage.getItem('user');
                   const parsedUser = JSON.parse(user);
-                  if (parsedUser?.payload?.owner_type == 2) {
+
+                  if (
+                    parsedUser?.payload?.owner_type == 2 &&
+                    updateDriverData?.driver_id !=
+                      parsedUser?.payload?.driver_id
+                  ) {
                     // Display confirmation dialog
                     if (updateDriverData) {
                       setIsChecked(!isChecked);
-                      return;
+                      // return;
                     }
                     Alert.alert(
                       'Confirmation',
-                      `You are already driving the vehicle with number: ${vehicle_num}. Are you sure you want to drive this vehicle as well?`,
+                      `You are already driving the vehicle. Are you sure you want to drive this vehicle as well?`,
                       [
-                        { text: 'Cancel', onPress: () => { }, style: 'cancel' },
+                        {
+                          text: 'Cancel',
+                          onPress: () => {
+                            setIsChecked(false);
+                          },
+                          style: 'cancel',
+                        },
                         {
                           text: 'Yes',
                           onPress: () => {
@@ -233,13 +311,33 @@ const DriverDetailScreen = ({ route }) => {
                     );
                     return; // Exit early to prevent further execution
                   }
+                  if (updateDriverData) {
+                    setIsChecked(!isChecked);
+                    if (!isChecked) {
+                      setName(partneData?.partner_name);
+                      setDriverNumber(partneData?.phone?.replaceAll(' ', ''));
+                      setEmail(
+                        partneData?.email
+                          ?.replaceAll(' ', '')
+                          ?.toLocaleLowerCase(),
+                      );
+                      return;
+                    } else {
+                      // setName('');
+                      // setDriverNumber('');
+                      // setEmail('');
+                      return;
+                    }
+                  }
 
-                  setIsChecked(!isChecked);
                   if (!isChecked) {
+                    setIsChecked(!isChecked);
                     setName(partneData?.partner_name);
                     setDriverNumber(partneData?.phone?.replaceAll(' ', ''));
                     setEmail(partneData?.email);
                   } else {
+                    setIsChecked(!isChecked);
+
                     setName('');
                     setDriverNumber('');
                     setEmail('');

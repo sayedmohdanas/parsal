@@ -1,4 +1,4 @@
-import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import {
   hitAddDriverDetails,
   hitAddVehicle,
@@ -12,14 +12,14 @@ import {
   hitUpdateDriverStatus,
 } from '../../config/api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {Alert, LogBox} from 'react-native';
-import {errorToast} from '../../common/CommonFunction';
+import { Alert, LogBox } from 'react-native';
+import { errorToast } from '../../common/CommonFunction';
 
 // loginPartner.....
 
 export const loginPartner = createAsyncThunk(
   'parsalPartner/loginPartner',
-  async (credentials, {rejectWithValue}) => {
+  async (credentials, { rejectWithValue }) => {
     try {
       const response = await hitPartnerLogin(credentials);
 
@@ -35,7 +35,7 @@ export const loginPartner = createAsyncThunk(
 // partnerOtpVerify...
 export const verifyPartnerOtp = createAsyncThunk(
   'parsalPartner/verifyPartnerOtp',
-  async (credentials, {rejectWithValue}) => {
+  async (credentials, { rejectWithValue }) => {
     try {
       const response = await hitPartnerVerifyOtp(credentials);
       return response;
@@ -48,7 +48,7 @@ export const verifyPartnerOtp = createAsyncThunk(
 // Thunk for creating a partner and saving partner_id
 export const createPartner = createAsyncThunk(
   'parsalPartner/createPartner',
-  async (credentials, {rejectWithValue}) => {
+  async (credentials, { rejectWithValue }) => {
     try {
       const response = await hitCreatePartner(credentials);
       return response;
@@ -62,7 +62,7 @@ export const createPartner = createAsyncThunk(
 // Thunk for get a partner and saving partner_id
 export const getPartner = createAsyncThunk(
   'parsalPartner/getPartner',
-  async (credentials, {rejectWithValue}) => {
+  async (credentials, { rejectWithValue }) => {
     try {
       const response = await hitGetPartner(credentials);
       console.log('response=>', response);
@@ -77,7 +77,7 @@ export const getPartner = createAsyncThunk(
 // Thunk for getting partner_id from AsyncStorage
 export const getPartnerId = createAsyncThunk(
   'parsalPartner/getPartnerId',
-  async (_, {rejectWithValue}) => {
+  async (_, { rejectWithValue }) => {
     try {
       const partnerId = await AsyncStorage.getItem('partner_id');
       if (partnerId !== null) {
@@ -92,7 +92,7 @@ export const getPartnerId = createAsyncThunk(
 
 export const addVehicle = createAsyncThunk(
   'parsalPartner/addVehicle',
-  async (credentials, {rejectWithValue}) => {
+  async (credentials, { rejectWithValue }) => {
     try {
       const response = await hitAddVehicle(credentials);
       console.log('response in add vehicle ===>', response);
@@ -106,7 +106,7 @@ export const addVehicle = createAsyncThunk(
 
 export const getVehicle = createAsyncThunk(
   'parsalPartner/getVehicle',
-  async (credentials, {rejectWithValue}) => {
+  async (credentials, { rejectWithValue }) => {
     try {
       const response = await hitMyVehicle(credentials);
       return response;
@@ -118,7 +118,7 @@ export const getVehicle = createAsyncThunk(
 
 export const addDriverDetails = createAsyncThunk(
   'parsalPartner/addDriverDetails',
-  async (credentials, {rejectWithValue}) => {
+  async (credentials, { rejectWithValue }) => {
     try {
       const response = await hitAddDriverDetails(credentials);
       return response;
@@ -130,7 +130,7 @@ export const addDriverDetails = createAsyncThunk(
 
 export const getDriverDetails = createAsyncThunk(
   'parsalPartner/getDriverDetails',
-  async (credentials, {rejectWithValue}) => {
+  async (credentials, { rejectWithValue }) => {
     try {
       const response = await hitGetDriverDetails(credentials);
       return response;
@@ -152,7 +152,6 @@ export const getDriverEaningData = createAsyncThunk(
   },
 );
 export const updateDriverStatus = createAsyncThunk('parsalPartner/updateDriverStatus', async (credentials, { rejectWithValue }) => {
-  
   try {
     const response = await hitUpdateDriverStatus(credentials);
     return response;
@@ -258,7 +257,7 @@ const HitApiSlice = createSlice({
       .addCase(loginPartner.rejected, (state, action) => {
         state.status = 'failed';
         state.loading = false;
-        state.error = action.payload || 'Failed to create partner';
+        state.error = action.payload?.error || 'Failed to create partner';
       })
 
       // createPartner case to save partner info and partner_id
@@ -385,7 +384,6 @@ const HitApiSlice = createSlice({
       .addCase(updateDriverStatus.rejected, (state, action) => {
         // Handle any error in case of failure
       });
-  
 
     ///DriverEarning
     // .addCase(getDriverEaningData.pending, (state) => {

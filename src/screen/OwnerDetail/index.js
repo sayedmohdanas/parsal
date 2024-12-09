@@ -32,7 +32,7 @@ const OwnerDetailScreen = ({navigation, route}) => {
         partnerId: partner_id,
         partner_name: name,
         // email: email,
-        email: email.replaceAll(' ', ''),
+        email: email.replaceAll(' ', '')?.toLocaleLowerCase(),
         phone: generateRandomPhoneNumber(),
         address: '123, Main Street, Springfield',
         admin_remark: 'I am a new partner with id 3',

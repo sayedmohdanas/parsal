@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -17,12 +17,12 @@ import {
   responsiveWidth,
 } from '../../../../common/metrices';
 import CustomHeader from '../../components/CustomHeader';
-import MapView, { Marker, Polyline } from 'react-native-maps';
+import MapView, {Marker, Polyline} from 'react-native-maps';
 import {
   GetDriverCurrentLocation,
   custommapstyle,
 } from '../../../../common/CommonFunction';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import Loading from '../../../../components/Loading/Loading';
 import LiveTripCustomCard from '../../../DriverEarning/LiveTripCustomCard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -46,7 +46,7 @@ import {
   setupdate_order,
   setwalletBalance,
 } from '../../../../redux/HitApis/HitApiSlice';
-import { useDispatch } from 'react-redux';
+import {useDispatch} from 'react-redux';
 import database from '@react-native-firebase/database';
 
 const sendDummyDataToFirebase = async (customerId, message) => {
@@ -74,8 +74,6 @@ const sendDummyDataToFirebase = async (customerId, message) => {
 };
 
 // Call the function with a customer ID and a custom message
-
-
 
 const LiveTripScreen = () => {
   const navigation = useNavigation();
@@ -117,8 +115,8 @@ const LiveTripScreen = () => {
         setLoading(true); // Start loading
 
         try {
-          const { latitude, longitude } = await GetDriverCurrentLocation();
-          setDriverLocation({ latitude, longitude });
+          const {latitude, longitude} = await GetDriverCurrentLocation();
+          setDriverLocation({latitude, longitude});
         } catch (error) {
           console.error('Error fetching driver location: ', error);
         } finally {
@@ -154,8 +152,7 @@ const LiveTripScreen = () => {
       get_live_data();
       get_data();
 
-      return () => {
-      };
+      return () => {};
     }, []),
   );
 
@@ -176,14 +173,14 @@ const LiveTripScreen = () => {
               selectedTrip?.id == item.id && styles.selectedCard, // Use item.id for selection
             ]}>
             <Text style={styles.tripTime}>
-              <Text style={{ fontSize: responsiveFontSize(12) }}>
+              <Text style={{fontSize: responsiveFontSize(12)}}>
                 {item?.driver?.driver_name
                   ? item.driver.driver_name.charAt(0).toUpperCase() +
-                  item.driver.driver_name.slice(1).toLowerCase()
+                    item.driver.driver_name.slice(1).toLowerCase()
                   : ''}
               </Text>
             </Text>
-            <Text style={[styles.tripName, { fontSize: responsiveFontSize(10) }]}>
+            <Text style={[styles.tripName, {fontSize: responsiveFontSize(10)}]}>
               {' ₹ ' + item?.paid_amount}
             </Text>
           </View>
@@ -194,8 +191,6 @@ const LiveTripScreen = () => {
   const mapRef = useRef(null);
 
   useEffect(() => {
-
-
     if (mapRef.current && selectedTrip?.driver) {
       let currentLat, currentLong;
 
@@ -209,7 +204,7 @@ const LiveTripScreen = () => {
             acc.long += driverLong;
             return acc;
           },
-          { lat: 0, long: 0 },
+          {lat: 0, long: 0},
         );
 
         currentLat = sumCoords.lat / all_driver_in_map.length;
@@ -241,7 +236,7 @@ const LiveTripScreen = () => {
     // Check if there is exactly one driver in the filtered list
 
     if (filteredDrivers.length === 1) {
-      const { driver: driverInfo } = filteredDrivers[0];
+      const {driver: driverInfo} = filteredDrivers[0];
       if (driverInfo?.phone === login_data?.payload?.phone) {
         return true;
       }
@@ -258,7 +253,6 @@ const LiveTripScreen = () => {
   // Usage
   const IsPartnerDriver = isDriverPartnerInAllData(login_data);
 
-
   const [driver_todays_earning, setdriver_todays_earning] = useState([]);
   // console.log('login_data',login_data);
 
@@ -269,7 +263,7 @@ const LiveTripScreen = () => {
       const param = {
         driver_id: parsedUser?.payload?.driver_id,
         filter: 'today',
-        customDate: { start: new Date(), end: null },
+        customDate: {start: new Date(), end: null},
       };
       const res = await hitDriverEarning(param);
       if (res?.success == false) {
@@ -289,7 +283,7 @@ const LiveTripScreen = () => {
   );
   useEffect(() => {
     if (mapRef.current && driverLocation && !selectedTrip?.driver) {
-      const { latitude, longitude } = driverLocation;
+      const {latitude, longitude} = driverLocation;
 
       mapRef.current.animateToRegion(
         {
@@ -301,15 +295,15 @@ const LiveTripScreen = () => {
         1000, // duration of the animation
       );
     }
-  }, [driverLocation]); // Trigger only if driverLocation changes  
+  }, [driverLocation]); // Trigger only if driverLocation changes
   const get_user_details = async () => {
     const user = await AsyncStorage.getItem('user');
     const parsed_user = JSON.parse(user);
     if (parsed_user?.payload?.owner_type == 0) {
-      hitGetDriverDetails({ ids: [parsed_user?.payload?.driver_id] })
+      hitGetDriverDetails({ids: [parsed_user?.payload?.driver_id]})
         .then(res => {
           dispatch(setloginuserdetails(res?.drivers[0]));
-          const param = { driver_id: parsed_user?.payload?.driver_id };
+          const param = {driver_id: parsed_user?.payload?.driver_id};
           hitGetWalletBalanceApi(param)
             .then(res => {
               dispatch(setwalletBalance(res));
@@ -329,9 +323,9 @@ const LiveTripScreen = () => {
               } else {
                 // setshow_live(true);
                 dispatch(setlivetripmenu(true));
-                const { order_otp, ...restOrderData } =
+                const {order_otp, ...restOrderData} =
                   res?.ongoingOrder[0] || {};
-                const modifiedOrderData = { ...restOrderData, otp: order_otp };
+                const modifiedOrderData = {...restOrderData, otp: order_otp};
                 dispatch(setOrderData(modifiedOrderData));
                 if (res?.ongoingOrder[0]?.is_arrived_pickup) {
                   if (modifiedOrderData?.delivered_at) {
@@ -347,7 +341,7 @@ const LiveTripScreen = () => {
                   return;
                 }
                 if (res?.ongoingOrder?.length > 1) {
-                  const { order_otp, ...restOrderData } =
+                  const {order_otp, ...restOrderData} =
                     res?.ongoingOrder[1] || {};
                   const modifiedOrderData = {
                     ...restOrderData,
@@ -373,7 +367,7 @@ const LiveTripScreen = () => {
           // setuser_details(res?.partner);
           dispatch(setloginuserdetails(res?.partner));
           if (parsed_user?.payload?.owner_type == 2) {
-            const param = { driver_id: parsed_user?.payload?.driver_id };
+            const param = {driver_id: parsed_user?.payload?.driver_id};
             hitGetWalletBalanceApi(param)
               .then(res => {
                 dispatch(setwalletBalance(res));
@@ -394,9 +388,9 @@ const LiveTripScreen = () => {
                 } else {
                   // setshow_live(true);
                   dispatch(setlivetripmenu(true));
-                  const { order_otp, ...restOrderData } =
+                  const {order_otp, ...restOrderData} =
                     res?.ongoingOrder[0] || {};
-                  const modifiedOrderData = { ...restOrderData, otp: order_otp };
+                  const modifiedOrderData = {...restOrderData, otp: order_otp};
                   dispatch(setOrderData(modifiedOrderData));
                   if (res?.ongoingOrder[0]?.is_arrived_pickup) {
                     if (modifiedOrderData?.delivered_at) {
@@ -412,7 +406,7 @@ const LiveTripScreen = () => {
                     return;
                   }
                   if (res?.ongoingOrder?.length > 1) {
-                    const { order_otp, ...restOrderData } =
+                    const {order_otp, ...restOrderData} =
                       res?.ongoingOrder[1] || {};
                     const modifiedOrderData = {
                       ...restOrderData,
@@ -455,7 +449,7 @@ const LiveTripScreen = () => {
       ) : (
         <>
           <ScrollView
-            contentContainerStyle={{ flex: 1 }}
+            contentContainerStyle={{flex: 1}}
             refreshControl={
               <RefreshControl
                 refreshing={refreshing}
@@ -471,15 +465,15 @@ const LiveTripScreen = () => {
                 latitude:
                   all_flag && all_driver_in_map.length > 0
                     ? parseFloat(all_driver_in_map[0]?.driver?.current_lat) ||
-                    driverLocation.latitude
+                      driverLocation.latitude
                     : parseFloat(selectedTrip?.driver_lat) ||
-                    driverLocation.latitude,
+                      driverLocation.latitude,
                 longitude:
                   all_flag && all_driver_in_map.length > 0
                     ? parseFloat(all_driver_in_map[0]?.driver?.current_long) ||
-                    driverLocation.longitude
+                      driverLocation.longitude
                     : parseFloat(selectedTrip?.driver_long) ||
-                    driverLocation.longitude,
+                      driverLocation.longitude,
                 latitudeDelta: 0.024, // More zoomed-in for closer latitude view
                 longitudeDelta: 0.024, // More zoomed-in for closer longitude view
               }}>
@@ -540,7 +534,7 @@ const LiveTripScreen = () => {
               {all_flag &&
                 (onlyPartnerDriver || all_driver_in_map.length > 0) &&
                 all_driver_in_map.map((driver, index) => {
-                  const { driver: driverInfo } = driver;
+                  const {driver: driverInfo} = driver;
                   const driverLat = parseFloat(driverInfo?.current_lat);
                   const driverLong = parseFloat(driverInfo?.current_long);
 
@@ -636,8 +630,8 @@ const LiveTripScreen = () => {
                       <Text style={styles.tripName}>
                         {driver_todays_earning?.length == 0
                           ? '0'
-                          : driver_todays_earning?.individual_paid_amounts
-                            ?.length}
+                          : driver_todays_earning[3]?.individualPaidAmounts
+                              ?.length}
                       </Text>
                     </View>
                   </View>
@@ -652,10 +646,10 @@ const LiveTripScreen = () => {
                       <Text style={styles.tripTime}>Operator Bill</Text>
                       <Text style={styles.tripName}>
                         ₹
-                        {!isNaN(driver_todays_earning?.total_paid_amount)
+                        {!isNaN(driver_todays_earning[3]?.totalPaidAmount)
                           ? Math.round(
-                            driver_todays_earning?.total_paid_amount,
-                          ).toFixed(2)
+                              driver_todays_earning[3]?.totalPaidAmount,
+                            ).toFixed(2)
                           : '0'}
                       </Text>
                     </View>
@@ -709,7 +703,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     shadowColor: '#000',
-    shadowOffset: { width: 1, height: 1 },
+    shadowOffset: {width: 1, height: 1},
     shadowOpacity: 0.4,
     shadowRadius: 3,
     elevation: 1.3,

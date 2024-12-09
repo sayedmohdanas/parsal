@@ -8,7 +8,6 @@ import {
   FlatList,
   ImageBackground,
   ActivityIndicator,
-
 } from 'react-native';
 import AppImages from '../../common/AppImages';
 import Colors from '../../common/Colors';
@@ -23,7 +22,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import CustomHeader from '../DashBoard/components/CustomHeader';
 import BottomNav from '../../../navigation/BottomNav';
 import DateRangeSelector from '../DashBoard/components/DataRangeSelectore';
-import { hitDriverEarning, hitMyVehicle } from '../../config/api/api';
+import {
+  hitDriverEarning,
+  hitGetPartnerDriverApi,
+  hitMyVehicle,
+} from '../../config/api/api';
 import moment from 'moment';
 import BarChart from './BarChart';
 import DriverDetails from './DriversDetail';
@@ -74,60 +77,91 @@ const Earning = () => {
 
   const [driver_todays_earning, setdriver_todays_earning] = useState([]);
   const [login_user, setlogin_user] = useState();
-  const get_data = async driver_id => {
-    setLoading(true);
+  // const get_data = async (driver_id, flag) => {
+  //   setLoading(true);
+  //   const user = await AsyncStorage.getItem('user');
+  //   const parsedUser = JSON.parse(user);
+  //   setlogin_user(parsedUser?.payload);
+  //   if (parsedUser?.payload?.owner_type == 0 && driver_id == null) {
+  //     const param = {
+  //       driver_id: parsedUser?.payload?.driver_id,
+  //       filter: selectedRange,
+  //       customDate: dateRange,
+  //       flag: flag,
+  //     };
+  //     hitDriverEarning(param)
+  //       .then(res => {
+  //         if (res?.success == false) {
+  //           setdriver_todays_earning([]);
+  //         } else {
+  //           setdriver_todays_earning(res?.data);
+  //         }
+  //       })
+  //       .catch(err => {
+  //         console.error(err);
+  //       })
+  //       .finally(() => {
+  //         setIsEarningLoading(false); // Set loading to false after data is fetched
 
+  //         setLoading(false);
+  //       });
+  //   } else {
+  //     const param = {
+  //       driver_id: driver_id,
+  //       filter: selectedRange,
+  //       customDate: dateRange,
+  //       flag: flag,
+  //     };
+
+  //     hitDriverEarning(param)
+  //       .then(res => {
+  //         if (res?.success == false) {
+  //           setdriver_todays_earning([]);
+  //         } else {
+  //           setdriver_todays_earning(res?.data);
+  //         }
+  //       })
+  //       .catch(err => {
+  //         console.error(err);
+  //       })
+  //       .finally(() => {
+  //         setIsEarningLoading(false); // Set loading to false after data is fetched
+
+  //         setLoading(false);
+  //       });
+  //   }
+  // };
+  const get_data = async (driver_id, flag, range = null) => {
+    setLoading(true);
     const user = await AsyncStorage.getItem('user');
     const parsedUser = JSON.parse(user);
     setlogin_user(parsedUser?.payload);
-    if (parsedUser?.payload?.owner_type == 0) {
-      const param = {
-        driver_id: parsedUser?.payload?.driver_id,
-        filter: selectedRange,
-        customDate: dateRange,
-      };
-      hitDriverEarning(param)
-        .then(res => {
-          if (res?.success == false) {
-            setdriver_todays_earning([]);
-          } else {
-            setdriver_todays_earning(res?.data);
-          }
-        })
-        .catch(err => {
-          console.error(err);
-        })
-        .finally(() => {
-          setIsEarningLoading(false);  // Set loading to false after data is fetched
 
-          setLoading(false);
-        });
-    } else {
-      const param = {
-        driver_id: driver_id,
-        filter: selectedRange,
-        customDate: dateRange,
-      };
-
-      hitDriverEarning(param)
-        .then(res => {
-          if (res?.success == false) {
-            setdriver_todays_earning([]);
-          } else {
-            setdriver_todays_earning(res?.data);
-          }
-        })
-        .catch(err => {
-          console.error(err);
-        })
-        .finally(() => {
-          setIsEarningLoading(false); 
-
-          setLoading(false);
-        });
-    }
+    const param = {
+      driver_id: driver_id || parsedUser?.payload?.driver_id,
+      filter: selectedRange,
+      customDate: range || dateRange, // Use the custom range if provided
+      flag: flag || 0,
+    };
+    hitDriverEarning(param)
+      .then(res => {
+        if (res?.success === false) {
+          setdriver_todays_earning([]);
+        } else {
+          setdriver_todays_earning(res?.data);
+        }
+      })
+      .catch(err => {
+        console.error(err);
+      })
+      .finally(() => {
+        setIsEarningLoading(false);
+        setLoading(false);
+      });
   };
+
   const [partner_riders, setpartner_riders] = useState([]);
+  
   const [selectedDriver, setSelectedDriver] = useState();
   const get_driver_list = async () => {
     setLoading(true);
@@ -135,22 +169,22 @@ const Earning = () => {
     const parsedUser = JSON.parse(user);
     if (parsedUser?.payload?.owner_type != 0) {
       const param = {
-        partnerId: parsedUser?.payload?.partner_id,
+        // partnerId: parsedUser?.payload?.partner_id,
+        partner_id: parsedUser?.payload?.partner_id,
       };
-      hitMyVehicle(param)
+      hitGetPartnerDriverApi(param)
         .then(res => {
-          setpartner_riders(res?.vehicles);
-          const drivers = res?.vehicles?.filter(
-            item => item?.driver_id != null,
-          );
-          setSelectedDriver(drivers?.[0]);
-          get_data(drivers[0]?.driver_id);
+          // console.log('res--data---->>>',res?.data);
+          
+          setpartner_riders(res?.data);
+          setSelectedDriver(res?.data?.[0]);
+          get_data(res?.data?.[0]?.driver_id);
         })
         .catch(err => {
           console.error(err);
         })
         .finally(() => {
-          setIsDriverListLoading(false); 
+          setIsDriverListLoading(false); // Set loading to false after driver list is fetched
 
           setLoading(false);
         });
@@ -159,18 +193,18 @@ const Earning = () => {
 
   useFocusEffect(
     useCallback(() => {
+      setcurrentIndex(3);
       const fetchData = async () => {
         const user = await AsyncStorage.getItem('user');
         const parsedUser = JSON.parse(user);
         if (parsedUser?.payload?.owner_type == 0) {
-          await get_data();
+          await get_data(null, 0);
         }
       };
       fetchData();
       get_driver_list();
-      return () => {
-      };
-    }, [selectedRange, dateRange]),
+      return () => { };
+    }, [selectedRange]),
   );
   const renderItem = useMemo(() => {
     return ({ item }) => {
@@ -199,17 +233,29 @@ const Earning = () => {
     }
   };
 
-  const handlePrevDate = () => {
-    const currentStartDate = new Date(dateRange.start);
+  // const handlePrevDate = async () => {
+  //   const currentStartDate = new Date(dateRange.start);
 
-    if (selectedRange === 'week') {
-      const prevWeek = calculateWeekRange(currentStartDate, false);
-      setDateRange(prevWeek);
-    } else if (selectedRange === 'today') {
-      const prevDay = calculateDayRange(currentStartDate, false);
-      setDateRange(prevDay);
-    }
-  };
+  //   if (currentIndex === 0) {
+  //     if (selectedDriver) {
+  //       await get_data(selectedDriver?.driver_id, 0); // Fetch previous 4 data if at the beginning
+  //     } else {
+  //       await get_data(null, 0); // Fetch previous 4 data if at the beginning
+  //     }
+  //     setcurrentIndex(3); // Go to last index of the newly fetched data
+  //   } else {
+  //     setcurrentIndex(prev => prev - 1);
+  //   }
+
+  //   if (selectedRange === 'week') {
+  //     const prevWeek = calculateWeekRange(currentStartDate, false);
+  //     setDateRange(prevWeek);
+  //   } else if (selectedRange === 'today') {
+  //     const prevDay = calculateDayRange(currentStartDate, false);
+  //     setDateRange(prevDay);
+  //   }
+  // };
+
   const calculateDayRange = (startDate, next = true) => {
     const start = new Date(startDate);
     const offset = next ? 1 : -1;
@@ -226,36 +272,127 @@ const Earning = () => {
 
     return { start: start, end: end };
   };
-  const handleNextDate = () => {
+
+  // const handleNextDate = async () => {
+  //   const currentStartDate = new Date(dateRange.start);
+  //   const today = new Date();
+  //   if (selectedRange === 'week') {
+  //     const nextWeek = calculateWeekRange(currentStartDate, true);
+  //     setDateRange(nextWeek);
+  //     if (currentIndex == 3) {
+  //       setcurrentIndex(0);
+  //       if (selectedDriver) {
+  //         await get_data(selectedDriver?.driver_id, 1); // Fetch previous 4 data if at the beginning
+  //       } else {
+  //         await get_data(null, 1);
+  //       }
+  //     } else {
+  //       setcurrentIndex(prev => prev + 1);
+  //     }
+  //     if (nextWeek.end > today) {
+  //       errorToast("Cannot go to the next week; it exceeds today's date.");
+  //       setcurrentIndex(0);
+  //       return;
+  //     }
+  //   } else if (selectedRange === 'today') {
+  //     const nextDay = calculateDayRange(currentStartDate, true);
+  //     setDateRange(nextDay);
+  //     if (currentIndex == 3) {
+  //       setcurrentIndex(0);
+  //       if (selectedDriver) {
+  //         await get_data(selectedDriver?.driver_id, 1);
+  //       } else {
+  //         await get_data(null, 1);
+  //       }
+  //     } else {
+  //       setcurrentIndex(prev => prev + 1);
+  //     }
+
+  //     if (nextDay.start > today) {
+  //       errorToast("Cannot go to the next day; it exceeds today's date.");
+  //       setcurrentIndex(0);
+  //       return;
+  //     }
+  //   }
+  // };
+  const handlePrevDate = async () => {
+    const currentStartDate = new Date(dateRange.start);
+
+    if (currentIndex === 0) {
+      if (selectedDriver) {
+        await get_data(selectedDriver?.driver_id, 0); // Fetch previous 4 data if at the beginning
+      } else {
+        await get_data(null, 0); // Fetch previous 4 data if at the beginning
+      }
+      setcurrentIndex(3); // Go to last index of the newly fetched data
+    } else {
+      setcurrentIndex(prev => prev - 1); // Move to previous index within current data
+    }
+
+    if (selectedRange === 'week') {
+      const prevWeek = calculateWeekRange(currentStartDate, false);
+      setDateRange(prevWeek);
+    } else if (selectedRange === 'today') {
+      const prevDay = calculateDayRange(currentStartDate, false);
+      setDateRange(prevDay);
+    }
+  };
+
+  const handleNextDate = async () => {
     const currentStartDate = new Date(dateRange.start);
     const today = new Date();
 
     if (selectedRange === 'week') {
       const nextWeek = calculateWeekRange(currentStartDate, true);
+      setDateRange(nextWeek);
+
+      if (currentIndex === 3) {
+        setcurrentIndex(0); 
+
+        if (selectedDriver) {
+          await get_data(selectedDriver?.driver_id, 1); 
+        } else {
+          await get_data(null, 1); 
+        }
+      } else {
+        setcurrentIndex(prev => prev + 1); // Move to next index within current data
+      }
 
       if (nextWeek.end > today) {
         errorToast("Cannot go to the next week; it exceeds today's date.");
+        setcurrentIndex(0); // Reset index to 0 if next week exceeds today
         return;
       }
-
-      setDateRange(nextWeek);
     } else if (selectedRange === 'today') {
       const nextDay = calculateDayRange(currentStartDate, true);
+      setDateRange(nextDay);
 
-      if (nextDay.start > today) {
+      if (currentIndex === 3) {
+        setcurrentIndex(0); // Reset to 0 when at the last index
 
-        errorToast("Cannot go to the next day; it exceeds today's date.");
-
-        return;
+        if (selectedDriver) {
+          await get_data(selectedDriver?.driver_id, 1); // Fetch next 4 data
+        } else {
+          await get_data(null, 1); // Fetch next 4 data
+        }
+      } else {
+        setcurrentIndex(prev => prev + 1); 
       }
 
-      setDateRange(nextDay);
+      if (nextDay.start > today) {
+        errorToast("Cannot go to the next day; it exceeds today's date.");
+        setcurrentIndex(0); // Reset index to 0 if next day exceeds today
+        return;
+      }
     }
   };
-  // const nextDay = calculateDayRange(new Date(dateRange.start), true);
-  const nextDay = selectedRange === 'today' ? calculateDayRange(new Date(dateRange.start), true) : calculateWeekRange(new Date(dateRange.start), true);
 
-
+  const nextDay =
+    selectedRange === 'today'
+      ? calculateDayRange(new Date(dateRange.start), true)
+      : calculateWeekRange(new Date(dateRange.start), true);
+  const [currentIndex, setcurrentIndex] = useState(3);
+  const current_data = driver_todays_earning[currentIndex];
   return (
     <>
       <SafeAreaView style={{ flex: 1, backgroundColor: Colors.homeBackground }}>
@@ -273,7 +410,7 @@ const Earning = () => {
           />
         </View>
         <View style={styles.container}>
-          {(isEarningLoading || isDriverListLoading) ? (
+          {isEarningLoading || isDriverListLoading ? (
             <View style={mystyles.center}>
               <ActivityIndicator size="large" color={Colors.brandBlue} />
             </View>
@@ -286,19 +423,15 @@ const Earning = () => {
                   setSelectedRange={setSelectedRange}
                 />
               </View>
-              <View
-                style={[styles.earningDisplay, { justifyContent: 'center' }]}>
-                <View
-                  style={{ justifyContent: 'center', alignItems: 'center' }}>
+              <View style={[styles.earningDisplay, { justifyContent: 'center' }]}>
+                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                   <Text style={styles.earningAmount}>
                     ₹
-                    {!isNaN(driver_todays_earning?.total_paid_amount)
-                      ? Math.round(
-                        driver_todays_earning?.total_paid_amount,
-                      ).toFixed(2)
+                    {!isNaN(current_data?.totalPaidAmount)
+                      ? Math.round(current_data?.totalPaidAmount).toFixed(2)
                       : '0.00'}
                   </Text>
-                  {driver_todays_earning?.individual_paid_amounts ? (
+                  {current_data?.individualPaidAmounts ? (
                     <View style={styles.percentageContainer}>
                       <View style={styles.increaseContainer}>
                         <Image
@@ -317,34 +450,22 @@ const Earning = () => {
                     </View>
                   ) : (
                     <View style={styles.percentageContainer}>
+                      <View style={styles.increaseContainer}></View>
 
-                      <View style={styles.increaseContainer}>
-                        {/* <Image
-                        source={AppImages.arrowUp}
-                        style={styles.arrowUpImage}
-                        resizeMode="contain"
-                      /> */}
-                        {/* <Text style={styles.percentageText}>
-                        {'3 '}
-                        {'% '}
-                      </Text> */}
-                      </View>
-
-                      <Text style={{
-                        color: 'black', fontSize: responsiveFontSize(10),
-                        fontWeight: '400', lineHeight: responsiveHeight(13),
-                        marginLeft: responsiveHeight(3),
-                      }}>
+                      <Text
+                        style={{
+                          color: 'black',
+                          fontSize: responsiveFontSize(10),
+                          fontWeight: '400',
+                          lineHeight: responsiveHeight(13),
+                          marginLeft: responsiveHeight(3),
+                        }}>
                         {'No earning '}
                       </Text>
-
-
                     </View>
                   )}
                 </View>
-
               </View>
-
 
               <View style={styles.earningChart}>
                 <TouchableOpacity
@@ -366,39 +487,35 @@ const Earning = () => {
                     styles.navButton,
                     nextDay.start > new Date() && styles.disabledButton,
 
-                    // Apply disabled styling
                   ]}
                   onPress={handleNextDate}
-                  disabled={nextDay.start > new Date()} // Disable the button based on the condition
+                  disabled={nextDay.start > new Date()} 
                 >
                   <Image
                     source={AppImages.arrowRight}
                     style={styles.arrowImage}
                     resizeMode="contain"
-                    tintColor={nextDay.start > new Date() ? '#A9A9A9' : Colors.black} // Change tint color dynamically
-
-
+                    tintColor={
+                      nextDay.start > new Date() ? '#A9A9A9' : Colors.black
+                    } 
                   />
                 </TouchableOpacity>
               </View>
-              <ScrollView>
-              {driver_todays_earning?.total_paid_amount && (
+              {current_data?.individualPaidAmounts && (
                 <BarChart
-                  driverEarningData={driver_todays_earning}
+                  week_start_date={new Date(dateRange.start)}
+                  driverEarningData={current_data}
                   selectedRange={selectedRange}
                 />
               )}
               <View style={[styles.orderListContainer, { flex: 1 }]}>
-
-                {driver_todays_earning?.individual_paid_amounts && (
+                {current_data?.individualPaidAmounts && (
                   <Text style={styles.orderListHeadign}>{'Order List '}</Text>
                 )}
-               
                 <FlatList
                   ListHeaderComponent={() => (
                     <>
                       {loading ? (
-                        // Show a loading indicator when data is being fetched
                         <View
                           style={{
                             flex: 1,
@@ -408,9 +525,12 @@ const Earning = () => {
                             paddingVertical: responsiveHeight(30),
                             marginTop: responsiveHeight(110),
                           }}>
-                          <ActivityIndicator size="large" color={Colors.brandBlue} />
+                          <ActivityIndicator
+                            size="large"
+                            color={Colors.brandBlue}
+                          />
                         </View>
-                      ) : !driver_todays_earning?.individual_paid_amounts ? (
+                      ) : !current_data?.individualPaidAmounts ? (
                         // If no data is available, show an empty state
                         <View
                           style={{
@@ -431,12 +551,15 @@ const Earning = () => {
                             />
                           </ImageBackground>
                           <Text style={styles.emptyTextStyle}>
-                            {'No Order history Available, contact our support team.'}
+                            {
+                              'No Order history Available, contact our support team.'
+                            }
                           </Text>
                         </View>
                       ) : (
                         // If data is available, show the partner rider list
-                        login_user?.owner_type !== 0 && driver_todays_earning?.individual_paid_amounts && (
+                       login_user?.owner_type !== 0 &&
+                        current_data?.individualPaidAmounts && (
                           <View style={{ marginLeft: 20 }}>
                             {partner_riders?.length > 1 && (
                               <FlatList
@@ -451,14 +574,12 @@ const Earning = () => {
                       )}
                     </>
                   )}
-                  data={driver_todays_earning?.individual_paid_amounts}
+                  data={current_data?.individualPaidAmounts}
                   renderItem={renderItem}
                   keyExtractor={(item, index) => index.toString()}
                   contentContainerStyle={{ paddingBottom: responsiveHeight(80) }}
                 />
-
               </View>
-              </ScrollView>
             </>
           )}
         </View>

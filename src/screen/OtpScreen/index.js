@@ -77,7 +77,7 @@ const OtpScreen = ({navigation, route}) => {
       }
 
       const request = {
-        email: number.replaceAll(' ', ''),
+        email: number.replaceAll(' ', '')?.toLocaleLowerCase(),
         phone: generateRandomPhoneNumber(),
       };
       // if (owner_type) {
@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
     paddingHorizontal: 10,
-    paddingVertical:responsiveHeight(10)
+    paddingVertical: responsiveHeight(10),
     // height: 40,
   },
   numberContainer: {

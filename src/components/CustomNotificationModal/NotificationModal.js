@@ -121,6 +121,9 @@ const NotificationModal = ({
   }, [isVisible, driverId]); // Add driverId as dependency if it's dynamic
 
   const handleAccept = async () => {
+    const user = await AsyncStorage.getItem('user');
+    const parsedUser = JSON.parse(user);
+    console.log('parsedUser', parsedUser);
     try {
       // Show loading
       setLoading(true);
@@ -145,6 +148,7 @@ const NotificationModal = ({
         goods_quantity,
         pay_mode,
         payment_status,
+        partner_id: parsedUser?.payload?.partner_id,
         request_id,
         insured,
       };

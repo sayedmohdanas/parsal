@@ -6,10 +6,10 @@
 // export const socketUrl = `http://192.168.29.244:4000/`;
 
 //
-export const API_BASE_URL = 'http://52.66.236.213:9292/';
-export const socketUrl = `http://52.66.236.213:4000/`;
-// export const API_BASE_URL ='http://192.168.29.237:5000/'
-// export  const socketUrl= `http://192.168.29.237:4000/`
+// export const API_BASE_URL = 'http://52.66.236.213:9292/';
+// export const socketUrl = `http://52.66.236.213:4000/`;
+export const API_BASE_URL ='http://192.168.29.237:5000/'
+export  const socketUrl= `http://192.168.29.237:4000/`
 
 //
 const getEndpoint = text => {
@@ -31,6 +31,9 @@ export const deleteVehicle = getEndpoint('partner/delete-partner-vehicle');
 export const MyVehicle = getEndpoint('partner/vehiclesByPartnerId');
 export const addBankAccount = getEndpoint('partner/addBankDetails');
 export const getBankAccount = getEndpoint('partner/bank-details');
+export const partnerDriversurl = getEndpoint('partner/get-partner-drivers');
+
+
 //driver
 export const addDriverDetails = getEndpoint('drivers/assign-driver-vehicles');
 export const updateDriverDetails = getEndpoint('drivers/edit-driver-profile');
@@ -85,4 +88,6 @@ export const userorderstatsurl = getEndpoint('users/get-cust-orderStats');
 
 export const transactionurl = getEndpoint('drivers/driver-transaction');
 export const checkreqstatusurl = getEndpoint('drivers/check-requestId');
+export const assignPartnerDriverToVehicleurl = getEndpoint('drivers/assignPartnerDriverToVehicle');
+
 

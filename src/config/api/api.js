@@ -4,6 +4,7 @@ import {
   addMoney,
   addTickeReply,
   addVehicle,
+  assignPartnerDriverToVehicleurl,
   cancelOrderurl,
   checkreqstatusurl,
   createPartner,
@@ -31,6 +32,7 @@ import {
   helpAndSupport,
   livedriverOfPartnernurl,
   MyVehicle,
+  partnerDriversurl,
   partnerLogin,
   partnerOtpVerify,
   placeOrder,
@@ -84,6 +86,9 @@ export const hitDeleteDriverDetails = param => {
 };
 export const hitGetDriverDetails = param => {
   return apiPost(getDriverDetails, param);
+};
+export const hitGetPartnerDriverApi = param => {
+  return apiPost(partnerDriversurl, param);
 };
 
 export const hitUpdateDriverStatus = param => {
@@ -197,4 +202,7 @@ export const hitGetTransactionListApi = param => {
 
 export const hitCheckReqStatusApi = param => {
   return apiPost(checkreqstatusurl, param);
+};
+export const hitPartnerDriverToVehicleurlApi = param => {
+  return apiPost(assignPartnerDriverToVehicleurl, param);
 };

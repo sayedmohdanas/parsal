@@ -20,6 +20,8 @@ const LoginScreen = ({navigation, route}) => {
   const user = useSelector(state => state.parsal_store?.user);
   const status = useSelector(state => state?.parsalPartner?.status);
   const loading = useSelector(state => state?.parsalPartner?.loading);
+  const error = useSelector(state => state?.parsalPartner?.error);
+  console.log(error);
   const [termsAndConditions, setTermsAndConditions] = useState(false);
   const [tdsDeclaration, setTdsDeclaration] = useState(false);
   const [countryCode, setCountryCode] = useState('IN');
@@ -46,14 +48,11 @@ const LoginScreen = ({navigation, route}) => {
       }
       const request = {
         email: number?.replaceAll(' ', '').toLocaleLowerCase(),
-        // email: number?.replaceAll(' ', '').charAt(0).toLowerCase() + number?.slice(1).replaceAll(' ', ''),
-
-        // mobile: mobile
         fcm_token: await getToken(),
       };
       dispatch(loginPartner(request));
       if (status === 'failed') {
-        errorToast('Issue!!', 'Something went wrong');
+        errorToast('Issue!!', error || 'Something went wrong');
       }
     } catch (error) {
       console.log('Error in getting otp by email', error);
@@ -67,7 +66,6 @@ const LoginScreen = ({navigation, route}) => {
         navigation.replace('Otp', {number: number});
       }
     }
-    
   }, [status]);
   const handleTermsPress = () => {
     navigation.navigate('TermsCondition', {

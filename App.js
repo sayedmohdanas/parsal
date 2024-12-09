@@ -41,6 +41,7 @@ export default function App() {
     cust_name: '',
     goods_type_id: '',
     request_id: '',
+    insured: '',
   });
   const [timer, setTimer] = useState(15); // Timer state
   // Initialize Firebase with Realtime Database URL
@@ -74,7 +75,6 @@ export default function App() {
           fcm_token: token,
         };
         const response = await hitUpdateFcmApi(param);
-        
         console.log('FCM token updated successfully in DB', response);
       } else {
         console.error('User data not found!');
@@ -114,6 +114,7 @@ export default function App() {
       expected_distance = '',
       expected_time = '',
       request_id = '',
+      insured = '',
     } = data || {};
     // Update the notification data state
     setNotificationData({
@@ -136,6 +137,7 @@ export default function App() {
       cust_mobile,
       vehicle_id,
       request_id,
+      insured,
     });
     setModalVisible(true);
     // setTimer(15);
@@ -287,108 +289,242 @@ export default function App() {
   //     clearInterval(interval);
   //   };
   // }, [isModalVisible, timer]);
+
+  // ----------------------- WORKING ------------------\\
+
+  // const handleNotificationWithTimeCheck = async remoteMessage => {
+  //   const sentTime = remoteMessage.sentTime;
+  //   const currentTime = Date.now();
+  //   const timeDifference = currentTime - sentTime;
+  //   const remainingTime = Math.max(15 - Math.floor(timeDifference / 1000), 0);
+  //   const res = await hitCheckReqStatusApi({
+  //     request_id: remoteMessage?.data?.request_id,
+  //   });
+
+  //   if (remainingTime > 0 && res?.accept_status == 0 && remoteMessage?.data) {
+  //     // Reset modal visibility if the notification is within the valid time window
+  //     setModalVisible(false); // Reset modal state before reopening
+
+  //     setTimeout(() => {
+  //       setModalVisible(true); // Open modal after a small delay
+  //       setTimer(remainingTime); // Set timer to the remaining time
+  //       handleNotification(remoteMessage); // Handle notification logic
+  //       playNotificationSound(); // Play sound
+  //     }, 100); // Small delay to ensure state update
+  //   } else {
+  //     console.log('Notification is older than 15 seconds, not opening modal.');
+  //     setModalVisible(false); // Ensure modal is hidden if it's too old
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   getToken();
+  //   requestUserPermission();
+  //   const handleUserNotification = async remoteMessage => {
+  //     const user = await get_user_data();
+  //     if (
+  //       user?.payload?.owner_type === 0 ||
+  //       (user?.payload?.owner_type === 2 && remoteMessage?.data)
+  //     ) {
+  //       setModalVisible(false); // Force close modal before opening a new one
+  //       // setModalVisible(true)
+  //       setTimeout(() => {
+  //         const sentTime = remoteMessage.sentTime;
+  //         const currentTime = Date.now();
+  //         const timeDifference = currentTime - sentTime;
+  //         const remainingTime = Math.max(
+  //           15 - Math.floor(timeDifference / 1000),
+  //           0,
+  //         );
+
+  //         if (remainingTime > 0) {
+  //           setModalVisible(true); // Open modal if notification is within 15 seconds
+  //           setTimer(remainingTime);
+  //           handleNotification(remoteMessage); // Handle notification
+  //           playNotificationSound(); // Play notification sound
+  //         } else {
+  //           setModalVisible(false); // Close modal if notification is too old
+  //         }
+  //       }, 100); // Delay to ensure state is updated before showing modal
+  //     }
+  //   };
+
+  //   // Handle notification when app opens from a background or closed state
+  //   messaging()
+  //     .getInitialNotification()
+  //     .then(remoteMessage => {
+  //       if (remoteMessage) handleNotificationWithTimeCheck(remoteMessage);
+  //     });
+
+  //   // Handle notification when the app is opened from the background
+  //   const unsubscribeNotificationOpenedApp =
+  //     messaging().onNotificationOpenedApp(async remoteMessage => {
+  //       if (remoteMessage) handleNotificationWithTimeCheck(remoteMessage);
+  //     });
+
+  //   // Handle notification when the app is in the foreground
+  //   const unsubscribeOnMessage = messaging().onMessage(remoteMessage => {
+  //     handleUserNotification(remoteMessage);
+  //   });
+
+  //   // Handle background messages
+  //   messaging().setBackgroundMessageHandler(async remoteMessage => {
+  //     if (remoteMessage) handleNotificationWithTimeCheck(remoteMessage);
+  //   });
+
+  //   // Subscribe to topic (if needed)
+  //   messaging()
+  //     .subscribeToTopic(TOPIC)
+  //     .then(() => {
+  //       // console.log(`Subscribed to topic: ${TOPIC}`);
+  //     });
+
+  //   return () => {
+  //     unsubscribeNotificationOpenedApp();
+  //     unsubscribeOnMessage();
+  //   };
+  // }, []);
+
+  // useEffect(() => {
+  //   requestLocationPermission();
+  // }, []);
+
+  // useEffect(() => {
+  //   let interval;
+
+  //   if (isModalVisible && timer > 0) {
+  //     interval = setInterval(() => {
+  //       setTimer(prevTimer => prevTimer - 1); // Countdown by 1 second
+  //     }, 1000);
+  //   }
+
+  //   if (timer === 0 && isModalVisible) {
+  //     setModalVisible(false); // Close modal when timer reaches 0
+  //   }
+
+  //   return () => {
+  //     clearInterval(interval);
+  //   };
+  // }, [isModalVisible, timer]);
   const handleNotificationWithTimeCheck = async remoteMessage => {
-    try {
-      const sentTime = remoteMessage.sentTime;
-      const currentTime = Date.now();
-      const timeDifference = currentTime - sentTime;
-      const remainingTime = Math.max(15 - Math.floor(timeDifference / 1000), 0);
-  
-      // Exit early if the notification is older than 15 seconds
-      if (remainingTime <= 0) {
-        setModalVisible(false);
-        return;
+    const user = await get_user_data();
+    if (user?.payload?.driver_id == remoteMessage?.data?.driverId)
+      try {
+        const sentTime = remoteMessage.sentTime;
+        const currentTime = Date.now();
+        const timeDifference = currentTime - sentTime;
+        const remainingTime = Math.max(
+          15 - Math.floor(timeDifference / 1000),
+          0,
+        );
+
+        // Exit early if the notification is older than 15 seconds
+        if (remainingTime <= 0) {
+          setModalVisible(false);
+          return;
+        }
+
+        const res = await hitCheckReqStatusApi({
+          request_id: remoteMessage?.data?.request_id,
+        });
+
+        // Open the modal if the accept_status is 0 and remaining time is valid
+        if (
+          res?.accept_status == 0 &&
+          remoteMessage?.data &&
+          remainingTime > 0
+        ) {
+          setModalVisible(false);
+          setTimeout(() => {
+            setModalVisible(true);
+            setTimer(remainingTime == 17 ? 15 : remainingTime);
+            handleNotification(remoteMessage);
+            playNotificationSound();
+          }, 100); // Small delay to reset modal state before opening
+        } else {
+          setModalVisible(false);
+        }
+      } catch (error) {
+        console.error('Error handling notification with time check:', error);
       }
-  
-      const res = await hitCheckReqStatusApi({
-        request_id: remoteMessage?.data?.request_id,
-      });
-  
-      // Open the modal if the accept_status is 0 and remaining time is valid
-      if (res?.accept_status === 0 && remoteMessage?.data) {
-        setModalVisible(false);
-        setTimeout(() => {
-          setModalVisible(true);
-          setTimer(remainingTime);
-          handleNotification(remoteMessage);
-          playNotificationSound();
-        }, 100); // Small delay to reset modal state before opening
-      } else {
-        setModalVisible(false);
-      }
-    } catch (error) {
-      console.error("Error handling notification with time check:", error);
-    }
   };
-  
+
   useEffect(() => {
     const initialize = async () => {
       try {
         await getToken();
         await requestUserPermission();
       } catch (error) {
-        console.error("Error during initialization:", error);
+        console.error('Error during initialization:', error);
       }
     };
-  
+
     initialize();
-  
+
     const handleUserNotification = async remoteMessage => {
       try {
         const user = await get_user_data();
-        if (user?.payload?.owner_type === 0 || (user?.payload?.owner_type === 2 && remoteMessage?.data)) {
-          const sentTime = remoteMessage.sentTime;
-          const currentTime = Date.now();
-          const timeDifference = currentTime - sentTime;
-          const remainingTime = Math.max(15 - Math.floor(timeDifference / 1000), 0);
-  
-          // Exit if remaining time is zero or negative
-          if (remainingTime <= 0) {
+        if (user?.payload?.driver_id == remoteMessage?.data?.driverId)
+          if (
+            user?.payload?.owner_type === 0 ||
+            (user?.payload?.owner_type === 2 && remoteMessage?.data)
+          ) {
+            const sentTime = remoteMessage.sentTime;
+            const currentTime = Date.now();
+            const timeDifference = currentTime - sentTime;
+            const remainingTime = Math.max(
+              15 - Math.floor(timeDifference / 1000),
+              0,
+            );
+
+            // Exit if remaining time is zero or negative
+            if (remainingTime <= 0) {
+              setModalVisible(false);
+              return;
+            }
+
             setModalVisible(false);
-            return;
+            setTimeout(() => {
+              setModalVisible(true);
+              setTimer(remainingTime == 17 ? 15 : remainingTime);
+              handleNotification(remoteMessage);
+              playNotificationSound();
+            }, 100);
           }
-  
-          setModalVisible(false);
-          setTimeout(() => {
-            setModalVisible(true);
-            setTimer(remainingTime);
-            handleNotification(remoteMessage);
-            playNotificationSound();
-          }, 100);
-        }
       } catch (error) {
-        console.error("Error handling user notification:", error);
+        console.error('Error handling user notification:', error);
       }
     };
-  
+
     // Handle initial notification if app opens from background or closed state
     messaging()
       .getInitialNotification()
       .then(remoteMessage => {
         if (remoteMessage) handleNotificationWithTimeCheck(remoteMessage);
       })
-      .catch(error => console.error("Error in getInitialNotification:", error));
-  
+      .catch(error => console.error('Error in getInitialNotification:', error));
+
     // Set up listeners for notifications
-    const unsubscribeNotificationOpenedApp = messaging().onNotificationOpenedApp(remoteMessage => {
-      if (remoteMessage) handleNotificationWithTimeCheck(remoteMessage);
-    });
-  
+    const unsubscribeNotificationOpenedApp =
+      messaging().onNotificationOpenedApp(remoteMessage => {
+        if (remoteMessage) handleNotificationWithTimeCheck(remoteMessage);
+      });
+
     const unsubscribeOnMessage = messaging().onMessage(remoteMessage => {
       handleUserNotification(remoteMessage);
     });
-  
+
     // Handle background messages
     messaging().setBackgroundMessageHandler(async remoteMessage => {
       if (remoteMessage) handleNotificationWithTimeCheck(remoteMessage);
     });
-  
+
     // Subscribe to topic (if needed)
     messaging()
       .subscribeToTopic(TOPIC)
       .then(() => console.log(`Subscribed to topic: ${TOPIC}`))
-      .catch(error => console.error("Error in subscribeToTopic:", error));
-  
+      .catch(error => console.error('Error in subscribeToTopic:', error));
+
     return () => {
       unsubscribeNotificationOpenedApp();
       unsubscribeOnMessage();
@@ -411,7 +547,7 @@ export default function App() {
     if (timer === 0 && isModalVisible) {
       setModalVisible(false);
     }
-  
+
     return () => clearInterval(interval);
   }, [isModalVisible, timer]);
 
@@ -423,7 +559,7 @@ export default function App() {
 
     // Add the back event listener
     BackHandler.addEventListener('hardwareBackPress', backAction);
-// 
+
     // Clean up the event listener when the component unmounts
     return () =>
       BackHandler.removeEventListener('hardwareBackPress', backAction);
@@ -458,6 +594,7 @@ export default function App() {
             cust_name={notificationData?.cust_name}
             cust_mobile={notificationData?.cust_mobile}
             request_id={notificationData?.request_id}
+            insured={notificationData?.insured}
             onClose={() => setModalVisible(false)}
             setModalVisible={setModalVisible}
             timer={timer}
