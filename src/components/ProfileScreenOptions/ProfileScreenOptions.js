@@ -9,7 +9,12 @@ import Colors from '../../common/Colors';
 import AppImages from '../../common/AppImages';
 const ProfileScreenOptions = props => {
   return (
-    <TouchableHighlight onPress={props.onPress} underlayColor={'none'}>
+    <TouchableHighlight onPress={props.onPress} underlayColor={'none'}
+      //  disabled={!props.disabled}
+      // accessibilityState={{ disabled: props.noLiveData }} // Communicates the disabled state for accessibility
+      style={[ props.noLiveData && { opacity: 0.6 }]} // Visual feedback for disabled state
+
+    >
       <View style={styles.container}>
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
           <View
@@ -41,13 +46,18 @@ const ProfileScreenOptions = props => {
               {'₹' + (props.walletBalance || 0) + ''}
             </Text>
           ) : (
-            <Image
+            <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center',}}>
+          <Text style={[styles.optionName,{color:Colors.red,marginLeft:0,marginRight:responsiveWidth(10)}]}>{props.noLiveData}</Text>
+          <Image
               source={AppImages.optionRightArrow}
               style={styles.iconStyle}
               resizeMode="contain"
             />
+            </View>
           )}
+
         </View>
+       
       </View>
     </TouchableHighlight>
   );

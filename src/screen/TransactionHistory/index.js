@@ -112,7 +112,7 @@ const TransactionHistory = () => {
       const { owner_type, partner_id, driver_id } = parsedUser.payload || {};
 
       const id = (owner_type === 1 || owner_type === 2) ? partner_id : driver_id;
-      const param = { driverId:id };
+      const param = { driverId: id };
       const res = await hitGetTransactionListApi(param);
       console.log(res, 'res---history');
 

@@ -18,7 +18,7 @@ import {
   responsiveHeight,
   responsiveWidth,
 } from '../../common/metrices';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import CustomHeader from '../DashBoard/components/CustomHeader';
 import BottomNav from '../../../navigation/BottomNav';
 import DateRangeSelector from '../DashBoard/components/DataRangeSelectore';

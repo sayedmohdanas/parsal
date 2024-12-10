@@ -152,7 +152,7 @@ const OrderScreen = () => {
             partnerId={item.driver?.partner_id}
             driverId={item.driver_id}
             profilePic={item.driver?.profile_pic}
-            vNo={item.driver?.m_vehicle?.vehicle_number}
+            vNo={item?.vehicle?.vehicle_number}
             orderDate={formatDate(item?.order_date)}
             orderDetails={item}
           />

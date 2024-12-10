@@ -183,7 +183,11 @@ const DriverDetailScreen = ({route}) => {
                 });
               return;
             }
-            if (parsedUser?.payload?.owner_type == 2 && !isChecked) {
+            if (
+              parsedUser?.payload?.owner_type == 2 &&
+              !isChecked &&
+              parsedUser?.payload?.driver_id == updateDriverData?.driver_id
+            ) {
               try {
                 const response = await hitDeleteDriverDetails({
                   driver_id: updateDriverData?.driver_id,
@@ -221,13 +225,13 @@ const DriverDetailScreen = ({route}) => {
               if (updateDriverData?.owner_type == 2) {
                 // Update for partner who is also a driver
                 parsedUser.payload.owner_type = 2; // Set as only partner
-                parsedUser.payload.driver_id = null; // Clear driver ID
-                parsedUser.payload.vehicle_type_id = null; // Clear vehicle type
+                parsedUser.payload.driver_id = response?.payload?.driver_id; // Clear driver ID
+                parsedUser.payload.vehicle_type_id = payload?.payload; // Clear vehicle type
                 await AsyncStorage.setItem('user', JSON.stringify(parsedUser));
                 navigation.navigate('MyVehicles');
                 setloader(false);
                 return;
-              } else {
+              } else if(parsedUser.payload.owner_type == 0) {
                 // Update for partner becoming a driver
                 // parsedUser.payload.owner_type = 2; // Set as both partner and driver
                 parsedUser.payload.driver_id = response?.payload?.driver_id; // Assign driver ID
@@ -237,6 +241,9 @@ const DriverDetailScreen = ({route}) => {
                 navigation.navigate('MyVehicles');
                 setloader(false);
                 return;
+              }else{
+                navigation.navigate('MyVehicles');
+                setloader(false);
               }
             } else {
               setloader(false);
@@ -307,18 +314,6 @@ const DriverDetailScreen = ({route}) => {
     }
   };
   const isEnabled = name && driverNumber && licenseUploaded;
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const user = await AsyncStorage.getItem('user');
-        const parsedUser = JSON.parse(user);
-      } catch (error) {
-        console.error('Error fetching user:', error);
-      }
-    };
-
-    fetchUser(); // Call the async function
-  }, []);
 
   return (
     <>
@@ -346,6 +341,12 @@ const DriverDetailScreen = ({route}) => {
                     if (updateDriverData) {
                       setIsChecked(!isChecked);
                       // return;
+                    }
+                    if (isChecked && updateDriverData) {
+                      setName(updateDriverData?.driver?.driver_name);
+                      setDriverNumber(updateDriverData?.driver?.phone);
+                      setEmail(updateDriverData?.driver?.email);
+                      return;
                     }
                     Alert.alert(
                       'Confirmation',
@@ -424,8 +425,7 @@ const DriverDetailScreen = ({route}) => {
               placeholder="Driver Name"
               label="Driver Name"
               isRequired={true}
-              editable={!isChecked?true:false}
-
+              editable={!isChecked ? true : false}
             />
             <CustomTextInput
               value={email}
@@ -433,9 +433,9 @@ const DriverDetailScreen = ({route}) => {
               placeholder="Driver Email"
               label="Driver Email"
               isRequired={true}
-              editable={!isChecked?true:false}
+              editable={!isChecked ? true : false}
 
-            // error={emailError}
+              // error={emailError}
             />
             {/* {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null} */}
             <CustomTextInput
@@ -446,7 +446,7 @@ const DriverDetailScreen = ({route}) => {
               isRequired={true}
               type="number"
               maxLength={10}
-              editable={!isChecked?true:false}
+              editable={!isChecked ? true : false}
             />
             <Heading text=" Upload The Following" isRequired={true} />
             <ImagePicker
@@ -455,7 +455,6 @@ const DriverDetailScreen = ({route}) => {
               onImagePick={setDriverProfilePic}
               useCamera={false}
               isForProfile={true}
-
             />
             <ImagePicker
               labelText="Driver License"

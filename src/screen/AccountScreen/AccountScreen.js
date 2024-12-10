@@ -470,11 +470,15 @@ const AccountScreen = () => {
                   <ProfileScreenOptions
                     Icon={AppImages.live}
                     optionName={'Live Order'}
+                    noLiveData={show_live ? '' : "No Live Trip"}
+                    disabled={show_live}
+                     // Pass 'No Live Trip' if no live data
                     onPress={() => {
                       if (show_live) {
                         navigation.navigate('DriverMap');
                       }else{
-                        errorToast('Opps' ,'No Live Orders')
+                        // errorToast('Opps' ,'No Live Orders')
+                        
                       }
                     }}
                   />
@@ -497,6 +501,7 @@ const AccountScreen = () => {
                       navigation.navigate('Earning');
                     }}
                   />
+                   {parse_data?.payload?.owner_type != 0 && (
                   <ProfileScreenOptions
                     Icon={AppImages.ledgerImage}
                     optionName={'Ledger'}
@@ -504,6 +509,7 @@ const AccountScreen = () => {
                       navigation.navigate('Ledger');
                     }}
                   />
+                   )}
                   <ProfileScreenOptions
                     Icon={AppImages.paymentsImage}
                     optionName={'Payment'}

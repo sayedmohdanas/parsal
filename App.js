@@ -116,6 +116,8 @@ export default function App() {
       expected_time = '',
       request_id = '',
       insured = '',
+      charity = '',
+      loading_unloading = '',
     } = data || {};
     // Update the notification data state
     setNotificationData({
@@ -139,6 +141,8 @@ export default function App() {
       vehicle_id,
       request_id,
       insured,
+      loading_unloading,
+      charity,
     });
     setModalVisible(true);
     // setTimer(15);
@@ -598,6 +602,8 @@ export default function App() {
             cust_mobile={notificationData?.cust_mobile}
             request_id={notificationData?.request_id}
             insured={notificationData?.insured}
+            charity={notificationData?.charity}
+            loading_unloading={notificationData?.loading_unloading}
             onClose={() => setModalVisible(false)}
             setModalVisible={setModalVisible}
             timer={timer}

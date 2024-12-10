@@ -69,6 +69,8 @@ const NotificationModal = ({
   timer,
   request_id,
   insured,
+  loading_unloading,
+  charity,
 }) => {
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
@@ -148,6 +150,8 @@ const NotificationModal = ({
         partner_id: parsedUser?.payload?.partner_id,
         request_id,
         insured,
+        loading,
+        charity,
       };
 
       // Pass the payload into the API call
