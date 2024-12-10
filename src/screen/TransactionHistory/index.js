@@ -47,7 +47,7 @@ const TransactionHistory = () => {
 
   const calculateTotalAmount = (filteredData) => {
     let total = 0;
-    filteredData.forEach((item) => {
+    filteredData?.forEach((item) => {
       if (item.mode == "0" || item.mode == "1" || item.mode == "2") {
         total += parseFloat(item.amount);
       }
@@ -216,25 +216,25 @@ const TransactionHistory = () => {
     let filtered = data;
     let headerText = '';
     if (filterType === 'today') {
-      filtered = data.filter((txn) => {
+      filtered = data?.filter((txn) => {
         const txnDate = new Date(txn.txn_date);
         return txnDate >= startOfToday && txnDate <= today;
       });
       headerText = todayFormatted;
     } else if (filterType === 'last7Days') {
-      filtered = data.filter((txn) => {
+      filtered = data?.filter((txn) => {
         const txnDate = new Date(txn.txn_date);
         return txnDate >= sevenDaysAgo && txnDate <= today;
       });
       headerText = 'Last 7 Days';
     } else if (filterType === 'lastMonth') {
-      filtered = data.filter((txn) => {
+      filtered = data?.filter((txn) => {
         const txnDate = new Date(txn.txn_date);
         return txnDate >= startOfLastMonth && txnDate <= endOfLastMonth;
       });
       headerText = 'Last Month';
     } else if (filterType === 'last3Months') {
-      filtered = data.filter((txn) => {
+      filtered = data?.filter((txn) => {
         const txnDate = new Date(txn.txn_date);
         return txnDate >= startOfThreeMonthsAgo && txnDate <= today;
       });
@@ -308,7 +308,7 @@ const TransactionHistory = () => {
               >
                 <TransactionMode
                   // number={totalAmount}
-                  number={filteredData.filter(item => item.amount).reduce((acc, item) => acc + parseFloat(item.amount), 0).toFixed(2)}
+                  number={filteredData?.filter(item => item.amount).reduce((acc, item) => acc + parseFloat(item.amount), 0).toFixed(2) || ' 0.00'}
 
                   dataName={'All'}
                 />
@@ -319,7 +319,7 @@ const TransactionHistory = () => {
                 underlayColor={'none'}
               >
                 <TransactionMode
-                  number={filteredData.filter(item => item.mode == "0").reduce((acc, item) => acc + parseFloat(item.amount), 0).toFixed(2)}
+                  number={filteredData?.filter(item => item.mode == "0").reduce((acc, item) => acc + parseFloat(item.amount), 0).toFixed(2) || ' 0.00'}
                   dataName={'Cash'}
 
                 />
@@ -335,8 +335,8 @@ const TransactionHistory = () => {
 
                 <TransactionMode
                   number={
-                    filteredData.filter(item => item.mode == "1").reduce((acc, item) => acc + parseFloat(item.amount), 0).toFixed(2)
-
+                    filteredData?.filter(item => item.mode == "1").reduce((acc, item) => acc + parseFloat(item.amount), 0).toFixed(2)
+                    || ' 0.00'
 
                   }
                   dataName={'Online'}
@@ -350,9 +350,9 @@ const TransactionHistory = () => {
                 <TransactionMode
                   number={
 
-                    filteredData.filter(item => item.mode == "2").reduce((acc, item) => acc + parseFloat(item.amount), 0).toFixed(2)
+                    filteredData?.filter(item => item.mode == "2").reduce((acc, item) => acc + parseFloat(item.amount), 0).toFixed(2)
 
-
+                    || ' 0.00'
                   }
                   dataName={'Bank Transfer'}
                 />
@@ -375,7 +375,7 @@ const TransactionHistory = () => {
                 onChangeText={handleSearch}
               />
             </View> */}
-            <View style={{ marginLeft: 20,marginTop:responsiveHeight(5)  }}>
+            <View style={{ marginLeft: 20, marginTop: responsiveHeight(5) }}>
               {partner_riders?.length > 1 && (
                 <FlatList
                   data={partner_riders}
@@ -594,7 +594,7 @@ const TransactionHistory = () => {
 
           <Text style={styles.rightText}>
 
-            {filteredData.filter(item => item.amount).reduce((acc, item) => acc + parseFloat(item.amount), 0).toFixed(2)}
+          ₹{filteredData?.filter(item => item.amount).reduce((acc, item) => acc + parseFloat(item.amount), 0).toFixed(2)|| ' 0.00'}
 
           </Text>
         </View>

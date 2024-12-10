@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { Children, useCallback, useEffect, useState } from 'react';
+import React, {Children, useCallback, useEffect, useState} from 'react';
 import Colors from '../../common/Colors';
 import {
   responsiveFontSize,
@@ -31,7 +31,7 @@ import {
   setItem,
   successToast,
 } from '../../common/CommonFunction';
-import { useDispatch, useSelector } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {
   hitGetDriverDetails,
   hitGetLiveOrderApi,
@@ -41,7 +41,7 @@ import {
   hitUpdateDriverStatus,
   hitVerifyEmail,
 } from '../../config/api/api';
-import { Button, Dialog, Portal } from 'react-native-paper';
+import {Button, Dialog, Portal} from 'react-native-paper';
 import BottomNav from '../../../navigation/BottomNav';
 import AppImages from '../../common/AppImages';
 import {
@@ -53,11 +53,11 @@ import {
   setupdate_order,
   setwalletBalance,
 } from '../../redux/HitApis/HitApiSlice';
-import { getimage } from '../../config/url';
+import {getimage} from '../../config/url';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomHeader from '../DashBoard/components/CustomHeader';
 import Loading from '../../components/Loading/Loading';
-import { mystyles } from '../../common/Mystyle';
+import {mystyles} from '../../common/Mystyle';
 
 const AccountScreen = () => {
   const navigation = useNavigation();
@@ -74,11 +74,11 @@ const AccountScreen = () => {
     const parsed_user = JSON.parse(user);
     setparsed_data(parsed_user);
     if (parsed_user?.payload?.owner_type == 0) {
-      hitGetDriverDetails({ ids: [parsed_user?.payload?.driver_id] })
+      hitGetDriverDetails({ids: [parsed_user?.payload?.driver_id]})
         .then(res => {
           setuser_details(res?.drivers[0]);
           dispatch(setloginuserdetails(res?.drivers[0]));
-          const param = { driver_id: parsed_user?.payload?.driver_id };
+          const param = {driver_id: parsed_user?.payload?.driver_id};
           hitGetWalletBalanceApi(param)
             .then(res => {
               dispatch(setwalletBalance(res));
@@ -100,9 +100,9 @@ const AccountScreen = () => {
                 setshow_live(true);
                 dispatch(setlivetripmenu(true));
 
-                const { order_otp, ...restOrderData } =
+                const {order_otp, ...restOrderData} =
                   res?.ongoingOrder[0] || {};
-                const modifiedOrderData = { ...restOrderData, otp: order_otp };
+                const modifiedOrderData = {...restOrderData, otp: order_otp};
 
                 dispatch(setOrderData(modifiedOrderData));
 
@@ -110,7 +110,7 @@ const AccountScreen = () => {
                   dispatch(setupdate_order(modifiedOrderData));
                 }
                 if (res?.ongoingOrder?.length > 1) {
-                  const { order_otp, ...restOrderData } =
+                  const {order_otp, ...restOrderData} =
                     res?.ongoingOrder[1] || {};
                   const modifiedOrderData = {
                     ...restOrderData,
@@ -171,9 +171,9 @@ const AccountScreen = () => {
                   setshow_live(true);
                   dispatch(setlivetripmenu(true));
 
-                  const { order_otp, ...restOrderData } =
+                  const {order_otp, ...restOrderData} =
                     res?.ongoingOrder[0] || {};
-                  const modifiedOrderData = { ...restOrderData, otp: order_otp };
+                  const modifiedOrderData = {...restOrderData, otp: order_otp};
 
                   dispatch(setOrderData(modifiedOrderData));
 
@@ -181,7 +181,7 @@ const AccountScreen = () => {
                     dispatch(setupdate_order(modifiedOrderData));
                   }
                   if (res?.ongoingOrder?.length > 1) {
-                    const { order_otp, ...restOrderData } =
+                    const {order_otp, ...restOrderData} =
                       res?.ongoingOrder[1] || {};
                     const modifiedOrderData = {
                       ...restOrderData,
@@ -224,7 +224,7 @@ const AccountScreen = () => {
           ? parsedUser?.payload?.partner_id
           : parsedUser?.payload?.driver_id,
       type:
-        parsedUser?.payload?.owner_type == 1
+        parsedUser?.payload?.owner_type == 1 
           ? 2
           : 1,
     };
@@ -251,11 +251,11 @@ const AccountScreen = () => {
         const isOwnerTypeZero = parsedUser?.payload?.owner_type == 0;
         const profileImageUrl = isOwnerTypeZero
           ? getimage(
-            `partners_img/${driverProfile?.partner_id}/drivers/${driverProfile?.id}_${driverProfile?.profile_pic}`,
-          )
+              `partners_img/${driverProfile?.partner_id}/drivers/${driverProfile?.id}_${driverProfile?.profile_pic}`,
+            )
           : getimage(
-            `partners_img/${parsedUser?.payload?.partner_id}/${user_details?.profile_pic}`,
-          );
+              `partners_img/${parsedUser?.payload?.partner_id}/${user_details?.profile_pic}`,
+            );
         return profileImageUrl;
       }
     } catch (error) {
@@ -285,7 +285,7 @@ const AccountScreen = () => {
       const unparse_driver_data = await AsyncStorage.getItem('user');
       const parse_data = JSON.parse(unparse_driver_data);
       if (parse_data?.payload?.owner_type != 1) {
-        const { latitude, longitude } = await GetDriverCurrentLocation();
+        const {latitude, longitude} = await GetDriverCurrentLocation();
         const param = {
           driver_id: parse_data?.payload?.driver_id,
           current_lat: latitude,
@@ -311,7 +311,7 @@ const AccountScreen = () => {
 
   return (
     <>
-      <View style={{ flex: 1, backgroundColor: '#F5F6F7' }}>
+      <View style={{flex: 1, backgroundColor: '#F5F6F7'}}>
         <View
           style={{
             height: responsiveHeight(60),
@@ -319,7 +319,7 @@ const AccountScreen = () => {
           <CustomHeader screenName={'Account'} showSplash={true} />
         </View>
         <SafeAreaView
-          style={{ backgroundColor: '#F5F6F7', flex: 1, marginHorizontal: 16 }}>
+          style={{backgroundColor: '#F5F6F7', flex: 1, marginHorizontal: 16}}>
           <ScrollView
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
@@ -333,10 +333,10 @@ const AccountScreen = () => {
               </View>
             ) : (
               <View
-                style={{ flex: 1, backgroundColor: '#F5F6F7', marginBottom: 10 }}>
+                style={{flex: 1, backgroundColor: '#F5F6F7', marginBottom: 10}}>
                 <View style={styles.userDetailSection}>
                   <View style={styles.udSection1}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
                       {!user_image ? (
                         <Image
                           source={AppImages.man}
@@ -437,7 +437,8 @@ const AccountScreen = () => {
                           dataName={'Transactions'}
                         />
                         <Data
-                          number={`₹${isNaN(orderStats?.totalPaidAmount)
+                          number={`₹${
+                              isNaN(orderStats?.totalPaidAmount)
                               ? 0
                               : orderStats?.totalPaidAmount
                             }`}
@@ -472,6 +473,8 @@ const AccountScreen = () => {
                     onPress={() => {
                       if (show_live) {
                         navigation.navigate('DriverMap');
+                      }else{
+                        errorToast('Opps' ,'No Live Orders')
                       }
                     }}
                   />
@@ -595,7 +598,6 @@ const AccountScreen = () => {
                 </View>
               </View>
             </Modal>
-
           </ScrollView>
         </SafeAreaView>
       </View>

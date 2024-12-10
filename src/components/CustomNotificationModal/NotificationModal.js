@@ -10,10 +10,7 @@ import {
   Image,
 } from 'react-native';
 import Colors from '../../common/Colors';
-import {
-  hitlPaceOrder,
-  hitUpdateOrderOtpApi,
-} from '../../config/api/api';
+import {hitlPaceOrder, hitUpdateOrderOtpApi} from '../../config/api/api';
 import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useDispatch, useSelector} from 'react-redux';

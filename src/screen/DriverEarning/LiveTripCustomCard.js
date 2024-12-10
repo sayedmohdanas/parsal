@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Linking,
+  TouchableHighlight,
 } from 'react-native';
 import Colors from '../../common/Colors';
 import AppImages from '../../common/AppImages';
@@ -21,6 +22,8 @@ import DriverInformation from '../DashBoard/components/DriverInformation';
 const LiveTripCustomCard = ({trip}) => {
   const [pickupHeight, setPickupHeight] = useState(0);
   const [dropHeight, setDropHeight] = useState(0);
+  const [onCrossToggle,setOnCrossToggle]=useState(true)
+
 
   const handlePickupLayout = event => {
     const {height} = event.nativeEvent.layout;
@@ -31,14 +34,28 @@ const LiveTripCustomCard = ({trip}) => {
     const {height} = event.nativeEvent.layout;
     setDropHeight(height);
   };
+  const handlecrossToggle =()=>{
+    setOnCrossToggle(prev=>!prev)
+  }
 
   // Calculate the length of the BorderLine based on the maximum height
   const borderLineLength = Math.max(pickupHeight, dropHeight) + 20; // Adding some padding
   return (
+    <>
+     {onCrossToggle &&(
+   <TouchableOpacity  onPress={handlecrossToggle} style={{backgroundColor:Colors.white,alignSelf:'center',position:'absolute',top:-responsiveHeight(45),padding:8,borderRadius:responsiveHeight(20),alignItems:'center',justifyContent:'center'}}><Image source={AppImages.crossIcon}style={{width:responsiveWidth(16),height:responsiveHeight(16)}}/></TouchableOpacity>
+     )}
     <View style={[styles.UserDetailMainContainer]}>
+      
+      <TouchableHighlight  onPress={()=>setOnCrossToggle(true)}
+        underlayColor={'none'}
+        >
       <DriverInformation selected_driver_data={trip} />
+      </TouchableHighlight>
+      {onCrossToggle &&(
+        <>
       <Line marginH={18} />
-
+      
       <View style={styles.statusDetail}>
         <Text style={styles.statusText}>Detail Status</Text>
         <Text style={styles.statusDate}>
@@ -76,7 +93,9 @@ const LiveTripCustomCard = ({trip}) => {
           </View>
         </View>
       </View>
-      <View style={styles.itemContainer}>
+      </>
+      )}
+      {/* <View style={styles.itemContainer}>
         <View style={styles.itemName}>
           <Text style={styles.itemHeading}>Item :</Text>
           <Text style={styles.itemNameText}>
@@ -88,8 +107,9 @@ const LiveTripCustomCard = ({trip}) => {
             {trip?.itemWeight}
           </Text>
         </View>
-      </View>
+      </View> */}
     </View>
+    </>
   );
 };
 
@@ -97,8 +117,9 @@ const styles = StyleSheet.create({
   UserDetailMainContainer: {
     // padding: responsiveHeight(2),
     backgroundColor: Colors.white,
-    borderRadius: 20,
-    // marginBottom: responsiveHeight(1),
+    borderRadius: responsiveHeight(20),
+    marginBottom: responsiveHeight(5),
+    elevation:5
   },
   userDetail: {
     flexDirection: 'row',
@@ -159,7 +180,7 @@ const styles = StyleSheet.create({
   },
   PickedAdressText: {
     fontSize: responsiveFontSize(12),
-    fontWeight: '500',
+    fontWeight: '400',
     lineHeight: 14.52,
     color: '#000000',
     // marginTop: responsiveHeight(2),
@@ -177,7 +198,7 @@ const styles = StyleSheet.create({
     // marginTop: responsiveHeight(2)
   },
   itemContainer: {
-    backgroundColor: '#F6F6FC',
+    backgroundColor: 'red',
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: responsiveHeight(12),

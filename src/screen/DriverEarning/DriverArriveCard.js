@@ -36,7 +36,29 @@ import {
 import {successToast} from '../../common/CommonFunction';
 import Loading from '../../components/Loading/Loading';
 import database from '@react-native-firebase/database';
+const sendDummyDataToFirebase = async (data, message, type) => {
+  try {
+    // Prepare your dummy data payload
+    const notificationPayload = {
+      order_id: data?.id,
+      driver_id: data?.driver_id,
+      customer_id: data?.cust_id,
+      message: message || 'This is a dummy notification.',
+      timestamp: new Date().toISOString(),
+      type: type || 1, // Assuming '1' is the type for a rating request
+    };
 
+    // Define the path to send the data
+    const customerPath = `customers/${data?.cust_id}/notifications`;
+    console.log('customer path=>', customerPath)
+    // Send the data to Firebase
+    await database().ref(customerPath).push(notificationPayload);
+
+    console.log('Dummy data sent successfully!');
+  } catch (error) {
+    console.error('Error sending dummy data to Firebase:', error);
+  }
+};
 const DriverArriveCard = ({trip, isReachedPickup, nextId}) => {
   const [isArrived, setIsArrived] = useState(false);
   const [isSlid, setIsSlid] = useState(false);
@@ -150,6 +172,11 @@ const DriverArriveCard = ({trip, isReachedPickup, nextId}) => {
         // console.log('notificationPayload', notificationPayload);
         // const customerPath = `customers/${payload.order_id}/notifications`;
         // await database.ref(customerPath).push(notificationPayload);
+        sendDummyDataToFirebase(
+          orderData?.newOrder || orderData,
+          'Order Pickup',
+          1,
+        );
         socket.emit('driver_pickup', response, acknowledgment => {
           console.log('Data sent, acknowledgment:', acknowledgment);
         });

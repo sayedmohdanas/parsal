@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   FlatList,
   ImageBackground,
   ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import AppImages from '../../common/AppImages';
 import Colors from '../../common/Colors';
@@ -17,7 +18,6 @@ import {
   responsiveHeight,
   responsiveWidth,
 } from '../../common/metrices';
-import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CustomHeader from '../DashBoard/components/CustomHeader';
 import BottomNav from '../../../navigation/BottomNav';
@@ -32,10 +32,7 @@ import BarChart from './BarChart';
 import DriverDetails from './DriversDetail';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import Line from '../../components/Line/Line';
 import { errorToast } from '../../common/CommonFunction';
-import Loading from '../../components/Loading/Loading';
-import { useSelector } from 'react-redux';
 import { mystyles } from '../../common/Mystyle';
 
 const Earning = () => {
@@ -45,8 +42,8 @@ const Earning = () => {
   const [loading, setLoading] = useState(false);
   const [isEarningLoading, setIsEarningLoading] = useState(false);
   const [isDriverListLoading, setIsDriverListLoading] = useState(false);
+  // const selectedDriverRedux = useSelector(state => state?.parsalPartner?.selectedDriver || {});
 
-  const navigation = useNavigation();
   useEffect(() => {
     getEarningData();
   }, [selectedRange]);
@@ -143,6 +140,7 @@ const Earning = () => {
       customDate: range || dateRange, // Use the custom range if provided
       flag: flag || 0,
     };
+    console.log('param', param);
     hitDriverEarning(param)
       .then(res => {
         if (res?.success === false) {
@@ -161,8 +159,8 @@ const Earning = () => {
   };
 
   const [partner_riders, setpartner_riders] = useState([]);
-  
   const [selectedDriver, setSelectedDriver] = useState();
+
   const get_driver_list = async () => {
     setLoading(true);
     const user = await AsyncStorage.getItem('user');
@@ -174,8 +172,6 @@ const Earning = () => {
       };
       hitGetPartnerDriverApi(param)
         .then(res => {
-          // console.log('res--data---->>>',res?.data);
-          
           setpartner_riders(res?.data);
           setSelectedDriver(res?.data?.[0]);
           get_data(res?.data?.[0]?.driver_id);
@@ -347,12 +343,12 @@ const Earning = () => {
       setDateRange(nextWeek);
 
       if (currentIndex === 3) {
-        setcurrentIndex(0); 
+        setcurrentIndex(0); // Reset to 0 when at the last index
 
         if (selectedDriver) {
-          await get_data(selectedDriver?.driver_id, 1); 
+          await get_data(selectedDriver?.driver_id, 1); // Fetch next 4 data
         } else {
-          await get_data(null, 1); 
+          await get_data(null, 1); // Fetch next 4 data
         }
       } else {
         setcurrentIndex(prev => prev + 1); // Move to next index within current data
@@ -376,7 +372,7 @@ const Earning = () => {
           await get_data(null, 1); // Fetch next 4 data
         }
       } else {
-        setcurrentIndex(prev => prev + 1); 
+        setcurrentIndex(prev => prev + 1); // Move to next index within current data
       }
 
       if (nextDay.start > today) {
@@ -393,6 +389,7 @@ const Earning = () => {
       : calculateWeekRange(new Date(dateRange.start), true);
   const [currentIndex, setcurrentIndex] = useState(3);
   const current_data = driver_todays_earning[currentIndex];
+  // console.log('selectedDriver', selectedDriver);
   return (
     <>
       <SafeAreaView style={{ flex: 1, backgroundColor: Colors.homeBackground }}>
@@ -431,7 +428,7 @@ const Earning = () => {
                       ? Math.round(current_data?.totalPaidAmount).toFixed(2)
                       : '0.00'}
                   </Text>
-                  {current_data?.individualPaidAmounts ? (
+                  {current_data&&current_data?.individualPaidAmounts.length !== 0 ? (
                     <View style={styles.percentageContainer}>
                       <View style={styles.increaseContainer}>
                         <Image
@@ -466,120 +463,127 @@ const Earning = () => {
                   )}
                 </View>
               </View>
+              <ScrollView>
+                <View style={styles.earningChart}>
+                  <TouchableOpacity
+                    style={styles.navButton}
+                    onPress={handlePrevDate}>
+                    <Image
+                      source={AppImages.arrowLeft}
+                      style={styles.arrowImage}
+                      resizeMode="contain"
+                    />
+                  </TouchableOpacity>
+                  <Text style={styles.dateText}>
+                    {formatDateForDisplay(dateRange.start)}{' '}
+                    {formatDateForDisplay(dateRange.end) && '-'}{' '}
+                    {formatDateForDisplay(dateRange.end)}
+                  </Text>
+                  <TouchableOpacity
+                    style={[
+                      styles.navButton,
+                      nextDay.start > new Date() && styles.disabledButton,
 
-              <View style={styles.earningChart}>
-                <TouchableOpacity
-                  style={styles.navButton}
-                  onPress={handlePrevDate}>
-                  <Image
-                    source={AppImages.arrowLeft}
-                    style={styles.arrowImage}
-                    resizeMode="contain"
-                  />
-                </TouchableOpacity>
-                <Text style={styles.dateText}>
-                  {formatDateForDisplay(dateRange.start)}{' '}
-                  {formatDateForDisplay(dateRange.end) && '-'}{' '}
-                  {formatDateForDisplay(dateRange.end)}
-                </Text>
-                <TouchableOpacity
-                  style={[
-                    styles.navButton,
-                    nextDay.start > new Date() && styles.disabledButton,
-
-                  ]}
-                  onPress={handleNextDate}
-                  disabled={nextDay.start > new Date()} 
-                >
-                  <Image
-                    source={AppImages.arrowRight}
-                    style={styles.arrowImage}
-                    resizeMode="contain"
-                    tintColor={
-                      nextDay.start > new Date() ? '#A9A9A9' : Colors.black
-                    } 
-                  />
-                </TouchableOpacity>
-              </View>
-              {current_data?.individualPaidAmounts && (
-                <BarChart
-                  week_start_date={new Date(dateRange.start)}
-                  driverEarningData={current_data}
-                  selectedRange={selectedRange}
-                />
-              )}
-              <View style={[styles.orderListContainer, { flex: 1 }]}>
-                {current_data?.individualPaidAmounts && (
-                  <Text style={styles.orderListHeadign}>{'Order List '}</Text>
-                )}
-                <FlatList
-                  ListHeaderComponent={() => (
+                      // Apply disabled styling
+                    ]}
+                    onPress={handleNextDate}
+                    disabled={nextDay.start > new Date()} // Disable the button based on the condition
+                  >
+                    <Image
+                      source={AppImages.arrowRight}
+                      style={styles.arrowImage}
+                      resizeMode="contain"
+                      tintColor={
+                        nextDay.start > new Date() ? '#A9A9A9' : Colors.black
+                      } // Change tint color dynamically
+                    />
+                  </TouchableOpacity>
+                </View>
+                {
+                 !current_data|| loading ? (
+                    <View
+                      style={{
+                        flex: 1,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        alignSelf: 'center',
+                        backgroundColor: 'white',
+                        paddingVertical: responsiveHeight(30),
+                        marginTop: responsiveHeight(110),
+                      }}
+                    >
+                      <ActivityIndicator size="large" color={Colors.brandBlue} />
+                    </View>
+                  ) : (
                     <>
-                      {loading ? (
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            alignSelf: 'center',
-                            paddingVertical: responsiveHeight(30),
-                            marginTop: responsiveHeight(110),
-                          }}>
-                          <ActivityIndicator
-                            size="large"
-                            color={Colors.brandBlue}
-                          />
-                        </View>
-                      ) : !current_data?.individualPaidAmounts ? (
-                        // If no data is available, show an empty state
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            alignSelf: 'center',
-                            paddingVertical: responsiveHeight(30),
-                            marginTop: responsiveHeight(110),
-                          }}>
-                          <ImageBackground
-                            source={AppImages.boxbackgound}
-                            style={styles.boxBackstyle}>
-                            <Image
-                              source={AppImages.emptyImage}
-                              style={styles.emptyboxStyle}
-                              resizeMode="contain"
-                            />
-                          </ImageBackground>
-                          <Text style={styles.emptyTextStyle}>
-                            {
-                              'No Order history Available, contact our support team.'
-                            }
-                          </Text>
-                        </View>
-                      ) : (
-                        // If data is available, show the partner rider list
-                       login_user?.owner_type !== 0 &&
-                        current_data?.individualPaidAmounts && (
-                          <View style={{ marginLeft: 20 }}>
-                            {partner_riders?.length > 1 && (
-                              <FlatList
-                                data={partner_riders}
-                                horizontal
-                                renderItem={renderRieder}
-                                keyExtractor={(item, index) => index.toString()}
-                              />
-                            )}
-                          </View>
-                        )
+                      {current_data?.individualPaidAmounts.length !== 0 && (
+                        <BarChart
+                          week_start_date={new Date(dateRange.start)}
+                          driverEarningData={current_data}
+                          selectedRange={selectedRange}
+                        />
                       )}
+                      <View style={[styles.orderListContainer, { flex: 1 }]}>
+                        {current_data&&current_data?.individualPaidAmounts.length !== 0 && (
+                          <Text style={styles.orderListHeadign}>{'Order List '}</Text>
+                        )}
+                        <FlatList
+                          ListHeaderComponent={() => (
+                            <>
+                              {current_data&&current_data?.individualPaidAmounts.length == 0 ? (
+                                // If no data is available, show an empty state
+                                <View
+                                  style={{
+                                    flex: 1,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    alignSelf: 'center',
+                                    paddingVertical: responsiveHeight(30),
+                                    marginTop: responsiveHeight(150),
+                                  }}>
+                                  <ImageBackground
+                                    source={AppImages.boxbackgound}
+                                    style={styles.boxBackstyle}>
+                                    <Image
+                                      source={AppImages.emptyImage}
+                                      style={styles.emptyboxStyle}
+                                      resizeMode="contain"
+                                    />
+                                  </ImageBackground>
+                                  <Text style={styles.emptyTextStyle}>
+                                    {
+                                      'No Order history Available, contact our support team.'
+                                    }
+                                  </Text>
+                                </View>
+                              ) : (
+                                // If data is available, show the partner rider list
+                                login_user?.owner_type !== 0 &&
+                                current_data&&current_data?.individualPaidAmounts.length == 0 && (
+                                  <View style={{ marginLeft: responsiveWidth(15), marginHorizontal: responsiveWidth(6) }}>
+                                    {partner_riders?.length > 1 && (
+                                      <FlatList
+                                        data={partner_riders}
+                                        horizontal
+                                        renderItem={renderRieder}
+                                        keyExtractor={(item, index) => index.toString()}
+                                      />
+                                    )}
+                                  </View>
+                                )
+                              )}
+                            </>
+                          )}
+                          data={current_data?.individualPaidAmounts}
+                          renderItem={renderItem}
+                          keyExtractor={(item, index) => index.toString()}
+                          contentContainerStyle={{ paddingBottom: responsiveHeight(80) }}
+                        />
+                      </View>
                     </>
                   )}
-                  data={current_data?.individualPaidAmounts}
-                  renderItem={renderItem}
-                  keyExtractor={(item, index) => index.toString()}
-                  contentContainerStyle={{ paddingBottom: responsiveHeight(80) }}
-                />
-              </View>
+
+              </ScrollView>
             </>
           )}
         </View>
@@ -699,7 +703,6 @@ const styles = StyleSheet.create({
   },
   orderListContainer: {
     backgroundColor: Colors.homeBackground,
-
   },
   orderListHeadign: {
     fontSize: responsiveFontSize(16),
@@ -707,7 +710,7 @@ const styles = StyleSheet.create({
     marginLeft: responsiveHeight(22),
     color: Colors.black,
     marginBottom: responsiveHeight(10),
-    marginTop: responsiveHeight(16)
+    marginTop: responsiveHeight(16),
   },
   scrollView: {
     paddingBottom: responsiveHeight(40),

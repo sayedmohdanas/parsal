@@ -18,6 +18,7 @@ import {
 import {getMessaging} from '@react-native-firebase/messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
+  hitDeleteDriverDetails,
   hitGetPartner,
   hitPartnerDriverToVehicleurlApi,
   hitUpdateDriverDetails,
@@ -140,7 +141,7 @@ const DriverDetailScreen = ({route}) => {
               .then(async res => {
                 if (res) {
                   parsedUser.payload.owner_type = 2; // Set as only partner
-                  parsedUser.payload.driver_id = null; // Clear driver ID
+                  parsedUser.payload.driver_id = res?.data?.new_driver_id; // Clear driver ID
                   parsedUser.payload.vehicle_type_id = null; // Clear vehicle type
                   await AsyncStorage.setItem(
                     'user',
@@ -154,29 +155,88 @@ const DriverDetailScreen = ({route}) => {
               });
             return;
           } else {
+            if (parsedUser?.payload?.owner_type == 1 && isChecked) {
+              const param = {
+                partner_driver_id: parsedUser?.payload?.driver_id,
+                old_user_driver_id: updateDriverData?.driver_id,
+                partner_id: partnerId,
+                vehicle_id: updateDriverData?.id,
+                payload: payload,
+              };
+
+              hitPartnerDriverToVehicleurlApi(param)
+                .then(async res => {
+                  if (res) {
+                    parsedUser.payload.owner_type = 2; // Set as only partner
+                    parsedUser.payload.driver_id = res?.data?.new_driver_id; // Clear driver ID
+                    parsedUser.payload.vehicle_type_id = null; // Clear vehicle type
+                    await AsyncStorage.setItem(
+                      'user',
+                      JSON.stringify(parsedUser),
+                    );
+                    navigation.navigate('MyVehicles');
+                    return;
+                  }
+                })
+                .catch(err => {
+                  console.error(err);
+                });
+              return;
+            }
+            if (parsedUser?.payload?.owner_type == 2 && !isChecked) {
+              try {
+                const response = await hitDeleteDriverDetails({
+                  driver_id: updateDriverData?.driver_id,
+                });
+                const user = await AsyncStorage.getItem('user');
+                let parsedUser = JSON.parse(user);
+                if (response) {
+                  if (parsedUser?.payload?.owner_type == 2) {
+                    parsedUser.payload.owner_type = 1;
+                    parsedUser.payload.driver_id = null;
+                    parsedUser.payload.vehicle_type_id = null;
+                    await AsyncStorage.setItem(
+                      'user',
+                      JSON.stringify(parsedUser),
+                    );
+                    navigation.navigate('MyVehicles');
+                    return;
+                  }
+                }
+                return;
+              } catch (error) {
+                console.log(
+                  'something went wrog while deletign driver==>>>',
+                  error,
+                );
+              }
+            }
+
             const response = await hitUpdateDriverDetails(Updatedpayload);
             if (response?.status) {
               successToast(`Driver ${name} successfully Updated.`);
               // Update AsyncStorage after successful response
               const user = await AsyncStorage.getItem('user');
               let parsedUser = JSON.parse(user);
-              if (updateDriverData?.owner_type == 2 && !isChecked) {
+              if (updateDriverData?.owner_type == 2) {
                 // Update for partner who is also a driver
-                parsedUser.payload.owner_type = 1; // Set as only partner
+                parsedUser.payload.owner_type = 2; // Set as only partner
                 parsedUser.payload.driver_id = null; // Clear driver ID
                 parsedUser.payload.vehicle_type_id = null; // Clear vehicle type
                 await AsyncStorage.setItem('user', JSON.stringify(parsedUser));
-                navigation.goBack('');
+                navigation.navigate('MyVehicles');
                 setloader(false);
-              } else if (isChecked) {
+                return;
+              } else {
                 // Update for partner becoming a driver
-                parsedUser.payload.owner_type = 2; // Set as both partner and driver
+                // parsedUser.payload.owner_type = 2; // Set as both partner and driver
                 parsedUser.payload.driver_id = response?.payload?.driver_id; // Assign driver ID
                 parsedUser.payload.phone = payload?.phone; // Update phone number
                 parsedUser.payload.vehicle_type_id = payload?.payload; // Update vehicle type
                 await AsyncStorage.setItem('user', JSON.stringify(parsedUser));
-                navigation.goBack('');
+                navigation.navigate('MyVehicles');
                 setloader(false);
+                return;
               }
             } else {
               setloader(false);
@@ -201,14 +261,22 @@ const DriverDetailScreen = ({route}) => {
             payload: null,
           };
           hitPartnerDriverToVehicleurlApi(param)
-            .then(res => {
-              if (res) navigation.goBack('');
+            .then(async res => {
+              if (res) {
+                parsedUser.payload.owner_type = 2; // Set as both partner and driver
+                parsedUser.payload.driver_id = res?.data?.new_driver_id; // Assign driver ID
+                parsedUser.payload.phone = payload?.phone; // Update phone number
+                parsedUser.payload.vehicle_type_id = payload?.payload; // Update vehicle type
+                await AsyncStorage.setItem('user', JSON.stringify(parsedUser));
+                navigation.goBack('');
+              }
             })
             .catch(err => {
               console.error(err);
             });
           return;
         }
+
         const resultAction = await dispatch(addDriverDetails(payload));
         if (addDriverDetails.fulfilled.match(resultAction)) {
           const user = await AsyncStorage.getItem('user');

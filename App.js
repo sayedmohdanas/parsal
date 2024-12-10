@@ -19,6 +19,7 @@ const TOPIC = 'MyNews';
 import {LogBox} from 'react-native';
 LogBox.ignoreLogs(['new NativeEventEmitter']);
 import {Provider as PaperProvider} from 'react-native-paper';
+import NotificationListener from './NotificationListener';
 export default function App() {
   const [isModalVisible, setModalVisible] = useState(false);
   const [notificationData, setNotificationData] = useState({
@@ -408,6 +409,7 @@ export default function App() {
   // }, [isModalVisible, timer]);
   const handleNotificationWithTimeCheck = async remoteMessage => {
     const user = await get_user_data();
+
     if (user?.payload?.driver_id == remoteMessage?.data?.driverId)
       try {
         const sentTime = remoteMessage.sentTime;
@@ -568,6 +570,7 @@ export default function App() {
   return (
     <PaperProvider>
       <Provider store={store}>
+        {/* <NotificationListener /> */}
         <NavigationContainer>
           <StackNavigator />
           <Toast />

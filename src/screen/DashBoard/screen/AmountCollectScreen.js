@@ -18,6 +18,7 @@ import {socketUrl} from '../../../config/url';
 import PaymentSuccessModal from '../components/PaymentSuccessModal';
 import {
   setOrderData,
+  setSelectedDriverRedux,
   setlivetripmenu,
   setnextOrderData,
   setupdate_order,
@@ -25,10 +26,6 @@ import {
 import HeaderBackButton from '../../../components/HeaderBackButton/HeaderBackButton';
 
 const AmountCollectScreen = () => {
-  const update_order = useSelector(
-    state => state?.parsalPartner?.update_order || null,
-  );
-
   const [visible, setvisible] = useState(false);
   const orderData = useSelector(state => state?.parsalPartner?.orderData || {});
   const dispatch = useDispatch();
@@ -66,7 +63,6 @@ const AmountCollectScreen = () => {
       console.log('Connected to socket server');
     });
     socket.on('complete_transaction_by_user_ack', data => {
-      console.log('data', data);
       const param = {
         orderId: data?.order_id,
         partner_id:
@@ -77,17 +73,29 @@ const AmountCollectScreen = () => {
 
       hitCreateTransaction(param)
         .then(res => {
-          console.log('res', res);
           if (res) {
             if (nextOrderData) {
               dispatch(setOrderData(nextOrderData));
               dispatch(setupdate_order(null));
               dispatch(setnextOrderData(null));
+              dispatch(
+                setSelectedDriverRedux({
+                  driver_id:
+                    orderData?.newOrder?.driver_id || orderData?.driver_id,
+                }),
+              );
               navigation.goBack('');
             } else {
               dispatch(setOrderData(null));
               dispatch(setupdate_order(null));
               dispatch(setlivetripmenu(false));
+              dispatch(
+                setSelectedDriverRedux({
+                  driver_id:
+                    orderData?.newOrder?.driver_id || orderData?.driver_id,
+                }),
+              );
+
               navigation.navigate('Earning');
             }
           }
@@ -114,6 +122,13 @@ const AmountCollectScreen = () => {
               userId: orderData?.newOrder?.cust_id || orderData?.cust_id,
             });
             dispatch(setOrderData(nextOrderData));
+            dispatch(
+              setSelectedDriverRedux({
+                driver_id:
+                  orderData?.newOrder?.driver_id || orderData?.driver_id,
+              }),
+            );
+
             dispatch(setupdate_order(null));
             dispatch(setnextOrderData(null));
             navigation.goBack('');
@@ -121,6 +136,12 @@ const AmountCollectScreen = () => {
             socket.emit('complete_transaction_by_user', {
               userId: orderData?.newOrder?.cust_id || orderData?.cust_id,
             });
+            dispatch(
+              setSelectedDriverRedux({
+                driver_id:
+                  orderData?.newOrder?.driver_id || orderData?.driver_id,
+              }),
+            );
             dispatch(setOrderData(null));
             dispatch(setupdate_order(null));
             dispatch(setlivetripmenu(false));

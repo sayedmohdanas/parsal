@@ -11,7 +11,11 @@ import {
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import AppImages from '../../common/AppImages';
-import {responsiveFontSize, responsiveHeight, responsiveWidth} from '../../common/metrices';
+import {
+  responsiveFontSize,
+  responsiveHeight,
+  responsiveWidth,
+} from '../../common/metrices';
 import Colors from '../../common/Colors';
 import CustomButton from '../../components/CustomButton/CustomButton';
 import {
@@ -30,7 +34,7 @@ import {
   setParentId,
 } from '../../redux/HitApis/HitApiSlice';
 import OTPTextView from 'react-native-otp-textinput';
-import { Fonts, FontSizes } from '../../common/Theme';
+import {Fonts, FontSizes} from '../../common/Theme';
 
 const OtpScreen = ({navigation, route}) => {
   const {number} = route?.params;
@@ -47,9 +51,8 @@ const OtpScreen = ({navigation, route}) => {
       if (user) {
       }
     };
-    console.log(userOtp)
+    console.log(userOtp);
     pId();
-
   }, [navigation]);
 
   // useEffect(() => {
@@ -63,6 +66,7 @@ const OtpScreen = ({navigation, route}) => {
   const handleTextChange = async text => {
     setOtp(text);
   };
+  console.log('user?.payload', user?.payload);
   const handleOtp = async () => {
     const owner_type = user?.payload?.owner_type;
     const id = user?.payload?.partner_id;

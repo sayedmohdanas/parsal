@@ -37,7 +37,6 @@ import DestinationSection from './DestinationSection';
 import {hitUpdateDriverLocationApi} from '../../config/api/api';
 import NextOrder from '../../components/CustomNotificationModal/NextOrder';
 import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 const AnimatedMarker = Animated.createAnimatedComponent(Marker);
 
 const getCenterOffsetForAnchor = (anchor, markerWidth, markerHeight) => ({
@@ -370,10 +369,7 @@ const DriverMapScreen = ({route}) => {
     }
     return null;
   }, [nextOrderData, nextordermodal]);
-  const [smoothedOrigin, setSmoothedOrigin] = useState({
-    latitude: latLOng?.latitude,
-    longitude: latLOng?.longitude,
-  });
+
 
   // useEffect(() => {
   //   let timeoutId;
