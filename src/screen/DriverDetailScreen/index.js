@@ -112,7 +112,7 @@ const DriverDetailScreen = ({route}) => {
       fcm_id: await getMessaging().getToken(),
       status: 1,
       working_status: 1,
-      owner_status: isChecked && 2,
+      owner_status: isChecked && 2,      
     };
     try {
       if (updateDriverData) {

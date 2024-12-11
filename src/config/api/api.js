@@ -20,6 +20,7 @@ import {
   getallvehicletypeurl,
   getBankAccount,
   getDriverDetails,
+  getLedger,
   getliveorderdataurl,
   getNotification,
   getOrderDetail,
@@ -205,4 +206,10 @@ export const hitCheckReqStatusApi = param => {
 };
 export const hitPartnerDriverToVehicleurlApi = param => {
   return apiPost(assignPartnerDriverToVehicleurl, param);
+};
+
+export const hitGetgetLedger = param => {
+console.log('param-fron-ledger-->>',param)
+
+  return apiPost(getLedger, param);
 };

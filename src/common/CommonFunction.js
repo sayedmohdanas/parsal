@@ -39,6 +39,48 @@ export const getImageUrl = (partner_id, driver_id, profile_pic) => {
   return `${API_BASE_URL}media/${IMAGE_FOLDER}${partner_id}/drivers/${driver_id}_${profile_pic}`;
 };
 
+
+
+const formatDateFotFilter = (date) => {
+  return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+};
+
+export const getToday = () => {
+  const today = new Date();
+  return { startDate: formatDateFotFilter(today), endDate: formatDateFotFilter(today) };
+};
+
+export const getLast7Days = () => {
+  const today = new Date();
+  const last7Days = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  return { startDate: formatDateFotFilter(last7Days), endDate: formatDateFotFilter(today) };
+};
+
+export const getLastMonth = () => {
+  const now = new Date();
+  const firstDayLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const lastDayLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+  return {
+    startDate: formatDateFotFilter(firstDayLastMonth),
+    endDate: formatDateFotFilter(lastDayLastMonth),
+  };
+};
+
+export const getLast3Months = () => {
+  const now = new Date();
+  const firstDay3MonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+  const lastDayLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+  return {
+    startDate: formatDateFotFilter(firstDay3MonthsAgo),
+    endDate: formatDateFotFilter(lastDayLastMonth),
+  };
+};
+
+
+
+
+
+
 export const successToast = (text1, text2 = '', visibilityTime = 4000) => {
   Toast.show({
     type: 'success',

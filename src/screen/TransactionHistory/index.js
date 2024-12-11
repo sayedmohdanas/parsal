@@ -26,7 +26,7 @@ import { useNavigation } from '@react-navigation/native';
 import { hitGetPartnerDriverApi, hitGetTransactionListApi } from '../../config/api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppImages from '../../common/AppImages';
-import { formatDate } from '../../common/CommonFunction';
+import { formatDate, getLast7Days, getLastMonth, getToday } from '../../common/CommonFunction';
 import { Fonts, FontSizes } from '../../common/Theme';
 import Data from '../AccountScreen/Component/Data';
 import TransactionMode from './TransactionMode';
@@ -43,6 +43,8 @@ const TransactionHistory = () => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [partner_riders, setpartner_riders] = useState([]);
   const [selectedDriver, setSelectedDriver] = useState();
+  const [dateRange, setDateRange] = useState(getLastMonth());
+
 
 
   const calculateTotalAmount = (filteredData) => {
@@ -112,9 +114,12 @@ const TransactionHistory = () => {
       const { owner_type, partner_id, driver_id } = parsedUser.payload || {};
 
       const id = (owner_type === 1 || owner_type === 2) ? partner_id : driver_id;
-      const param = { driverId: id };
+      const param = {
+        [owner_type === 1 || owner_type === 2 ? 'partner_id' : 'driverId']: id, start_date: dateRange?.startDate,
+        end_date: dateRange?.endDate,
+
+      };
       const res = await hitGetTransactionListApi(param);
-      console.log(res, 'res---history');
 
       // if (res?.transaction_data) {
       //   const updatedData = res?.transactions.map((item) => {
@@ -187,7 +192,6 @@ const TransactionHistory = () => {
     setFilteredData(filtered);
   };
   const handleCalendar = () => {
-    // Toggle modal visibility
     setIsModalVisible(!isModalVisible);
   };
 
@@ -594,7 +598,7 @@ const TransactionHistory = () => {
 
           <Text style={styles.rightText}>
 
-          ₹{filteredData?.filter(item => item.amount).reduce((acc, item) => acc + parseFloat(item.amount), 0).toFixed(2)|| ' 0.00'}
+          ₹{filteredData?.filter(item => item.amount).reduce((acc, item) => acc + parseFloat(item.amount), 0).toFixed(2) || ' 0.00'}
 
           </Text>
         </View>

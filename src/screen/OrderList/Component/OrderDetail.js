@@ -69,6 +69,7 @@ const OrderDetail = ({...props })=> {
 
           <View style={[styles.UserDetailMainContainer]}>
             <View style={styles.userDetail}>
+              <View style={{borderWidth:0.4,borderColor:Colors.grey,borderRadius:responsiveHeight(30)}}>
               <Image
                 source={{
                   uri: getimage(
@@ -77,6 +78,7 @@ const OrderDetail = ({...props })=> {
                 }}
                 style={styles.manStyle}
               />
+              </View>
               <View style={styles.userNameAddress}>
                 <Text style={[styles.name, {fontSize: responsiveFontSize(14)}]}>
                   {props?.name}

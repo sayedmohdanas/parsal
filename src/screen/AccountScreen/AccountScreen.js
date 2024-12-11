@@ -338,15 +338,20 @@ const AccountScreen = () => {
                   <View style={styles.udSection1}>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
                       {!user_image ? (
+                        <View style={{borderWidth:0.5,borderRadius:responsiveHeight(70),borderColor:Colors.grey}}>
                         <Image
                           source={AppImages.man}
                           style={{
                             height: responsiveHeight(70),
                             width: responsiveHeight(70),
                             borderRadius: responsiveHeight(70),
+                            
                           }}
                         />
+                        </View>
                       ) : (
+                        <View style={{borderWidth:0.5,borderRadius:responsiveHeight(70),borderColor:Colors.grey}}>
+
                         <Image
                           source={{
                             uri: user_image,
@@ -357,6 +362,7 @@ const AccountScreen = () => {
                             borderRadius: responsiveHeight(70),
                           }}
                         />
+                        </View>
                       )}
                       <View style={styles.userTextContainer}>
                         <Text style={styles.name}>{name}</Text>

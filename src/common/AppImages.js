@@ -106,7 +106,7 @@ export default AppImages = {
   // rcIcon: require('../assets/images/rc.png'),
   driversList: require('../assets/images/drivers.png'),
   dashboard: require('../assets/images/dashboard.png'),
-  partnerbike: require('../assets/images/delivery-bike-rbg.png'),
+  partnerbike: require('../assets/images/driver_bike.png'),
   two_wheels: require('../assets/images/motorcycle.png'),
   three_wheels: require('../assets/images/car.png'),
   four_wheels: require('../assets/images/van.png'),

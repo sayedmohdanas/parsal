@@ -31,14 +31,14 @@ import moment from 'moment';
 import BarChart from './BarChart';
 import DriverDetails from './DriversDetail';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { errorToast } from '../../common/CommonFunction';
-import { mystyles } from '../../common/Mystyle';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {errorToast} from '../../common/CommonFunction';
+import {mystyles} from '../../common/Mystyle';
 
 const Earning = () => {
   const [selectedRange, setSelectedRange] = useState('today');
   const [totalEarnings, setTotalEarnings] = useState(0);
-  const [dateRange, setDateRange] = useState({ start: '', end: '' });
+  const [dateRange, setDateRange] = useState({start: '', end: ''});
   const [loading, setLoading] = useState(false);
   const [isEarningLoading, setIsEarningLoading] = useState(false);
   const [isDriverListLoading, setIsDriverListLoading] = useState(false);
@@ -68,7 +68,7 @@ const Earning = () => {
       startDate.setDate(startDate.getDate() - 6);
     }
 
-    setDateRange({ start: startDate, end: endDate });
+    setDateRange({start: startDate, end: endDate});
     setLoading(false);
   };
 
@@ -140,7 +140,6 @@ const Earning = () => {
       customDate: range || dateRange, // Use the custom range if provided
       flag: flag || 0,
     };
-    console.log('param', param);
     hitDriverEarning(param)
       .then(res => {
         if (res?.success === false) {
@@ -174,7 +173,7 @@ const Earning = () => {
         .then(res => {
           setpartner_riders(res?.data);
           setSelectedDriver(res?.data?.[0]);
-          get_data(res?.data?.[0]?.driver_id);
+          get_data(res?.data?.[2]?.driver_id);
         })
         .catch(err => {
           console.error(err);
@@ -199,16 +198,16 @@ const Earning = () => {
       };
       fetchData();
       get_driver_list();
-      return () => { };
+      return () => {};
     }, [selectedRange]),
   );
   const renderItem = useMemo(() => {
-    return ({ item }) => {
+    return ({item}) => {
       return <OrderDetail orderDetails={item} />;
     };
   }, []);
   const renderRieder = useMemo(() => {
-    return ({ item }) => {
+    return ({item}) => {
       return (
         <DriverDetails
           details={item}
@@ -223,7 +222,7 @@ const Earning = () => {
   }, [selectedDriver]);
   const formatDateForDisplay = date => {
     if (date != null && date) {
-      const options = { day: '2-digit', month: 'short', year: 'numeric' };
+      const options = {day: '2-digit', month: 'short', year: 'numeric'};
       const formattedDate = date?.toLocaleDateString('en-GB', options);
       return formattedDate.replace(/ /g, '-');
     }
@@ -257,7 +256,7 @@ const Earning = () => {
     const offset = next ? 1 : -1;
     start.setDate(start.getDate() + offset);
 
-    return { start: start, end: '' };
+    return {start: start, end: ''};
   };
   const calculateWeekRange = (startDate, next = true) => {
     const start = new Date(startDate);
@@ -266,7 +265,7 @@ const Earning = () => {
     const end = new Date(start);
     end.setDate(end.getDate() + 6);
 
-    return { start: start, end: end };
+    return {start: start, end: end};
   };
 
   // const handleNextDate = async () => {
@@ -389,10 +388,12 @@ const Earning = () => {
       : calculateWeekRange(new Date(dateRange.start), true);
   const [currentIndex, setcurrentIndex] = useState(3);
   const current_data = driver_todays_earning[currentIndex];
+  // console.log('current_data',current_data);
   // console.log('selectedDriver', selectedDriver);
+  // console.log('partner_riders',partner_riders);
   return (
     <>
-      <SafeAreaView style={{ flex: 1, backgroundColor: Colors.homeBackground }}>
+      <SafeAreaView style={{flex: 1, backgroundColor: Colors.homeBackground}}>
         <View
           style={{
             height: responsiveHeight(60),
@@ -414,21 +415,22 @@ const Earning = () => {
           ) : (
             <>
               <View
-                style={{ alignSelf: 'center', marginTop: responsiveHeight(14) }}>
+                style={{alignSelf: 'center', marginTop: responsiveHeight(14)}}>
                 <DateRangeSelector
                   selectedRange={selectedRange}
                   setSelectedRange={setSelectedRange}
                 />
               </View>
-              <View style={[styles.earningDisplay, { justifyContent: 'center' }]}>
-                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+              <View style={[styles.earningDisplay, {justifyContent: 'center'}]}>
+                <View style={{justifyContent: 'center', alignItems: 'center'}}>
                   <Text style={styles.earningAmount}>
                     ₹
                     {!isNaN(current_data?.totalPaidAmount)
                       ? Math.round(current_data?.totalPaidAmount).toFixed(2)
                       : '0.00'}
                   </Text>
-                  {current_data&&current_data?.individualPaidAmounts.length !== 0 ? (
+                  {current_data &&
+                  current_data?.individualPaidAmounts.length !== 0 ? (
                     <View style={styles.percentageContainer}>
                       <View style={styles.increaseContainer}>
                         <Image
@@ -499,90 +501,103 @@ const Earning = () => {
                     />
                   </TouchableOpacity>
                 </View>
-                {
-                 !current_data|| loading ? (
-                    <View
-                      style={{
-                        flex: 1,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        alignSelf: 'center',
-                        backgroundColor: 'white',
-                        paddingVertical: responsiveHeight(30),
-                        marginTop: responsiveHeight(110),
-                      }}
-                    >
-                      <ActivityIndicator size="large" color={Colors.brandBlue} />
-                    </View>
-                  ) : (
-                    <>
-                      {current_data?.individualPaidAmounts.length !== 0 && (
-                        <BarChart
-                          week_start_date={new Date(dateRange.start)}
-                          driverEarningData={current_data}
-                          selectedRange={selectedRange}
-                        />
-                      )}
-                      <View style={[styles.orderListContainer, { flex: 1 }]}>
-                        {current_data&&current_data?.individualPaidAmounts.length !== 0 && (
-                          <Text style={styles.orderListHeadign}>{'Order List '}</Text>
+                {!current_data || loading ? (
+                  <View
+                    style={{
+                      flex: 1,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      alignSelf: 'center',
+                      backgroundColor: 'white',
+                      paddingVertical: responsiveHeight(30),
+                      marginTop: responsiveHeight(110),
+                    }}>
+                    <ActivityIndicator size="large" color={Colors.brandBlue} />
+                  </View>
+                ) : (
+                  <>
+                    {current_data?.individualPaidAmounts.length !== 0 && (
+                      <BarChart
+                        week_start_date={new Date(dateRange.start)}
+                        driverEarningData={current_data}
+                        selectedRange={selectedRange}
+                      />
+                    )}
+                    <View style={[styles.orderListContainer, {flex: 1}]}>
+                      {current_data &&
+                        current_data?.individualPaidAmounts.length !== 0 && (
+                          <Text style={styles.orderListHeadign}>
+                            {'Order List '}
+                          </Text>
                         )}
-                        <FlatList
-                          ListHeaderComponent={() => (
-                            <>
-                              {current_data&&current_data?.individualPaidAmounts.length == 0 ? (
-                                // If no data is available, show an empty state
+                      <FlatList
+                        ListHeaderComponent={() => (
+                          <>
+                            {current_data &&
+                            current_data?.individualPaidAmounts.length == 0 ? (
+                              // If no data is available, show an empty state
+                              <View
+                                style={{
+                                  flex: 1,
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                  alignSelf: 'center',
+                                  paddingVertical: responsiveHeight(30),
+                                  marginTop: responsiveHeight(150),
+                                }}>
+                                <ImageBackground
+                                  source={AppImages.boxbackgound}
+                                  style={styles.boxBackstyle}>
+                                  <Image
+                                    source={AppImages.emptyImage}
+                                    style={styles.emptyboxStyle}
+                                    resizeMode="contain"
+                                  />
+                                </ImageBackground>
+                                <Text style={styles.emptyTextStyle}>
+                                  {
+                                    'No Order history Available, contact our support team.'
+                                  }
+                                </Text>
+                              </View>
+                            ) : (
+                              // If data is available, show the partner rider list
+                              login_user?.owner_type !== 0 &&
+                              current_data
+                               &&
+                              // current_data?.individualPaidAmounts.length ==
+                              //   0 && 
+                                (
                                 <View
                                   style={{
-                                    flex: 1,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    alignSelf: 'center',
-                                    paddingVertical: responsiveHeight(30),
-                                    marginTop: responsiveHeight(150),
+                                    marginLeft: responsiveWidth(15),
+                                    marginHorizontal: responsiveWidth(6),
                                   }}>
-                                  <ImageBackground
-                                    source={AppImages.boxbackgound}
-                                    style={styles.boxBackstyle}>
-                                    <Image
-                                      source={AppImages.emptyImage}
-                                      style={styles.emptyboxStyle}
-                                      resizeMode="contain"
+                                  {partner_riders?.length > 1 && (
+                                    <FlatList
+                                      data={partner_riders}
+                                      horizontal
+                                      renderItem={renderRieder}
+                                      keyExtractor={(item, index) =>
+                                        index.toString()
+                                      }
                                     />
-                                  </ImageBackground>
-                                  <Text style={styles.emptyTextStyle}>
-                                    {
-                                      'No Order history Available, contact our support team.'
-                                    }
-                                  </Text>
+                                  )}
                                 </View>
-                              ) : (
-                                // If data is available, show the partner rider list
-                                login_user?.owner_type !== 0 &&
-                                current_data&&current_data?.individualPaidAmounts.length == 0 && (
-                                  <View style={{ marginLeft: responsiveWidth(15), marginHorizontal: responsiveWidth(6) }}>
-                                    {partner_riders?.length > 1 && (
-                                      <FlatList
-                                        data={partner_riders}
-                                        horizontal
-                                        renderItem={renderRieder}
-                                        keyExtractor={(item, index) => index.toString()}
-                                      />
-                                    )}
-                                  </View>
-                                )
-                              )}
-                            </>
-                          )}
-                          data={current_data?.individualPaidAmounts}
-                          renderItem={renderItem}
-                          keyExtractor={(item, index) => index.toString()}
-                          contentContainerStyle={{ paddingBottom: responsiveHeight(80) }}
-                        />
-                      </View>
-                    </>
-                  )}
-
+                              )
+                            )}
+                          </>
+                        )}
+                        data={current_data?.individualPaidAmounts}
+                        renderItem={renderItem}
+                        keyExtractor={(item, index) => index.toString()}
+                        contentContainerStyle={{
+                          paddingBottom: responsiveHeight(80),
+                        }}
+                      />
+                    </View>
+                  </>
+                )}
               </ScrollView>
             </>
           )}

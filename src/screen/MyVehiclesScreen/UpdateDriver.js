@@ -98,9 +98,13 @@ const UpdateDriver = ({route}) => {
               const user = await AsyncStorage.getItem('user');
               let parsedUser = JSON.parse(user);
               if (response) {
-                if (parsedUser?.payload?.owner_type == 2) {
+                if (
+                  parsedUser?.payload?.owner_type == 2 ||
+                  (parsedUser?.payload?.owner_type == 1 &&
+                    vehicle?.driver_id == parsedUser?.payload?.driver_id)
+                ) {
                   parsedUser.payload.owner_type = 1;
-                  parsedUser.payload.driver_id = null; 
+                  parsedUser.payload.driver_id = null;
                   parsedUser.payload.vehicle_type_id = null;
                   await AsyncStorage.setItem(
                     'user',
@@ -396,7 +400,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9',
     justifyContent: 'space-between',
     marginBottom: responsiveHeight(12),
-    borderRadius:responsiveHeight(10),
+    borderRadius: responsiveHeight(10),
 
     // padding: 15,
   },

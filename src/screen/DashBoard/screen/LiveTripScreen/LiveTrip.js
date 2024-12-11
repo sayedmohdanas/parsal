@@ -541,8 +541,8 @@ const LiveTripScreen = () => {
                   if (driverInfo && driverLat && driverLong) {
                     const image =
                       driverInfo.phone == login_data?.payload?.phone
-                        ? AppImages.Bike
-                        : AppImages.partnerbike;
+                        ? AppImages.partnerbike
+                        : AppImages.Bike;
                     return (
                       <Marker
                         key={index}

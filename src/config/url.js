@@ -32,6 +32,9 @@ export const MyVehicle = getEndpoint('partner/vehiclesByPartnerId');
 export const addBankAccount = getEndpoint('partner/addBankDetails');
 export const getBankAccount = getEndpoint('partner/bank-details');
 export const partnerDriversurl = getEndpoint('partner/get-partner-drivers');
+export const getLedger = getEndpoint('partner/get-partner-ledger');
+// export const getLedger = getEndpoint('partner/get-partnerDrivers');
+
 
 
 //driver
