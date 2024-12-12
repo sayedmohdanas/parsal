@@ -252,10 +252,22 @@ const StackNavigator = () => {
     //     options={{headerShown: false}}
     //   />
     // </Stack.Navigator>
+   
+
+
     <Stack.Navigator
-      screenOptions={{
-        headerShown: false,
-      }}
+    // screenOptions={{
+    //   headerShown: false,
+    //   animation: 'none', // This applies a default fade animation to all screens.
+    //   transitionSpec: {
+    //     open: { animation: 'spring', config: { stiffness: 1000, damping: 10 } },
+    //     close: { animation: 'timing', config: { duration: 500 } },
+    //   },
+    // }}
+    screenOptions={{
+      headerShown: false,
+      animationEnabled: false, // Disables animations for all screens
+    }}
       initialRouteName={initialRoute}>
       {/* Authentication and Profile Screens */}
       <Stack.Screen name="Login" component={LoginScreen} />

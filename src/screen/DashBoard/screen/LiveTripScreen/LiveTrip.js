@@ -34,6 +34,7 @@ import {
   hitGetPartner,
   hitGetWalletBalanceApi,
   hitMyVehicle,
+  hitgetDriverTodaysEarningApi,
 } from '../../../../config/api/api';
 import AppImages from '../../../../common/AppImages';
 import BorderLine from '../../../../common/BorderLine.';
@@ -47,31 +48,6 @@ import {
   setwalletBalance,
 } from '../../../../redux/HitApis/HitApiSlice';
 import {useDispatch} from 'react-redux';
-import database from '@react-native-firebase/database';
-
-const sendDummyDataToFirebase = async (customerId, message) => {
-  try {
-    // Prepare your dummy data payload
-    const notificationPayload = {
-      order_id: 'dummy_order_id_123',
-      driver_id: 'dummy_driver_id_456',
-      customer_id: customerId,
-      message: message || 'This is a dummy notification.',
-      timestamp: new Date().toISOString(),
-      type: 1, // Assuming '1' is the type for a rating request
-    };
-
-    // Define the path to send the data
-    const customerPath = `customers/${customerId}/notifications`;
-
-    // Send the data to Firebase
-    await database().ref(customerPath).push(notificationPayload);
-
-    console.log('Dummy data sent successfully!');
-  } catch (error) {
-    console.error('Error sending dummy data to Firebase:', error);
-  }
-};
 
 // Call the function with a customer ID and a custom message
 
@@ -261,15 +237,16 @@ const LiveTripScreen = () => {
       const user = await AsyncStorage.getItem('user');
       const parsedUser = JSON.parse(user);
       const param = {
-        driver_id: parsedUser?.payload?.driver_id,
-        filter: 'today',
-        customDate: {start: new Date(), end: null},
+        driverId:
+          parsedUser?.payload?.owner_type == 0 || parsedUser?.payload?.owner_type == 2
+            ? parsedUser?.payload?.driver_id
+            : 0,
       };
-      const res = await hitDriverEarning(param);
+      const res = await hitgetDriverTodaysEarningApi(param);
       if (res?.success == false) {
         setdriver_todays_earning([]);
       } else {
-        setdriver_todays_earning(res?.data);
+        setdriver_todays_earning(res);
       }
     } catch (err) {
       console.error(err);
@@ -299,6 +276,7 @@ const LiveTripScreen = () => {
   const get_user_details = async () => {
     const user = await AsyncStorage.getItem('user');
     const parsed_user = JSON.parse(user);
+
     if (parsed_user?.payload?.owner_type == 0) {
       hitGetDriverDetails({ids: [parsed_user?.payload?.driver_id]})
         .then(res => {
@@ -628,10 +606,9 @@ const LiveTripScreen = () => {
                     <View style={[styles.tripCard]}>
                       <Text style={styles.tripTime}>Booking Count</Text>
                       <Text style={styles.tripName}>
-                        {driver_todays_earning?.length == 0
+                        {driver_todays_earning?.todaysTransactionCount == 0
                           ? '0'
-                          : driver_todays_earning[3]?.individualPaidAmounts
-                              ?.length}
+                          : driver_todays_earning?.todaysTransactionCount}
                       </Text>
                     </View>
                   </View>
@@ -646,9 +623,9 @@ const LiveTripScreen = () => {
                       <Text style={styles.tripTime}>Operator Bill</Text>
                       <Text style={styles.tripName}>
                         ₹
-                        {!isNaN(driver_todays_earning[3]?.totalPaidAmount)
+                        {!isNaN(driver_todays_earning?.todaysTotalAmount)
                           ? Math.round(
-                              driver_todays_earning[3]?.totalPaidAmount,
+                              driver_todays_earning?.todaysTotalAmount,
                             ).toFixed(2)
                           : '0'}
                       </Text>

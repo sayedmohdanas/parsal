@@ -29,6 +29,8 @@ const LedgerScreen = ({ navigation }) => {
       start_date: dateRange?.startDate,
       end_date: dateRange?.endDate,
     };
+    console.log(param,'param-from');
+    
 
     try {
       const response = await hitGetgetLedger(param);
@@ -38,7 +40,7 @@ const LedgerScreen = ({ navigation }) => {
         status: Math.floor(Math.random() * 4) + 1, 
       }));
   
-      setLedgerData({ ...response, drivers: updatedDrivers });
+      setLedgerData(response);
 
     } catch (error) {
       console.log(error, 'error-from-ledger');

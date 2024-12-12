@@ -6,6 +6,7 @@ import {
 } from '../../common/metrices';
 import Colors from '../../common/Colors';
 import {getimage} from '../../config/url';
+import AppImages from '../../common/AppImages';
 
 const DriverDetails = ({details, onPress, selectedDriver}) => {
   return (
@@ -22,21 +23,39 @@ const DriverDetails = ({details, onPress, selectedDriver}) => {
         },
       ]}>
       <View style={styles.userDetail}>
-        <View style={{borderWidth:0.4,borderColor:Colors.grey,borderRadius:responsiveHeight(20),  marginLeft: responsiveWidth(6),
-}}>
-        <Image
-          source={{
-            uri: getimage(
-              'partners_img/' +
-                details?.partner_id +
-                '/drivers/' +
-                details?.driver_id +
-                '_' +
-                details?.profile_pic,
-            ),
-          }}
-          style={styles.manStyle}
-        />
+        <View
+          style={{
+            borderWidth: 0.4,
+            borderColor: Colors.grey,
+            borderRadius: responsiveHeight(20),
+            marginLeft: responsiveHeight(6),
+            resizeMode: 'contain',
+
+          }}>
+          {details?.driver_name == 'All' ? (
+            <Image
+              source={AppImages.driversList}
+              style={{
+                height: responsiveHeight(20),
+                width: responsiveHeight(20),
+                resizeMode: 'contain',
+              }}
+            />
+          ) : (
+            <Image
+              source={{
+                uri: getimage(
+                  'partners_img/' +
+                    details?.partner_id +
+                    '/drivers/' +
+                    details?.driver_id +
+                    '_' +
+                    details?.profilePic,
+                ),
+              }}
+              style={styles.manStyle}
+            />
+          )}
         </View>
         {/* <Image source={AppImages.profileImage} style={styles.manStyle} /> */}
         <View style={styles.userNameAddress}>
@@ -53,19 +72,22 @@ const DriverDetails = ({details, onPress, selectedDriver}) => {
             ]}>
             {details?.driver_name}
           </Text>
-          <Text
-            style={[
-              styles.name,
-              {
-                color:
-                  selectedDriver?.driver_id == details?.driver_id
-                    ? Colors.white
-                    : Colors.grey,
-                fontSize: responsiveFontSize(8),
-              },
-            ]}>
-            {details?.vehicles[0]?.vehicle_number}
-          </Text>
+          {details?.vehicleName && (
+            <Text
+              style={[
+                styles.name,
+                {
+                  color:
+                    selectedDriver?.driver_id == details?.driver_id
+                      ? Colors.white
+                      : Colors.grey,
+                  fontSize: responsiveFontSize(8),
+                },
+              ]}>
+              {/* {details?.vehicles[0]?.vehicle_number} */}
+              {details?.vehicleName}
+            </Text>
+          )}
           {/* <Text style={[styles.address]}>{props.address}</Text> */}
         </View>
       </View>
@@ -78,7 +100,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    // marginTop: 15,
+    marginTop: responsiveHeight(10),  
     borderRadius: responsiveHeight(20),
     paddingVertical: responsiveHeight(6),
     // padding:responsiveHeight(10),
@@ -88,7 +110,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     // borderWidth: 0.5,
     // borderColor: Colors.buttonGrey,
-    
+
     marginRight: responsiveWidth(6),
     marginBottom: responsiveHeight(10),
   },
@@ -101,12 +123,12 @@ const styles = StyleSheet.create({
   },
   manStyle: {
     height: responsiveHeight(30),
-    width: responsiveHeight(30), 
-    borderWidth:0.4,
-    borderColor:Colors.grey,
-    borderRadius: responsiveHeight(15), 
+    width: responsiveHeight(30),
+    borderWidth: 0.4,
+    borderColor: Colors.grey,
+    borderRadius: responsiveHeight(15),
     // marginLeft: responsiveWidth(8),
-    resizeMode: 'cover'
+    resizeMode: 'contain',
   },
   userNameAddress: {
     marginLeft: responsiveWidth(6),
@@ -122,6 +144,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: Colors.grey,
     // marginTop: 2
-  }, 
+  },
 });
 export default DriverDetails;

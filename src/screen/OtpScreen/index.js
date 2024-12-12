@@ -155,6 +155,7 @@ const OtpScreen = ({navigation, route}) => {
       } else if (partnerId) {
         // Save partnerId in AsyncStorage
         await AsyncStorage.setItem('partner_id', String(partnerId));
+        // await AsyncStorage.setItem('owner_type', JSON.stringify(1));
 
         // Dispatch the setParentId action
         dispatch(setParentId(partnerId));

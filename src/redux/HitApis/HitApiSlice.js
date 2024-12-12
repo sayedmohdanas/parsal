@@ -256,10 +256,11 @@ const HitApiSlice = createSlice({
         state.error = null;
       })
       .addCase(loginPartner.fulfilled, (state, action) => {
+        console.log('action', action.payload);
         state.status = 'succeeded';
         state.loading = false;
         state.user = action.payload;
-        state.owner = action.payload?.payload?.owner_type;
+        state.owner = action.payload?.payload?.owner_type || 1;
       })
       .addCase(loginPartner.rejected, (state, action) => {
         state.status = 'failed';
@@ -412,7 +413,7 @@ const HitApiSlice = createSlice({
   },
 });
 // export const { setWorkingStatus } = parsalPartnerSlice.actions;
-export const selectWorkingStatus = (state) => state.HitApiSlice.isEnabled;
+export const selectWorkingStatus = state => state.HitApiSlice.isEnabled;
 
 export const {
   setWorkingStatus,
@@ -431,7 +432,7 @@ export const {
   setlivetripmenu,
   setworking_status,
   setnextOrderData,
-  setSelectedDriverRedux
+  setSelectedDriverRedux,
 } = HitApiSlice.actions;
 
 export default HitApiSlice.reducer;

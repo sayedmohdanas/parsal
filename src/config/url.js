@@ -92,5 +92,5 @@ export const userorderstatsurl = getEndpoint('users/get-cust-orderStats');
 export const transactionurl = getEndpoint('drivers/driver-transaction');
 export const checkreqstatusurl = getEndpoint('drivers/check-requestId');
 export const assignPartnerDriverToVehicleurl = getEndpoint('drivers/assignPartnerDriverToVehicle');
-
+export const getDriverTodaysEarningurl = getEndpoint('drivers/getDriverTodaysEarning');
 

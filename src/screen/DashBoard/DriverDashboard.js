@@ -5,9 +5,18 @@ import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import Colors from '../../common/Colors';
 import CustomHeader from './components/CustomHeader';
 import Loading from '../../components/Loading/Loading';
-import {GetDriverCurrentLocation, custommapstyle} from '../../common/CommonFunction';
+import {
+  GetDriverCurrentLocation,
+  custommapstyle,
+} from '../../common/CommonFunction';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {hitDriverEarning, hitGetDriverDetails, hitGetLiveOrderApi, hitGetWalletBalanceApi} from '../../config/api/api';
+import {
+  hitDriverEarning,
+  hitGetDriverDetails,
+  hitGetLiveOrderApi,
+  hitGetWalletBalanceApi,
+  hitgetDriverTodaysEarningApi,
+} from '../../config/api/api';
 import BorderLine from '../../common/BorderLine.';
 import {
   responsiveFontSize,
@@ -16,9 +25,19 @@ import {
 } from '../../common/metrices';
 import AppImages from '../../common/AppImages';
 import BottomNav from '../../../navigation/BottomNav';
-import { setOrderData, setlivetripmenu, setloginuserdetails, setnextOrderData, setupdate_order, setwalletBalance } from '../../redux/HitApis/HitApiSlice';
+import {
+  setOrderData,
+  setOwner,
+  setlivetripmenu,
+  setloginuserdetails,
+  setnextOrderData,
+  setupdate_order,
+  setwalletBalance,
+} from '../../redux/HitApis/HitApiSlice';
+import {useDispatch} from 'react-redux';
 
 const DriverDashboard = () => {
+  const dispatch = useDispatch();
   const navigation = useNavigation();
   const [driverLocation, setDriverLocation] = useState({
     latitude: null,
@@ -60,16 +79,23 @@ const DriverDashboard = () => {
     try {
       const user = await AsyncStorage.getItem('user');
       const parsedUser = JSON.parse(user);
+      // const param = {
+      //   driver_id: parsedUser?.payload?.driver_id,
+      //   filter: 'today',
+      //   customDate: {start: new Date(), end: ''},
+      // };
+
       const param = {
-        driver_id: parsedUser?.payload?.driver_id,
-        filter: 'today',
-        customDate: {start: new Date(), end: ''},
+        driverId:
+          parsedUser?.payload?.owner_type == 0
+            ? parsedUser?.payload?.driver_id
+            : 0,
       };
-      const res = await hitDriverEarning(param);
+      const res = await hitgetDriverTodaysEarningApi(param);      
       if (res?.success == false) {
         setdriver_todays_earning([]);
       } else {
-        setdriver_todays_earning(res?.data);
+        setdriver_todays_earning(res);
       }
     } catch (err) {
       console.log(err);
@@ -84,8 +110,11 @@ const DriverDashboard = () => {
   const get_user_details = async () => {
     const user = await AsyncStorage.getItem('user');
     const parsed_user = JSON.parse(user);
+    console.log('parsed_user', parsed_user);
+
     // setparsed_data(parsed_user);
     if (parsed_user?.payload?.owner_type == 0) {
+      dispatch(setOwner(0));
       hitGetDriverDetails({ids: [parsed_user?.payload?.driver_id]})
         .then(res => {
           dispatch(setloginuserdetails(res?.drivers[0]));
@@ -219,7 +248,7 @@ const DriverDashboard = () => {
       get_user_details();
     }, []),
   );
-
+  console.log(driver_todays_earning);
   return (
     <SafeAreaView style={styles.container}>
       {loading ? (
@@ -266,9 +295,9 @@ const DriverDashboard = () => {
                 <View style={[styles.tripCard]}>
                   <Text style={styles.tripTime}>Booking Count</Text>
                   <Text style={styles.tripName}>
-                    {driver_todays_earning?.length == 0
+                    {driver_todays_earning?.todaysTransactionCount == 0
                       ? '0'
-                      : driver_todays_earning[3]?.individualPaidAmounts?.length}
+                      : driver_todays_earning?.todaysTransactionCount}
                   </Text>
                 </View>
               </View>
@@ -283,9 +312,9 @@ const DriverDashboard = () => {
                   <Text style={styles.tripTime}>Operator Bill</Text>
                   <Text style={styles.tripName}>
                     ₹
-                    {!isNaN(driver_todays_earning[3]?.totalPaidAmount)
+                    {!isNaN(driver_todays_earning?.todaysTotalAmount)
                       ? Math.round(
-                        driver_todays_earning[3]?.totalPaidAmount,
+                          driver_todays_earning?.todaysTotalAmount,
                         ).toFixed(2)
                       : '0'}
                   </Text>

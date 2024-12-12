@@ -10,7 +10,7 @@ const data = [
   {label: "Today's Earning", value: 'today'},
 ];
 
-const DateRangeSelector = ({selectedRange, setSelectedRange}) => {
+const DateRangeSelector = ({selectedRange, setSelectedRange,handleChange}) => {
 
   return (
     // <View>
@@ -32,6 +32,7 @@ const DateRangeSelector = ({selectedRange, setSelectedRange}) => {
         value={selectedRange}
         onChange={item => {
           setSelectedRange(item.value);
+          handleChange()
         }}
         renderItem={({label}) => (
           <View style={styles.itemContainer}>
