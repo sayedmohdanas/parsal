@@ -14,7 +14,7 @@ const LedgerScreen = ({ navigation }) => {
   const [ledgerData, setLedgerData] = useState(null);
   const [dateRange, setDateRange] = useState(getToday());
   const [loading, setLoading] = useState(false);
-
+  
   const handleCalendar = () => {
     setIsModalVisible(!isModalVisible);
   };
@@ -24,8 +24,8 @@ const LedgerScreen = ({ navigation }) => {
     const user = await AsyncStorage.getItem('user');
     const parsedUser = JSON.parse(user);
     const param = {
-      // partner_id: parsedUser?.payload?.partner_id,
-      partner_id:86,
+      partner_id: parsedUser?.payload?.partner_id,
+      // partner_id:86,
       start_date: dateRange?.startDate,
       end_date: dateRange?.endDate,
     };

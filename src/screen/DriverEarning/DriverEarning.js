@@ -74,60 +74,7 @@ const Earning = () => {
 
   const [driver_todays_earning, setdriver_todays_earning] = useState([]);
   const [login_user, setlogin_user] = useState();
-  // const get_data = async (driver_id, flag) => {
-  //   setLoading(true);
-  //   const user = await AsyncStorage.getItem('user');
-  //   const parsedUser = JSON.parse(user);
-  //   setlogin_user(parsedUser?.payload);
-  //   if (parsedUser?.payload?.owner_type == 0 && driver_id == null) {
-  //     const param = {
-  //       driver_id: parsedUser?.payload?.driver_id,
-  //       filter: selectedRange,
-  //       customDate: dateRange,
-  //       flag: flag,
-  //     };
-  //     hitDriverEarning(param)
-  //       .then(res => {
-  //         if (res?.success == false) {
-  //           setdriver_todays_earning([]);
-  //         } else {
-  //           setdriver_todays_earning(res?.data);
-  //         }
-  //       })
-  //       .catch(err => {
-  //         console.error(err);
-  //       })
-  //       .finally(() => {
-  //         setIsEarningLoading(false); // Set loading to false after data is fetched
 
-  //         setLoading(false);
-  //       });
-  //   } else {
-  //     const param = {
-  //       driver_id: driver_id,
-  //       filter: selectedRange,
-  //       customDate: dateRange,
-  //       flag: flag,
-  //     };
-
-  //     hitDriverEarning(param)
-  //       .then(res => {
-  //         if (res?.success == false) {
-  //           setdriver_todays_earning([]);
-  //         } else {
-  //           setdriver_todays_earning(res?.data);
-  //         }
-  //       })
-  //       .catch(err => {
-  //         console.error(err);
-  //       })
-  //       .finally(() => {
-  //         setIsEarningLoading(false); // Set loading to false after data is fetched
-
-  //         setLoading(false);
-  //       });
-  //   }
-  // };
   const get_data = async (driver_id, flag, range = null) => {
     setLoading(true);
     const user = await AsyncStorage.getItem('user');
@@ -135,21 +82,28 @@ const Earning = () => {
     setlogin_user(parsedUser?.payload);
 
     const param = {
-      driver_id: driver_id || parsedUser?.payload?.driver_id,
+      driver_id: parsedUser?.payload?.driver_id,
       filter: selectedRange,
       customDate: range || dateRange, // Use the custom range if provided
       flag: flag || 0,
+      user_type: parsedUser?.payload?.owner_type,
+      partner_id: parsedUser?.payload?.partner_id,
     };
+    console.log('param',param);
     hitDriverEarning(param)
       .then(res => {
         if (res?.success === false) {
           setdriver_todays_earning([]);
+          setIsEarningLoading(false);
+          setLoading(false);
         } else {
           setdriver_todays_earning(res?.data);
         }
       })
       .catch(err => {
         console.error(err);
+        setIsEarningLoading(false);
+        setLoading(false);
       })
       .finally(() => {
         setIsEarningLoading(false);
@@ -158,46 +112,47 @@ const Earning = () => {
   };
 
   const [partner_riders, setpartner_riders] = useState([]);
-  const [selectedDriver, setSelectedDriver] = useState();
+  const [selectedDriver, setSelectedDriver] = useState({driver_id: 0});
 
-  const get_driver_list = async () => {
-    setLoading(true);
-    const user = await AsyncStorage.getItem('user');
-    const parsedUser = JSON.parse(user);
-    if (parsedUser?.payload?.owner_type != 0) {
-      const param = {
-        // partnerId: parsedUser?.payload?.partner_id,
-        partner_id: parsedUser?.payload?.partner_id,
-      };
-      hitGetPartnerDriverApi(param)
-        .then(res => {
-          setpartner_riders(res?.data);
-          setSelectedDriver(res?.data?.[0]);
-          get_data(res?.data?.[2]?.driver_id);
-        })
-        .catch(err => {
-          console.error(err);
-        })
-        .finally(() => {
-          setIsDriverListLoading(false); // Set loading to false after driver list is fetched
+  // const get_driver_list = async () => {
+  //   setLoading(true);
+  //   const user = await AsyncStorage.getItem('user');
+  //   const parsedUser = JSON.parse(user);
+  //   if (parsedUser?.payload?.owner_type != 0) {
+  //     const param = {
+  //       // partnerId: parsedUser?.payload?.partner_id,
+  //       partner_id: parsedUser?.payload?.partner_id,
+  //     };
+  //     hitGetPartnerDriverApi(param)
+  //       .then(res => {
+  //         setpartner_riders(res?.data);
+  //         setSelectedDriver(res?.data?.[0]);
+  //         get_data(res?.data?.[0]?.driver_id);
+  //       })
+  //       .catch(err => {
+  //         console.error(err);
+  //       })
+  //       .finally(() => {
+  //         setIsDriverListLoading(false); // Set loading to false after driver list is fetched
 
-          setLoading(false);
-        });
-    }
-  };
+  //         setLoading(false);
+  //       });
+  //   }
+  // };
 
   useFocusEffect(
     useCallback(() => {
       setcurrentIndex(3);
-      const fetchData = async () => {
-        const user = await AsyncStorage.getItem('user');
-        const parsedUser = JSON.parse(user);
-        if (parsedUser?.payload?.owner_type == 0) {
-          await get_data(null, 0);
-        }
-      };
-      fetchData();
-      get_driver_list();
+      // const fetchData = async () => {
+      //   const user = await AsyncStorage.getItem('user');
+      //   const parsedUser = JSON.parse(user);
+      //   if (parsedUser?.payload?.owner_type == 0) {
+      //     await get_data(null, 0);
+      //   }
+      // };
+      // fetchData();
+      get_data(null, 0, null);
+      // get_driver_list();
       return () => {};
     }, [selectedRange]),
   );
@@ -214,7 +169,7 @@ const Earning = () => {
           selectedDriver={selectedDriver}
           onPress={() => {
             setSelectedDriver(item);
-            get_data(item?.driver_id);
+            // get_data(item?.driver_id);
           }}
         />
       );
@@ -310,14 +265,22 @@ const Earning = () => {
   //     }
   //   }
   // };
+  const [next_flag, setnext_flag] = useState(0);
+
   const handlePrevDate = async () => {
     const currentStartDate = new Date(dateRange.start);
 
     if (currentIndex === 0) {
       if (selectedDriver) {
-        await get_data(selectedDriver?.driver_id, 0); // Fetch previous 4 data if at the beginning
+        setnext_flag(0);
+        await get_data(null, 0, null);
+        // get_data(0, 0); // Fetch previous 4 data if at the beginning
       } else {
-        await get_data(null, 0); // Fetch previous 4 data if at the beginning
+        setnext_flag(0);
+
+        await get_data(null, 0, null);
+        //get_data(null, 0);
+        // Fetch previous 4 data if at the beginning
       }
       setcurrentIndex(3); // Go to last index of the newly fetched data
     } else {
@@ -332,7 +295,6 @@ const Earning = () => {
       setDateRange(prevDay);
     }
   };
-
   const handleNextDate = async () => {
     const currentStartDate = new Date(dateRange.start);
     const today = new Date();
@@ -343,11 +305,16 @@ const Earning = () => {
 
       if (currentIndex === 3) {
         setcurrentIndex(0); // Reset to 0 when at the last index
+        setnext_flag(1);
 
         if (selectedDriver) {
-          await get_data(selectedDriver?.driver_id, 1); // Fetch next 4 data
+          setnext_flag(1);
+          await get_data(null, 1, null);
+          //get_data(0, 1); // Fetch next 4 data
         } else {
-          await get_data(null, 1); // Fetch next 4 data
+          setnext_flag(1);
+          await get_data(null, 1, null);
+          // get_data(null, 1); // Fetch next 4 data
         }
       } else {
         setcurrentIndex(prev => prev + 1); // Move to next index within current data
@@ -366,9 +333,13 @@ const Earning = () => {
         setcurrentIndex(0); // Reset to 0 when at the last index
 
         if (selectedDriver) {
-          await get_data(selectedDriver?.driver_id, 1); // Fetch next 4 data
+          setnext_flag(1);
+          await get_data(null, 1, null);
+          // Fetch next 4 data
         } else {
-          await get_data(null, 1); // Fetch next 4 data
+          setnext_flag(1);
+          await get_data(null, 1, null);
+          // Fetch next 4 data
         }
       } else {
         setcurrentIndex(prev => prev + 1); // Move to next index within current data
@@ -382,15 +353,76 @@ const Earning = () => {
     }
   };
 
+  // console.log('driver_todays_earning', driver_todays_earning);
+  // Function to process and transform the driver data
+  const transformDriverData = data => {
+    // Initialize an array to hold the transformed data
+    const transformedData = [];
+
+    // Iterate through each object in the input array
+    data.forEach(item => {
+      // Check if the item has the "all_driver_data" key
+      if (item.all_driver_data) {
+        // Replace "all_driver_data" with a user-friendly label
+        transformedData.push({
+          driver_name: 'All', // Tag for all driver data
+          earnings: item.all_driver_data,
+          flag: 1,
+          driver_id: 0,
+        });
+      } else {
+        // Iterate through the keys of each object (which will be driver IDs like "226", "227", etc.)
+        Object.keys(item).forEach(driverId => {
+          const driverData = item[driverId];
+
+          // Extract the partner_id from the driver data, assuming it exists or can be added
+          const partnerId = driverData.partner_id || null; // Default to null if partner_id is not available
+          // Push a new object with the driver's name, partner_id, and associated data
+          transformedData.push({
+            driver_id: driverId, // Add driver ID
+            partner_id: partnerId, // Add partner ID
+            driver_name: driverData.driver_name, // Replace the driver ID with the driver's name
+            earnings: driverData.earnings,
+            profilePic: driverData.profile_pic,
+            vehicleModel: driverData.vehicle_model,
+            vehicleName: driverData.vehicle_name,
+          });
+        });
+      }
+    });
+
+    return transformedData;
+  };
   const nextDay =
     selectedRange === 'today'
       ? calculateDayRange(new Date(dateRange.start), true)
       : calculateWeekRange(new Date(dateRange.start), true);
-  const [currentIndex, setcurrentIndex] = useState(3);
-  const current_data = driver_todays_earning[currentIndex];
-  // console.log('current_data',current_data);
-  // console.log('selectedDriver', selectedDriver);
-  // console.log('partner_riders',partner_riders);
+  const [currentIndex, setcurrentIndex] = useState(1);
+  // const current_data = driver_todays_earning[currentIndex];
+  // Function to get the driver data based on driver_id and index
+  const getDriverDataByIdAndIndex = (driverId = 0, index) => {
+    // Filter the data based on the driver_id
+    const driverData = transformDriverData(driver_todays_earning).find(
+      item => item.driver_id == driverId,
+    );
+    if (driverData && driverData.earnings) {
+      if (next_flag) {
+        const earningsData = Object.values(driverData.earnings)[index]; // index corresponds to the day data (0 for first, 1 for second, etc.)
+        return earningsData;
+      }
+      const earningsData = Object.values(driverData.earnings).reverse()[index]; // index corresponds to the day data (0 for first, 1 for second, etc.)
+      return earningsData;
+    }
+
+    return null; // Return null if no driver found or earnings data is not available
+  };
+
+  // Example usage: Get data for driver_id = 239 and index = 2 (third day data)
+  const driverData = getDriverDataByIdAndIndex(
+    selectedDriver?.driver_id,
+    currentIndex,
+  );
+
   return (
     <>
       <SafeAreaView style={{flex: 1, backgroundColor: Colors.homeBackground}}>
@@ -408,7 +440,7 @@ const Earning = () => {
           />
         </View>
         <View style={styles.container}>
-          {isEarningLoading || isDriverListLoading ? (
+          {isEarningLoading ? (
             <View style={mystyles.center}>
               <ActivityIndicator size="large" color={Colors.brandBlue} />
             </View>
@@ -425,12 +457,12 @@ const Earning = () => {
                 <View style={{justifyContent: 'center', alignItems: 'center'}}>
                   <Text style={styles.earningAmount}>
                     ₹
-                    {!isNaN(current_data?.totalPaidAmount)
-                      ? Math.round(current_data?.totalPaidAmount).toFixed(2)
+                    {!isNaN(driverData?.totalPaidAmount)
+                      ? Math.round(driverData?.totalPaidAmount).toFixed(2)
                       : '0.00'}
                   </Text>
-                  {current_data &&
-                  current_data?.individualPaidAmounts.length !== 0 ? (
+                  {driverData &&
+                  driverData?.individualPaidAmounts?.length !== 0 ? (
                     <View style={styles.percentageContainer}>
                       <View style={styles.increaseContainer}>
                         <Image
@@ -501,7 +533,7 @@ const Earning = () => {
                     />
                   </TouchableOpacity>
                 </View>
-                {!current_data || loading ? (
+                {!driverData || loading ? (
                   <View
                     style={{
                       flex: 1,
@@ -516,16 +548,16 @@ const Earning = () => {
                   </View>
                 ) : (
                   <>
-                    {current_data?.individualPaidAmounts.length !== 0 && (
-                      <BarChart
-                        week_start_date={new Date(dateRange.start)}
-                        driverEarningData={current_data}
-                        selectedRange={selectedRange}
-                      />
-                    )}
+                    {/* {current_data?.individualPaidAmounts.length !== 0 && ( */}
+                    <BarChart
+                      week_start_date={new Date(dateRange.start)}
+                      driverEarningData={driverData}
+                      selectedRange={selectedRange}
+                    />
+                    {/* )} */}
                     <View style={[styles.orderListContainer, {flex: 1}]}>
-                      {current_data &&
-                        current_data?.individualPaidAmounts.length !== 0 && (
+                      {driverData &&
+                        driverData?.individualPaidAmounts?.length !== 0 && (
                           <Text style={styles.orderListHeadign}>
                             {'Order List '}
                           </Text>
@@ -533,62 +565,75 @@ const Earning = () => {
                       <FlatList
                         ListHeaderComponent={() => (
                           <>
-                            {current_data &&
-                            current_data?.individualPaidAmounts.length == 0 ? (
-                              // If no data is available, show an empty state
-                              <View
-                                style={{
-                                  flex: 1,
-                                  justifyContent: 'center',
-                                  alignItems: 'center',
-                                  alignSelf: 'center',
-                                  paddingVertical: responsiveHeight(30),
-                                  marginTop: responsiveHeight(150),
-                                }}>
-                                <ImageBackground
-                                  source={AppImages.boxbackgound}
-                                  style={styles.boxBackstyle}>
-                                  <Image
-                                    source={AppImages.emptyImage}
-                                    style={styles.emptyboxStyle}
-                                    resizeMode="contain"
-                                  />
-                                </ImageBackground>
-                                <Text style={styles.emptyTextStyle}>
-                                  {
-                                    'No Order history Available, contact our support team.'
-                                  }
-                                </Text>
-                              </View>
-                            ) : (
-                              // If data is available, show the partner rider list
-                              login_user?.owner_type !== 0 &&
-                              current_data
-                               &&
+                            {/* {current_data &&
+                            current_data?.individualPaidAmounts.length == 0 ? ( */}
+                            {/* // If no data is available, show an empty state */}
+
+                            {/* ) : ( */}
+                            {/* // If data is available, show the partner rider list
+                              login_user?.owner_type !== 0  */}
+
+                            {/* &&
                               // current_data?.individualPaidAmounts.length ==
-                              //   0 && 
-                                (
+                              //   0 &&  */}
+                            {/* ( */}
+                            <View
+                              style={{
+                                marginLeft: responsiveWidth(15),
+                                marginHorizontal: responsiveWidth(6),
+                                marginTop:
+                                  driverData &&
+                                  driverData?.individualPaidAmounts?.length ==
+                                    0 &&
+                                  10,
+                              }}>
+                              {transformDriverData(driver_todays_earning)
+                                ?.length > 1 && (
+                                <FlatList
+                                  data={transformDriverData(
+                                    driver_todays_earning,
+                                  )}
+                                  horizontal
+                                  renderItem={renderRieder}
+                                  keyExtractor={(item, index) =>
+                                    index.toString()
+                                  }
+                                />
+                              )}
+                            </View>
+                            {driverData &&
+                              driverData?.individualPaidAmounts?.length ==
+                                0 && (
                                 <View
                                   style={{
-                                    marginLeft: responsiveWidth(15),
-                                    marginHorizontal: responsiveWidth(6),
+                                    flex: 1,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    alignSelf: 'center',
+                                    paddingVertical: responsiveHeight(30),
+                                    // marginTop: responsiveHeight(150),
                                   }}>
-                                  {partner_riders?.length > 1 && (
-                                    <FlatList
-                                      data={partner_riders}
-                                      horizontal
-                                      renderItem={renderRieder}
-                                      keyExtractor={(item, index) =>
-                                        index.toString()
-                                      }
+                                  <ImageBackground
+                                    source={AppImages.boxbackgound}
+                                    style={styles.boxBackstyle}>
+                                    <Image
+                                      source={AppImages.emptyImage}
+                                      style={styles.emptyboxStyle}
+                                      resizeMode="contain"
                                     />
-                                  )}
+                                  </ImageBackground>
+                                  <Text style={styles.emptyTextStyle}>
+                                    {
+                                      'No Order history Available, contact our support team.'
+                                    }
+                                  </Text>
                                 </View>
-                              )
-                            )}
+                              )}
+                            {/* ) */}
+                            {/* )} */}
                           </>
                         )}
-                        data={current_data?.individualPaidAmounts}
+                        data={driverData?.individualPaidAmounts}
                         renderItem={renderItem}
                         keyExtractor={(item, index) => index.toString()}
                         contentContainerStyle={{

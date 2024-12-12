@@ -321,6 +321,7 @@ const OrderInfo = ({ route }) => {
               <FlatList
                 data={orderDetails?.transactions}
                 keyExtractor={(item, index) => index.toString()}
+                showsVerticalScrollIndicator={false}
                 
                 renderItem={({ item, index }) => (
                   <View>
