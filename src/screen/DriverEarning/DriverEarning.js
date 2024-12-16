@@ -1400,8 +1400,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyboxStyle: {
-    height: responsiveHeight(169),
-    width: responsiveWidth(169),
+    height: responsiveHeight(150),
+    width: responsiveWidth(150),
   },
   dateText: {
     fontSize: responsiveFontSize(14),

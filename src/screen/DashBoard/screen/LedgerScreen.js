@@ -1,20 +1,41 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, SafeAreaView, Modal, TouchableOpacity, TouchableWithoutFeedback, Image, Alert, ActivityIndicator } from 'react-native';
-import { responsiveFontSize, responsiveHeight, responsiveWidth } from '../../../common/metrices';
+import React, {useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  SafeAreaView,
+  Modal,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  Image,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
+import {
+  responsiveFontSize,
+  responsiveHeight,
+  responsiveWidth,
+} from '../../../common/metrices';
 import Colors from '../../../common/Colors';
 import HeaderBackButton from '../../../components/HeaderBackButton/HeaderBackButton';
 import AppImages from '../../../common/AppImages';
-import { hitGetgetLedger } from '../../../config/api/api';
+import {hitGetgetLedger} from '../../../config/api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getLast3Months, getLast7Days, getLastMonth, getToday } from '../../../common/CommonFunction';
+import {
+  getLast3Months,
+  getLast7Days,
+  getLastMonth,
+  getToday,
+} from '../../../common/CommonFunction';
 import DateRangeModal from '../components/SelectDateModal';
 
-const LedgerScreen = ({ navigation }) => {
+const LedgerScreen = ({navigation}) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [ledgerData, setLedgerData] = useState(null);
   const [dateRange, setDateRange] = useState(getToday());
   const [loading, setLoading] = useState(false);
-  
+
   const handleCalendar = () => {
     setIsModalVisible(!isModalVisible);
   };
@@ -29,19 +50,18 @@ const LedgerScreen = ({ navigation }) => {
       start_date: dateRange?.startDate,
       end_date: dateRange?.endDate,
     };
-    console.log(param,'param-from');
-    
 
     try {
       const response = await hitGetgetLedger(param);
+      console.log('response', response);
       setLedgerData(response);
       const updatedDrivers = response?.drivers?.map(driver => ({
         ...driver,
-        status: Math.floor(Math.random() * 4) + 1, 
+        status: Math.floor(Math.random() * 4) + 1,
       }));
-  
-      setLedgerData(response);
 
+      setLedgerData({...response, drivers: updatedDrivers});
+      console.log('response', response);
     } catch (error) {
       console.log(error, 'error-from-ledger');
       Alert.alert('Error', 'Failed to fetch ledger data.');
@@ -49,7 +69,7 @@ const LedgerScreen = ({ navigation }) => {
       setLoading(false);
     }
   };
-  const handleSelectDateRange = (rangeType) => {
+  const handleSelectDateRange = rangeType => {
     switch (rangeType) {
       case 'today':
         setDateRange(getToday());
@@ -72,7 +92,7 @@ const LedgerScreen = ({ navigation }) => {
     fetchLedger();
   }, [dateRange]);
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({item}) => {
     let statusText = '';
     let statusColor = '';
     let statusIcon = null;
@@ -105,16 +125,22 @@ const LedgerScreen = ({ navigation }) => {
       <View style={styles.itemContainer}>
         <View>
           <Text style={styles.date}>{item?.driver_name}</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
             {statusIcon ? (
               <Image source={statusIcon} style={styles.statusIcon} />
             ) : (
-              <View style={[styles.greenCircle, { backgroundColor: statusColor }]} />
+              <View
+                style={[styles.greenCircle, {backgroundColor: statusColor}]}
+              />
             )}
-            <Text style={[styles.status, { color: statusColor, marginLeft: 8 }]}>{statusText}</Text>
+            <Text style={[styles.status, {color: statusColor, marginLeft: 8}]}>
+              {statusText}
+            </Text>
           </View>
         </View>
-        <Text style={styles.amount}>{item.amount != null ? `₹${Number(item.amount).toFixed(2)}` : '₹0.00'}</Text>
+        <Text style={styles.amount}>
+          {item.amount != null ? `₹${Number(item.amount).toFixed(2)}` : '₹0.00'}
+        </Text>
       </View>
     );
   };
@@ -135,11 +161,11 @@ const LedgerScreen = ({ navigation }) => {
       ) : (
         <>
           <View style={styles.summaryContainer}>
-            <View style={{ flex: 1 }}>
+            <View style={{flex: 1}}>
               <Text style={styles.leftText}>Total Earning</Text>
             </View>
             <View style={styles.separator} />
-            <View style={{ flex: 1, alignItems: 'flex-end' }}>
+            <View style={{flex: 1, alignItems: 'flex-end'}}>
               <Text style={styles.rightText}>
                 {ledgerData?.total?.total_transactions != null
                   ? `₹${Number(ledgerData.total.total_transactions).toFixed(2)}`
@@ -156,7 +182,7 @@ const LedgerScreen = ({ navigation }) => {
         </>
       )}
 
-<DateRangeModal
+      <DateRangeModal
         isVisible={isModalVisible}
         onClose={() => setIsModalVisible(false)}
         onSelectDateRange={handleSelectDateRange}
@@ -223,7 +249,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'grey',
     marginHorizontal: responsiveWidth(10),
   },
- 
+
   greenCircle: {
     height: responsiveHeight(10),
     width: responsiveHeight(10),

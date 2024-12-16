@@ -238,7 +238,8 @@ const LiveTripScreen = () => {
       const parsedUser = JSON.parse(user);
       const param = {
         driverId:
-          parsedUser?.payload?.owner_type == 0 || parsedUser?.payload?.owner_type == 2
+          parsedUser?.payload?.owner_type == 0 ||
+          parsedUser?.payload?.owner_type == 2
             ? parsedUser?.payload?.driver_id
             : 0,
       };
