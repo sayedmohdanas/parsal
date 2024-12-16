@@ -51,7 +51,7 @@ const sendDummyDataToFirebase = async (data, message, type) => {
   } catch (error) {
     console.error('Error sending dummy data to Firebase:', error);
   }
-};                      
+};
 const DestinationSection = ({details}) => {
   const [isSlid, setIsSlid] = useState(false);
 
@@ -89,14 +89,21 @@ const DestinationSection = ({details}) => {
       }
     };
   }, []);
-
+  const store_data = useSelector(state => state);
+  const driver_details = useSelector(
+    state => state?.parsalPartner?.logindriverdetails,
+  );
   const handleEndTrip = async () => {
     const currentTime = new Date().toLocaleTimeString('en-GB', {
       hour12: false,
     });
     const param = {
-      order_id: orderData?.newOrder?.id || orderData?.id,
+      orderId: orderData?.newOrder?.id || orderData?.id,
       delivered_at: currentTime,
+      partner_id:
+        store_data?.parsalPartner?.loginuserdetails?.partner_id ||
+        store_data?.parsalPartner?.loginuserdetails?.id,
+      vehicle_type_id: driver_details?.vehicle_type_id,
     };
     hitEndOrderApi(param)
       .then(res => {

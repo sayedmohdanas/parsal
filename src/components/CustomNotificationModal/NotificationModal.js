@@ -153,7 +153,7 @@ const NotificationModal = ({
         partner_id: parsedUser?.payload?.partner_id,
         request_id,
         insured,
-        loading: loading_unloading,
+        loading_unloading: loading_unloading,
         charity,
         receiver_phone,
         receiver_name,

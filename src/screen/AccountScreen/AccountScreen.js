@@ -223,10 +223,7 @@ const AccountScreen = () => {
         parsedUser?.payload?.owner_type == 1
           ? parsedUser?.payload?.partner_id
           : parsedUser?.payload?.driver_id,
-      type:
-        parsedUser?.payload?.owner_type == 1 
-          ? 2
-          : 1,
+      type: parsedUser?.payload?.owner_type == 1 ? 2 : 1,
     };
     hitGetUserOrderStatsApi(request)
       .then(res => {
@@ -338,30 +335,38 @@ const AccountScreen = () => {
                   <View style={styles.udSection1}>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
                       {!user_image ? (
-                        <View style={{borderWidth:0.5,borderRadius:responsiveHeight(70),borderColor:Colors.grey}}>
-                        <Image
-                          source={AppImages.man}
+                        <View
                           style={{
-                            height: responsiveHeight(70),
-                            width: responsiveHeight(70),
+                            borderWidth: 0.5,
                             borderRadius: responsiveHeight(70),
-                            
-                          }}
-                        />
+                            borderColor: Colors.grey,
+                          }}>
+                          <Image
+                            source={AppImages.man}
+                            style={{
+                              height: responsiveHeight(70),
+                              width: responsiveHeight(70),
+                              borderRadius: responsiveHeight(70),
+                            }}
+                          />
                         </View>
                       ) : (
-                        <View style={{borderWidth:0.5,borderRadius:responsiveHeight(70),borderColor:Colors.grey}}>
-
-                        <Image
-                          source={{
-                            uri: user_image,
-                          }}
+                        <View
                           style={{
-                            height: responsiveHeight(70),
-                            width: responsiveHeight(70),
+                            borderWidth: 0.5,
                             borderRadius: responsiveHeight(70),
-                          }}
-                        />
+                            borderColor: Colors.grey,
+                          }}>
+                          <Image
+                            source={{
+                              uri: user_image,
+                            }}
+                            style={{
+                              height: responsiveHeight(70),
+                              width: responsiveHeight(70),
+                              borderRadius: responsiveHeight(70),
+                            }}
+                          />
                         </View>
                       )}
                       <View style={styles.userTextContainer}>
@@ -434,22 +439,40 @@ const AccountScreen = () => {
                         </View>
                       </TouchableOpacity>
                       <View style={styles.dataContainer}>
-                        <Data
-                          number={orderStats?.totalOrderCount || 0}
-                          dataName={'Shipped'}
-                        />
-                        <Data
-                          number={orderStats?.totalOrderCount || 0}
-                          dataName={'Transactions'}
-                        />
-                        <Data
-                          number={`₹${
+                        <TouchableOpacity
+                          onPress={() => {
+                            navigation.navigate('OrderScreen');
+                          }}
+                          activeOpacity={0.7}>
+                          <Data
+                            number={orderStats?.totalOrderCount || 0}
+                            dataName={'Shipped'}
+                          />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => {
+                            navigation.navigate('TransactionHistory');
+                          }}
+                          activeOpacity={0.7}>
+                          <Data
+                            number={orderStats?.totalOrderCount || 0}
+                            dataName={'Transactions'}
+                          />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => {
+                            navigation.navigate('Earning');
+                          }}
+                          activeOpacity={0.7}>
+                          <Data
+                            number={`₹${
                               isNaN(orderStats?.totalPaidAmount)
-                              ? 0
-                              : orderStats?.totalPaidAmount
+                                ? 0
+                                : orderStats?.totalPaidAmount
                             }`}
-                          dataName={'Earned'}
-                        />
+                            dataName={'Earned'}
+                          />
+                        </TouchableOpacity>
                       </View>
                     </View>
                   )}
@@ -467,8 +490,8 @@ const AccountScreen = () => {
                       isNaN(store_data.wallet_balance?.data?.new_balance)
                         ? '0.00'
                         : parseFloat(
-                          store_data.wallet_balance?.data?.new_balance,
-                        ).toFixed(2)
+                            store_data.wallet_balance?.data?.new_balance,
+                          ).toFixed(2)
                     }
                   />
 
@@ -476,15 +499,14 @@ const AccountScreen = () => {
                   <ProfileScreenOptions
                     Icon={AppImages.live}
                     optionName={'Live Order'}
-                    noLiveData={show_live ? '' : "No Live Trip"}
+                    noLiveData={show_live ? '' : 'No Live Trip'}
                     disabled={show_live}
-                     // Pass 'No Live Trip' if no live data
+                    // Pass 'No Live Trip' if no live data
                     onPress={() => {
                       if (show_live) {
                         navigation.navigate('DriverMap');
-                      }else{
+                      } else {
                         // errorToast('Opps' ,'No Live Orders')
-                        
                       }
                     }}
                   />
@@ -507,29 +529,29 @@ const AccountScreen = () => {
                       navigation.navigate('Earning');
                     }}
                   />
-                   {parse_data?.payload?.owner_type != 0 && (
-                  <ProfileScreenOptions
-                    Icon={AppImages.ledgerImage}
-                    optionName={'Ledger'}
-                    onPress={() => {
-                      navigation.navigate('Ledger');
-                    }}
-                  />
-                   )}
-                  <ProfileScreenOptions
+                  {parse_data?.payload?.owner_type != 0 && (
+                    <ProfileScreenOptions
+                      Icon={AppImages.ledgerImage}
+                      optionName={'Ledger'}
+                      onPress={() => {
+                        navigation.navigate('Ledger');
+                      }}
+                    />
+                  )}
+                  {/* <ProfileScreenOptions
                     Icon={AppImages.paymentsImage}
                     optionName={'Payment'}
                     onPress={() => {
                       navigation.navigate('HelpAndSupportMain');
                     }}
-                  />
-                  <ProfileScreenOptions
+                  /> */}
+                  {/* <ProfileScreenOptions
                     Icon={AppImages.trainingImage}
                     optionName={'Traning'}
                     onPress={() => {
                       // navigation.navigate('HelpAndSupportMain');
                     }}
-                  />
+                  /> */}
                   {/* <Text style={styles.optionName}>{'Address'}</Text>
                 <ProfileScreenOptions
                   Icon={AppImages.savedAddress}

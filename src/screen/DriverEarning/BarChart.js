@@ -516,7 +516,7 @@ const BarChart = ({driverEarningData, selectedRange, week_start_date}) => {
           tickValues={
             selectedRange == 'today'
               ? [0, 3, 6, 9, 12, 15, 18, 21, 24] // Hourly intervals for today
-              : aggregatedData.map(item => item.day) // Convert the Date object to timestamp
+              : aggregatedData.map(item => item.day)
           }
           tickFormat={t => {
             const formattedTick = selectedRange == 'today' ? `${t}:00` : `${t}`;
@@ -524,8 +524,10 @@ const BarChart = ({driverEarningData, selectedRange, week_start_date}) => {
           }}
         />
 
+        {/* Y-Axis */}
         <VictoryAxis
           dependentAxis
+          domain={[0, Math.max(...chartData.map(item => item.value), 10)]} // Ensure the range starts from 0
           tickFormat={x => `₹${x}`} // Show earnings
           style={{
             axis: {stroke: 'transparent'},
@@ -538,8 +540,14 @@ const BarChart = ({driverEarningData, selectedRange, week_start_date}) => {
             },
           }}
         />
+
+        {/* Bar Chart */}
         <VictoryBar
-          data={chartData}
+          data={
+            chartData.length > 0
+              ? chartData
+              : [{hour: 0, value: 0, color: '#D8D8D8'}]
+          } // Show empty data if no chartData
           x={selectedRange === 'today' ? 'hour' : 'day'}
           y="value"
           style={{

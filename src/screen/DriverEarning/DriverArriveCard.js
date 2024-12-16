@@ -50,7 +50,8 @@ const sendDummyDataToFirebase = async (data, message, type) => {
 
     // Define the path to send the data
     const customerPath = `customers/${data?.cust_id}/notifications`;
-    console.log('customer path=>', customerPath)
+
+    console.log('customer path=>', customerPath);
     // Send the data to Firebase
     await database().ref(customerPath).push(notificationPayload);
 
@@ -121,10 +122,20 @@ const DriverArriveCard = ({trip, isReachedPickup, nextId}) => {
             dispatch(setOrderData(nextOrderData));
             dispatch(setupdate_order(null));
             dispatch(setnextOrderData(null));
+            sendDummyDataToFirebase(
+              orderData?.newOrder || orderData,
+              'Order Cancel',
+              3,
+            );
           } else {
             dispatch(setOrderData(null));
             dispatch(setupdate_order(null));
             dispatch(setlivetripmenu(false));
+            sendDummyDataToFirebase(
+              orderData?.newOrder || orderData,
+              'Order Cancel',
+              3,
+            );
             navigation.goBack();
           }
         } else if (status === 'next') {
@@ -217,39 +228,24 @@ const DriverArriveCard = ({trip, isReachedPickup, nextId}) => {
                   dispatch(setOrderData(nextOrderData));
                   dispatch(setupdate_order(null));
                   dispatch(setnextOrderData(null));
-                  // const notificationPayload = {
-                  //   order_id: param.order_id,
-                  //   driver_id:
-                  //     orderData?.newOrder?.driver_id || orderData?.driver_id,
-                  //   customer_id:
-                  //     orderData?.newOrder?.cust_id || orderData?.cust_id,
-                  //   message:
-                  //     'Your trip has cacnellled. Thank you for riding with us!',
-                  //   timestamp: new Date().toISOString(),
-                  //   type: 2,
-                  // };
-                  // const customerPath = `customers/${param.order_id}/notifications`;
-                  // await database.ref(customerPath).push(notificationPayload);
+                  sendDummyDataToFirebase(
+                    orderData?.newOrder|| orderData,
+                    'Order Cancel',
+                    3,
+                  );
+
                   return;
                 }
+            
+                sendDummyDataToFirebase(
+                  orderData?.newOrder || orderData,
+                  'Order Cancel',
+                  3,
+                );
                 setshowotp(false);
                 dispatch(setlivetripmenu(false));
                 dispatch(setOrderData(null));
                 dispatch(setupdate_order(null));
-                // const notificationPayload = {
-                //   order_id: param.order_id,
-                //   driver_id:
-                //     orderData?.newOrder?.driver_id || orderData?.driver_id,
-                //   customer_id:
-                //     orderData?.newOrder?.cust_id || orderData?.cust_id,
-                //   message:
-                //     'Your trip has cacnelled. Thank you for riding with us!',
-                //   timestamp: new Date().toISOString(),
-                //   type: 2,
-                // };
-                // // Send notification to the customer using Firebase
-                // const customerPath = `customers/${param.order_id}/notifications`;
-                // await database.ref(customerPath).push(notificationPayload);
                 navigation.goBack('');
               }
 

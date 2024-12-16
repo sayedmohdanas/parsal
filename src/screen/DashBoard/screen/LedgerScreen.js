@@ -29,6 +29,7 @@ import {
   getToday,
 } from '../../../common/CommonFunction';
 import DateRangeModal from '../components/SelectDateModal';
+import {getimage} from '../../../config/url';
 
 const LedgerScreen = ({navigation}) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -123,18 +124,32 @@ const LedgerScreen = ({navigation}) => {
 
     return (
       <View style={styles.itemContainer}>
-        <View>
+        <View
+          style={{
+            borderWidth: 0.4,
+            borderColor: Colors.grey,
+            borderRadius: responsiveHeight(20),
+            marginLeft: responsiveWidth(6),
+          }}>
+          <Image
+            source={{
+              uri: getimage(
+                'partners_img/' +
+                  item?.partner_id +
+                  '/drivers/' +
+                  item?.driver_id +
+                  '_' +
+                  item?.profile_pic,
+              ),
+            }}
+            style={styles.manStyle}
+          />
+        </View>
+        <View style={{flex: 1, marginLeft: 10}}>
           <Text style={styles.date}>{item?.driver_name}</Text>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            {statusIcon ? (
-              <Image source={statusIcon} style={styles.statusIcon} />
-            ) : (
-              <View
-                style={[styles.greenCircle, {backgroundColor: statusColor}]}
-              />
-            )}
-            <Text style={[styles.status, {color: statusColor, marginLeft: 8}]}>
-              {statusText}
+            <Text style={[styles.status, {color: Colors.grey}]}>
+              {item?.phone}
             </Text>
           </View>
         </View>
@@ -144,7 +159,6 @@ const LedgerScreen = ({navigation}) => {
       </View>
     );
   };
-
   return (
     <SafeAreaView style={styles.container}>
       <HeaderBackButton
@@ -167,8 +181,8 @@ const LedgerScreen = ({navigation}) => {
             <View style={styles.separator} />
             <View style={{flex: 1, alignItems: 'flex-end'}}>
               <Text style={styles.rightText}>
-                {ledgerData?.total?.total_transactions != null
-                  ? `₹${Number(ledgerData.total.total_transactions).toFixed(2)}`
+                {ledgerData?.total?.total_amount != null
+                  ? `₹${Number(ledgerData.total.total_amount).toFixed(2)}`
                   : '₹0.00'}
               </Text>
             </View>
@@ -203,12 +217,14 @@ const styles = StyleSheet.create({
   },
   summaryContainer: {
     flexDirection: 'row',
-    paddingHorizontal: responsiveWidth(10),
+    paddingHorizontal: responsiveWidth(16),
     backgroundColor: 'white',
     paddingVertical: 15,
+    borderBottomWidth: responsiveWidth(0.2),
+    borderColor: Colors.grey,
   },
   listContainer: {
-    paddingHorizontal: responsiveWidth(8),
+    // paddingHorizontal: responsiveWidth(8),
   },
   itemContainer: {
     flexDirection: 'row',
@@ -216,15 +232,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
     paddingHorizontal: responsiveWidth(10),
-    paddingVertical: responsiveHeight(10),
+    paddingVertical: responsiveHeight(20),
     borderBottomWidth: 0.4,
+    borderColor: Colors.grey,
   },
   date: {
-    fontSize: 14,
-    color: '#555',
+    fontSize: responsiveFontSize(16),
+    color: Colors.black,
   },
   status: {
-    fontSize: responsiveFontSize(14),
+    fontSize: responsiveFontSize(10),
   },
   statusIcon: {
     width: responsiveWidth(12),
@@ -232,29 +249,42 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   amount: {
-    fontSize: responsiveFontSize(16),
-    fontWeight: '500',
-    color: 'black',
+    fontSize: responsiveFontSize(15),
+    fontWeight: '600',
+    color: Colors.black,
   },
   leftText: {
-    color: 'black',
-    fontSize: responsiveFontSize(22),
+    color: Colors.black,
+    fontSize: responsiveFontSize(20),
+  
   },
   rightText: {
-    color: 'black',
-    fontSize: responsiveFontSize(22),
+    color: Colors.black,
+    fontSize: responsiveFontSize(20),
+    fontWeight: '600',
+
   },
   separator: {
-    width: 1,
-    backgroundColor: 'grey',
+    borderWidth: responsiveWidth(0.4),
+    borderColor: Colors.grey,
     marginHorizontal: responsiveWidth(10),
   },
 
   greenCircle: {
     height: responsiveHeight(10),
     width: responsiveHeight(10),
-    backgroundColor: Colors.bandBlue,
+    backgroundColor: Colors.brandBlue,
     borderRadius: responsiveHeight(20),
+  },
+
+  manStyle: {
+    height: responsiveHeight(40),
+    width: responsiveHeight(40),
+    borderWidth: 0.4,
+    borderColor: Colors.grey,
+    borderRadius: responsiveHeight(40),
+    // marginLeft: responsiveWidth(8),
+    resizeMode: 'contain',
   },
 });
 

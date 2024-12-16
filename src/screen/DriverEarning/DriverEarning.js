@@ -1285,11 +1285,35 @@ const Earning = () => {
                   />
                   {/* )} */}
                   <View style={[styles.orderListContainer, {flex: 1}]}>
-                    {/* {driverData?.individualPaidAmounts?.length != 0 && (
-                      <Text style={styles.orderListHeadign}>
-                        {'Order List '}
-                      </Text>
-                    )} */}
+                    {driverData?.individualPaidAmounts?.length != 0 && (
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          marginBottom: 10,
+                        }}>
+                        <Text style={styles.orderListHeadign}>Order List</Text>
+                        <TouchableOpacity
+                          onPress={() => {
+                            setSelectedDriver({driver_id: 0});
+                          }}>
+                          <Text
+                            style={{
+                              fontSize: responsiveFontSize(14),
+                              fontWeight: 'bold',
+                              marginRight: responsiveHeight(22),
+                              color: Colors.brandBlue,
+                              textDecorationLine:
+                                selectedDriver?.driver_id == 0
+                                  ? 'underline'
+                                  : 'none',
+                            }}>
+                            Show All
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    )}
 
                     <FlatList
                       ListHeaderComponent={() => (
@@ -1318,7 +1342,7 @@ const Earning = () => {
                             }}>
                             {transformedData?.length > 1 && (
                               <FlatList
-                                data={transformedData}
+                                data={transformedData.slice(1)}
                                 horizontal
                                 renderItem={renderRieder}
                                 keyExtractor={(item, index) => index.toString()}
