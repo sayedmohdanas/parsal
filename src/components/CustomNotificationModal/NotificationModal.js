@@ -26,7 +26,7 @@ import {
   generateNumericOTP,
   GetDriverCurrentLocation,
 } from '../../common/CommonFunction';
-import {socketUrl} from '../../config/url';
+import {placeOrder, socketUrl} from '../../config/url';
 import BorderLine from '../../common/BorderLine.';
 import AppImages from '../../common/AppImages';
 import Loading from '../Loading/Loading';

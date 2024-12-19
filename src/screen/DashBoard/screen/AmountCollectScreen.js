@@ -63,55 +63,79 @@ const AmountCollectScreen = () => {
       console.log('Connected to socket server');
     });
     socket.on('complete_transaction_by_user_ack', data => {
-      const param = {
-        orderId: data?.order_id,
-        partner_id:
-          store_data?.parsalPartner?.loginuserdetails?.partner_id ||
-          store_data?.parsalPartner?.loginuserdetails?.id,
-        vehicle_type_id: driver_details?.vehicle_type_id,
-      };
+      if (data) {
+        if (nextOrderData) {
+          dispatch(setOrderData(nextOrderData));
+          dispatch(setupdate_order(null));
+          dispatch(setnextOrderData(null));
+          dispatch(
+            setSelectedDriverRedux({
+              driver_id: orderData?.newOrder?.driver_id || orderData?.driver_id,
+            }),
+          );
+          navigation.goBack('');
+        } else {
+          dispatch(setOrderData(null));
+          dispatch(setupdate_order(null));
+          dispatch(setlivetripmenu(false));
+          dispatch(
+            setSelectedDriverRedux({
+              driver_id: orderData?.newOrder?.driver_id || orderData?.driver_id,
+            }),
+          );
 
-      hitCreateTransaction(param)
-        .then(res => {
-          if (res) {
-            if (nextOrderData) {
-              dispatch(setOrderData(nextOrderData));
-              dispatch(setupdate_order(null));
-              dispatch(setnextOrderData(null));
-              dispatch(
-                setSelectedDriverRedux({
-                  driver_id:
-                    orderData?.newOrder?.driver_id || orderData?.driver_id,
-                }),
-              );
-              navigation.goBack('');
-            } else {
-              dispatch(setOrderData(null));
-              dispatch(setupdate_order(null));
-              dispatch(setlivetripmenu(false));
-              dispatch(
-                setSelectedDriverRedux({
-                  driver_id:
-                    orderData?.newOrder?.driver_id || orderData?.driver_id,
-                }),
-              );
+          navigation.navigate('Earning');
+        }
+      }
+      // const param = {
+      //   orderId: data?.order_id,
+      //   partner_id:
+      //     store_data?.parsalPartner?.loginuserdetails?.partner_id ||
+      //     store_data?.parsalPartner?.loginuserdetails?.id,
+      //   vehicle_type_id: driver_details?.vehicle_type_id,
+      // };
 
-              navigation.navigate('Earning');
-            }
-          }
-        })
-        .catch(err => {
-          console.error('Error in transaction:', err);
-        });
+      // hitCreateTransaction(param)
+      //   .then(res => {
+      //     if (res) {
+      //       if (nextOrderData) {
+      //         dispatch(setOrderData(nextOrderData));
+      //         dispatch(setupdate_order(null));
+      //         dispatch(setnextOrderData(null));
+      //         dispatch(
+      //           setSelectedDriverRedux({
+      //             driver_id:
+      //               orderData?.newOrder?.driver_id || orderData?.driver_id,
+      //           }),
+      //         );
+      //         navigation.goBack('');
+      //       } else {
+      //         dispatch(setOrderData(null));
+      //         dispatch(setupdate_order(null));
+      //         dispatch(setlivetripmenu(false));
+      //         dispatch(
+      //           setSelectedDriverRedux({
+      //             driver_id:
+      //               orderData?.newOrder?.driver_id || orderData?.driver_id,
+      //           }),
+      //         );
+
+      //         navigation.navigate('Earning');
+      //       }
+      //     }
+      //   })
+      //   .catch(err => {
+      //     console.error('Error in transaction:', err);
+      //   });
     });
   }, []);
   const Complete_Order = () => {
     const param = {
       orderId: orderData?.newOrder?.id || orderData?.id,
-      partner_id:
-        store_data?.parsalPartner?.loginuserdetails?.partner_id ||
-        store_data?.parsalPartner?.loginuserdetails?.id,
-      vehicle_type_id: driver_details?.vehicle_type_id || '2',
+      online: 0,
+      cash: Total_Fare[0]?.amount,
+      wallet: 0,
+      pay_mode: 0,
     };
     hitCreateTransaction(param)
       .then(res => {
@@ -232,3 +256,9 @@ const styles = StyleSheet.create({
 });
 
 export default AmountCollectScreen;
+
+
+
+
+
+

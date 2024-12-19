@@ -43,6 +43,10 @@ export default function App() {
     goods_type_id: '',
     request_id: '',
     insured: '',
+    receiver_name: '',
+    receiver_phone: '',
+    tips: '',
+    
   });
   const [timer, setTimer] = useState(15); // Timer state
   // Initialize Firebase with Realtime Database URL
@@ -118,6 +122,9 @@ export default function App() {
       insured = '',
       charity = '',
       loading_unloading = '',
+      receiver_name = '',
+      receiver_phone = '',
+      tips = '',
     } = data || {};
     // Update the notification data state
     setNotificationData({
@@ -143,6 +150,9 @@ export default function App() {
       insured,
       loading_unloading,
       charity,
+      receiver_name,
+      receiver_phone,
+      tips,
     });
     setModalVisible(true);
     // setTimer(15);
@@ -604,6 +614,9 @@ export default function App() {
             insured={notificationData?.insured}
             charity={notificationData?.charity}
             loading_unloading={notificationData?.loading_unloading}
+            receiver_name={notificationData?.receiver_name}
+            receiver_phone={notificationData?.receiver_phone}
+            tips={notificationData?.tips}
             onClose={() => setModalVisible(false)}
             setModalVisible={setModalVisible}
             timer={timer}

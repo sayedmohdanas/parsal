@@ -36,6 +36,8 @@ const LedgerScreen = ({navigation}) => {
   const [ledgerData, setLedgerData] = useState(null);
   const [dateRange, setDateRange] = useState(getToday());
   const [loading, setLoading] = useState(false);
+  const [selectedKey, setSelectedKey] = useState(null); 
+
 
   const handleCalendar = () => {
     setIsModalVisible(!isModalVisible);
@@ -47,7 +49,6 @@ const LedgerScreen = ({navigation}) => {
     const parsedUser = JSON.parse(user);
     const param = {
       partner_id: parsedUser?.payload?.partner_id,
-      // partner_id:86,
       start_date: dateRange?.startDate,
       end_date: dateRange?.endDate,
     };
@@ -73,15 +74,24 @@ const LedgerScreen = ({navigation}) => {
   const handleSelectDateRange = rangeType => {
     switch (rangeType) {
       case 'today':
+        setSelectedKey('today')
         setDateRange(getToday());
+        
+
         break;
       case 'last7Days':
+        setSelectedKey('last7Days')
+
         setDateRange(getLast7Days());
         break;
       case 'lastMonth':
+        setSelectedKey('lastMonth')
+
         setDateRange(getLastMonth());
         break;
       case 'last3Months':
+        setSelectedKey('last3Months')
+
         setDateRange(getLast3Months());
         break;
       default:
@@ -200,6 +210,7 @@ const LedgerScreen = ({navigation}) => {
         isVisible={isModalVisible}
         onClose={() => setIsModalVisible(false)}
         onSelectDateRange={handleSelectDateRange}
+        selectedKey={selectedKey} // Pass selectedKey if needed
       />
     </SafeAreaView>
   );

@@ -18,7 +18,7 @@ const DriverDetails = ({details, onPress, selectedDriver}) => {
         {
           backgroundColor:
             selectedDriver?.driver_id == details?.driver_id
-              ? '#3D40D1'
+              ? '#D8D9FF'
               : Colors.white,
         },
       ]}>
@@ -50,7 +50,7 @@ const DriverDetails = ({details, onPress, selectedDriver}) => {
                     '/drivers/' +
                     details?.driver_id +
                     '_' +
-                    details?.profilePic,
+                    details?.profilePic ,
                 ),
               }}
               style={styles.manStyle}
@@ -63,10 +63,11 @@ const DriverDetails = ({details, onPress, selectedDriver}) => {
             style={[
               styles.name,
               {
-                fontSize: responsiveFontSize(10),
+                fontSize: responsiveFontSize(12),
+                fontWeight:'600',
                 color:
                   selectedDriver?.driver_id == details?.driver_id
-                    ? Colors.white
+                    ? Colors.brandBlue
                     : Colors.black,
               },
             ]}>
@@ -79,9 +80,11 @@ const DriverDetails = ({details, onPress, selectedDriver}) => {
                 {
                   color:
                     selectedDriver?.driver_id == details?.driver_id
-                      ? Colors.white
+                      ? Colors.brandBlue
                       : Colors.grey,
-                  fontSize: responsiveFontSize(8),
+                      fontWeight:'600',
+
+                  fontSize: responsiveFontSize(10),
                 },
               ]}>
               {/* {details?.vehicles[0]?.vehicle_number} */}
@@ -100,8 +103,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: responsiveHeight(10),  
-    borderRadius: responsiveHeight(20),
+    // marginTop: responsiveHeight(10),  
+    borderRadius: responsiveHeight(10),
     paddingVertical: responsiveHeight(6),
     // padding:responsiveHeight(10),
     // width:responsiveWidth(112),

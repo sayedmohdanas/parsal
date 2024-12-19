@@ -829,7 +829,7 @@
 // });
 
 // export default Earning;
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -849,7 +849,7 @@ import {
   responsiveHeight,
   responsiveWidth,
 } from '../../common/metrices';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import CustomHeader from '../DashBoard/components/CustomHeader';
 import BottomNav from '../../../navigation/BottomNav';
 import DateRangeSelector from '../DashBoard/components/DataRangeSelectore';
@@ -862,15 +862,15 @@ import moment from 'moment';
 import BarChart from './BarChart';
 import DriverDetails from './DriversDetail';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {errorToast} from '../../common/CommonFunction';
-import {mystyles} from '../../common/Mystyle';
-import {useSelector} from 'react-redux';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { errorToast } from '../../common/CommonFunction';
+import { mystyles } from '../../common/Mystyle';
+import { useSelector } from 'react-redux';
 
 const Earning = () => {
   const [selectedRange, setSelectedRange] = useState('today');
   const [totalEarnings, setTotalEarnings] = useState(0);
-  const [dateRange, setDateRange] = useState({start: '', end: ''});
+  const [dateRange, setDateRange] = useState({ start: '', end: '' });
   const [loading, setLoading] = useState(false);
   const [isEarningLoading, setIsEarningLoading] = useState(false);
   const [isDriverListLoading, setIsDriverListLoading] = useState(false);
@@ -905,7 +905,7 @@ const Earning = () => {
       startDate.setDate(startDate.getDate() - 6);
     }
 
-    setDateRange({start: startDate, end: endDate});
+    setDateRange({ start: startDate, end: endDate });
     setLoading(false);
   };
   const [driver_todays_earning, setdriver_todays_earning] = useState([]);
@@ -924,7 +924,8 @@ const Earning = () => {
       user_type: parsedUser?.payload?.owner_type,
       partner_id: parsedUser?.payload?.partner_id,
     };
-    console.log('param',JSON.stringify(param));
+    
+    console.log('param', JSON.stringify(param));
     hitDriverEarning(param)
       .then(res => {
         // console.log('res', res?.data);
@@ -947,22 +948,22 @@ const Earning = () => {
       });
   };
 
-  const [selectedDriver, setSelectedDriver] = useState({driver_id: 0});
+  const [selectedDriver, setSelectedDriver] = useState({ driver_id: 0 });
 
   useFocusEffect(
     useCallback(() => {
       setcurrentIndex(3);
       get_data(null, 0, null);
-      return () => {};
+      return () => { };
     }, [selectedRange]),
   );
   const renderItem = useMemo(() => {
-    return ({item}) => {
+    return ({ item }) => {
       return <OrderDetail orderDetails={item} />;
     };
   }, []);
   const renderRieder = useMemo(() => {
-    return ({item}) => {
+    return ({ item }) => {
       return (
         <DriverDetails
           details={item}
@@ -976,7 +977,7 @@ const Earning = () => {
   }, [selectedDriver]);
   const formatDateForDisplay = date => {
     if (date != null && date) {
-      const options = {day: '2-digit', month: 'short', year: 'numeric'};
+      const options = { day: '2-digit', month: 'short', year: 'numeric' };
       const formattedDate = date?.toLocaleDateString('en-GB', options);
       return formattedDate.replace(/ /g, '-');
     }
@@ -987,7 +988,7 @@ const Earning = () => {
     const offset = next ? 1 : -1;
     start.setDate(start.getDate() + offset);
 
-    return {start: start, end: ''};
+    return { start: start, end: '' };
   };
   const calculateWeekRange = (startDate, next = true) => {
     const start = new Date(startDate);
@@ -996,7 +997,7 @@ const Earning = () => {
     const end = new Date(start);
     end.setDate(end.getDate() + 6);
 
-    return {start: start, end: end};
+    return { start: start, end: end };
   };
   const [next_flag, setnext_flag] = useState(0);
 
@@ -1124,19 +1125,18 @@ const Earning = () => {
       : calculateWeekRange(new Date(dateRange.start), true);
   const [currentIndex, setcurrentIndex] = useState(1);
   const getDriverDataByIdAndIndex = (driverId = 0, index) => {
-    // Filter the data based on the driver_id
     const driverData = transformDriverData(driver_todays_earning).find(
       item => item.driver_id == driverId,
     );
     if (driverData && driverData.earnings) {
       if (next_flag) {
-        const earningsData = Object.values(driverData.earnings)[index]; // index corresponds to the day data (0 for first, 1 for second, etc.)
+        const earningsData = Object.values(driverData.earnings)[index]; 
         return earningsData;
       }
-      const earningsData = Object.values(driverData.earnings).reverse()[index]; // index corresponds to the day data (0 for first, 1 for second, etc.)
+      const earningsData = Object.values(driverData.earnings).reverse()[index]; 
       return earningsData;
     }
-    return null; // Return null if no driver found or earnings data is not available
+    return null; 
   };
   const driverData = getDriverDataByIdAndIndex(
     logndetail?.payload?.owner_type == 0
@@ -1149,7 +1149,7 @@ const Earning = () => {
   }, [driver_todays_earning, selectedRange]);
   return (
     <>
-      <SafeAreaView style={{flex: 1, backgroundColor: Colors.homeBackground}}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: Colors.homeBackground }}>
         <View
           style={{
             height: responsiveHeight(60),
@@ -1171,7 +1171,7 @@ const Earning = () => {
           ) : (
             <>
               <View
-                style={{alignSelf: 'center', marginTop: responsiveHeight(14)}}>
+                style={{ alignSelf: 'center', marginTop: responsiveHeight(14) }}>
                 <DateRangeSelector
                   selectedRange={selectedRange}
                   setSelectedRange={setSelectedRange}
@@ -1182,8 +1182,8 @@ const Earning = () => {
                   }}
                 />
               </View>
-              <View style={[styles.earningDisplay, {justifyContent: 'center'}]}>
-                <View style={{justifyContent: 'center', alignItems: 'center'}}>
+              <View style={[styles.earningDisplay, { justifyContent: 'center' }]}>
+                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                   <Text style={styles.earningAmount}>
                     ₹
                     {!isNaN(driverData?.totalPaidAmount)
@@ -1191,7 +1191,7 @@ const Earning = () => {
                       : '0.00'}
                   </Text>
                   {driverData &&
-                  driverData?.individualPaidAmounts?.length !== 0 ? (
+                    driverData?.individualPaidAmounts?.length !== 0 ? (
                     <View style={styles.percentageContainer}>
                       <View style={styles.increaseContainer}>
                         <Image
@@ -1227,174 +1227,186 @@ const Earning = () => {
                 </View>
               </View>
               <ScrollView>
-              <View style={styles.earningChart}>
-                <TouchableOpacity
-                  style={styles.navButton}
-                  onPress={handlePrevDate}>
-                  <Image
-                    source={AppImages.arrowLeft}
-                    style={styles.arrowImage}
-                    resizeMode="contain"
-                  />
-                </TouchableOpacity>
-                <Text style={styles.dateText}>
-                  {formatDateForDisplay(dateRange.start)}{' '}
-                  {formatDateForDisplay(dateRange.end) && '-'}{' '}
-                  {formatDateForDisplay(dateRange.end)}
-                </Text>
-                <TouchableOpacity
-                  style={[
-                    styles.navButton,
-                    nextDay.start > new Date() && styles.disabledButton,
+                <View style={styles.earningChart}>
+                  <TouchableOpacity
+                    style={styles.navButton}
+                    onPress={handlePrevDate}>
+                    <Image
+                      source={AppImages.arrowLeft}
+                      style={styles.arrowImage}
+                      resizeMode="contain"
+                    />
+                  </TouchableOpacity>
+                  <Text style={styles.dateText}>
+                    {formatDateForDisplay(dateRange.start)}{' '}
+                    {formatDateForDisplay(dateRange.end) && '-'}{' '}
+                    {formatDateForDisplay(dateRange.end)}
+                  </Text>
+                  <TouchableOpacity
+                    style={[
+                      styles.navButton,
+                      nextDay.start > new Date() && styles.disabledButton,
 
-                    // Apply disabled styling
-                  ]}
-                  onPress={handleNextDate}
-                  disabled={nextDay.start > new Date()} // Disable the button based on the condition
-                >
-                  <Image
-                    source={AppImages.arrowRight}
-                    style={styles.arrowImage}
-                    resizeMode="contain"
-                    tintColor={
-                      nextDay.start > new Date() ? '#A9A9A9' : Colors.black
-                    } // Change tint color dynamically
-                  />
-                </TouchableOpacity>
-              </View>
-              {loading ? (
-                <View
-                  style={{
-                    flex: 1,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    alignSelf: 'center',
-                    backgroundColor: 'white',
-                    paddingVertical: responsiveHeight(30),
-                    marginTop: responsiveHeight(110),
-                  }}>
-                  <ActivityIndicator size="large" color={Colors.brandBlue} />
+                      // Apply disabled styling
+                    ]}
+                    onPress={handleNextDate}
+                    disabled={nextDay.start > new Date()} // Disable the button based on the condition
+                  >
+                    <Image
+                      source={AppImages.arrowRight}
+                      style={styles.arrowImage}
+                      resizeMode="contain"
+                      tintColor={
+                        nextDay.start > new Date() ? '#A9A9A9' : Colors.black
+                      } // Change tint color dynamically
+                    />
+                  </TouchableOpacity>
                 </View>
-              ) : (
-                <>
-                  {/* {current_data?.individualPaidAmounts.length !== 0 && ( */}
-                  <BarChart
-                    week_start_date={new Date(dateRange.start)}
-                    driverEarningData={driverData}
-                    selectedRange={selectedRange}
-                  />
-                  {/* )} */}
-                  <View style={[styles.orderListContainer, {flex: 1}]}>
-                    {driverData?.individualPaidAmounts?.length != 0 && (
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          marginBottom: 10,
-                        }}>
-                        <Text style={styles.orderListHeadign}>Order List</Text>
-                        <TouchableOpacity
-                          onPress={() => {
-                            setSelectedDriver({driver_id: 0});
+                {loading ? (
+                  <View
+                    style={{
+                      flex: 1,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      alignSelf: 'center',
+                      backgroundColor: 'white',
+                      paddingVertical: responsiveHeight(30),
+                      marginTop: responsiveHeight(110),
+                    }}>
+                    <ActivityIndicator size="large" color={Colors.brandBlue} />
+                  </View>
+                ) : (
+                  <>
+                    {/* {current_data?.individualPaidAmounts.length !== 0 && ( */}
+                    {driverData?.individualPaidAmounts?.length != 0 ? (
+                      <BarChart
+                      week_start_date={new Date(dateRange.start)}
+                      driverEarningData={driverData}
+                      selectedRange={selectedRange}
+                    />
+                    ):
+                    null}
+                    {/* {driverData?.individualPaidAmounts?.length !== 0 && (
+                      <BarChart
+                        week_start_date={new Date(dateRange.start)}
+                        driverEarningData={driverData}
+                        selectedRange={selectedRange}
+                      />
+                    )} */}
+                    {/* )} */}
+                    <View style={[styles.orderListContainer, { flex: 1 }]}>
+                      {/* {driverData?.individualPaidAmounts?.length !=0 && ( */}
+                        {/* {driverData?.individualPaidAmounts?.length != 0 ? ( */}
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            // marginBottom: 10,
                           }}>
-                          <Text
-                            style={{
-                              fontSize: responsiveFontSize(14),
-                              fontWeight: 'bold',
-                              marginRight: responsiveHeight(22),
-                              color: Colors.brandBlue,
-                              textDecorationLine:
-                                selectedDriver?.driver_id == 0
-                                  ? 'underline'
-                                  : 'none',
+                          <Text style={styles.orderListHeadign}>Order List</Text>
+                          <TouchableOpacity
+                            onPress={() => {
+                              setSelectedDriver({ driver_id: 0 });
                             }}>
-                            Show All
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    )}
+                            <Text
+                              style={{
+                                fontSize: responsiveFontSize(14),
+                                fontWeight: 'bold',
+                                marginRight: responsiveHeight(22),
+                                color: Colors.brandBlue,
+                                textDecorationLine:
+                                  selectedDriver?.driver_id == 0
+                                    ? 'underline'
+                                    : 'none',
+                              }}>
+                              Show All
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      {/* ):null} */}
 
-                    <FlatList
-                      ListHeaderComponent={() => (
-                        <>
-                          {/* {current_data &&
+                      <FlatList
+                        ListHeaderComponent={() => (
+                          <>
+                            {/* {current_data &&
                             current_data?.individualPaidAmounts.length == 0 ? ( */}
-                          {/* // If no data is available, show an empty state */}
+                            {/* // If no data is available, show an empty state */}
 
-                          {/* ) : ( */}
-                          {/* // If data is available, show the partner rider list
+                            {/* ) : ( */}
+                            {/* // If data is available, show the partner rider list
                               login_user?.owner_type !== 0  */}
 
-                          {/* &&
+                            {/* &&
                               // current_data?.individualPaidAmounts.length ==
                               //   0 &&  */}
-                          {/* ( */}
-                          <View
-                            style={{
-                              marginLeft: responsiveWidth(15),
-                              marginHorizontal: responsiveWidth(6),
-                              marginTop:
-                                driverData &&
-                                driverData?.individualPaidAmounts?.length ==
+                            {/* ( */}
+                            <View
+                              style={{
+                                marginLeft: responsiveWidth(15),
+                                marginHorizontal: responsiveWidth(6),
+                                marginTop:
+                                  driverData &&
+                                  driverData?.individualPaidAmounts?.length ==
                                   0 &&
-                                10,
-                            }}>
-                            {transformedData?.length > 1 && (
-                              <FlatList
-                                data={transformedData.slice(1)}
-                                horizontal
-                                renderItem={renderRieder}
-                                keyExtractor={(item, index) => index.toString()}
-                              />
-                            )}
-                          </View>
-                           {driverData?.individualPaidAmounts?.length != 0 && (
+                                  10,
+                              }}>
+                              {transformedData?.length > 1 && (
+                                <FlatList
+                                  data={transformedData.slice(1)}
+                                  horizontal
+                                  renderItem={renderRieder}
+                                  keyExtractor={(item, index) => index.toString()}
+                                />
+                              )}
+                            </View>
+                            {/* {driverData?.individualPaidAmounts?.length != 0 && (
                       <Text style={styles.orderListHeadign}>
                         {'Order List '}
                       </Text>
-                    )}
-                          {driverData?.individualPaidAmounts?.length === 0 && (
-                            <View
-                              style={{
-                                flex: 1,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                alignSelf: 'center',
-                                paddingVertical: responsiveHeight(30),
-                                // marginTop: responsiveHeight(10),
-                              }}>
-                              <ImageBackground
-                                source={AppImages.boxbackgound}
-                                style={styles.boxBackstyle}>
-                                <Image
-                                  source={AppImages.emptyImage}
-                                  style={styles.emptyboxStyle}
-                                  resizeMode="contain"
-                                />
-                              </ImageBackground>
-                              <Text style={styles.emptyTextStyle}>
-                                {
-                                  'No Order history Available, contact our support team.'
-                                }
-                              </Text>
-                            </View>
-                          )}
+                    )} */}
+                            {driverData?.individualPaidAmounts?.length === 0 && (
+                              <View
+                                style={{
+                                  flex: 1,
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                  alignSelf: 'center',
+                                  marginVertical:100,
+                                  paddingVertical: responsiveHeight(0),
+                                  marginTop: responsiveHeight(150),
+                                }}>
+                                <ImageBackground
+                                  source={AppImages.boxbackgound}
+                                  style={styles.boxBackstyle}>
+                                  <Image
+                                    source={AppImages.emptyImage}
+                                    style={styles.emptyboxStyle}
+                                    resizeMode="contain"
+                                  />
+                                </ImageBackground>
+                                <Text style={styles.emptyTextStyle}>
+                                  {
+                                    'No Order history Available, contact our support team.'
+                                  }
+                                </Text>
+                              </View>
+                            )}
 
-                          {/* ) */}
-                          {/* )} */}
-                        </>
-                      )}
-                      data={driverData?.individualPaidAmounts}
-                      renderItem={renderItem}
-                      keyExtractor={(item, index) => index.toString()}
-                      contentContainerStyle={{
-                        paddingBottom: responsiveHeight(80),
-                      }}
-                    />
-                  </View>
-                </>
-              )}
+                            {/* ) */}
+                            {/* )} */}
+                          </>
+                        )}
+                        data={driverData?.individualPaidAmounts}
+                        renderItem={renderItem}
+                        keyExtractor={(item, index) => index.toString()}
+                        contentContainerStyle={{
+                          paddingBottom: responsiveHeight(80),
+                        }}
+                      />
+                    </View>
+                  </>
+                )}
               </ScrollView>
             </>
           )}
@@ -1418,10 +1430,11 @@ const styles = StyleSheet.create({
     padding: responsiveHeight(18),
   },
   boxBackstyle: {
-    height: responsiveHeight(120),
-    width: responsiveWidth(260),
+    height: responsiveHeight(110),
+    width: responsiveWidth(230),
     justifyContent: 'center',
     alignItems: 'center',
+    resizeMode:'contain'
   },
   emptyboxStyle: {
     height: responsiveHeight(150),
@@ -1454,6 +1467,7 @@ const styles = StyleSheet.create({
     padding: responsiveHeight(18),
     paddingHorizontal: responsiveHeight(30),
     flexDirection: 'row',
+    
   },
   earningChart: {
     justifyContent: 'space-between',
