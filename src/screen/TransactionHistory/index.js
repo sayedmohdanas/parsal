@@ -31,6 +31,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppImages from '../../common/AppImages';
 import {
   formatDate,
+  formatDateOnly,
   getLast3Months,
   getLast7Days,
   getLastMonth,
@@ -49,24 +50,14 @@ const TransactionHistory = () => {
   const [searchText, setSearchText] = useState(''); // Search query
   const [isLoading, setIsLoading] = useState(true); // Loading state
   const [isModalVisible, setIsModalVisible] = useState(false); // Added state for modal visibility
-  const [headerText, setHeaderText] = useState(new Date().toLocaleDateString());
+  const [headerText, setHeaderText] = useState(formatDateOnly(new Date()));
   const [totalAmount, setTotalAmount] = useState(0);
   const [selectedDriver, setSelectedDriver] = useState();
   const [dateRange, setDateRange] = useState(getToday());
   // const [dateRange, setDateRange] = useState(getToday());
+  const [mode, setMode] = useState('default')
 
   const [selectedKey, setSelectedKey] = useState(null); // State for selected driver
-
-
-  const calculateTotalAmount = filteredData => {
-    let total = 0;
-    filteredData?.forEach(item => {
-      if (item.mode == '0' || item.mode == '1' || item.mode == '2') {
-        total += parseFloat(item.amount);
-      }
-    });
-    setTotalAmount(total.toFixed(2)); // Update the total amount state
-  };
 
 
   const [login_user, setlogin_user] = useState();
@@ -87,7 +78,7 @@ const TransactionHistory = () => {
       const param = {
         [owner_type === 1 || owner_type === 2 ? 'partner_id' : 'driverId']: id,
         start_date: dateRange?.startDate,
-        end_date:dateRange?.endDate,
+        end_date: dateRange?.endDate,
       };
       const res = await hitGetTransactionListApi(param);
 
@@ -145,21 +136,32 @@ const TransactionHistory = () => {
 
   const handlePaymentModeFilter = (mode) => {
     if (mode === 'default') {
+      setMode('default')
+
       setFilteredData(data);
+
     } else if (mode === '0') {
+      setMode('0')
+
       const filtered = data?.filter(item => item.mode === 0);
 
       setFilteredData(filtered);
-      console.log('check---data===>>',filtered)
+
     } else if (mode === '1') {
+      setMode('1')
+
       const filtered = data?.filter(item => item.mode === 1);
       setFilteredData(filtered);
+
     } else if (mode === '2') {
+      setMode('2')
+
       const filtered = data?.filter(item => item.mode === 2);
       setFilteredData(filtered);
+
     }
   };
-  
+
 
   const renderRieder = useMemo(() => {
     return ({ item }) => {
@@ -168,7 +170,9 @@ const TransactionHistory = () => {
           details={item}
           selectedDriver={selectedDriver}
           onPress={() => {
+            handlePaymentModeFilter('default')
             setSelectedDriver(item);
+
           }}
         />
       );
@@ -186,7 +190,7 @@ const TransactionHistory = () => {
   };
 
   const driverList = uniqueDrivers.map(txn => ({
-   driver_id: txn.driver_id,
+    driver_id: txn.driver_id,
     driver_name: txn.driver_name,
     profilePic: txn.profile_pic,
     vehicleName: txn?.vehicle_number,
@@ -195,12 +199,11 @@ const TransactionHistory = () => {
   const handleSelectDateRange = rangeType => {
     switch (rangeType) {
       case 'today':
-        setSelectedKey('today')   
+        setSelectedKey('today')
         setDateRange(getToday());
-        const formattedDate = new Date().toLocaleDateString(); // Customize the format
-        // const date =JSON.stringify(formattedDate)
-        setHeaderText(formatDate(formattedDate));
-        setHeaderText(formattedDate);
+
+
+        setHeaderText(formatDateOnly(new Date()));
 
         break;
       case 'last7Days':
@@ -227,6 +230,9 @@ const TransactionHistory = () => {
         break;
     }
   };
+  console.log(filteredData,selectedDriver?.driver_id);
+  
+  
   return (
     <>
       <HeaderBackButton
@@ -266,7 +272,12 @@ const TransactionHistory = () => {
                 // marginBottom:Spacing.small
               }}>
               <TouchableHighlight
-                style={{ padding: 5, marginVertical: responsiveHeight(8) }}
+                style={{
+                  padding: 5,
+                  marginVertical: responsiveHeight(1),
+                  borderBottomColor: mode === 'default' ? Colors.brandBlue : 'transparent',
+                  borderBottomWidth: mode === 'default' ? 1 : 0,
+                }}
                 onPress={() => handlePaymentModeFilter('default')}
                 underlayColor={'none'}>
                 <TransactionMode
@@ -281,8 +292,12 @@ const TransactionHistory = () => {
                 />
               </TouchableHighlight>
               <TouchableHighlight
-                style={{ padding: 5, marginVertical: responsiveHeight(8) }}
-                onPress={() => handlePaymentModeFilter('0')}
+                style={{
+                  padding: 5,
+                  marginVertical: responsiveHeight(1),
+                  borderBottomColor: mode === '0' ? Colors.brandBlue : 'transparent',
+                  borderBottomWidth: mode === '0' ? 1 : 0,
+                }} onPress={() => handlePaymentModeFilter('0')}
                 underlayColor={'none'}>
                 <TransactionMode
                   number={
@@ -296,8 +311,12 @@ const TransactionHistory = () => {
               </TouchableHighlight>
 
               <TouchableHighlight
-                style={{ padding: 5, marginVertical: responsiveHeight(8) }}
-                onPress={() => handlePaymentModeFilter('1')}
+                style={{
+                  padding: 5,
+                  marginVertical: responsiveHeight(1),
+                  borderBottomColor: mode === '1' ? Colors.brandBlue : 'transparent',
+                  borderBottomWidth: mode === '1' ? 1 : 0,
+                }} onPress={() => handlePaymentModeFilter('1')}
                 underlayColor={'none'}>
                 <TransactionMode
                   number={
@@ -310,7 +329,12 @@ const TransactionHistory = () => {
                 />
               </TouchableHighlight>
               <TouchableHighlight
-                style={{ padding: 5, marginVertical: responsiveHeight(8) }}
+                style={{
+                  padding: 5,
+                  marginVertical: responsiveHeight(1),
+                  borderBottomColor: mode === '2' ? Colors.brandBlue : 'transparent',
+                  borderBottomWidth: mode === '2' ? 1 : 0,
+                }}
                 onPress={() => handlePaymentModeFilter('2')}
                 underlayColor={'none'}>
                 <TransactionMode
@@ -324,9 +348,11 @@ const TransactionHistory = () => {
                 />
               </TouchableHighlight>
             </View>
-          
+
             <FlatList
               data={filterData(filteredData, selectedDriver?.driver_id)}
+              contentContainerStyle={{paddingBottom:responsiveHeight(40)}}
+
               renderItem={({ item }) => (
                 <TouchableHighlight
                   style={styles.container}
@@ -428,7 +454,7 @@ const TransactionHistory = () => {
                     }}
                     resizeMode="contain"
                   />
-                   <Text style={styles.emptyText}>
+                  <Text style={styles.emptyText}>
                     No transaction record found
                   </Text>
                 </View>
@@ -516,12 +542,30 @@ const TransactionHistory = () => {
         </View>
         <View style={{ flex: 1, alignItems: 'flex-end' }}>
           <Text style={styles.rightText}>
-            ₹
-            {data
-              ?.filter(item => item.amount)
-              .reduce((acc, item) => acc + parseFloat(item.amount), 0)
-              .toFixed(2) || ' 0.00'}
+            {mode == "default" ? (
+              <>
+                ₹
+                {(
+                  filterData(data, selectedDriver?.driver_id)
+                    ?.filter(item => item.amount)
+                    .reduce((acc, item) => acc + parseFloat(item.amount), 0)
+                    .toFixed(2) || '0.00'
+                )}
+              </>
+            ) : (
+              <>
+                ₹
+                {(
+                  filterData(data, selectedDriver?.driver_id)
+                    ?.filter(item => item.mode == mode)
+                    .reduce((acc, item) => acc + parseFloat(item.amount), 0)
+                    .toFixed(2) || '0.00'
+                )}
+              </>
+            )}
           </Text>
+
+
         </View>
       </View>
     </>
@@ -631,7 +675,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     // backgroundColor:'aqua',
-    bottom: responsiveHeight(5),
+    bottom: responsiveHeight(0),
     paddingVertical: 10,
     left: 0,
     right: 0,

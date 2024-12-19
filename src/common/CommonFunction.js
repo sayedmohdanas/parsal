@@ -32,6 +32,15 @@ export const formatDate = date => {
   // Format as required: 26-Oct-24 10:47 PM
   return `${day}-${month}-${year} ${formattedHours}:${formattedMinutes} ${amPm}`;
 };
+ export const formatDateOnly = (date) => {
+  const formattedDate = new Intl.DateTimeFormat('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: '2-digit',
+  }).format(date);
+
+  return formattedDate.replace(/ /g, '-');
+};
 export const getImageUrl = (partner_id, driver_id, profile_pic) => {
   if (!partner_id || !driver_id || !profile_pic) {
     return AppImages.profileImage;

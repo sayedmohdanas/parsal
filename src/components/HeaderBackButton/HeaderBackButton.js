@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: Colors.black,
     fontSize: responsiveFontSize(12),
-    // fontWeight: '500',
+    fontWeight: '500',
   },
 
   rightButtonContainer: {
@@ -172,8 +172,8 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   rightIcon: {
-    height: responsiveHeight(16),
-    width: responsiveWidth(16),
+    height: responsiveHeight(19),
+    width: responsiveWidth(19),
     resizeMode:'contain'
   },
   placeholder: {

@@ -252,11 +252,11 @@ const BottomNav = props => {
               style={[
                 styles.header,
                 {
-                  borderBottomWidth: props.home ? 0 : 0,
-                  borderColor: props.home ? Colors.brandBlue : null,
+                  borderBottomWidth: props.Trip ? 3 : 0,
+                  borderColor: props.Trip ? Colors.brandBlue : null,
                 },
               ]}>
-              <Text style={styles.menu_txt}>{'Trips'}</Text>
+              <Text style={[styles.menu_txt,{color:props.Trip ? Colors.brandBlue:'#000000'}]}>{'Trips'}</Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -348,11 +348,11 @@ const BottomNav = props => {
                 style={[
                   styles.header,
                   {
-                    borderBottomWidth: props.job ? 3 : 0,
+                    borderBottomWidth: props.order ? 3 : 0,
                     borderColor: Colors.brandBlue,
                   },
                 ]}>
-                <Text style={styles.menu_txt}>{'Order'}</Text>
+                <Text style={[styles.menu_txt,{color:props.order ? Colors.brandBlue:'#000000'}]}>{'Order'}</Text>
               </View>
             </TouchableOpacity>
           </View>
@@ -392,11 +392,11 @@ const BottomNav = props => {
                 style={[
                   styles.header,
                   {
-                    borderBottomWidth: props.profile ? 3 : 0,
+                    borderBottomWidth: props.Earning ? 3 : 0,
                     borderColor: Colors.brandBlue,
                   },
                 ]}>
-                <Text style={styles.menu_txt}>{'Earning'}</Text>
+                <Text style={[styles.menu_txt,{color:props.Earning ? Colors.brandBlue:'#000000'}]}>{'Earning'}</Text>
               </View>
             </TouchableOpacity>
           </View>
@@ -436,11 +436,11 @@ const BottomNav = props => {
                 style={[
                   styles.header,
                   {
-                    borderBottomWidth: props.profile ? 3 : 0,
+                    borderBottomWidth: props.account ? 3 : 0,
                     borderColor: Colors.brandBlue,
                   },
                 ]}>
-                <Text style={styles.menu_txt}>{'Account'}</Text>
+                <Text style={[styles.menu_txt,{color:props.account ? Colors.brandBlue:'#000000'}]}>{'Account'}</Text>
               </View>
             </TouchableOpacity>
           </View>
@@ -469,6 +469,8 @@ const styles = StyleSheet.create({
   menu_txt: {
     fontSize: responsiveFontSize(11),
     color: '#000000',
+    // borderBottomWidth:4
+
     // fontFamily: Font.txt_normal
   },
   row: {
