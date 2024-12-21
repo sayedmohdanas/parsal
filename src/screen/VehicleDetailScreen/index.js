@@ -126,24 +126,24 @@ const VehicleDetailScreen = ({route}) => {
             img_name: `${vehicleNumber}_rc.png`,
             img_src: rcUploaded?.base64 || '-',
           },
-          // {
-          //   partner_id: partnerId,
-          //   doc_id: 3,
-          //   img_name: `${vehicleNumber}_insurance.png`,
-          //   img_src: insuranceUploaded?.base64 || '-',
-          // },
-          // {
-          //   partner_id: partnerId,
-          //   doc_id: 3,
-          //   img_name: `${vehicleNumber}_pollution.png`,
-          //   img_src: pollutionUploaded?.base64 || '-',
-          // },
-          // {
-          //   partner_id: partnerId,
-          //   doc_id: 3,
-          //   img_name: `${vehicleNumber}_fitness.png`,
-          //   img_src: fitnessUploaded?.base64 || '-',
-          // },
+          {
+            partner_id: partnerId,
+            doc_id: 5,
+            img_name: `${vehicleNumber}_insurance.png`,
+            img_src: insuranceUploaded?.base64 || '-',
+          },
+          {
+            partner_id: partnerId,
+            doc_id: 10,
+            img_name: `${vehicleNumber}_pollution.png`,
+            img_src: pollutionUploaded?.base64 || '-',
+          },
+          {
+            partner_id: partnerId,
+            doc_id: 9,
+            img_name: `${vehicleNumber}_fitness.png`,
+            img_src: fitnessUploaded?.base64 || '-',
+          },
         ],
       };
       hitEditParnterVehicle(payload)
@@ -179,8 +179,26 @@ const VehicleDetailScreen = ({route}) => {
         vehicle_docs: [
           {
             partner_id: partnerId,
-            doc_id: 3,
+            doc_id: 4,
             img_name: `${vehicleNumber}_rc.png`,
+            img_src: rcUploaded?.base64 || '',
+          },
+          {
+            partner_id: partnerId,
+            doc_id: 5,
+            img_name: `${vehicleNumber}_insurance.png`,
+            img_src: rcUploaded?.base64 || '',
+          },
+          {
+            partner_id: partnerId,
+            doc_id: 10,
+            img_name: `${vehicleNumber}_pollution.png`,
+            img_src: rcUploaded?.base64 || '',
+          },
+          {
+            partner_id: partnerId,
+            doc_id: 9,
+            img_name: `${vehicleNumber}_fitness.png`,
             img_src: rcUploaded?.base64 || '',
           },
         ],

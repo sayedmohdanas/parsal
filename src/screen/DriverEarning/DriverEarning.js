@@ -1297,6 +1297,8 @@ const Earning = () => {
                     <View style={[styles.orderListContainer, { flex: 1 }]}>
                       {/* {driverData?.individualPaidAmounts?.length !=0 && ( */}
                         {/* {driverData?.individualPaidAmounts?.length != 0 ? ( */}
+                        {driverData?.individualPaidAmounts?.length != 0 ? (
+
                         <View
                           style={{
                             flexDirection: 'row',
@@ -1311,8 +1313,8 @@ const Earning = () => {
                             }}>
                             <Text
                               style={{
-                                fontSize: responsiveFontSize(14),
-                                fontWeight: 'bold',
+                                fontSize: responsiveFontSize(12),
+                                fontWeight: '600',
                                 marginRight: responsiveHeight(22),
                                 color: Colors.brandBlue,
                                 textDecorationLine:
@@ -1324,7 +1326,7 @@ const Earning = () => {
                             </Text>
                           </TouchableOpacity>
                         </View>
-                      {/* ):null} */}
+                       ):null} 
 
                       <FlatList
                         ListHeaderComponent={() => (
@@ -1351,7 +1353,7 @@ const Earning = () => {
                                   0 &&
                                   10,
                               }}>
-                              {transformedData?.length > 1 && (
+                              {driverData?.totalPaidAmount > 0 && (
                                 <FlatList
                                   data={transformedData.slice(1)}
                                   horizontal

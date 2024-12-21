@@ -19,6 +19,7 @@ import {
   endtripurl,
   getallvehicletypeurl,
   getBankAccount,
+  getDoctypes,
   getDriverDetails,
   getDriverTodaysEarningurl,
   getLedger,
@@ -68,6 +69,9 @@ export const hitGetPartner = param => {
 
 export const hitAddVehicle = param => {
   return apiPost(addVehicle, param);
+};
+export const hitGetDoctypes = param => {
+  return apiPost(getDoctypes, param);
 };
 export const hitDeleteVehicle = param => {
   return apiPost(deleteVehicle, param);

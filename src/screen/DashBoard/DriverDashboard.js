@@ -110,7 +110,6 @@ const DriverDashboard = () => {
   const get_user_details = async () => {
     const user = await AsyncStorage.getItem('user');
     const parsed_user = JSON.parse(user);
-    console.log('parsed_user', parsed_user);
 
     // setparsed_data(parsed_user);
     if (parsed_user?.payload?.owner_type == 0) {
@@ -121,6 +120,7 @@ const DriverDashboard = () => {
           const param = {driver_id: parsed_user?.payload?.driver_id};
           hitGetWalletBalanceApi(param)
             .then(res => {
+              
               dispatch(setwalletBalance(res));
             })
             .catch(err => {
@@ -248,7 +248,7 @@ const DriverDashboard = () => {
       get_user_details();
     }, []),
   );
-  console.log(driver_todays_earning);
+  console.log(';og------???',driver_todays_earning);
   return (
     <SafeAreaView style={styles.container}>
       {loading ? (

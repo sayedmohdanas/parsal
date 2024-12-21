@@ -145,7 +145,7 @@ const AccountScreen = () => {
           ) {
             const param = {
               driver_id:
-                parsed_user?.payload?.driver_id == null
+                parsed_user?.payload?.driver_id == null ||parsed_user?.payload?.driver_id == "-"
                   ? ''
                   : parsed_user?.payload?.driver_id,
               partner_id: parsed_user?.payload?.partner_id,

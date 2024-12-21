@@ -116,6 +116,8 @@ const AddCashScreen = ({ route }) => {
             const user = await AsyncStorage.getItem('user');
             const parsed_user = JSON.parse(user);
             const params = {
+              partner_id:parsed_user?.payload?.partner_id,
+
               driver_id: parsed_user?.payload?.driver_id,
               online: Number(balance), // Amount added
               cash: 0,
