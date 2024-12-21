@@ -829,7 +829,7 @@
 // });
 
 // export default Earning;
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
   View,
   Text,
@@ -849,7 +849,7 @@ import {
   responsiveHeight,
   responsiveWidth,
 } from '../../common/metrices';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import CustomHeader from '../DashBoard/components/CustomHeader';
 import BottomNav from '../../../navigation/BottomNav';
 import DateRangeSelector from '../DashBoard/components/DataRangeSelectore';
@@ -862,15 +862,15 @@ import moment from 'moment';
 import BarChart from './BarChart';
 import DriverDetails from './DriversDetail';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { errorToast } from '../../common/CommonFunction';
-import { mystyles } from '../../common/Mystyle';
-import { useSelector } from 'react-redux';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {errorToast} from '../../common/CommonFunction';
+import {mystyles} from '../../common/Mystyle';
+import {useSelector} from 'react-redux';
 
 const Earning = () => {
   const [selectedRange, setSelectedRange] = useState('today');
   const [totalEarnings, setTotalEarnings] = useState(0);
-  const [dateRange, setDateRange] = useState({ start: '', end: '' });
+  const [dateRange, setDateRange] = useState({start: '', end: ''});
   const [loading, setLoading] = useState(false);
   const [isEarningLoading, setIsEarningLoading] = useState(false);
   const [isDriverListLoading, setIsDriverListLoading] = useState(false);
@@ -905,7 +905,7 @@ const Earning = () => {
       startDate.setDate(startDate.getDate() - 6);
     }
 
-    setDateRange({ start: startDate, end: endDate });
+    setDateRange({start: startDate, end: endDate});
     setLoading(false);
   };
   const [driver_todays_earning, setdriver_todays_earning] = useState([]);
@@ -924,8 +924,8 @@ const Earning = () => {
       user_type: parsedUser?.payload?.owner_type,
       partner_id: parsedUser?.payload?.partner_id,
     };
-    
-    console.log('param', JSON.stringify(param));
+
+    // console.log('param', JSON.stringify(param));
     hitDriverEarning(param)
       .then(res => {
         // console.log('res', res?.data);
@@ -948,22 +948,22 @@ const Earning = () => {
       });
   };
 
-  const [selectedDriver, setSelectedDriver] = useState({ driver_id: 0 });
+  const [selectedDriver, setSelectedDriver] = useState({driver_id: 0});
 
   useFocusEffect(
     useCallback(() => {
       setcurrentIndex(3);
       get_data(null, 0, null);
-      return () => { };
+      return () => {};
     }, [selectedRange]),
   );
   const renderItem = useMemo(() => {
-    return ({ item }) => {
+    return ({item}) => {
       return <OrderDetail orderDetails={item} />;
     };
   }, []);
   const renderRieder = useMemo(() => {
-    return ({ item }) => {
+    return ({item}) => {
       return (
         <DriverDetails
           details={item}
@@ -977,7 +977,7 @@ const Earning = () => {
   }, [selectedDriver]);
   const formatDateForDisplay = date => {
     if (date != null && date) {
-      const options = { day: '2-digit', month: 'short', year: 'numeric' };
+      const options = {day: '2-digit', month: 'short', year: 'numeric'};
       const formattedDate = date?.toLocaleDateString('en-GB', options);
       return formattedDate.replace(/ /g, '-');
     }
@@ -988,7 +988,7 @@ const Earning = () => {
     const offset = next ? 1 : -1;
     start.setDate(start.getDate() + offset);
 
-    return { start: start, end: '' };
+    return {start: start, end: ''};
   };
   const calculateWeekRange = (startDate, next = true) => {
     const start = new Date(startDate);
@@ -997,7 +997,7 @@ const Earning = () => {
     const end = new Date(start);
     end.setDate(end.getDate() + 6);
 
-    return { start: start, end: end };
+    return {start: start, end: end};
   };
   const [next_flag, setnext_flag] = useState(0);
 
@@ -1032,7 +1032,6 @@ const Earning = () => {
     if (selectedRange === 'week') {
       const nextWeek = calculateWeekRange(currentStartDate, true);
       setDateRange(nextWeek);
-      console.log(nextWeek);
       if (currentIndex === 3) {
         setcurrentIndex(0); // Reset to 0 when at the last index
         setnext_flag(1);
@@ -1130,13 +1129,13 @@ const Earning = () => {
     );
     if (driverData && driverData.earnings) {
       if (next_flag) {
-        const earningsData = Object.values(driverData.earnings)[index]; 
+        const earningsData = Object.values(driverData.earnings)[index];
         return earningsData;
       }
-      const earningsData = Object.values(driverData.earnings).reverse()[index]; 
+      const earningsData = Object.values(driverData.earnings).reverse()[index];
       return earningsData;
     }
-    return null; 
+    return null;
   };
   const driverData = getDriverDataByIdAndIndex(
     logndetail?.payload?.owner_type == 0
@@ -1144,12 +1143,25 @@ const Earning = () => {
       : selectedDriver?.driver_id,
     currentIndex,
   );
+  const check_data = getDriverDataByIdAndIndex(
+    logndetail?.payload?.owner_type == 0 ? logindriverdetails?.id : 0,
+    currentIndex,
+  );
   const transformedData = useMemo(() => {
     return transformDriverData(driver_todays_earning);
   }, [driver_todays_earning, selectedRange]);
+  console.log(
+    'check_data?.individualPaidAmounts?.length',
+    check_data?.individualPaidAmounts?.length,
+  );
+  console.log(
+    'driverData?.totalPaidAmount',
+    driverData?.individualPaidAmounts?.length,
+  );
+
   return (
     <>
-      <SafeAreaView style={{ flex: 1, backgroundColor: Colors.homeBackground }}>
+      <SafeAreaView style={{flex: 1, backgroundColor: Colors.homeBackground}}>
         <View
           style={{
             height: responsiveHeight(60),
@@ -1171,7 +1183,7 @@ const Earning = () => {
           ) : (
             <>
               <View
-                style={{ alignSelf: 'center', marginTop: responsiveHeight(14) }}>
+                style={{alignSelf: 'center', marginTop: responsiveHeight(14)}}>
                 <DateRangeSelector
                   selectedRange={selectedRange}
                   setSelectedRange={setSelectedRange}
@@ -1182,16 +1194,16 @@ const Earning = () => {
                   }}
                 />
               </View>
-              <View style={[styles.earningDisplay, { justifyContent: 'center' }]}>
-                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+              <View style={[styles.earningDisplay, {justifyContent: 'center'}]}>
+                <View style={{justifyContent: 'center', alignItems: 'center'}}>
                   <Text style={styles.earningAmount}>
                     ₹
-                    {!isNaN(driverData?.totalPaidAmount)
-                      ? Math.round(driverData?.totalPaidAmount).toFixed(2)
+                    {!isNaN(check_data?.totalPaidAmount)
+                      ? Math.round(check_data?.totalPaidAmount).toFixed(2)
                       : '0.00'}
                   </Text>
-                  {driverData &&
-                    driverData?.individualPaidAmounts?.length !== 0 ? (
+                  {check_data &&
+                  check_data?.individualPaidAmounts?.length !== 0 ? (
                     <View style={styles.percentageContainer}>
                       <View style={styles.increaseContainer}>
                         <Image
@@ -1278,14 +1290,13 @@ const Earning = () => {
                 ) : (
                   <>
                     {/* {current_data?.individualPaidAmounts.length !== 0 && ( */}
-                    {driverData?.individualPaidAmounts?.length != 0 ? (
+                    {check_data?.totalPaidAmount > 0 ? (
                       <BarChart
-                      week_start_date={new Date(dateRange.start)}
-                      driverEarningData={driverData}
-                      selectedRange={selectedRange}
-                    />
-                    ):
-                    null}
+                        week_start_date={new Date(dateRange.start)}
+                        driverEarningData={check_data}
+                        selectedRange={selectedRange}
+                      />
+                    ) : null}
                     {/* {driverData?.individualPaidAmounts?.length !== 0 && (
                       <BarChart
                         week_start_date={new Date(dateRange.start)}
@@ -1294,11 +1305,10 @@ const Earning = () => {
                       />
                     )} */}
                     {/* )} */}
-                    <View style={[styles.orderListContainer, { flex: 1 }]}>
+                    <View style={[styles.orderListContainer, {flex: 1}]}>
                       {/* {driverData?.individualPaidAmounts?.length !=0 && ( */}
-                        {/* {driverData?.individualPaidAmounts?.length != 0 ? ( */}
-                        {driverData?.individualPaidAmounts?.length != 0 ? (
-
+                      {/* {driverData?.individualPaidAmounts?.length != 0 ? ( */}
+                      {check_data?.individualPaidAmounts?.length != 0 ? (
                         <View
                           style={{
                             flexDirection: 'row',
@@ -1306,10 +1316,12 @@ const Earning = () => {
                             alignItems: 'center',
                             // marginBottom: 10,
                           }}>
-                          <Text style={styles.orderListHeadign}>Order List</Text>
+                          <Text style={styles.orderListHeadign}>
+                            Order List
+                          </Text>
                           <TouchableOpacity
                             onPress={() => {
-                              setSelectedDriver({ driver_id: 0 });
+                              setSelectedDriver({driver_id: 0});
                             }}>
                             <Text
                               style={{
@@ -1326,7 +1338,7 @@ const Earning = () => {
                             </Text>
                           </TouchableOpacity>
                         </View>
-                       ):null} 
+                      ) : null}
 
                       <FlatList
                         ListHeaderComponent={() => (
@@ -1350,15 +1362,17 @@ const Earning = () => {
                                 marginTop:
                                   driverData &&
                                   driverData?.individualPaidAmounts?.length ==
-                                  0 &&
+                                    0 &&
                                   10,
                               }}>
-                              {driverData?.totalPaidAmount > 0 && (
+                              {check_data?.totalPaidAmount > 0 && (
                                 <FlatList
                                   data={transformedData.slice(1)}
                                   horizontal
                                   renderItem={renderRieder}
-                                  keyExtractor={(item, index) => index.toString()}
+                                  keyExtractor={(item, index) =>
+                                    index.toString()
+                                  }
                                 />
                               )}
                             </View>
@@ -1367,14 +1381,19 @@ const Earning = () => {
                         {'Order List '}
                       </Text>
                     )} */}
-                            {driverData?.individualPaidAmounts?.length === 0 && (
+                            {(check_data?.individualPaidAmounts?.length === 0 ||
+                              check_data?.individualPaidAmounts?.length ===
+                                undefined ||
+                              driverData?.individualPaidAmounts?.length === 0 ||
+                              driverData?.individualPaidAmounts?.length ===
+                                undefined) && (
                               <View
                                 style={{
                                   flex: 1,
                                   justifyContent: 'center',
                                   alignItems: 'center',
                                   alignSelf: 'center',
-                                  marginVertical:100,
+                                  marginVertical: 100,
                                   paddingVertical: responsiveHeight(0),
                                   marginTop: responsiveHeight(150),
                                 }}>
@@ -1436,7 +1455,7 @@ const styles = StyleSheet.create({
     width: responsiveWidth(230),
     justifyContent: 'center',
     alignItems: 'center',
-    resizeMode:'contain'
+    resizeMode: 'contain',
   },
   emptyboxStyle: {
     height: responsiveHeight(150),
@@ -1469,7 +1488,6 @@ const styles = StyleSheet.create({
     padding: responsiveHeight(18),
     paddingHorizontal: responsiveHeight(30),
     flexDirection: 'row',
-    
   },
   earningChart: {
     justifyContent: 'space-between',

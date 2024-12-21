@@ -58,8 +58,23 @@ const UpdateDriver = ({route}) => {
               const response = await hitDeleteVehicle({
                 vehicle_id: vehicle?.id,
               });
+              const user = await AsyncStorage.getItem('user');
+              let parsedUser = JSON.parse(user);
               if (response) {
-                navigation.goBack();
+                if (
+                  parsedUser?.payload?.owner_type == 2 ||
+                  (parsedUser?.payload?.owner_type == 1 &&
+                    vehicle?.driver_id == parsedUser?.payload?.driver_id)
+                ) {
+                  parsedUser.payload.owner_type = 1;
+                  parsedUser.payload.driver_id = null;
+                  parsedUser.payload.vehicle_type_id = null;
+                  await AsyncStorage.setItem(
+                    'user',
+                    JSON.stringify(parsedUser),
+                  );
+                  navigation.goBack();
+                }
               }
             } catch (error) {
               console.log(
