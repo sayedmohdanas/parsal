@@ -23,6 +23,7 @@ import AppImages from '../../../common/AppImages';
 import {hitGetgetLedger} from '../../../config/api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
+  formatDateOnly,
   getLast3Months,
   getLast7Days,
   getLastMonth,
@@ -37,6 +38,8 @@ const LedgerScreen = ({navigation}) => {
   const [dateRange, setDateRange] = useState(getToday());
   const [loading, setLoading] = useState(false);
   const [selectedKey, setSelectedKey] = useState(null); 
+  const [headerText, setHeaderText] = useState(formatDateOnly(new Date()));
+
 
 
   const handleCalendar = () => {
@@ -76,23 +79,27 @@ const LedgerScreen = ({navigation}) => {
       case 'today':
         setSelectedKey('today')
         setDateRange(getToday());
-        
+        setHeaderText(formatDateOnly(new Date()));
+
 
         break;
       case 'last7Days':
         setSelectedKey('last7Days')
-
         setDateRange(getLast7Days());
+        setHeaderText('last 07 Days');
+
         break;
       case 'lastMonth':
         setSelectedKey('lastMonth')
-
         setDateRange(getLastMonth());
+        setHeaderText('last 30 Days');
+
         break;
       case 'last3Months':
         setSelectedKey('last3Months')
-
         setDateRange(getLast3Months());
+        setHeaderText('last 90 Days');
+
         break;
       default:
         break;
@@ -176,6 +183,8 @@ const LedgerScreen = ({navigation}) => {
         rightButton={AppImages.calendarIcon}
         onButtonPress={handleCalendar}
         onPress={() => navigation.goBack()}
+        middleHeaderText={headerText ? headerText : 'All'}
+
       />
 
       {loading ? (
