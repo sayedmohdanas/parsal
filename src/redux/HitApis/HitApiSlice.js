@@ -4,6 +4,7 @@ import {
   hitAddVehicle,
   hitCreatePartner,
   hitDriverEarning,
+  hitGetBankAccount,
   hitGetDriverDetails,
   hitGetPartner,
   hitMyVehicle,
@@ -163,6 +164,19 @@ export const updateDriverStatus = createAsyncThunk(
   },
 );
 
+
+
+export const manageBankAccount = createAsyncThunk(
+  'parsalPartner/updateDriverStatus',
+  async (credentials, {rejectWithValue}) => {
+    try {
+      const response = await hitGetBankAccount(credentials);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.response || error);
+    }
+  },
+);
 const initialState = {
   user: null,
   PartnerDetails: null,
@@ -189,6 +203,7 @@ const initialState = {
   show_livetripe_menu: false,
   is_online: false,
   selectedDriver: null,
+  partner_bank_acocunt:null
 };
 
 const HitApiSlice = createSlice({
@@ -391,7 +406,8 @@ const HitApiSlice = createSlice({
       })
       .addCase(updateDriverStatus.rejected, (state, action) => {
         // Handle any error in case of failure
-      });
+      })
+      
 
     ///DriverEarning
     // .addCase(getDriverEaningData.pending, (state) => {

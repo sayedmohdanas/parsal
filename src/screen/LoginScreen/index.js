@@ -21,7 +21,7 @@ const LoginScreen = ({navigation, route}) => {
   const status = useSelector(state => state?.parsalPartner?.status);
   const loading = useSelector(state => state?.parsalPartner?.loading);
   const error = useSelector(state => state?.parsalPartner?.error);
-  console.log(error);
+
   const [termsAndConditions, setTermsAndConditions] = useState(false);
   const [tdsDeclaration, setTdsDeclaration] = useState(false);
   const [countryCode, setCountryCode] = useState('IN');
@@ -50,7 +50,37 @@ const LoginScreen = ({navigation, route}) => {
         email: number?.replaceAll(' ', '').toLocaleLowerCase(),
         fcm_token: await getToken(),
       };
-      dispatch(loginPartner(request));
+      // const response = await dispatch(loginPartner(request));
+      // console.log('Response:', response);
+      dispatch(loginPartner(request))
+  .then((response) => {
+    console.log('Response:', response);
+
+    if (response.meta.requestStatus === 'fulfilled') {
+      const { owner_type, m_driver_status, driving_vehicle_status } = response.payload.payload;
+
+      // Check conditions
+      if (owner_type === 0) {
+        if (m_driver_status === 1 && driving_vehicle_status === 1) {
+          console.log('Conditions met: m_driver_status and driving_vehicle_status are 1');
+          // Perform actions for this condition
+          navigation.replace('Otp', {number: number});
+        } else {
+          errorToast('Issue!!', error || 'Something went wrong');
+        }
+      } else {
+      successToast('Success', `OTP has been sent successfully to ${number}`);
+        navigation.replace('Otp', {number: number});
+      }
+    } else {
+      console.log('Request not fulfilled:', response.meta.requestStatus);
+    }
+  })
+  .catch((error) => {
+    console.error('Error:', error);
+    // Handle errors
+  });
+
       if (status === 'failed') {
         errorToast('Issue!!', error || 'Something went wrong');
       }
@@ -58,15 +88,15 @@ const LoginScreen = ({navigation, route}) => {
       console.log('Error in getting otp by email', error);
     }
   };
-  useEffect(() => {
-    if (status === 'succeeded' && !loading) {
-      successToast('Success', `OTP has been sent successfully to ${number}`);
-      // navigation.replace('OtpScreen', { number: number });
-      if (!loading) {
-        navigation.replace('Otp', {number: number});
-      }
-    }
-  }, [status]);
+  // useEffect(() => {
+  //   if (status === 'succeeded' && !loading) {
+  //     successToast('Success', `OTP has been sent successfully to ${number}`);
+  //     // navigation.replace('OtpScreen', { number: number });
+  //     if (!loading) {
+  //       navigation.replace('Otp', {number: number});
+  //     }
+  //   }
+  // }, [status]);
   const handleTermsPress = () => {
     navigation.navigate('TermsCondition', {
       id: 1,

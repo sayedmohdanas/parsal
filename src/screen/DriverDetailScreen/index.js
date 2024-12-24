@@ -110,9 +110,9 @@ const DriverDetailScreen = ({route}) => {
       current_long: longitude,
       address: 'Lucknow, Uttar Pradesh , India',
       fcm_id: await getMessaging().getToken(),
-      status: 1,
-      working_status: 1,
-      owner_status: isChecked && 2,      
+      status: 0,
+      working_status: 0,
+      owner_status: isChecked && 2,
     };
     try {
       if (updateDriverData) {
@@ -231,7 +231,7 @@ const DriverDetailScreen = ({route}) => {
                 navigation.navigate('MyVehicles');
                 setloader(false);
                 return;
-              } else if(parsedUser.payload.owner_type == 0) {
+              } else if (parsedUser.payload.owner_type == 0) {
                 // Update for partner becoming a driver
                 // parsedUser.payload.owner_type = 2; // Set as both partner and driver
                 parsedUser.payload.driver_id = response?.payload?.driver_id; // Assign driver ID
@@ -241,7 +241,7 @@ const DriverDetailScreen = ({route}) => {
                 navigation.navigate('MyVehicles');
                 setloader(false);
                 return;
-              }else{
+              } else {
                 navigation.navigate('MyVehicles');
                 setloader(false);
               }

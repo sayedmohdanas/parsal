@@ -34,6 +34,7 @@ import {
 import {
   hitEditParnterVehicle,
   hitGetAllVehicleTypeApi,
+  hitGetDoctypes,
 } from '../../config/api/api';
 import {getimage} from '../../config/url';
 import {FontSizes} from '../../common/Theme';
@@ -83,6 +84,13 @@ const VehicleDetailScreen = ({route}) => {
     UpdatedVehicleData?.vehicle_capacity || 5,
   );
 
+  //  const fetchVechileDoc=async()=>{
+  //   const response =await hitGetDoctypes({type:1})
+
+  //   console.log('response=========>>>',response);
+    
+  //  }
+
   const dispatch = useDispatch();
 
   const partnerId = useSelector(state => state?.parsalPartner?.partnerId);
@@ -91,9 +99,12 @@ const VehicleDetailScreen = ({route}) => {
   useEffect(() => {
     const pId = async () => {
       const parent_id = await AsyncStorage.getItem('partner_id');
+
       dispatch(setParentId(parent_id));
+
     };
     pId();
+    // fetchVechileDoc()
   }, [navigation]);
 
   const toggleBottomSheet = () => {
@@ -242,12 +253,10 @@ const VehicleDetailScreen = ({route}) => {
     hitGetAllVehicleTypeApi()
       .then(res => {
         const groupedVehicles = res?.data?.reduce((acc, vehicle) => {
-          // Check if there's already an entry for the current vehicle_type_id
           let existingGroup = acc.find(
             group => group.vehicle_type_id === vehicle.vehicle_type_id,
           );
 
-          // If not, create a new group for this vehicle_type_id
           if (!existingGroup) {
             existingGroup = {
               vehicle_type_id: vehicle.vehicle_type_id,
@@ -258,13 +267,12 @@ const VehicleDetailScreen = ({route}) => {
                   : vehicle?.vehicle_type_id == 3
                   ? AppImages.three_wheels
                   : AppImages.four_wheels,
-              vehicle_cat_name: vehicle.vehicle_cat_name, // Optional: you can remove if it's not needed
+              vehicle_cat_name: vehicle.vehicle_cat_name, 
               list: [],
             };
             acc.push(existingGroup);
           }
 
-          // Add the vehicle to the appropriate group's list
           existingGroup.list.push({
             id: vehicle.id,
             vehicle_cat_name: vehicle.vehicle_cat_name,
@@ -300,7 +308,7 @@ const VehicleDetailScreen = ({route}) => {
       );
       setVehicleSubCat(filteredVehicles);
     } else {
-      setVehicleSubCat([]); // Reset if no UpdatedVehicleData
+      setVehicleSubCat([]); 
     }
   }, [UpdatedVehicleData, all_vehicle_type]);
 

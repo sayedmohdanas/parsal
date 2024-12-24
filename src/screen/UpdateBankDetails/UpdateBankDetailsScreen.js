@@ -40,7 +40,7 @@ const UpdateBankDetailsScreen = ({ navigation }) => {
         setAccountNumber('');
         setIfscCode('');
         setBankDocument(null);
-        navigation.navigate('Trip'); 
+        navigation.goBack(); 
       } else {
         console.log(response);
         errorToast(response.message || response.error, 'Something went wrong!');
@@ -57,7 +57,7 @@ const UpdateBankDetailsScreen = ({ navigation }) => {
   };
   
   const disabled = accountNumber.length < 10 || ifscCode.length < 8
-  console.log(disabled)
+  // console.log(disabled)
 
   return (
     <>

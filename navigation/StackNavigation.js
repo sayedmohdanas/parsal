@@ -56,116 +56,7 @@ const StackNavigator = () => {
   const navigation = useNavigation();
   const [initialRoute, setInitialRoute] = useState(null);
   const [loading, setLoading] = useState(true);
-  const get_user_details = async () => {
-    const user = await AsyncStorage.getItem('user');
-    const parsed_user = JSON.parse(user);
 
-    if (parsed_user?.payload?.owner_type == 0) {
-      hitGetDriverDetails({ids: [parsed_user?.payload?.driver_id]})
-        .then(res => {
-          // setuser_details(res?.drivers[0]);
-          dispatch(setloginuserdetails(res?.drivers[0]));
-          const param = {driver_id: parsed_user?.payload?.driver_id};
-
-          // parsed_user?.payload?.driver_id};
-          hitGetWalletBalanceApi(param)
-            .then(res => {
-              dispatch(setwalletBalance(res));
-            })
-            .catch(err => {
-              console.error(err);
-            });
-          const parameter = {
-            user_id: parsed_user?.payload?.driver_id,
-            type: 'driver',
-          };
-          hitGetLiveOrderApi(parameter)
-            .then(res => {
-              if (res?.status == 0) {
-                setshow_live(false);
-                dispatch(setlivetripmenu(false));
-              } else {
-                dispatch(setlivetripmenu(true));
-                setshow_live(true);
-                const {order_otp, ...restOrderData} = res?.ongoingOrder || {};
-                const modifiedOrderData = {...restOrderData, otp: order_otp};
-                dispatch(setOrderData(modifiedOrderData));
-                if (res?.ongoingOrder?.is_arrived_pickup) {
-                  dispatch(setupdate_order(modifiedOrderData));
-                }
-                // navigation.navigate('DriverMap');
-              }
-            })
-            .catch(err => {
-              console.error(err);
-            });
-        })
-        .catch(err => {
-          console.log(err);
-        });
-    } else {
-      hitGetPartner({
-        partner_id: parsed_user?.payload?.partner_id,
-      })
-        .then(res => {
-          // setuser_details(res?.partner);
-          dispatch(setloginuserdetails(res?.partner));
-          if (parsed_user?.payload?.owner_type == 2) {
-            const param = {driver_id: parsed_user?.payload?.driver_id};
-
-            // parsed_user?.payload?.driver_id};
-            hitGetWalletBalanceApi(param)
-              .then(res => {
-                dispatch(setwalletBalance(res));
-              })
-              .catch(err => {
-                console.error(err);
-              });
-            const parameter = {
-              user_id: parsed_user?.payload?.driver_id,
-              type: 'driver',
-            };
-            hitGetLiveOrderApi(parameter)
-              .then(res => {
-                if (res?.ongoingOrder?.length == 0) {
-                  // setshow_live(false);
-                  dispatch(setlivetripmenu(false));
-                  return;
-                } else {
-                  // setshow_live(true);
-                  dispatch(setlivetripmenu(true));
-
-                  const {order_otp, ...restOrderData} =
-                    res?.ongoingOrder[0] || {};
-                  const modifiedOrderData = {...restOrderData, otp: order_otp};
-
-                  dispatch(setOrderData(modifiedOrderData));
-
-                  if (res?.ongoingOrder[0]?.is_arrived_pickup) {
-                    dispatch(setupdate_order(modifiedOrderData));
-                  }
-                  if (res?.ongoingOrder?.length > 1) {
-                    const {order_otp, ...restOrderData} =
-                      res?.ongoingOrder[1] || {};
-                    const modifiedOrderData = {
-                      ...restOrderData,
-                      otp: order_otp,
-                    };
-                    dispatch(setnextOrderData(modifiedOrderData));
-                  }
-                  navigation.navigate('DriverMap');
-                }
-              })
-              .catch(err => {
-                console.error(err);
-              });
-          }
-        })
-        .catch(err => {
-          console.error(err);
-        });
-    }
-  };
   useEffect(() => {
     const checkUserStatus = async () => {
       setLoading(true);
@@ -184,9 +75,37 @@ const StackNavigator = () => {
                 partnerId: parsedUser?.payload?.partner_id,
               });
               if (res?.status === 1 && res?.vehicles) {
-                const hasDriverAssigned = res.vehicles.some(
-                  vehicle => vehicle.driver_id !== null,
-                );
+                res.vehicles.forEach(vehicle => {
+                  const vehicleStatus = vehicle.vehicle_status ?? 0;
+                  const mDriverStatus = vehicle.driver?.m_driver_status ?? 0;
+                  const driverVehicleStatus = vehicle.driver?.driver_vehicle_status ?? 0;
+              
+                  console.log('vehicle_status:', vehicleStatus);
+                  console.log('m_driver_status:', mDriverStatus);
+                  console.log('driver_vehicle_status:', driverVehicleStatus);
+                });
+              
+                const hasDriverAssigned = res.vehicles.some(vehicle => {
+                  const vehicleStatus = vehicle.vehicle_status ?? 0;
+                  const mDriverStatus = vehicle.driver?.m_driver_status ?? 0;
+                  const driverVehicleStatus = vehicle.driver?.driver_vehicle_status ?? 0;
+              
+                  return (
+                    vehicleStatus == 1 &&
+                    mDriverStatus == 1 &&
+                    driverVehicleStatus == 1
+                  );
+                });
+                // console.log('anas=====>>>>>>',res?.vehicles.map(vehicle => 
+                //   vehicle.vehicle_status ==0 ||
+                //   vehicle.m_driver_status == 0 ||
+                //   vehicle.driver_vehicle_status == 0
+                // ));
+                
+                
+                // res?.vehicles.some(
+                //   vehicle => vehicle.driver_id !== null,
+                // );
 
                 if (hasDriverAssigned) {
                   setInitialRoute('Trip');
@@ -198,7 +117,50 @@ const StackNavigator = () => {
                 setInitialRoute('MyVehicles');
               }
             } else if (ownerType === 2) {
-              setInitialRoute('Trip');
+              
+              const res = await hitMyVehicle({
+                partnerId: parsedUser?.payload?.partner_id,
+              });
+              // console.log('resres===>>',res?.vehicles)
+              if (res?.status === 1 && res?.vehicles) {
+                // res.vehicles.forEach(vehicle => {
+                //   const vehicleStatus = vehicle.vehicle_status ?? 0;
+                //   const mDriverStatus = vehicle.driver?.m_driver_status ?? 0;
+                //   const driverVehicleStatus = vehicle.driver?.driver_vehicle_status ?? 0;
+              
+                //   console.log('vehicle_status:', vehicleStatus);
+                //   console.log('m_driver_status:', mDriverStatus);
+                //   console.log('driver_vehicle_status:', driverVehicleStatus);
+                // });
+              
+                const hasDriverAssigned = res.vehicles.some(vehicle => {
+                  const vehicleStatus = vehicle.vehicle_status ?? 0;
+                  const mDriverStatus = vehicle.driver?.m_driver_status ?? 0;
+                  const driverVehicleStatus = vehicle.driver?.driver_vehicle_status ?? 0;
+              
+                  return (
+                    vehicleStatus == 1 &&
+                    mDriverStatus == 1 &&
+                    driverVehicleStatus == 1
+                  );
+                });
+                // console.log('anas=====>>>>>>',res?.vehicles.map(vehicle => 
+                //   vehicle.vehicle_status ==0 ||
+                //   vehicle.m_driver_status == 0 ||
+                //   vehicle.driver_vehicle_status == 0
+                // ));
+                
+                
+                // res?.vehicles.some(
+                //   vehicle => vehicle.driver_id !== null,
+                // );
+
+                if (hasDriverAssigned) {
+                  setInitialRoute('Trip');
+                } else {
+                  setInitialRoute('MyVehicles');
+                }
+              }
             } else {
               setInitialRoute('Login');
             }

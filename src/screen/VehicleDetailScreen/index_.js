@@ -85,10 +85,6 @@ const VehicleDetailScreen = ({navigation, route}) => {
       driver_id: null,
       vehicle_number: vehicleNumber,
       vehicle_type_id: selected_vehicle,
-      //vehicle_sub_cat[0]?.vehicle_type_id,
-      //  selectedVehicleType
-      //   ? selectedVehicleType.value
-      //   : 'v-type',
       vehicle_model: selectedVehicleModel,
       vehicle_color: selectedVehicleColor,
       fuel_type:

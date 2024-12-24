@@ -227,7 +227,7 @@ import {
   setLogout,
   setMyVehicleData,
   setParentId,
-} from '../../redux/HitApis/HitApiSlice'; // Ensure this is the correct path
+} from '../../redux/HitApis/HitApiSlice'; 
 import Loading from '../../components/Loading/Loading';
 import VehicleList from './VehicleList';
 import {hitMyVehicle} from '../../config/api/api';
@@ -249,13 +249,12 @@ const MyVehiclesScreen = ({route}) => {
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const navigation = useNavigation();
   const vehicleCount = vehicleData?.length;
-  const [loading, setLoading] = useState(false); // State to manage loading
+  const [loading, setLoading] = useState(false); 
   const refreshData = async () => {
     try {
       const partnerIds = await AsyncStorage.getItem('partner_id');
       const partnerId = JSON.parse(partnerIds);
-      await dispatch(setParentId(partnerId));
-      console.log(partnerId);
+      await dispatch(setParentId(partnerId));      
       hitMyVehicle({partnerId: partnerId})
         .then(res => {
           dispatch(setMyVehicleData(res));
@@ -279,11 +278,6 @@ const MyVehiclesScreen = ({route}) => {
   }, []);
   // Handle card press
   const handleCardPress = vehicleId => {
-    console.log(
-      'vehicleId',
-      vehicleData?.filter(item => item?.id == vehicleId)[0],
-    );
-    console.log('vehicleId', vehicleId);
     navigation.navigate('DriverDetail', {
       v_id: vehicleId,
       vehicle_num: vehicleData?.filter(item => item?.id == vehicleId)[0]
@@ -292,7 +286,7 @@ const MyVehiclesScreen = ({route}) => {
     });
   };
   const handleAddBankPress = () => {
-    navigation.navigate('UpdateBankDetails'); // Replace 'TargetScreen' with your desired screen name
+    navigation.navigate('UpdateBankDetails'); 
   };
   const onPress = () => {
     Alert.alert('Pay Fees Button Pressed');
@@ -310,14 +304,13 @@ const MyVehiclesScreen = ({route}) => {
         'Logged out successfully',
         'You will be redirected to login.',
       );
-      navigation.replace('Login'); // Navigate to the login screen
+      navigation.replace('Login'); 
     } catch (error) {
       console.error(error);
       errorToast('Logout Failed', 'An error occurred during logout.');
     }
   };
   function isAnyVehicleAssignedToDriver(vehicles) {
-    // Check if any vehicle has a driver assigned
     if (vehicles) return vehicles?.some(vehicle => vehicle.driver_id !== null);
   }
   return (

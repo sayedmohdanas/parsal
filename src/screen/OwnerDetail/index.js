@@ -54,6 +54,7 @@ const OwnerDetailScreen = ({navigation, route}) => {
             img_src: panCardUploaded?.base64 || '',
           },
         ],
+        status: 0,
       };
 
       try {
@@ -137,7 +138,6 @@ const OwnerDetailScreen = ({navigation, route}) => {
             onImagePick={setSelfieUploaded}
             useCamera={false}
             isForProfile={true}
-
           />
         </View>
 

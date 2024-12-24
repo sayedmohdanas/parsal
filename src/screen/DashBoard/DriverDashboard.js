@@ -248,7 +248,6 @@ const DriverDashboard = () => {
       get_user_details();
     }, []),
   );
-  console.log(';og------???',driver_todays_earning);
   return (
     <SafeAreaView style={styles.container}>
       {loading ? (

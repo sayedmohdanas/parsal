@@ -96,25 +96,24 @@ const OtpScreen = ({navigation, route}) => {
         navigation.replace('DriverDashboard');
 
         return;
-      }
-      //  else if (owner_type == 1 || owner_type == 2) {
-      // await AsyncStorage.setItem('owner_type', JSON.stringify(owner_type));
-      // await AsyncStorage.setItem('partner_id', JSON.stringify(id));
-      //   console.log(user);
-      //   //  await dispatch(setOwner(owner_type))
-      //   // navigation.replace('Trip');
-      //   return;
-      // }
-      else if (owner_type == 1) {
+      } else if (owner_type == 1) {
         await AsyncStorage.setItem('owner_type', JSON.stringify(owner_type));
         await AsyncStorage.setItem('partner_id', JSON.stringify(id));
         const res = await hitMyVehicle({
           partnerId: JSON.stringify(id),
         });
         if (res?.status == 1 && res?.vehicles) {
-          const hasDriverAssigned = res.vehicles.some(
-            vehicle => vehicle.driver_id !== null,
-          );
+          const hasDriverAssigned = res.vehicles.some(vehicle => {
+            const vehicleStatus = vehicle.vehicle_status ?? 0;
+            const mDriverStatus = vehicle.driver?.m_driver_status ?? 0;
+            const driverVehicleStatus = vehicle.driver?.driver_vehicle_status ?? 0;
+        
+            return (
+              vehicleStatus == 1 &&
+              mDriverStatus == 1 &&
+              driverVehicleStatus == 1
+            );
+          });
           if (hasDriverAssigned) {
             navigation.replace('Trip');
             return;
@@ -126,12 +125,35 @@ const OtpScreen = ({navigation, route}) => {
       } else if (owner_type == 2) {
         await AsyncStorage.setItem('owner_type', JSON.stringify(owner_type));
         await AsyncStorage.setItem('partner_id', JSON.stringify(id));
-        navigation.replace('Trip');
-        return;
+        const res = await hitMyVehicle({
+          partnerId: JSON.stringify(id),
+        });
+        console.log(res);
+        if (res?.status == 1 && res?.vehicles) {
+          const hasDriverAssigned = res.vehicles.some(vehicle => {
+            const vehicleStatus = vehicle.vehicle_status ?? 0;
+            const mDriverStatus = vehicle.driver?.m_driver_status ?? 0;
+            const driverVehicleStatus = vehicle.driver?.driver_vehicle_status ?? 0;
+        
+            return (
+              vehicleStatus == 1 &&
+              mDriverStatus == 1 &&
+              driverVehicleStatus == 1
+            );
+          });
+          if (hasDriverAssigned) {
+            navigation.replace('Trip');
+            return;
+          } else {
+            navigation.replace('MyVehicles');
+            return;
+          }
+        }
       }
       const response = await hitPartnerVerifyOtp(request);
       const partnerId = response?.partnerId;
       if (response.status === 2) {
+
         if (
           response?.partner?.email !== null &&
           response?.partner?.phone !== null &&
