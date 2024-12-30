@@ -79,6 +79,10 @@ export const getOrderFareDetail = getEndpoint('users/get-order-fareDetails');
 export const editpartnervehicleurl = getEndpoint(
   'partner/edit-partner-vehicle',
 );
+export const updatedocsurl = getEndpoint(
+  'partner/update-docs',
+);
+
 export const deleteNotificationurl = getEndpoint(
   'generic/delete-user-notifications',
 );

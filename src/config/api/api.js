@@ -41,6 +41,7 @@ import {
   placeOrder,
   reviewTermsAndCondition,
   transactionurl,
+  updatedocsurl,
   updateDriverDetails,
   updateDriverDistanceurl,
   updateDriverLocationurl,
@@ -218,4 +219,7 @@ export const hitGetgetLedger = param => {
 };
 export const hitgetDriverTodaysEarningApi = param => {
   return apiPost(getDriverTodaysEarningurl, param);
+};
+export const hitUpdateDocsApi = param => {
+  return apiPost(updatedocsurl, param);
 };

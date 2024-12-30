@@ -227,7 +227,7 @@ import {
   setLogout,
   setMyVehicleData,
   setParentId,
-} from '../../redux/HitApis/HitApiSlice'; 
+} from '../../redux/HitApis/HitApiSlice';
 import Loading from '../../components/Loading/Loading';
 import VehicleList from './VehicleList';
 import {hitMyVehicle} from '../../config/api/api';
@@ -250,15 +250,14 @@ const MyVehiclesScreen = ({route}) => {
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const navigation = useNavigation();
   const vehicleCount = vehicleData?.length;
-  const [loading, setLoading] = useState(false); 
-const [verifyVisibleCard,setVerifyVisibleCard]=useState(false)
-
+  const [loading, setLoading] = useState(false);
+  const [verifyVisibleCard, setVerifyVisibleCard] = useState(false);
 
   const refreshData = async () => {
     try {
       const partnerIds = await AsyncStorage.getItem('partner_id');
       const partnerId = JSON.parse(partnerIds);
-      await dispatch(setParentId(partnerId));      
+      await dispatch(setParentId(partnerId));
       hitMyVehicle({partnerId: partnerId})
         .then(res => {
           dispatch(setMyVehicleData(res));
@@ -282,8 +281,6 @@ const [verifyVisibleCard,setVerifyVisibleCard]=useState(false)
   }, []);
   // Handle card press
   const handleCardPress = vehicleId => {
-
-    
     navigation.navigate('DriverDetail', {
       v_id: vehicleId,
       vehicle_num: vehicleData?.filter(item => item?.id == vehicleId)[0]
@@ -292,7 +289,7 @@ const [verifyVisibleCard,setVerifyVisibleCard]=useState(false)
     });
   };
   const handleAddBankPress = () => {
-    navigation.navigate('UpdateBankDetails'); 
+    navigation.navigate('UpdateBankDetails');
   };
   const onPress = () => {
     Alert.alert('Pay Fees Button Pressed');
@@ -310,7 +307,7 @@ const [verifyVisibleCard,setVerifyVisibleCard]=useState(false)
         'Logged out successfully',
         'You will be redirected to login.',
       );
-      navigation.replace('Login'); 
+      navigation.replace('Login');
     } catch (error) {
       console.error(error);
       errorToast('Logout Failed', 'An error occurred during logout.');
@@ -319,6 +316,13 @@ const [verifyVisibleCard,setVerifyVisibleCard]=useState(false)
   function isAnyVehicleAssignedToDriver(vehicles) {
     if (vehicles) return vehicles?.some(vehicle => vehicle.driver_id !== null);
   }
+  // console.log(
+  //   'vehicleData',
+  //   vehicleData[0]?.documents?.filter(item => item?.status == 2),
+  // );
+
+  const [selected_vehicle, setselected_vehicle] = useState();
+  console.log('selected_vehicle', selected_vehicle);
   return (
     <>
       <View style={{height: responsiveHeight(60)}}>
@@ -348,8 +352,9 @@ const [verifyVisibleCard,setVerifyVisibleCard]=useState(false)
             <VehicleList
               vehicleData={vehicleData}
               handleCardPress={handleCardPress}
-              isError={false}
               setVerifyVisibleCard={setVerifyVisibleCard}
+              setselected_vehicle={setselected_vehicle}
+              selected_vehicle={selected_vehicle}
             />
           </>
         )}
@@ -399,9 +404,15 @@ const [verifyVisibleCard,setVerifyVisibleCard]=useState(false)
             </TouchableOpacity>
           </View>
         </View>
-        {verifyVisibleCard&&(
-          <VehicleVerificationCard verifyVisibleCard={verifyVisibleCard} setVerifyVisibleCard={setVerifyVisibleCard} />
-
+        {verifyVisibleCard && (
+          <VehicleVerificationCard
+            reject_Data={selected_vehicle?.documents?.filter(
+              item => item?.status == 2,
+            )}
+            selected_vehicle={selected_vehicle}
+            verifyVisibleCard={verifyVisibleCard}
+            setVerifyVisibleCard={setVerifyVisibleCard}
+          />
         )}
       </View>
       {/* < VehicleVerificationCard/> */}
@@ -432,7 +443,6 @@ const [verifyVisibleCard,setVerifyVisibleCard]=useState(false)
         </View>
       </Modal>
       {/* < VehicleVerificationCard/> */}
-
     </>
   );
 };

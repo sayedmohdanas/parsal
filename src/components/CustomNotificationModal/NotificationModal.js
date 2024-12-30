@@ -74,6 +74,7 @@ const NotificationModal = ({
   receiver_name,
   receiver_phone,
   tips,
+  good_type,
 }) => {
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
@@ -158,6 +159,7 @@ const NotificationModal = ({
         receiver_phone,
         receiver_name,
         tips: parseFloat(tips),
+        good_type,
       };
 
       // Pass the payload into the API call

@@ -17,16 +17,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useDispatch} from 'react-redux';
 import {getDriverDetails, setDriverId} from '../../redux/HitApis/HitApiSlice';
 
-const VehicleCard = ({vehicle, onPress,
+const VehicleCard = ({
+  vehicle,
+  onPress,
 
-
-  isError,
   setVerifyVisibleCard,
+  setselected_vehicle,
+  selected_vehicle,
 }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const hasDriver = !!vehicle?.driver?.driver_name; // Check if driver_name exists and convert to a boolean
-
+  const error_data = vehicle?.documents?.filter(item => item?.status == 2);
   const handleDriverDetails = async () => {
     // Store driver data in AsyncStorage
     await AsyncStorage.setItem('driver_data', JSON.stringify(vehicle));
@@ -43,15 +45,16 @@ const VehicleCard = ({vehicle, onPress,
 
       // // Navigate to the Dashboard
       if (vehicle) {
-        if(isError){
-          setVerifyVisibleCard(true)
-          return
+        if (error_data?.length > 0 ) {
+          setVerifyVisibleCard(true);
+          setselected_vehicle(vehicle);
+          return;
         }
-        navigation.navigate('UpdateDriver', { vehicle: { ...vehicle } });
+        navigation.navigate('UpdateDriver', {vehicle: {...vehicle}});
       } else {
         console.log('Vehicle data is undefined or null');
-      }    } else {
-      
+      }
+    } else {
       // If no driver, navigate to DriverDetail screen
       onPress(vehicle?.id);
       // navigation.navigate('DriverDetail', { vehicleId: vehicle?.id });
@@ -62,10 +65,7 @@ const VehicleCard = ({vehicle, onPress,
   };
 
   return (
-    <TouchableHighlight underlayColor={'none'}
-     onPress={handleDriverDetails}
-    >
-  
+    <TouchableHighlight underlayColor={'none'} onPress={handleDriverDetails}>
       <View style={styles.card}>
         <View style={styles.topSection}>
           <View style={styles.leftSection}>
@@ -87,9 +87,15 @@ const VehicleCard = ({vehicle, onPress,
             </View>
           </View>
           {hasDriver ? (
-            <View style={styles.rightSection}>
-              <Text style={styles.status}>Verifying</Text>
-            </View>
+            error_data?.length > 0 ? (
+              <View style={styles.errorSection}>
+                <Text style={styles.errorText}>ERROR</Text>
+              </View>
+            ) : (
+              <View style={styles.rightSection}>
+                <Text style={styles.status}>Verifying</Text>
+              </View>
+            )
           ) : (
             <TouchableOpacity
               onPress={handleDriverDetails}
@@ -116,6 +122,28 @@ const VehicleCard = ({vehicle, onPress,
 };
 
 const styles = StyleSheet.create({
+  errorSection: {
+    // backgroundColor: 'rgba(255, 0, 0, 0.1)',
+    // padding: 10,
+    // borderRadius: 5,
+    // alignItems: 'center',
+    // marginVertical: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 25,
+    paddingHorizontal: 10,
+    // paddingVertical:4,
+    backgroundColor: 'rgba(255, 0, 0, 0.1)',
+
+    // height: 24,
+    // marginTop: 5,
+    marginVertical: 10,
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
   card: {
     // position: 'relative',
     // padding: 16,

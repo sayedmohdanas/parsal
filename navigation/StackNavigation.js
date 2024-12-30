@@ -76,9 +76,9 @@ const StackNavigator = () => {
               });
               if (res?.status === 1 && res?.vehicles) {
                 res.vehicles.forEach(vehicle => {
-                  const vehicleStatus = vehicle.vehicle_status ?? 0;
-                  const mDriverStatus = vehicle.driver?.m_driver_status ?? 0;
-                  const driverVehicleStatus = vehicle.driver?.driver_vehicle_status ?? 0;
+                  const vehicleStatus = vehicle?.vehicle_status ?? 0;
+                  const mDriverStatus = vehicle?.driver?.m_driver_status ?? 0;
+                  const driverVehicleStatus = vehicle?.driver?.driver_vehicle_status ?? 0;
               
                   console.log('vehicle_status:', vehicleStatus);
                   console.log('m_driver_status:', mDriverStatus);
@@ -86,13 +86,13 @@ const StackNavigator = () => {
                 });
               
                 const hasDriverAssigned = res.vehicles.some(vehicle => {
-                  const vehicleStatus = vehicle.vehicle_status ?? 0;
-                  const mDriverStatus = vehicle.driver?.m_driver_status ?? 0;
-                  const driverVehicleStatus = vehicle.driver?.driver_vehicle_status ?? 0;
+                  const vehicleStatus = vehicle?.vehicle_status ?? 0;
+                  const mDriverStatus = vehicle?.driver?.m_driver_status ?? 0;
+                  const driverVehicleStatus = vehicle?.driver?.driver_vehicle_status ?? 0;
               
                   return (
-                    vehicleStatus == 1 &&
-                    mDriverStatus == 1 &&
+                    vehicleStatus == 0 &&
+                    mDriverStatus == 0 ||
                     driverVehicleStatus == 1
                   );
                 });

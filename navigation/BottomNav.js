@@ -206,12 +206,7 @@ const BottomNav = props => {
       get_user_details();
     }, []),
   );
-  // navigation.navigate('DriverMap');
-  // if (res?.ongoingOrder[0]?.is_arrived_pickup) {
-  //   dispatch(setupdate_order(modifiedOrderData));
-  //   navigation.navigate('DriverMap');
-  //   return;
-  // }
+
   return (
     <View style={styles.container}>
       <View style={styles.row}>
@@ -252,11 +247,11 @@ const BottomNav = props => {
               style={[
                 styles.header,
                 {
-                  borderBottomWidth: props.Trip ? 3 : 0,
-                  borderColor: props.Trip ? Colors.brandBlue : null,
+                  borderBottomWidth: props.home ? 0 : 0,
+                  borderColor: props.home ? Colors.brandBlue : null,
                 },
               ]}>
-              <Text style={[styles.menu_txt,{color:props.Trip ? Colors.brandBlue:'#000000'}]}>{'Trips'}</Text>
+              <Text style={styles.menu_txt}>{'Trips'}</Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -282,8 +277,7 @@ const BottomNav = props => {
                       {orderData && (
                         <TouchableOpacity
                           onPress={() => {
-                            if ((orderData || nextOrderData || update_order) && (parse_data?.payload?.owner_type == 0 || parse_data?.payload?.owner_type == 1)) {
-
+                            if (orderData || nextOrderData || update_order) {
                               navigation.navigate('DriverMap');
                             } else {
                               navigation.navigate('TripScreen');
@@ -316,8 +310,7 @@ const BottomNav = props => {
                     {orderData && (
                       <TouchableOpacity
                         onPress={() => {
-                          if ((orderData || nextOrderData || update_order) && (parse_data?.payload?.owner_type == 0 || parse_data?.payload?.owner_type == 1)) {
-
+                          if (orderData || nextOrderData || update_order) {
                             navigation.navigate('DriverMap');
                           } else {
                             navigation.navigate('TripScreen');
@@ -350,11 +343,11 @@ const BottomNav = props => {
                 style={[
                   styles.header,
                   {
-                    borderBottomWidth: props.order ? 3 : 0,
+                    borderBottomWidth: props.job ? 3 : 0,
                     borderColor: Colors.brandBlue,
                   },
                 ]}>
-                <Text style={[styles.menu_txt,{color:props.order ? Colors.brandBlue:'#000000'}]}>{'Order'}</Text>
+                <Text style={styles.menu_txt}>{'Order'}</Text>
               </View>
             </TouchableOpacity>
           </View>
@@ -394,11 +387,11 @@ const BottomNav = props => {
                 style={[
                   styles.header,
                   {
-                    borderBottomWidth: props.Earning ? 3 : 0,
+                    borderBottomWidth: props.profile ? 3 : 0,
                     borderColor: Colors.brandBlue,
                   },
                 ]}>
-                <Text style={[styles.menu_txt,{color:props.Earning ? Colors.brandBlue:'#000000'}]}>{'Earning'}</Text>
+                <Text style={styles.menu_txt}>{'Earning'}</Text>
               </View>
             </TouchableOpacity>
           </View>
@@ -438,11 +431,11 @@ const BottomNav = props => {
                 style={[
                   styles.header,
                   {
-                    borderBottomWidth: props.account ? 3 : 0,
+                    borderBottomWidth: props.profile ? 3 : 0,
                     borderColor: Colors.brandBlue,
                   },
                 ]}>
-                <Text style={[styles.menu_txt,{color:props.account ? Colors.brandBlue:'#000000'}]}>{'Account'}</Text>
+                <Text style={styles.menu_txt}>{'Account'}</Text>
               </View>
             </TouchableOpacity>
           </View>
@@ -457,7 +450,7 @@ const styles = StyleSheet.create({
     height: responsiveHeight(62),
     backgroundColor: Colors.white,
     marginHorizontal: responsiveWidth(16),
-    borderRadius: responsiveHeight(40),
+    borderRadius: 40,
     // elevation: 7,
     // shadowColor: Colors.black,
     // iOS Shadow
@@ -471,8 +464,6 @@ const styles = StyleSheet.create({
   menu_txt: {
     fontSize: responsiveFontSize(11),
     color: '#000000',
-    // borderBottomWidth:4
-
     // fontFamily: Font.txt_normal
   },
   row: {
