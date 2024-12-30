@@ -16,6 +16,7 @@ import Colors from '../../common/Colors';
 import {responsiveFontSize, responsiveHeight} from '../../common/metrices';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
+import { getMessaging } from '@react-native-firebase/messaging';
 
 const OwnerDetailScreen = ({navigation, route}) => {
   const {partner_id, email} = route.params;
@@ -36,6 +37,7 @@ const OwnerDetailScreen = ({navigation, route}) => {
         phone: generateRandomPhoneNumber(),
         address: '123, Main Street, Springfield',
         admin_remark: 'I am a new partner with id 3',
+        fcm_token: await getMessaging().getToken(),
         profile_pic: [
           {
             img_name: 'profile.png',

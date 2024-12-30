@@ -59,8 +59,18 @@ const TransactionHistory = () => {
 
   const [selectedKey, setSelectedKey] = useState(null); // State for selected driver
 
-
   const [login_user, setlogin_user] = useState();
+  const updateData = data => {
+    return data.map(item => {
+      if (item.payment_type === 2 || item.payment_type === 3) {
+        return {
+          ...item,
+          mode: 2, // Update mode to 2
+        };
+      }
+      return item; // Return unchanged item if condition is not met
+    });
+  };
   const get_data = async () => {
     try {
       setIsLoading(true);
@@ -72,7 +82,7 @@ const TransactionHistory = () => {
         setIsLoading(false);
         return;
       }
-      const { owner_type, partner_id, driver_id } = parsedUser.payload || {};
+      const {owner_type, partner_id, driver_id} = parsedUser.payload || {};
 
       const id = owner_type === 1 || owner_type === 2 ? partner_id : driver_id;
       const param = {
@@ -81,9 +91,8 @@ const TransactionHistory = () => {
         end_date: dateRange?.endDate,
       };
       const res = await hitGetTransactionListApi(param);
-
-      setData(res?.data);
-      setSelectedDriver({ driver_id: res?.data[0]?.driver_id });
+      setData(updateData(res?.data)); // Update state with the modified array
+      setSelectedDriver({driver_id: res?.data[0]?.driver_id});
       setFilteredData(res?.data);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -91,6 +100,13 @@ const TransactionHistory = () => {
       setIsLoading(false);
     }
   };
+
+
+
+
+
+
+
 
   const handleSearch = text => {
     setSearchText(text);
@@ -157,6 +173,14 @@ const TransactionHistory = () => {
       setMode('2')
 
       const filtered = data?.filter(item => item.mode === 2);
+      setFilteredData(filtered);
+
+    }
+    else if (mode === '3') {
+      setMode('3')
+
+      const filtered = data.filter(item => item.payment_type == 3);
+      
       setFilteredData(filtered);
 
     }

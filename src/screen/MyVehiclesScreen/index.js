@@ -242,6 +242,7 @@ import CustomHeader from '../DashBoard/components/CustomHeader';
 import {useNavigation} from '@react-navigation/native';
 import AppImages from '../../common/AppImages';
 import {successToast} from '../../common/CommonFunction';
+import VehicleVerificationCard from './VehicleVerification';
 
 const MyVehiclesScreen = ({route}) => {
   const dispatch = useDispatch();
@@ -250,6 +251,9 @@ const MyVehiclesScreen = ({route}) => {
   const navigation = useNavigation();
   const vehicleCount = vehicleData?.length;
   const [loading, setLoading] = useState(false); 
+const [verifyVisibleCard,setVerifyVisibleCard]=useState(false)
+
+
   const refreshData = async () => {
     try {
       const partnerIds = await AsyncStorage.getItem('partner_id');
@@ -278,6 +282,8 @@ const MyVehiclesScreen = ({route}) => {
   }, []);
   // Handle card press
   const handleCardPress = vehicleId => {
+
+    
     navigation.navigate('DriverDetail', {
       v_id: vehicleId,
       vehicle_num: vehicleData?.filter(item => item?.id == vehicleId)[0]
@@ -342,6 +348,8 @@ const MyVehiclesScreen = ({route}) => {
             <VehicleList
               vehicleData={vehicleData}
               handleCardPress={handleCardPress}
+              isError={false}
+              setVerifyVisibleCard={setVerifyVisibleCard}
             />
           </>
         )}
@@ -391,7 +399,13 @@ const MyVehiclesScreen = ({route}) => {
             </TouchableOpacity>
           </View>
         </View>
+        {verifyVisibleCard&&(
+          <VehicleVerificationCard verifyVisibleCard={verifyVisibleCard} setVerifyVisibleCard={setVerifyVisibleCard} />
+
+        )}
       </View>
+      {/* < VehicleVerificationCard/> */}
+
       <Modal
         animationType="slide"
         transparent={true}
@@ -417,6 +431,8 @@ const MyVehiclesScreen = ({route}) => {
           </View>
         </View>
       </Modal>
+      {/* < VehicleVerificationCard/> */}
+
     </>
   );
 };
@@ -424,7 +440,7 @@ const MyVehiclesScreen = ({route}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    // padding: 16,
     backgroundColor: '#f0f0f0',
   },
   stickyButtonContainer: {

@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Colors from '../../../../common/Colors';
 import {Fonts, FontSizes, Spacing} from '../../../../common/Theme';
@@ -17,74 +17,77 @@ import {
   responsiveHeight,
   responsiveWidth,
 } from '../../../../common/metrices';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import {errorToast} from '../../../../common/CommonFunction';
 import HeaderBackButton from '../../../../components/HeaderBackButton/HeaderBackButton';
-import { hitGetBankAccount } from '../../../../config/api/api';
+import {hitGetBankAccount} from '../../../../config/api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 
 const WalletScreen = ({route}) => {
   const [balance, setBalance] = useState(0);
   const [isHidden, setIsHidden] = useState(true); // State to control visibility
-  const [accountNumber,setAccountNumber]=useState('0754234')
+  const [accountNumber, setAccountNumber] = useState('0754234');
   // Generate the masked number: Keep the first two digits, replace the rest with stars
   const maskedNumber =
     accountNumber.slice(0, 2) + '*'.repeat(accountNumber.length - 2);
 
   // const store_data = useSelector(state => state?.parsalPartner);
   const store_data = useSelector(
-    state => state.parsalPartner.wallet_balance?.data?.new_balance || 0,
+    state => state.parsalPartner?.wallet_balance || 0,
   );
 
   const navigation = useNavigation();
 
-//   useEffect(() => {
-//     if (route.params?.newBalance) {
-//       setBalance(route.params.newBalance);
-//     } else {
-//       setBalance(store_data);
-//     }
-// try {
-//   const response = await hitGetBankAccount
-// } catch (error) {
-  
-// }
-//   }, [route.params?.newBalance, store_data]);
+  //   useEffect(() => {
+  //     if (route.params?.newBalance) {
+  //       setBalance(route.params.newBalance);
+  //     } else {
+  //       setBalance(store_data);
+  //     }
+  // try {
+  //   const response = await hitGetBankAccount
+  // } catch (error) {
 
-useEffect(() => {
-  // Define the async function inside useEffect
-  const fetchBankAccountDetails = async () => {
-    if (route.params?.newBalance) {
-      setBalance(route.params.newBalance);
-    } else {
-      setBalance(store_data);
-    }
+  // }
+  //   }, [route.params?.newBalance, store_data]);
 
-    try {
-      const user = await AsyncStorage.getItem('user');
-      const parsedUser = JSON.parse(user);
-
-      const param = {
-        partnerId: parsedUser?.payload?.partner_id,
+  useFocusEffect(
+    useCallback(() => {
+      // Define the async function inside useCallback
+      const fetchBankAccountDetails = async () => {   
+        if (route?.params?.new_balance) {
+          setBalance(route.params.new_balance);
+        } else {
+          setBalance(store_data);
+        }
       };
-      const response = await hitGetBankAccount({partner_id: param?.partnerId});
-      console.log(response,'response---->>')
-      if (response) {
-        setAccountNumber(response?.data?.account_no || '');
-      } else {
-        console.error('Error fetching bank account details:', response.statusText);
-      }
-    } catch (error) {
-      console.error('An error occurred:', error);
-    }
-  };
 
-  // Call the async function
-  fetchBankAccountDetails();
-}, [route.params?.newBalance, store_data]);
+      // Call the async function
+      fetchBankAccountDetails();
+    }, [route.params?.new_balance, store_data]), // Add dependencies here
+  );
+  // try {
+  //   const user = await AsyncStorage.getItem('user');
+  //   const parsedUser = JSON.parse(user);
+  //   const param = {
+  //     partnerId: parsedUser?.payload?.partner_id,
+  //   };
+  //   const response = await hitGetBankAccount({
+  //     partner_id: param?.partnerId,
+  //   });
+  //   if (response) {
+  //     setAccountNumber(response?.data?.account_no || '');
+  //   } else {i
 
+  //     console.error(
+  //       'Error fetching bank account details:',
+  //       response.statusText,
+  //     );
+  //   }
+  // } catch (error) {
+  //   console.error('An error occurred:', error);
+  // }
   return (
     <SafeAreaView style={styles.container}>
       <HeaderBackButton
@@ -106,9 +109,9 @@ useEffect(() => {
           </TouchableOpacity>
           <View style={styles.balanceContainer}>
             <Text style={styles.balanceText}>
-              {' '}
-              {'₹ ' + (balance || 0).toFixed(2) + ''}
+              {'₹ ' + (Number(balance) || 0).toFixed(2)}
             </Text>
+
             <View style={styles.walletInfoContainer}>
               <Image
                 source={AppImages.my_wallet}
@@ -136,7 +139,10 @@ useEffect(() => {
             <TouchableOpacity
               style={styles.button}
               onPress={() =>
-                navigation.navigate('AddCash', {screenName: 'Add Cash',remaningBalance:balance})
+                navigation.navigate('AddCash', {
+                  screenName: 'Add Cash',
+                  remaningBalance: balance,
+                })
               }>
               <Text style={styles.buttonText}>Add Cash</Text>
             </TouchableOpacity>
@@ -147,7 +153,10 @@ useEffect(() => {
                   errorToast('Insufficient balance to cash out.');
                   return; // Add return here to prevent navigation if balance is less than 0
                 }
-                navigation.navigate('AddCash', {screenName: 'Withdraw',remaningBalance:balance});
+                navigation.navigate('AddCash', {
+                  screenName: 'Withdraw',
+                  remaningBalance: balance,
+                });
               }}>
               <Text style={styles.buttonText}>Cash Out</Text>
             </TouchableOpacity>
@@ -177,15 +186,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(120, 122, 243, 1)',
     borderRadius: responsiveHeight(5),
     padding: 4,
-    paddingHorizontal:responsiveWidth(6),
-    paddingVertical:responsiveHeight(8)
-
+    paddingHorizontal: responsiveWidth(6),
+    paddingVertical: responsiveHeight(8),
   },
   transactionImage: {
     width: responsiveWidth(24),
     height: responsiveHeight(24),
-    resizeMode:'contain'
-    
+    resizeMode: 'contain',
   },
   balanceContainer: {
     alignItems: 'center',
@@ -206,8 +213,7 @@ const styles = StyleSheet.create({
   walletIcon: {
     width: responsiveWidth(12),
     height: responsiveHeight(14),
-    resizeMode:'contain'
-
+    resizeMode: 'contain',
   },
   walletInfoText: {
     marginLeft: Spacing.small,

@@ -53,33 +53,49 @@ const LoginScreen = ({navigation, route}) => {
       // const response = await dispatch(loginPartner(request));
       // console.log('Response:', response);
       dispatch(loginPartner(request))
-  .then((response) => {
-    console.log('Response:', response);
-
-    if (response.meta.requestStatus === 'fulfilled') {
-      const { owner_type, m_driver_status, driving_vehicle_status } = response.payload.payload;
-
-      // Check conditions
-      if (owner_type === 0) {
-        if (m_driver_status === 1 && driving_vehicle_status === 1) {
-          console.log('Conditions met: m_driver_status and driving_vehicle_status are 1');
-          // Perform actions for this condition
-          navigation.replace('Otp', {number: number});
+      .then((response) => {
+        console.log('Response:', response);
+    
+        if (response.meta.requestStatus === 'fulfilled') {
+          // Ensure payload and payload.payload are defined
+          if (!response.payload || !response.payload.payload) {
+            successToast('Success', `OTP has been sent successfully to ${number}`);
+            navigation.replace('Otp', { number });
+            return;
+          }
+    
+          const { owner_type, m_driver_status, driving_vehicle_status } = response.payload.payload;
+    
+          // Case: New user (owner_type is undefined)
+          if (owner_type === undefined) {
+            console.log('New user detected: owner_type is undefined');
+            successToast('Success', `OTP has been sent successfully to ${number}`);
+            navigation.replace('Otp', { number });
+            return;
+          }
+    
+          // Case: Existing user
+          if (owner_type === 0) {
+            if (m_driver_status === 1 && driving_vehicle_status === 1) {
+              console.log('Conditions met: m_driver_status and driving_vehicle_status are 1');
+              navigation.replace('Otp', { number });
+            } else {
+              errorToast('Issue!!', 'Please complete your profile to proceed.');
+            }
+          } else {
+            successToast('Success', `OTP has been sent successfully to ${number}`);
+            navigation.replace('Otp', { number });
+          }
         } else {
-          errorToast('Issue!!', error || 'Something went wrong');
+          console.log('Request not fulfilled:', response.meta.requestStatus);
+          errorToast('Error', 'Unable to send OTP. Please try again.');
         }
-      } else {
-      successToast('Success', `OTP has been sent successfully to ${number}`);
-        navigation.replace('Otp', {number: number});
-      }
-    } else {
-      console.log('Request not fulfilled:', response.meta.requestStatus);
-    }
-  })
-  .catch((error) => {
-    console.error('Error:', error);
-    // Handle errors
-  });
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+        errorToast('Error', 'An unexpected error occurred. Please try again.');
+      });
+    
 
       if (status === 'failed') {
         errorToast('Issue!!', error || 'Something went wrong');

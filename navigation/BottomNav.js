@@ -282,7 +282,8 @@ const BottomNav = props => {
                       {orderData && (
                         <TouchableOpacity
                           onPress={() => {
-                            if (orderData || nextOrderData || update_order) {
+                            if ((orderData || nextOrderData || update_order) && (parse_data?.payload?.owner_type == 0 || parse_data?.payload?.owner_type == 1)) {
+
                               navigation.navigate('DriverMap');
                             } else {
                               navigation.navigate('TripScreen');
@@ -315,7 +316,8 @@ const BottomNav = props => {
                     {orderData && (
                       <TouchableOpacity
                         onPress={() => {
-                          if (orderData || nextOrderData || update_order) {
+                          if ((orderData || nextOrderData || update_order) && (parse_data?.payload?.owner_type == 0 || parse_data?.payload?.owner_type == 1)) {
+
                             navigation.navigate('DriverMap');
                           } else {
                             navigation.navigate('TripScreen');

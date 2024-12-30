@@ -3,13 +3,21 @@ import {View, FlatList, Text, StyleSheet, Image} from 'react-native';
 import VehicleCard from './VehicleCard'; // Adjust the path as needed
 import AppImages from '../../common/AppImages';
 
-const VehicleList = ({vehicleData, handleCardPress}) => {
+const VehicleList = ({vehicleData, handleCardPress,
+
+  isError,
+  setVerifyVisibleCard
+
+}) => {
   return (
     <>
       <FlatList
         data={vehicleData}
         renderItem={({item}) => (
-          <VehicleCard vehicle={item} onPress={handleCardPress} />
+          <VehicleCard vehicle={item} onPress={handleCardPress} 
+          isError={isError}
+          setVerifyVisibleCard={setVerifyVisibleCard}
+          />
         )}
         showsVerticalScrollIndicator={false}
         keyExtractor={(item, index) => index.toString()}
@@ -28,6 +36,7 @@ const VehicleList = ({vehicleData, handleCardPress}) => {
 const styles = StyleSheet.create({
   emptyContainer: {
     flex: 1,
+    // margin:16,
     justifyContent: 'center',
     alignItems: 'center',
     height: '100%',

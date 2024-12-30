@@ -17,7 +17,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useDispatch} from 'react-redux';
 import {getDriverDetails, setDriverId} from '../../redux/HitApis/HitApiSlice';
 
-const VehicleCard = ({vehicle, onPress}) => {
+const VehicleCard = ({vehicle, onPress,
+
+
+  isError,
+  setVerifyVisibleCard,
+}) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const hasDriver = !!vehicle?.driver?.driver_name; // Check if driver_name exists and convert to a boolean
@@ -38,6 +43,10 @@ const VehicleCard = ({vehicle, onPress}) => {
 
       // // Navigate to the Dashboard
       if (vehicle) {
+        if(isError){
+          setVerifyVisibleCard(true)
+          return
+        }
         navigation.navigate('UpdateDriver', { vehicle: { ...vehicle } });
       } else {
         console.log('Vehicle data is undefined or null');
@@ -113,7 +122,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     // borderWidth: 1,
     // shadowColor: '#000',
-    // marginTop: 10,
+    margin: 16,
     marginVertical: 7,
     backgroundColor: 'white',
     flex: 1,
