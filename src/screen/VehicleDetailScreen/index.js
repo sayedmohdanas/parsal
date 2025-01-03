@@ -120,6 +120,7 @@ const VehicleDetailScreen = ({route}) => {
         vehicle_number: vehicleNumber,
         vehicle_type_id: selected_vehicle,
         vehicle_model: selectedVehicleModel,
+        status:0,
         vehicle_color: selectedVehicleColor,
         fuel_type:
           selectedFuelType === 'Petrol'
@@ -178,6 +179,8 @@ const VehicleDetailScreen = ({route}) => {
         vehicle_type_id: selected_vehicle,
         vehicle_model: selectedVehicleModel,
         vehicle_color: selectedVehicleColor,
+        status:0,
+
         fuel_type:
           selectedFuelType === 'Petrol'
             ? 2

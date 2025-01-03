@@ -16,6 +16,7 @@ const VehicleVerificationCard = ({
   setVerifyVisibleCard,
   reject_Data,
   selected_vehicle,
+  refreshData
 }) => {
   const [onCrossToggle, setOnCrossToggle] = useState(true);
 
@@ -50,7 +51,10 @@ const VehicleVerificationCard = ({
 
     hitUpdateDocsApi(param)
       .then(res => {
-        console.log(res);
+       if(res?.status){
+        handleCrossToggle()
+        refreshData()
+       }
       })
       .catch(err => {
         console.error(err);

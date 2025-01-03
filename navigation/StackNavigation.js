@@ -91,8 +91,8 @@ const StackNavigator = () => {
                   const driverVehicleStatus = vehicle?.driver?.driver_vehicle_status ?? 0;
               
                   return (
-                    vehicleStatus == 0 &&
-                    mDriverStatus == 0 ||
+                    vehicleStatus == 1 &&
+                    mDriverStatus == 1 &&
                     driverVehicleStatus == 1
                   );
                 });

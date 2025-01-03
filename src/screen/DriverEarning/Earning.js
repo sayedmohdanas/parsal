@@ -403,13 +403,13 @@ const Earning = () => {
     );
     if (driverData && driverData.earnings) {
       if (next_flag) {
-        const earningsData = Object.values(driverData.earnings)[index]; // index corresponds to the day data (0 for first, 1 for second, etc.)
+        const earningsData = Object.values(driverData.earnings)[index]; 
         return earningsData;
       }
-      const earningsData = Object.values(driverData.earnings).reverse()[index]; // index corresponds to the day data (0 for first, 1 for second, etc.)
+      const earningsData = Object.values(driverData.earnings).reverse()[index]; 
       return earningsData;
     }
-    return null; // Return null if no driver found or earnings data is not available
+    return null; 
   };
 
   const driverData = getDriverDataByIdAndIndex(

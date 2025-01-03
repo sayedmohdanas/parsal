@@ -322,7 +322,7 @@ const MyVehiclesScreen = ({route}) => {
   // );
 
   const [selected_vehicle, setselected_vehicle] = useState();
-  console.log('selected_vehicle', selected_vehicle);
+ 
   return (
     <>
       <View style={{height: responsiveHeight(60)}}>
@@ -412,6 +412,7 @@ const MyVehiclesScreen = ({route}) => {
             selected_vehicle={selected_vehicle}
             verifyVisibleCard={verifyVisibleCard}
             setVerifyVisibleCard={setVerifyVisibleCard}
+            refreshData={refreshData}
           />
         )}
       </View>
