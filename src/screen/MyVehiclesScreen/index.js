@@ -283,8 +283,9 @@ const MyVehiclesScreen = ({route}) => {
   const handleCardPress = vehicleId => {
     navigation.navigate('DriverDetail', {
       v_id: vehicleId,
-      vehicle_num: vehicleData?.filter(item => item?.id == vehicleId)[0]
-        ?.vehicle_number,
+      vehicle_num: vehicleData?.vehicles?.filter(
+        item => item?.id == vehicleId,
+      )[0]?.vehicle_number,
       onUpdate: refreshData,
     });
   };
@@ -316,13 +317,8 @@ const MyVehiclesScreen = ({route}) => {
   function isAnyVehicleAssignedToDriver(vehicles) {
     if (vehicles) return vehicles?.some(vehicle => vehicle.driver_id !== null);
   }
-  // console.log(
-  //   'vehicleData',
-  //   vehicleData[0]?.documents?.filter(item => item?.status == 2),
-  // );
-
   const [selected_vehicle, setselected_vehicle] = useState();
- 
+  console.log('selected_vehicle', selected_vehicle?.vehicle?.driver);
   return (
     <>
       <View style={{height: responsiveHeight(60)}}>
@@ -350,7 +346,8 @@ const MyVehiclesScreen = ({route}) => {
         ) : (
           <>
             <VehicleList
-              vehicleData={vehicleData}
+              vehicleData={vehicleData?.vehicles}
+              partnerData={vehicleData?.partner}
               handleCardPress={handleCardPress}
               setVerifyVisibleCard={setVerifyVisibleCard}
               setselected_vehicle={setselected_vehicle}
@@ -359,7 +356,7 @@ const MyVehiclesScreen = ({route}) => {
           </>
         )}
         <View style={styles.stickyButtonContainer}>
-          {isAnyVehicleAssignedToDriver(vehicleData) && (
+          {isAnyVehicleAssignedToDriver(vehicleData?.vehicles) && (
             <View
               style={{
                 backgroundColor: Colors.brandBlue,
@@ -406,9 +403,24 @@ const MyVehiclesScreen = ({route}) => {
         </View>
         {verifyVisibleCard && (
           <VehicleVerificationCard
-            reject_Data={selected_vehicle?.documents?.filter(
-              item => item?.status == 2,
-            )}
+            reject_Data={[
+              ...(selected_vehicle?.vehicle?.documents
+                ?.filter(item => item?.status == 2)
+                ?.map(doc => ({...doc, docType: 'vehicle'})) || []),
+              ...(selected_vehicle?.partner_data?.documents
+                ?.filter(item => item?.status == 2)
+                ?.map(doc => ({...doc, docType: 'partner'})) || []),
+              ...(selected_vehicle?.vehicle?.driver
+                ?.isApproved_driving_license == 2
+                ? [
+                    {
+                      doc_name: 'Driving License',
+                      doc_pic: selected_vehicle?.driver?.driving_license_pic,
+                      docType: 'driver',
+                    },
+                  ]
+                : []),
+            ]}
             selected_vehicle={selected_vehicle}
             verifyVisibleCard={verifyVisibleCard}
             setVerifyVisibleCard={setVerifyVisibleCard}

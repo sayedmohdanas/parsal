@@ -220,7 +220,7 @@ const HitApiSlice = createSlice({
       state.update_order = action.payload;
     },
     setMyVehicleData(state, action) {
-      state.MyVehicle = action.payload.vehicles;
+      state.MyVehicle = action.payload;
     },
     setDriverId(state, action) {
       state.driverId = action.payload;

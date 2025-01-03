@@ -20,7 +20,7 @@ import {getDriverDetails, setDriverId} from '../../redux/HitApis/HitApiSlice';
 const VehicleCard = ({
   vehicle,
   onPress,
-
+  partnerData,
   setVerifyVisibleCard,
   setselected_vehicle,
   selected_vehicle,
@@ -29,6 +29,11 @@ const VehicleCard = ({
   const dispatch = useDispatch();
   const hasDriver = !!vehicle?.driver?.driver_name; // Check if driver_name exists and convert to a boolean
   const error_data = vehicle?.documents?.filter(item => item?.status == 2);
+  const driver_error_data = vehicle?.driver?.isApproved_driving_license == 2;  
+  const partner_error_data = partnerData?.documents?.filter(
+    item => item?.status == 2,
+  );
+
   const handleDriverDetails = async () => {
     // Store driver data in AsyncStorage
     await AsyncStorage.setItem('driver_data', JSON.stringify(vehicle));
@@ -45,9 +50,13 @@ const VehicleCard = ({
 
       // // Navigate to the Dashboard
       if (vehicle) {
-        if (error_data?.length > 0 ) {
+        if (
+          error_data?.length > 0 ||
+          partner_error_data?.length > 0 ||
+          driver_error_data
+        ) {
           setVerifyVisibleCard(true);
-          setselected_vehicle(vehicle);
+          setselected_vehicle({vehicle: vehicle, partner_data: partnerData});
           return;
         }
         navigation.navigate('UpdateDriver', {vehicle: {...vehicle}});
@@ -87,7 +96,9 @@ const VehicleCard = ({
             </View>
           </View>
           {hasDriver ? (
-            error_data?.length > 0 ? (
+            error_data?.length > 0 ||
+            partner_error_data?.length > 0 ||
+            driver_error_data ? (
               <View style={styles.errorSection}>
                 <Text style={styles.errorText}>ERROR</Text>
               </View>

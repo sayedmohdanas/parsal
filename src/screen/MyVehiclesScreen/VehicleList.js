@@ -7,7 +7,7 @@ const VehicleList = ({
   vehicleData,
   handleCardPress,
 
-  isError,
+  partnerData,
   setVerifyVisibleCard,
   setselected_vehicle,
   selected_vehicle,
@@ -23,6 +23,7 @@ const VehicleList = ({
             setVerifyVisibleCard={setVerifyVisibleCard}
             setselected_vehicle={setselected_vehicle}
             selected_vehicle={selected_vehicle}
+            partnerData={partnerData}
           />
         )}
         showsVerticalScrollIndicator={false}

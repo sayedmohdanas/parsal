@@ -10,24 +10,18 @@ import {
 import Line from '../../components/Line/Line';
 import ImagePickerComponent from '../../components/ImagePickerComponent/ImagePicker';
 import {hitUpdateDocsApi} from '../../config/api/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const VehicleVerificationCard = ({
   verifyVisibleCard,
   setVerifyVisibleCard,
   reject_Data,
   selected_vehicle,
-  refreshData
+  refreshData,
 }) => {
-  const [onCrossToggle, setOnCrossToggle] = useState(true);
-
   const handleCrossToggle = () => {
     setVerifyVisibleCard(false); // Close the card when cross icon is clicked
   };
-
-  // const handleVerifyAgain = () => {
-  //   console.log('Verify Again button clicked!');
-  //   // Add your "Verify Again" logic here
-  // };
 
   if (!verifyVisibleCard) return null; // If toggled off, don't render anything
   const [uploadedImages, setUploadedImages] = useState({}); // Object to store images for each doc
@@ -38,23 +32,54 @@ const VehicleVerificationCard = ({
     }));
   };
   // console.log("uploadedImages",uploadedImages);
-  const handleVerifyAgain = () => {
+  //   const handleVerifyAgain = () => {
+  //     const outputData = Object.keys(uploadedImages).map(key => ({
+  //       id: parseInt(key, 10), // Convert the key to an integer for id
+  //       img_src: uploadedImages[key].base64, // Use the base64 data as img_src
+  //       img_name: uploadedImages[key].uri.split('/').pop(), // Extract the file name from the URI
+  //     }));
+  //     const param = {
+  //       vehicle_id: selected_vehicle?.vehicle?.id,
+  //       vehicle_docs: outputData,
+  //     };
+  // console.log(param);
+  //     // hitUpdateDocsApi(param)
+  //     //   .then(res => {
+  //     //     if (res?.status) {
+  //     //       handleCrossToggle();
+  //     //       refreshData();
+  //     //     }
+  //     //   })
+  //     //   .catch(err => {
+  //     //     console.error(err);
+  //     //   });
+  //   };
+  const handleVerifyAgain = async () => {
     const outputData = Object.keys(uploadedImages).map(key => ({
       id: parseInt(key, 10), // Convert the key to an integer for id
       img_src: uploadedImages[key].base64, // Use the base64 data as img_src
       img_name: uploadedImages[key].uri.split('/').pop(), // Extract the file name from the URI
+      docType: reject_Data.find(doc => doc.id === parseInt(key, 10))?.docType, // Identify docType ('vehicle' or 'partner')
     }));
+    const vehicleDocs = outputData.filter(doc => doc.docType === 'vehicle');
+    const partnerDocs = outputData.filter(doc => doc.docType === 'partner');
+    const driverDocs = outputData.filter(doc => doc.docType === 'driver');
+    const partnerIds = await AsyncStorage.getItem('partner_id');
+    const partnerId = JSON.parse(partnerIds);
     const param = {
-      vehicle_id: selected_vehicle?.id,
-      vehicle_docs: outputData,
+      vehicle_id: selected_vehicle?.vehicle?.id,
+      vehicle_docs: vehicleDocs,
+      partner_doc: partnerDocs,
+      partnerId: partnerId,
+      driverDocs: driverDocs,
     };
-
+    // Uncomment when ready to hit the API
     hitUpdateDocsApi(param)
       .then(res => {
-       if(res?.status){
-        handleCrossToggle()
-        refreshData()
-       }
+        if (res?.status) {
+          handleCrossToggle();
+          refreshData();
+        }
       })
       .catch(err => {
         console.error(err);
@@ -72,8 +97,8 @@ const VehicleVerificationCard = ({
       {/* Main Card */}
       <View style={styles.UserDetailMainContainer}>
         <Text style={styles.cardTitle}>
-          {selected_vehicle?.vehicle_number},{' '}
-          {selected_vehicle?.driver?.driver_name || ''}
+          {selected_vehicle?.vehicle?.vehicle_number},{' '}
+          {selected_vehicle?.vehicle?.driver?.driver_name || ''}
         </Text>
         <Text style={styles.cardTitle}>Update the following Document</Text>
         <Line marginH={18} />
@@ -84,9 +109,16 @@ const VehicleVerificationCard = ({
               re-upload the documents to verify again.
             </Text>
           </View>
-          {/* {reject_Data?.map(item => (
-            <>
+          {reject_Data?.map(item => {
+            return (
               <View key={item?.id} style={styles.adressContainer}>
+                <Text style={styles.docTypeLabel}>
+                  {item?.docType == 'vehicle'
+                    ? 'Vehicle Document'
+                    : item?.docType == 'driver'
+                    ? 'Driver Document'
+                    : 'Partner Document'}
+                </Text>
                 <ImagePickerComponent
                   labelText={item?.doc_name}
                   uploaded={uploadedImages[item?.id]} // Pass the uploaded image for this doc
@@ -94,20 +126,6 @@ const VehicleVerificationCard = ({
                   useCamera={false}
                 />
               </View>
-            </>
-          ))} */}
-          {reject_Data?.map(item => {
-            return (
-              <>
-                <View key={item?.id} style={styles.adressContainer}>
-                  <ImagePickerComponent
-                    labelText={item?.doc_name}
-                    uploaded={uploadedImages[item?.id]} // Pass the uploaded image for this doc
-                    onImagePick={image => handleImagePick(item?.id, image)} // Update state with the picked image
-                    useCamera={false}
-                  />
-                </View>
-              </>
             );
           })}
         </View>
@@ -165,10 +183,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: Colors.black,
     textAlign: 'center',
-    padding: responsiveHeight(8),
+    padding: responsiveHeight(2),
   },
   statusDetail: {
     marginTop: responsiveHeight(12),
+    marginBottom: responsiveHeight(5),
     paddingHorizontal: responsiveHeight(18),
   },
   statusText: {
@@ -178,7 +197,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   adressContainer: {
-    marginTop: responsiveHeight(12),
+    marginTop: responsiveHeight(3),
     paddingHorizontal: responsiveHeight(15),
   },
   verifyButton: {
@@ -193,6 +212,12 @@ const styles = StyleSheet.create({
     fontSize: responsiveFontSize(12),
     color: Colors.grey,
     fontWeight: 'bold',
+  },
+  docTypeLabel: {
+    fontSize: responsiveFontSize(12),
+    color: Colors.grey,
+    fontWeight: 'bold',
+    marginBottom: responsiveHeight(5),
   },
 });
 
