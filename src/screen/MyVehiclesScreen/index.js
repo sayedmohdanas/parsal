@@ -318,7 +318,7 @@ const MyVehiclesScreen = ({route}) => {
     if (vehicles) return vehicles?.some(vehicle => vehicle.driver_id !== null);
   }
   const [selected_vehicle, setselected_vehicle] = useState();
-  console.log('selected_vehicle', selected_vehicle?.vehicle?.driver);
+  // console.log('selected_vehicle', selected_vehicle?.vehicle?.driver);
   return (
     <>
       <View style={{height: responsiveHeight(60)}}>

@@ -36,13 +36,7 @@ const UpdateDriver = ({route}) => {
   // console.log('vehicle',vehicle);
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
-  const vehicledatadummy = {
-    rc_image: AppImages.Bike,
-    vehicle_number: 'UP-32-J-8778',
-    vehicle_type: '2 Wheeler',
-    fuel_type: 'Petrol',
-  };
-
+ 
   const handleVehicleDelete = () => {
     Alert.alert(
       'Delete Vehcile',
@@ -214,7 +208,14 @@ const UpdateDriver = ({route}) => {
               marginTop: responsiveHeight(4),
             }}>
             <Image
-              source={AppImages.Bike}
+              source={
+                vehicle?.vehicle_type_id == 1&& AppImages.two_wheels||
+                vehicle?.vehicle_type_id == 2&& AppImages.two_wheels||
+                vehicle?.vehicle_type_id == 3&& AppImages.three_wheels||
+                vehicle?.vehicle_type_id == 4&& AppImages.four_wheels
+              }
+              tintColor={Colors.brandBlue}
+              resizeMethod='contain'
               style={[
                 styles.actionIcon,
                 {marginHorizontal: 0, marginRight: responsiveWidth(5)},
@@ -222,7 +223,7 @@ const UpdateDriver = ({route}) => {
             />
 
             <Text style={styles.vehicleType}>
-              {vehicledatadummy.vehicle_type}
+              {vehicle?.vehicle_cat_name}
             </Text>
           </View>
           <View
@@ -232,15 +233,15 @@ const UpdateDriver = ({route}) => {
               marginTop: responsiveHeight(4),
             }}>
             <Image
-              source={AppImages.fuelIcon}
+              source={vehicle?.fuel_type ===2? AppImages.Petrol:AppImages.EvIcon}
               style={[
                 styles.actionIcon,
                 {marginHorizontal: 0, marginRight: responsiveWidth(5)},
               ]}
-              tintColor={'green'}
+              // tintColor={'#3D40D1'}
             />
 
-            <Text style={styles.fuelType}>{vehicledatadummy.fuel_type}</Text>
+            <Text style={styles.fuelType}>{vehicle?.fuel_type ===2?'Petrol':'Ev'}</Text>
           </View>
         </View>
         <TouchableOpacity
@@ -255,7 +256,10 @@ const UpdateDriver = ({route}) => {
               name: vehicle?.vehicle_number,
               status: 1,
             })
-          }>
+           
+          }
+          style={{borderRadius:responsiveHeight(10),borderWidth:0.4,borderColor:Colors.grey}}
+          >
           <Image
             source={{
               uri: vehicle?.documents
@@ -286,6 +290,37 @@ const UpdateDriver = ({route}) => {
       }>
       <View style={styles.card}>
         {/* <Image source={driverdummy.driver_profile} style={styles.profileImage} /> */}
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate('ProfileDetail', {
+              image: vehicle?.driver?.driver_name
+              ? getimage(
+                  'partners_img/' +
+                    vehicle?.partner_id +
+                    '/drivers/' +
+                    vehicle?.driver_id +
+                    '_' +
+                    vehicle?.driver?.profile_pic +
+                    '?=' +
+                    new Date(),
+                )
+              : getimage(
+                  'partners_img/' +
+                    vehicle?.id +
+                    '/' +
+                    vehicle?.driver?.profile_pic +
+                    '?=' +
+                    new Date(),
+                ),
+              name: vehicle?.driver?.driver_name,
+              status: 1,
+            })
+           
+          }
+          style={{borderWidth:0.4,borderColor:Colors.grey, width: responsiveHeight(55),
+            height: responsiveHeight(55),
+            borderRadius: responsiveHeight(55),marginRight:responsiveWidth(8)}}
+          >
         <Image
           source={{
             uri: vehicle?.driver?.driver_name
@@ -310,6 +345,7 @@ const UpdateDriver = ({route}) => {
           }}
           style={styles.profileImage}
         />
+      </TouchableOpacity>
         <View style={styles.driverInfo}>
           <Text style={styles.driverName}>{vehicle?.driver?.driver_name}</Text>
           <Text style={styles.driverPhone}>{vehicle?.driver?.phone}</Text>
@@ -371,6 +407,7 @@ const styles = StyleSheet.create({
     height: responsiveHeight(75),
     // marginRight: 10,
     borderRadius: 10,
+    
   },
   profileImage: {
     width: responsiveHeight(55),
@@ -420,8 +457,9 @@ const styles = StyleSheet.create({
     // padding: 15,
   },
   actionIcon: {
-    width: responsiveWidth(15),
-    height: responsiveHeight(15),
+    width: responsiveWidth(20),
+    height: responsiveHeight(20),
+    resizeMode:'contain'
   },
   actionText: {
     fontSize: responsiveFontSize(10),

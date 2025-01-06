@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -18,13 +18,13 @@ import VehicleTypeSelector from '../../components/VehicleTypeSelector/VehicleTyp
 import Heading from '../../components/Heading/Heading';
 import DropdownComponent from '../../components/SelectCityDrpDown/CityDropDwn';
 import SelectVehicleFuel from '../../components/VehicleFuel/SelectVehicleFuel';
-import {useDispatch, useSelector} from 'react-redux';
-import {addVehicle, setParentId} from '../../redux/HitApis/HitApiSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { addVehicle, setParentId } from '../../redux/HitApis/HitApiSlice';
 import PageButtons from '../../components/TempBtn/TempBtn';
-import {useIsFocused, useNavigation} from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import AppImages from '../../common/AppImages';
 import Colors from '../../common/Colors';
-import {errorToast, successToast} from '../../common/CommonFunction';
+import { errorToast, successToast } from '../../common/CommonFunction';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   responsiveFontSize,
@@ -36,18 +36,21 @@ import {
   hitGetAllVehicleTypeApi,
   hitGetDoctypes,
 } from '../../config/api/api';
-import {getimage} from '../../config/url';
-import {FontSizes} from '../../common/Theme';
+import { getimage } from '../../config/url';
+import { FontSizes } from '../../common/Theme';
 import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
 import Line from '../../components/Line/Line';
 
-const VehicleDetailScreen = ({route}) => {
-  const {UpdatedVehicleData} = route.params || {};
+const VehicleDetailScreen = ({ route }) => {
+  const { UpdatedVehicleData } = route.params || {};
   const navigation = useNavigation();
   const [isVisible, setIsVisible] = useState(false);
   const [vehicleNumber, setVehicleNumber] = useState(
     UpdatedVehicleData?.vehicle_number || '',
   );
+  const [vehicleDocs, setVehicleDocs] = useState([]);
+  const [uploadedDocs, setUploadedDocs] = useState({});
+
   const [rcUploaded, setRcUploaded] = useState(
     UpdatedVehicleData?.rc_image || '',
   );
@@ -68,8 +71,8 @@ const VehicleDetailScreen = ({route}) => {
     UpdatedVehicleData?.fuel_type === 2
       ? 'Petrol'
       : UpdatedVehicleData?.fuel_type === 1
-      ? 'EV'
-      : 0,
+        ? 'EV'
+        : 0,
   );
   const [selectedVehicleModel, setSelectedVehicleModel] = useState(
     UpdatedVehicleData?.vehicle_model || 'Toyota Corolla',
@@ -84,12 +87,40 @@ const VehicleDetailScreen = ({route}) => {
     UpdatedVehicleData?.vehicle_capacity || 5,
   );
 
-  //  const fetchVechileDoc=async()=>{
-  //   const response =await hitGetDoctypes({type:1})
+  // console.log("UpdatedVehicleData===>",UpdatedVehicleData?.documents);
 
-  //   console.log('response=========>>>',response);
-    
-  //  }
+  const fetchVehicleDocs = async () => {
+    try {
+      const response = await hitGetDoctypes({ type: 0 });
+
+      if (response?.success) {
+        setVehicleDocs(response.data);
+
+        // Initialize uploadedDocs state dynamically
+        // const initialDocs = {};
+        // response?.data?.forEach(doc => {
+        //   initialDocs[doc.id] = UpdatedVehicleData?.[`${doc?.doc_name.toLowerCase()}_image`] || '';
+        // });
+        // initialDocs[4] = { base64: rcUploaded };
+        // initialDocs[5] = { base64: insuranceUploaded };
+        // initialDocs[10] = { base64: pollutionUploaded };
+        // initialDocs[9] = { base64: fitnessUploaded };
+        // console.log('initialDocs=====>>>>>', initialDocs)
+        // setUploadedDocs(initialDocs);
+      }
+    } catch (error) {
+      console.error('Error fetching vehicle docs:', error);
+    }
+  };
+  // useEffect(() => {
+  //   setUploadedDocs(prev => ({
+  //     ...prev,
+  //     4: { base64: rcUploaded },
+  //     5: { base64: insuranceUploaded },
+  //     10: { base64: pollutionUploaded },
+  //     9: { base64: fitnessUploaded },
+  //   }));
+  // }, [rcUploaded, insuranceUploaded, pollutionUploaded, fitnessUploaded]);
 
   const dispatch = useDispatch();
 
@@ -104,7 +135,7 @@ const VehicleDetailScreen = ({route}) => {
 
     };
     pId();
-    // fetchVechileDoc()
+    fetchVehicleDocs()
   }, [navigation]);
 
   const toggleBottomSheet = () => {
@@ -120,50 +151,60 @@ const VehicleDetailScreen = ({route}) => {
         vehicle_number: vehicleNumber,
         vehicle_type_id: selected_vehicle,
         vehicle_model: selectedVehicleModel,
-        status:0,
+        status: 0,
         vehicle_color: selectedVehicleColor,
         fuel_type:
           selectedFuelType === 'Petrol'
             ? 2
             : selectedFuelType === 'EV'
-            ? 1
-            : null,
+              ? 1
+              : null,
         vehicle_name: selectedVehicleName,
         vehicle_capacity: selectedVehicleCapacity || 5,
         operational_city: selectedCity ? selectedCity : 'london',
-        vehicle_docs: [
-          {
-            partner_id: partnerId,
-            doc_id: 3,
-            img_name: `${vehicleNumber}_rc.png`,
-            img_src: rcUploaded?.base64 || '-',
-          },
-          {
-            partner_id: partnerId,
-            doc_id: 5,
-            img_name: `${vehicleNumber}_insurance.png`,
-            img_src: insuranceUploaded?.base64 || '-',
-          },
-          {
-            partner_id: partnerId,
-            doc_id: 10,
-            img_name: `${vehicleNumber}_pollution.png`,
-            img_src: pollutionUploaded?.base64 || '-',
-          },
-          {
-            partner_id: partnerId,
-            doc_id: 9,
-            img_name: `${vehicleNumber}_fitness.png`,
-            img_src: fitnessUploaded?.base64 || '-',
-          },
-        ],
+        // vehicle_docs: [
+        //   {
+        //     partner_id: partnerId,
+        //     doc_id: 3,
+        //     img_name: `${vehicleNumber}_rc.png`,
+        //     img_src: rcUploaded?.base64 || '-',
+        //   },
+        //   {
+        //     partner_id: partnerId,
+        //     doc_id: 5,
+        //     img_name: `${vehicleNumber}_insurance.png`,
+        //     img_src: insuranceUploaded?.base64 || '-',
+        //   },
+        //   {
+        //     partner_id: partnerId,
+        //     doc_id: 10,
+        //     img_name: `${vehicleNumber}_pollution.png`,
+        //     img_src: pollutionUploaded?.base64 || '-',
+        //   },
+        //   {
+        //     partner_id: partnerId,
+        //     doc_id: 9,
+        //     img_name: `${vehicleNumber}_fitness.png`,
+        //     img_src: fitnessUploaded?.base64 || '-',
+        //   },
+        // ],
+        vehicle_docs:uploadData
+        //  vehicleDocs.map(doc => ({
+        //   partner_id: partnerId,
+        //   doc_id: doc.id,
+        //   img_name: `${vehicleNumber}_${doc.doc_name.toLowerCase()}.png`,
+        //   img_src: uploadedDocs[doc.id]?.base64 || '-',
+        // })),
+
       };
+      // console.log(uploadData);
+      
       hitEditParnterVehicle(payload)
         .then(res => {
           if (res?.status) {
             successToast('Submitted', 'Vehicle details have been Updated');
-            // navigation.navigate('MyVehicles');
-            navigation.navigate('OwnerDashboard');
+            navigation.navigate('MyVehicles');
+            // navigation.navigate('OwnerDashboard');
           } else {
             errorToast('Error', 'An error occurred while submitting.');
           }
@@ -179,53 +220,56 @@ const VehicleDetailScreen = ({route}) => {
         vehicle_type_id: selected_vehicle,
         vehicle_model: selectedVehicleModel,
         vehicle_color: selectedVehicleColor,
-        status:0,
+        status: 0,
 
         fuel_type:
           selectedFuelType === 'Petrol'
             ? 2
             : selectedFuelType === 'EV'
-            ? 1
-            : null,
+              ? 1
+              : null,
         vehicle_name: selectedVehicleName,
         vehicle_capacity: selectedVehicleCapacity || 5,
         operational_city: selectedCity ? selectedCity : 'london',
-        vehicle_docs: [
-          {
-            partner_id: partnerId,
-            doc_id: 4,
-            img_name: `${vehicleNumber}_rc.png`,
-            img_src: rcUploaded?.base64 || '',
-          },
-          {
-            partner_id: partnerId,
-            doc_id: 5,
-            img_name: `${vehicleNumber}_insurance.png`,
-            img_src: rcUploaded?.base64 || '',
-          },
-          {
-            partner_id: partnerId,
-            doc_id: 10,
-            img_name: `${vehicleNumber}_pollution.png`,
-            img_src: rcUploaded?.base64 || '',
-          },
-          {
-            partner_id: partnerId,
-            doc_id: 9,
-            img_name: `${vehicleNumber}_fitness.png`,
-            img_src: rcUploaded?.base64 || '',
-          },
-        ],
+        // vehicle_docs: [
+        //   {
+        //     partner_id: partnerId,
+        //     doc_id: 4,
+        //     img_name: `${vehicleNumber}_rc.png`,
+        //     img_src: '-'
+        //     // rcUploaded?.base64 || '',
+        //   },
+        //   {
+        //     partner_id: partnerId,
+        //     doc_id: 5,
+        //     img_name: `${vehicleNumber}_insurance.png`,
+        //     img_src: '-'
+        //   },
+        //   {
+        //     partner_id: partnerId,
+        //     doc_id: 10,
+        //     img_name: `${vehicleNumber}_pollution.png`,
+        //     img_src: '-'
+        //   },
+        // {
+        //   partner_id: partnerId,
+        //   doc_id: 9,
+        //   img_name: `${vehicleNumber}_fitness.png`,
+        //   img_src: '-'
+        // },
+        // ],
+        vehicle_docs: uploadData,
       };
 
       if (
         payload.vehicle_number &&
-        payload.vehicle_docs[0].img_src &&
+        // payload.vehicle_docs[0].img_src &&
         payload.vehicle_type_id &&
         payload.fuel_type &&
         payload.vehicle_model
       ) {
         try {
+
           const resultAction = await dispatch(addVehicle(payload));
           // if (resultAction.meta.requestStatus === 'fulfilled') {
           if (addVehicle.fulfilled.match(resultAction)) {
@@ -268,9 +312,9 @@ const VehicleDetailScreen = ({route}) => {
                 vehicle.vehicle_type_id == 2
                   ? AppImages.two_wheels
                   : vehicle?.vehicle_type_id == 3
-                  ? AppImages.three_wheels
-                  : AppImages.four_wheels,
-              vehicle_cat_name: vehicle.vehicle_cat_name, 
+                    ? AppImages.three_wheels
+                    : AppImages.four_wheels,
+              vehicle_cat_name: vehicle.vehicle_cat_name,
               list: [],
             };
             acc.push(existingGroup);
@@ -311,7 +355,7 @@ const VehicleDetailScreen = ({route}) => {
       );
       setVehicleSubCat(filteredVehicles);
     } else {
-      setVehicleSubCat([]); 
+      setVehicleSubCat([]);
     }
   }, [UpdatedVehicleData, all_vehicle_type]);
 
@@ -327,7 +371,76 @@ const VehicleDetailScreen = ({route}) => {
   }, [UpdatedVehicleData, vehicle_sub_cat]);
   const isEnabled = UpdatedVehicleData
     ? true
-    : vehicleNumber && rcUploaded && vehicle_sub_cat && selected_vehicle;
+    : vehicleNumber && vehicle_sub_cat && selected_vehicle;
+  const [uploadData, setuploadData] = useState([])
+  useEffect(() => {
+    const initialDocs = {};
+    UpdatedVehicleData?.documents.forEach((doc) => {
+      if (doc) {
+        initialDocs[doc.doc_id] = {
+          img_name: doc.doc_pic,
+          img_src: `path/to/images/${doc.doc_pic}`, // Adjust the path as per your backend setup
+        };
+      }
+    });
+    
+    setUploadedDocs(initialDocs);
+  }, [UpdatedVehicleData?.documents]);
+  // const handleImagePick = (docId, image) => {
+  //   const doc = vehicleDocs.find(d => d.id == docId);
+  //   const imgName = `${vehicleNumber}_${doc.doc_name.toLowerCase()}.png`;
+  //   // Extract the necessary data from the image
+  //   const { base64, uri } = image;
+  //   setUploadedDocs((prevState) => ({
+  //     ...prevState,
+  //     [docId]: {
+  //       partner_id: partnerId,
+  //       doc_id: docId,
+  //       img_name: imgName,
+  //       img_src: base64 || uri, // Store base64 if available, otherwise store the uri
+  //     },
+  //   }));
+  //   setuploadData([...uploadData, {
+  //     partner_id: partnerId,
+  //     doc_id: docId,
+  //     img_name: imgName,
+  //     img_src: base64 || uri, // Store base64 if available, otherwise store the uri
+  //   }])
+  // };
+  const handleImagePick = (docId, image) => {
+    const doc = vehicleDocs.find((d) => d.id === docId);
+    const imgName = `${vehicleNumber}_${doc.doc_name.toLowerCase()}.png`;
+    const { base64, uri } = image;
+
+    // Update uploadedDocs state
+    setUploadedDocs((prevState) => ({
+      ...prevState,
+      [docId]: {
+        partner_id: partnerId,
+        doc_id: docId,
+        img_name: imgName,
+        img_src: base64 || uri,
+      },
+    }));
+
+    // Update uploadData array
+    setuploadData((prevUploadData) => {
+      const newUploadData = [...prevUploadData];
+      const index = newUploadData.findIndex((item) => item.doc_id === docId);
+      const newDoc = {
+        partner_id: partnerId,
+        doc_id: docId,
+        img_name: imgName,
+        img_src: base64 || uri,
+      };
+      if (index >= 0) {
+        newUploadData[index] = newDoc;
+      } else {
+        newUploadData.push(newDoc);
+      }
+      return newUploadData;
+    });
+  };
 
   return (
     <>
@@ -350,7 +463,7 @@ const VehicleDetailScreen = ({route}) => {
             autoCapitalize="characters"
           />
 
-          <ImagePicker
+          {/* <ImagePicker
             labelText="Vehicle RC"
             uploaded={rcUploaded}
             onImagePick={setRcUploaded}
@@ -393,7 +506,7 @@ const VehicleDetailScreen = ({route}) => {
               handleVehicleSelectlive(item, all_vehicle_type);
             }}
           />
-          <View style={{flexDirection: 'row', flex: 1, width: '100%'}}>
+          <View style={{ flexDirection: 'row', flex: 1, width: '100%' }}>
             {vehicle_sub_cat[0]?.list?.length > 0 &&
               vehicle_sub_cat[0]?.list?.map(item => {
                 return (
@@ -409,7 +522,7 @@ const VehicleDetailScreen = ({route}) => {
                           : null,
                       ]}>
                       <Image
-                        source={{uri: getimage('common/' + item?.vehicle_pic)}}
+                        source={{ uri: getimage('common/' + item?.vehicle_pic) }}
                         style={styles.fullWidthImage}
                         resizeMode="contain"
                       />
@@ -524,7 +637,7 @@ const VehicleDetailScreen = ({route}) => {
                   >
                     <Image
                       source={AppImages.down}
-                      style={{width: 16, height: 16}}
+                      style={{ width: 16, height: 16 }}
                       resizeMode="contain"
                     />
                   </TouchableOpacity>
@@ -548,10 +661,10 @@ const VehicleDetailScreen = ({route}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal:responsiveWidth(15),
+    paddingHorizontal: responsiveWidth(15),
     backgroundColor: Colors.homeBackground,
   },
-  selected_vehicle: {borderWidth: 1, borderColor: Colors.brandBlue},
+  selected_vehicle: { borderWidth: 1, borderColor: Colors.brandBlue },
   formContainer: {
     // flex: 1,
     paddingBottom: responsiveHeight(100),

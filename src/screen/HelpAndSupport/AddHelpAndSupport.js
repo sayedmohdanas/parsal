@@ -178,7 +178,7 @@ const AddHelpAndSupport = () => {
         rightButtonColor={'#3D40D1'}
         rightButtonFontSize={12}
         onButtonPress={() => {
-          navigation.navigate('HelpAndSupportMain');
+          navigation.navigate('HelpAndSupport');
         }}
       />
 

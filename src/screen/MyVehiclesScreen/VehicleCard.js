@@ -33,6 +33,15 @@ const VehicleCard = ({
   const partner_error_data = partnerData?.documents?.filter(
     item => item?.status == 2,
   );
+  const vehicleStatusData = {
+    vehicleStatus: vehicle?.vehicle_status,
+    mDriverStatus: vehicle?.driver?.m_driver_status,
+    driverVehicleStatus: vehicle?.driver?.driver_vehicle_status,
+  };
+  const isAllStatusesTrue =
+  vehicleStatusData.vehicleStatus === 1 &&
+  vehicleStatusData.mDriverStatus === 1 &&
+  vehicleStatusData.driverVehicleStatus === 1;
 
   const handleDriverDetails = async () => {
     // Store driver data in AsyncStorage
@@ -97,14 +106,15 @@ const VehicleCard = ({
           </View>
           {hasDriver ? (
             error_data?.length > 0 ||
-            partner_error_data?.length > 0 ||
+            partner_error_data?.lendgth > 0 ||
             driver_error_data ? (
               <View style={styles.errorSection}>
                 <Text style={styles.errorText}>ERROR</Text>
               </View>
             ) : (
-              <View style={styles.rightSection}>
-                <Text style={styles.status}>Verifying</Text>
+              <View style={[styles.rightSection,{backgroundColor:isAllStatusesTrue?'green':'#FFAE42'}]}>
+                
+                <Text style={styles.status}>{isAllStatusesTrue?'Verified':'Verifying'}</Text>
               </View>
             )
           ) : (

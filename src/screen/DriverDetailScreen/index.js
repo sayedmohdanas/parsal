@@ -52,6 +52,8 @@ const DriverDetailScreen = ({route}) => {
   const navigation = useNavigation();
   const [emailError, setEmailError] = useState('');
   const [partneData, setPartnerData] = useState([]);
+  const [driverdl, setDriverDl] = useState(updateDriverData?.driver?.driving_license_number || '',);
+
   useEffect(() => {
     const fetchPartnerDetails = async () => {
       try {
@@ -62,6 +64,8 @@ const DriverDetailScreen = ({route}) => {
       }
     };
     fetchPartnerDetails();
+    console.log("-=====-===>",driverdl);
+
   }, [navigation]);
   const validateEmail = email => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -105,7 +109,7 @@ const DriverDetailScreen = ({route}) => {
         img_name: licenseUploaded ? 'license.png' : '',
         img_src: licenseUploaded?.base64 || '',
       },
-      driving_license_number: driverNumber,
+      driving_license_number: driverdl,
       current_lat: latitude,
       current_long: longitude,
       address: 'Lucknow, Uttar Pradesh , India',
@@ -446,6 +450,16 @@ const DriverDetailScreen = ({route}) => {
               isRequired={true}
               type="number"
               maxLength={10}
+              editable={!isChecked ? true : false}
+            />
+               <CustomTextInput
+              value={driverdl}
+              onChangeText={setDriverDl}
+              placeholder="DL Number"
+              label="Driving License Number"
+              isRequired={true}
+              // type="number"
+              // maxLength={10}
               editable={!isChecked ? true : false}
             />
             <Heading text=" Upload The Following" isRequired={true} />

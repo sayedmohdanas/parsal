@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {View, Text, StyleSheet, Alert} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import CustomTextInput from '../../components/CustomTextInput/CustomTextInput';
@@ -17,6 +17,7 @@ import {responsiveFontSize, responsiveHeight} from '../../common/metrices';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
 import { getMessaging } from '@react-native-firebase/messaging';
+import { hitGetDoctypes } from '../../config/api/api';
 
 const OwnerDetailScreen = ({navigation, route}) => {
   const {partner_id, email} = route.params;
@@ -26,7 +27,29 @@ const OwnerDetailScreen = ({navigation, route}) => {
   const [aadharCardUploaded, setAadharCardUploaded] = React.useState(null);
   const [panCardUploaded, setPanCardUploaded] = React.useState(null);
   const [selfieUploaded, setSelfieUploaded] = React.useState(null);
+  const [partnerDocs, setPartnerDocs] = useState([]);
 
+
+useEffect(()=>{
+  const fetchPartnerDocs = async () => {
+    try {
+      const response = await hitGetDoctypes({ type: 1 });
+ 
+      if (response?.success) {
+        setPartnerDocs(response.data);  
+ 
+       
+      }
+    } catch (error) {
+      console.error('Error fetching vehicle docs:', error);
+    }
+  };
+  fetchPartnerDocs()
+  console.log('partnerDocs====>>>',partnerDocs)
+},[])
+
+
+  
   const handleSubmit = async () => {
     if (name && aadharCardUploaded && panCardUploaded && selfieUploaded) {
       const payload = {
@@ -51,7 +74,7 @@ const OwnerDetailScreen = ({navigation, route}) => {
             img_src: aadharCardUploaded?.base64 || '',
           },
           {
-            doc_id: '2',
+            doc_id: '2', 
             img_name: 'pan.png',
             img_src: panCardUploaded?.base64 || '',
           },
