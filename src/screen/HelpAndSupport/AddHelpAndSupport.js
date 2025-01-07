@@ -97,7 +97,7 @@ const AddHelpAndSupport = () => {
       const parsed_user = JSON.parse(user);
       const randomString = Math.random().toString(36).substring(2, 10); // Generates a random string of 8 characters
       const timestamp = Date.now(); // Gets the current timestamp
-      const imgName = `screenshot_${randomString}_${timestamp}.png`; // Example: screenshot_a1b2c3d4_1629292929292.png
+      const imgName = `${randomString}_${timestamp}.png`; 
       const payload = {
         topic: value,
         description: description,
@@ -106,7 +106,7 @@ const AddHelpAndSupport = () => {
             ? parsed_user?.payload?.partner_id
             : parsed_user?.payload?.driver_id,
         user_type: parsed_user?.payload?.owner_type == 1 ? 3 : 2,
-        support_pic: [
+        support_pic: postImages && [
           {
             img_name: imgName,
             img_src: `data:image/png;base64,${postImages}`,
@@ -292,7 +292,10 @@ const AddHelpAndSupport = () => {
             </Text>
           </View>
 
-          {images != null && images != undefined && images != '' &&imagesarray?.length !=0? (
+          {images != null &&
+          images != undefined &&
+          images != '' &&
+          imagesarray?.length != 0 ? (
             <View style={styles.imageGridContainer}>
               {imagesarray?.map(item => {
                 return (

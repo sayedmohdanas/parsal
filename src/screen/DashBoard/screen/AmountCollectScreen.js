@@ -24,7 +24,31 @@ import {
   setupdate_order,
 } from '../../../redux/HitApis/HitApiSlice';
 import HeaderBackButton from '../../../components/HeaderBackButton/HeaderBackButton';
+import database from '@react-native-firebase/database';
 
+const sendDummyDataToFirebase = async (data, message, type) => {
+  try {
+    // Prepare your dummy data payload
+    const notificationPayload = {
+      order_id: data?.id,
+      driver_id: data?.driver_id,
+      customer_id: data?.cust_id,
+      message: message || 'This is a dummy notification.',
+      timestamp: new Date().toISOString(),
+      type: type || 1, // Assuming '1' is the type for a rating request
+    };
+    console.log('notificationPayload', notificationPayload);
+    // Define the path to send the data
+    const customerPath = `customers/${data?.cust_id}/notifications`;
+    console.log('customer path=>', customerPath);
+    // Send the data to Firebase
+    await database().ref(customerPath).push(notificationPayload);
+
+    console.log('Dummy data sent successfully!');
+  } catch (error) {
+    console.error('Error sending dummy data to Firebase:', error);
+  }
+};
 const AmountCollectScreen = () => {
   const [visible, setvisible] = useState(false);
   const orderData = useSelector(state => state?.parsalPartner?.orderData || {});
@@ -152,7 +176,11 @@ const AmountCollectScreen = () => {
                   orderData?.newOrder?.driver_id || orderData?.driver_id,
               }),
             );
-
+            sendDummyDataToFirebase(
+              orderData?.newOrder || orderData,
+              'Casch Collected',
+              4,
+            );
             dispatch(setupdate_order(null));
             dispatch(setnextOrderData(null));
             navigation.goBack('');
@@ -165,6 +193,11 @@ const AmountCollectScreen = () => {
                 driver_id:
                   orderData?.newOrder?.driver_id || orderData?.driver_id,
               }),
+            );
+            sendDummyDataToFirebase(
+              orderData?.newOrder || orderData,
+              'Casch Collected',
+              4,
             );
             dispatch(setOrderData(null));
             dispatch(setupdate_order(null));

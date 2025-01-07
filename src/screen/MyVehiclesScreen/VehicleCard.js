@@ -106,7 +106,7 @@ const VehicleCard = ({
           </View>
           {hasDriver ? (
             error_data?.length > 0 ||
-            partner_error_data?.lendgth > 0 ||
+            partner_error_data?.length > 0 ||
             driver_error_data ? (
               <View style={styles.errorSection}>
                 <Text style={styles.errorText}>ERROR</Text>

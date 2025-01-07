@@ -59,7 +59,8 @@ const VehicleVerificationCard = ({
       id: parseInt(key, 10), // Convert the key to an integer for id
       img_src: uploadedImages[key].base64, // Use the base64 data as img_src
       img_name: uploadedImages[key].uri.split('/').pop(), // Extract the file name from the URI
-      docType: reject_Data.find(doc => doc.id === parseInt(key, 10))?.docType, // Identify docType ('vehicle' or 'partner')
+      docType: reject_Data.find(doc => doc.id == parseInt(key, 10))?.docType, // Identify docType ('vehicle' or 'partner')
+      driver_id: selected_vehicle?.vehicle?.driver_id,
     }));
     const vehicleDocs = outputData.filter(doc => doc.docType === 'vehicle');
     const partnerDocs = outputData.filter(doc => doc.docType === 'partner');
@@ -73,6 +74,7 @@ const VehicleVerificationCard = ({
       partnerId: partnerId,
       driverDocs: driverDocs,
     };
+    // console.log(driverDocs);
     // Uncomment when ready to hit the API
     hitUpdateDocsApi(param)
       .then(res => {
@@ -85,6 +87,7 @@ const VehicleVerificationCard = ({
         console.error(err);
       });
   };
+  // console.log('selected_vehicle', selected_vehicle?.vehicle?.driver_id);
   return (
     <View style={styles.container}>
       {/* Cross Icon */}

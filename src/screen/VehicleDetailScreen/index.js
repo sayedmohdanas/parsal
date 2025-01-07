@@ -488,8 +488,17 @@ const VehicleDetailScreen = ({ route }) => {
             onImagePick={setFitnessUploaded}
             useCamera={false}
             required={false}
-          />
-          <Line marginH={0}/>
+          /> */}
+          {vehicleDocs.map((doc) => (
+            <ImagePicker
+              key={doc.id}
+              labelText={doc.doc_name}
+              uploaded={uploadedDocs[doc.id]?.img_src}
+              onImagePick={(image) => handleImagePick(doc.id, image)}
+              useCamera={false}
+            />
+          ))}
+          <Line marginH={0} />
           <Heading text="Select the city of Operation" isRequired={false} />
 
           <View style={styles.cityDripDownCard}>

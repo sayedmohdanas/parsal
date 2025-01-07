@@ -64,8 +64,6 @@ const DriverDetailScreen = ({route}) => {
       }
     };
     fetchPartnerDetails();
-    console.log("-=====-===>",driverdl);
-
   }, [navigation]);
   const validateEmail = email => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

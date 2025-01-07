@@ -791,15 +791,6 @@
 //   },
 // });
 
-
-
-
-
-
-
-
-
-
 import {
   ActivityIndicator,
   Alert,
@@ -1278,7 +1269,7 @@ const AccountScreen = () => {
                             number={`₹${
                               isNaN(orderStats?.totalPaidAmount)
                                 ? 0
-                                : orderStats?.totalPaidAmount
+                                : Math.round(orderStats?.totalPaidAmount)
                             }`}
                             dataName={'Earned'}
                           />
