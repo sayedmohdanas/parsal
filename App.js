@@ -46,6 +46,7 @@ export default function App() {
     receiver_name: '',
     receiver_phone: '',
     tips: '',
+    service_city:'',
     
   });
   const [timer, setTimer] = useState(15); // Timer state
@@ -127,6 +128,7 @@ export default function App() {
       receiver_name = '',
       receiver_phone = '',
       tips = '',
+      service_city='',
     } = data || {};
     // Update the notification data state
     setNotificationData({
@@ -155,6 +157,7 @@ export default function App() {
       receiver_name,
       receiver_phone,
       tips,
+      service_city,
     });
     setModalVisible(true);
     // setTimer(15);
@@ -382,6 +385,7 @@ export default function App() {
             receiver_name={notificationData?.receiver_name}
             receiver_phone={notificationData?.receiver_phone}
             tips={notificationData?.tips}
+            service_city={notificationData?.service_city}
             onClose={() => setModalVisible(false)}
             setModalVisible={setModalVisible}
             timer={timer}

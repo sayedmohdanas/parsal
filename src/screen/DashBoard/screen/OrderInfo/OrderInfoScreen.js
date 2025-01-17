@@ -176,7 +176,7 @@ const OrderInfo = ({ route }) => {
         >
           <Polyline
             coordinates={[
-              { latitude: origin?.latitude, longitude: origin?.longitude }, // Aminabad
+              { latitude: origin?.latitude, longitude: origin?.longitude }, 
               {
                 latitude: destination?.latitude,
                 longitude: destination?.longitude,
@@ -188,7 +188,13 @@ const OrderInfo = ({ route }) => {
           />
           <Marker coordinate={origin} title="Pick-up Location">
             <Image
-              source={AppImages.Bike}
+              source={
+                orderDetails?.vehicle_cat_type_id == 1&& AppImages.Bike||
+              orderDetails?.vehicle_cat_type_id == 2&& AppImages.Bike||
+                orderDetails?.vehicle_cat_type_id == 3&& AppImages.Auto||          
+                orderDetails?.vehicle_cat_type_id == 4&& AppImages.four_wheels
+                
+                }
               resizeMode="contain"
               style={{ height: responsiveHeight(35), width: responsiveWidth(35) }}
             />

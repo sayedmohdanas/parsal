@@ -89,8 +89,7 @@ const AddCashScreen = ({route}) => {
     if (screenName === 'Add Cash') {
       const options = {
         description: 'Add cash to wallet',
-        image:
-          'https://drive.google.com/file/d/1SExuiUtMBtQj_KZot2-5TpzX5jUrW9fe/view?usp=sharing', // Optional company logo
+        image:'https://demoapps.in/parsal_razor/logo_parsal.JPG',
         currency: 'INR',
         key: 'rzp_test_XZXlIZEFXyAYyU', // Replace with your Razorpay key
         amount: Number(balance) * 100, // Razorpay expects the amount in paisa
@@ -123,7 +122,8 @@ const AddCashScreen = ({route}) => {
               partner_id: parsed_user?.payload?.partner_id,
             };
 
-            const response = await hitAddMoney(params); // Backend API to add money
+            const response = await hitAddMoney(params); 
+            // Backend API to add money
             // const newBalance = response?.new_wallet_balance;
             // const fetchedData = store_data.wallet_balance;
             // const updatedNewBalance = fetchedData?.data.new_balance + 100; // Update logic here

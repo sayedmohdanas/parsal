@@ -11,16 +11,17 @@ const ImagePickerComponent = ({ labelText, uploaded, onImagePick, useCamera = fa
       const response = useCamera
         ? await ImagePicker.openCamera({ cropping: true })
         : await ImagePicker.openPicker({
-          width: isForProfile ? 400 : 800, // Smaller width for profile images
-          height: isForProfile ? 400 : 800, // Smaller height for profile images
+          width: isForProfile ? responsiveWidth(400) : responsiveHeight(600), // Smaller width for profile images
+          height: isForProfile ? responsiveWidth(400) : responsiveHeight(600),// Smaller height for profile images
           cropping: true,
           cropperToolbarTitle: 'Crop Your Image', 
           cropperCircleOverlay: isForProfile ? true : false, // Circular crop for profile images
           compressImageQuality: 0.7, // Compress quality
-          compressImageMaxWidth: isForProfile ? 400 : 800, // Maximum width for profile
-          compressImageMaxHeight: isForProfile ? 400 : 800, // Maximum height for profile
+          compressImageMaxWidth:isForProfile ? responsiveWidth(400) : responsiveHeight(600), // Maximum width for profile
+          compressImageMaxHeight: isForProfile ? responsiveWidth(400) : responsiveHeight(600), // Maximum height for profile
           includeBase64: true,
           freeStyleCropEnabled: true, // Restricts free cropping to maintain aspect ratio
+          showCropFrame:false
 
         })
 

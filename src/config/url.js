@@ -10,6 +10,14 @@ export const API_BASE_URL = 'http://52.66.236.213:9292/';
 export const socketUrl = `http://52.66.236.213:4000/`;
 
 
+
+
+
+// export const API_BASE_URL = 'http://52.66.236.213:9000/';
+// export const socketUrl = `http://52.66.236.213:4100/`;
+
+
+
 // export const API_BASE_URL = 'http://192.168.29.237:5000/';
 // export const socketUrl = `http://192.168.29.237:4000/`;
 // // //
@@ -76,6 +84,7 @@ export const getliveorderdataurl = getEndpoint('orders/get-ongoing-order');
 export const updatefcmurl = getEndpoint('drivers/update-fcm');
 export const helpAndSupport = getEndpoint('generic/support-ticket');
 export const getSupportTickets = getEndpoint('generic/get-support-tickets');
+export const getAllCities = getEndpoint('generic/get-all-cities');
 export const getOrderFareDetail = getEndpoint('users/get-order-fareDetails');
 export const editpartnervehicleurl = getEndpoint(
   'partner/edit-partner-vehicle',

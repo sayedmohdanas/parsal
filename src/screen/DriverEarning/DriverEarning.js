@@ -1033,7 +1033,7 @@ const Earning = () => {
       const nextWeek = calculateWeekRange(currentStartDate, true);
       setDateRange(nextWeek);
       if (currentIndex === 3) {
-        setcurrentIndex(0); // Reset to 0 when at the last index
+        setcurrentIndex(0); 
         setnext_flag(1);
 
         if (selectedDriver) {
@@ -1046,11 +1046,11 @@ const Earning = () => {
           // get_data(null, 1); // Fetch next 4 data
         }
       } else {
-        setcurrentIndex(prev => prev + 1); // Move to next index within current data
+        setcurrentIndex(prev => prev + 1); 
       }
       if (nextWeek.end > today) {
         errorToast("Cannot go to the next week; it exceeds today's date.");
-        setcurrentIndex(0); // Reset index to 0 if next week exceeds today
+        setcurrentIndex(0); 
         return;
       }
     } else if (selectedRange === 'today') {
@@ -1058,12 +1058,11 @@ const Earning = () => {
       setDateRange(nextDay);
 
       if (currentIndex === 3) {
-        setcurrentIndex(0); // Reset to 0 when at the last index
+        setcurrentIndex(0);
 
         if (selectedDriver) {
           setnext_flag(1);
           await get_data(null, 1, null);
-          // Fetch next 4 data
         } else {
           setnext_flag(1);
           await get_data(null, 1, null);

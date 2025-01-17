@@ -17,6 +17,7 @@ import {
   driverEaringurl,
   editpartnervehicleurl,
   endtripurl,
+  getAllCities,
   getallvehicletypeurl,
   getBankAccount,
   getDoctypes,
@@ -114,6 +115,13 @@ export const hitCancelOrder = param => {
 export const hitGetOrderDetails = param => {
   return apiPost(getOrderDetail, param);
 };
+
+
+
+export const hitGetAllCities = param => {
+  return apiPost(getAllCities, param);
+};
+
 
 export const hitAddBankAccount = param => {
   return apiPost(addBankAccount, param);

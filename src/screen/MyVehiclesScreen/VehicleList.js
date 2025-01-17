@@ -2,6 +2,7 @@ import React from 'react';
 import {View, FlatList, Text, StyleSheet, Image} from 'react-native';
 import VehicleCard from './VehicleCard'; // Adjust the path as needed
 import AppImages from '../../common/AppImages';
+import { responsiveHeight } from '../../common/metrices';
 
 const VehicleList = ({
   vehicleData,
@@ -55,7 +56,7 @@ const styles = StyleSheet.create({
   },
   flatListContent: {
     flexGrow: 1,
-    paddingBottom: 90,
+    paddingBottom: responsiveHeight(110),
   },
   fullWidthImage: {
     width: 50,

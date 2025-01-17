@@ -24,6 +24,7 @@ export default AppImages = {
   ParsalPlusImg: require('../assets/images/parsalPlusImg.png'),
   truck: require('../assets/images/truck.png'),
   Bike: require('../assets/images/bike.png'),
+  Auto: require('../assets/images/Auto.png'),
   PackerMover: require('../assets/images/packerAndMovers.png'),
   India: require('../assets/images/india.png'),
   boxImg: require('../assets/images/boxImg.png'),

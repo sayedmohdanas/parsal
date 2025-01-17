@@ -43,6 +43,8 @@ const VehicleCard = ({
   vehicleStatusData.mDriverStatus === 1 &&
   vehicleStatusData.driverVehicleStatus === 1;
 
+  
+
   const handleDriverDetails = async () => {
     // Store driver data in AsyncStorage
     await AsyncStorage.setItem('driver_data', JSON.stringify(vehicle));
@@ -74,6 +76,7 @@ const VehicleCard = ({
       }
     } else {
       // If no driver, navigate to DriverDetail screen
+
       onPress(vehicle?.id);
       // navigation.navigate('DriverDetail', { vehicleId: vehicle?.id });
     }

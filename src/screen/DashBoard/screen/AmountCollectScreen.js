@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 import {
   responsiveHeight,
   responsiveFontSize,
@@ -7,14 +7,14 @@ import {
 } from '../../../common/metrices';
 import Colors from '../../../common/Colors';
 import ArriveButton from '../components/ArriveButton';
-import {useDispatch, useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   hitCreateTransaction,
   hitGetOrderFareDetail,
 } from '../../../config/api/api';
-import {useNavigation} from '@react-navigation/native';
-import {io} from 'socket.io-client';
-import {socketUrl} from '../../../config/url';
+import { useNavigation } from '@react-navigation/native';
+import { io } from 'socket.io-client';
+import { socketUrl } from '../../../config/url';
 import PaymentSuccessModal from '../components/PaymentSuccessModal';
 import {
   setOrderData,
@@ -58,7 +58,7 @@ const AmountCollectScreen = () => {
   const driver_details = useSelector(
     state => state?.parsalPartner?.logindriverdetails,
   );
-  const {nextOrderData} = useSelector(state => state?.parsalPartner);
+  const { nextOrderData } = useSelector(state => state?.parsalPartner);
   const [order_fare_details, setorder_fare_details] = useState([]);
   const get_data = () => {
     const param = {
@@ -218,9 +218,13 @@ const AmountCollectScreen = () => {
       <HeaderBackButton headerText={'Cash Collected'} />
       <View style={styles.container}>
         <View style={styles.upperHalf}>
+
           <Text style={styles.amountText}>
-            ₹{Math.round(Total_Fare[0]?.amount).toFixed(2)}
+            {Total_Fare[0]?.amount !== undefined
+              ? `₹${Math.round(Total_Fare[0]?.amount).toFixed(2)}`
+              : "₹0.00"}
           </Text>
+
           <View
             style={{
               paddingHorizontal: responsiveWidth(80),

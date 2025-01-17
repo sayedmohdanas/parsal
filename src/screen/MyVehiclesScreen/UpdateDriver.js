@@ -196,7 +196,7 @@ const UpdateDriver = ({route}) => {
       renderRightActions={() =>
         renderRightActions(handleVehicleEdit, handleVehicleDelete)
       }>
-      <View style={styles.card}>
+      <View style={styles.card}> 
         <View style={styles.vehicleInfo}>
           <Text style={styles.vehicleNumber}>
             {formatVehicleNumber(vehicle?.vehicle_number)}
