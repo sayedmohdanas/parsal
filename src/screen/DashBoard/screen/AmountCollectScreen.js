@@ -54,10 +54,7 @@ const AmountCollectScreen = () => {
   const orderData = useSelector(state => state?.parsalPartner?.orderData || {});
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const store_data = useSelector(state => state);
-  const driver_details = useSelector(
-    state => state?.parsalPartner?.logindriverdetails,
-  );
+
   const { nextOrderData } = useSelector(state => state?.parsalPartner);
   const [order_fare_details, setorder_fare_details] = useState([]);
   const get_data = () => {
@@ -157,13 +154,12 @@ const AmountCollectScreen = () => {
     const param = {
       orderId: orderData?.newOrder?.id || orderData?.id,
       online: 0,
-      cash: Total_Fare[0]?.amount,
+      cash: Math.round(Total_Fare[0]?.amount),
       wallet: 0,
       pay_mode: 0,
     };
     hitCreateTransaction(param)
       .then(res => {
-        console.log('res', res);
         if (res) {
           if (nextOrderData) {
             socket.emit('complete_transaction_by_user', {

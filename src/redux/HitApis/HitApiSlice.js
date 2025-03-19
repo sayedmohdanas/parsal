@@ -1,4 +1,4 @@
-import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import {
   hitAddDriverDetails,
   hitAddVehicle,
@@ -13,14 +13,14 @@ import {
   hitUpdateDriverStatus,
 } from '../../config/api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {Alert, LogBox} from 'react-native';
-import {errorToast} from '../../common/CommonFunction';
+import { Alert, LogBox } from 'react-native';
+import { errorToast } from '../../common/CommonFunction';
 
 // loginPartner.....
 
 export const loginPartner = createAsyncThunk(
   'parsalPartner/loginPartner',
-  async (credentials, {rejectWithValue}) => {
+  async (credentials, { rejectWithValue }) => {
     try {
       const response = await hitPartnerLogin(credentials);
 
@@ -36,7 +36,7 @@ export const loginPartner = createAsyncThunk(
 // partnerOtpVerify...
 export const verifyPartnerOtp = createAsyncThunk(
   'parsalPartner/verifyPartnerOtp',
-  async (credentials, {rejectWithValue}) => {
+  async (credentials, { rejectWithValue }) => {
     try {
       const response = await hitPartnerVerifyOtp(credentials);
       return response;
@@ -49,7 +49,7 @@ export const verifyPartnerOtp = createAsyncThunk(
 // Thunk for creating a partner and saving partner_id
 export const createPartner = createAsyncThunk(
   'parsalPartner/createPartner',
-  async (credentials, {rejectWithValue}) => {
+  async (credentials, { rejectWithValue }) => {
     try {
       const response = await hitCreatePartner(credentials);
       return response;
@@ -63,7 +63,7 @@ export const createPartner = createAsyncThunk(
 // Thunk for get a partner and saving partner_id
 export const getPartner = createAsyncThunk(
   'parsalPartner/getPartner',
-  async (credentials, {rejectWithValue}) => {
+  async (credentials, { rejectWithValue }) => {
     try {
       const response = await hitGetPartner(credentials);
       console.log('response=>', response);
@@ -78,7 +78,7 @@ export const getPartner = createAsyncThunk(
 // Thunk for getting partner_id from AsyncStorage
 export const getPartnerId = createAsyncThunk(
   'parsalPartner/getPartnerId',
-  async (_, {rejectWithValue}) => {
+  async (_, { rejectWithValue }) => {
     try {
       const partnerId = await AsyncStorage.getItem('partner_id');
       if (partnerId !== null) {
@@ -93,7 +93,7 @@ export const getPartnerId = createAsyncThunk(
 
 export const addVehicle = createAsyncThunk(
   'parsalPartner/addVehicle',
-  async (credentials, {rejectWithValue}) => {
+  async (credentials, { rejectWithValue }) => {
     try {
       const response = await hitAddVehicle(credentials);
       console.log('response in add vehicle ===>', response);
@@ -107,7 +107,7 @@ export const addVehicle = createAsyncThunk(
 
 export const getVehicle = createAsyncThunk(
   'parsalPartner/getVehicle',
-  async (credentials, {rejectWithValue}) => {
+  async (credentials, { rejectWithValue }) => {
     try {
       const response = await hitMyVehicle(credentials);
       return response;
@@ -119,7 +119,7 @@ export const getVehicle = createAsyncThunk(
 
 export const addDriverDetails = createAsyncThunk(
   'parsalPartner/addDriverDetails',
-  async (credentials, {rejectWithValue}) => {
+  async (credentials, { rejectWithValue }) => {
     try {
       const response = await hitAddDriverDetails(credentials);
       return response;
@@ -131,7 +131,7 @@ export const addDriverDetails = createAsyncThunk(
 
 export const getDriverDetails = createAsyncThunk(
   'parsalPartner/getDriverDetails',
-  async (credentials, {rejectWithValue}) => {
+  async (credentials, { rejectWithValue }) => {
     try {
       const response = await hitGetDriverDetails(credentials);
       return response;
@@ -143,7 +143,7 @@ export const getDriverDetails = createAsyncThunk(
 
 export const getDriverEaningData = createAsyncThunk(
   'parsalPartner/getDriverDetails',
-  async (credentials, {rejectWithValue}) => {
+  async (credentials, { rejectWithValue }) => {
     try {
       const response = await hitDriverEarning(credentials);
       return response;
@@ -154,7 +154,7 @@ export const getDriverEaningData = createAsyncThunk(
 );
 export const updateDriverStatus = createAsyncThunk(
   'parsalPartner/updateDriverStatus',
-  async (credentials, {rejectWithValue}) => {
+  async (credentials, { rejectWithValue }) => {
     try {
       const response = await hitUpdateDriverStatus(credentials);
       return response;
@@ -168,7 +168,7 @@ export const updateDriverStatus = createAsyncThunk(
 
 export const manageBankAccount = createAsyncThunk(
   'parsalPartner/updateDriverStatus',
-  async (credentials, {rejectWithValue}) => {
+  async (credentials, { rejectWithValue }) => {
     try {
       const response = await hitGetBankAccount(credentials);
       return response;
@@ -203,7 +203,10 @@ const initialState = {
   show_livetripe_menu: false,
   is_online: false,
   selectedDriver: null,
-  partner_bank_acocunt:null
+  partner_bank_acocunt: null,
+  stops: [], // Array of all stops
+  currentStopIndex: 0, // Track which stop the driver is at
+  orderCompleted: false, // Mark ride completion
 };
 
 const HitApiSlice = createSlice({
@@ -260,6 +263,23 @@ const HitApiSlice = createSlice({
     },
     setSelectedDriverRedux(state, action) {
       state.selectedDriver = action.payload;
+    },
+    setStops: (state, action) => {
+      state.stops = action.payload;
+      state.currentStopIndex = 0;
+      state.orderCompleted = false;
+    },
+    completeStop: (state) => {
+      if (state.currentStopIndex < state.stops.length - 1) {
+        state.currentStopIndex += 1;
+      } else {
+        state.orderCompleted = true;
+      }
+    },
+    resetStops: (state) => {
+      state.stops = [];
+      state.currentStopIndex = 0;
+      state.orderCompleted = false;
     },
   },
   extraReducers: builder => {
@@ -407,7 +427,7 @@ const HitApiSlice = createSlice({
       .addCase(updateDriverStatus.rejected, (state, action) => {
         // Handle any error in case of failure
       })
-      
+
 
     ///DriverEarning
     // .addCase(getDriverEaningData.pending, (state) => {
@@ -449,6 +469,7 @@ export const {
   setworking_status,
   setnextOrderData,
   setSelectedDriverRedux,
+  setStops, completeStop, resetStops,
 } = HitApiSlice.actions;
 
 export default HitApiSlice.reducer;

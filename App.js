@@ -1,7 +1,7 @@
-import React, {useEffect, useState} from 'react';
-import {StyleSheet, BackHandler} from 'react-native';
-import {Provider} from 'react-redux';
-import {NavigationContainer} from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, BackHandler } from 'react-native';
+import { Provider } from 'react-redux';
+import { NavigationContainer } from '@react-navigation/native';
 import store from './src/redux/store';
 import Toast from 'react-native-toast-message';
 import StackNavigator from './navigation/StackNavigation';
@@ -14,11 +14,11 @@ import {
 } from './src/common/CommonFunction';
 import SoundPlayer from 'react-native-sound-player';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {hitCheckReqStatusApi, hitUpdateFcmApi} from './src/config/api/api';
+import { hitCheckReqStatusApi, hitUpdateFcmApi } from './src/config/api/api';
 const TOPIC = 'MyNews';
-import {LogBox} from 'react-native';
+import { LogBox } from 'react-native';
 LogBox.ignoreLogs(['new NativeEventEmitter']);
-import {Provider as PaperProvider} from 'react-native-paper';
+import { Provider as PaperProvider } from 'react-native-paper';
 import NotificationListener from './NotificationListener';
 import AppStateHandler from './AppStateHandler';
 import AuthChecker from './src/Auth/AuthChecker';
@@ -48,8 +48,8 @@ export default function App() {
     receiver_name: '',
     receiver_phone: '',
     tips: '',
-    service_city:'',
-    
+    service_city: '',
+    stops: []
   });
   const [timer, setTimer] = useState(15); // Timer state
   // Initialize Firebase with Realtime Database URL
@@ -58,7 +58,7 @@ export default function App() {
       databaseURL: 'https://parsal-4c318-default-rtdb.firebaseio.com/',
     });
   } else {
-    firebase.app(); 
+    firebase.app();
     // if already initialized, use the existing one
   }
 
@@ -66,7 +66,7 @@ export default function App() {
     const authStatus = await messaging().requestPermission();
     return (
       authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-      authStatus === messaging.AuthorizationStatus.PROVISIONAL  
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL
     );
   };
   const updateFcmTokenInDB = async token => {
@@ -94,15 +94,16 @@ export default function App() {
   };
   const getToken = async () => {
     const token = await messaging().getToken();
-    console.log("token",token);
-    
+    console.log("token", token);
+
     updateFcmTokenInDB(token);
   };
 
   const handleNotification = remoteMessage => {
     // When handling the remote message
-    const {notification} = remoteMessage;
-    const {data} = remoteMessage;
+    const { notification } = remoteMessage;
+    const { data } = remoteMessage;
+    // console.log("data",data?.stops);
 
     // Use optional chaining to avoid errors
     const title = notification?.title || '';
@@ -131,7 +132,8 @@ export default function App() {
       receiver_name = '',
       receiver_phone = '',
       tips = '',
-      service_city='',
+      service_city = '',
+      stops = []
     } = data || {};
     // Update the notification data state
     setNotificationData({
@@ -161,6 +163,7 @@ export default function App() {
       receiver_phone,
       tips,
       service_city,
+      stops
     });
     setModalVisible(true);
     // setTimer(15);
@@ -190,7 +193,7 @@ export default function App() {
     }
   };
 
-   const handleNotificationWithTimeCheck = async remoteMessage => {
+  const handleNotificationWithTimeCheck = async remoteMessage => {
     const user = await get_user_data();
 
     if (user?.payload?.driver_id == remoteMessage?.data?.driverId)
@@ -239,7 +242,7 @@ export default function App() {
       try {
         await getToken();
 
-        
+
         await requestUserPermission();
       } catch (error) {
         console.error('Error during initialization:', error);
@@ -351,16 +354,15 @@ export default function App() {
     return () =>
       BackHandler.removeEventListener('hardwareBackPress', backAction);
   }, []);
-
   return (
     <PaperProvider>
       <Provider store={store}>
         <NotificationListener />
         <NavigationContainer>
-        <AppStateHandler/>
+          <AppStateHandler />
           <StackNavigator />
           <Toast />
-          <AuthChecker/>
+          <AuthChecker />
           <NotificationModal
             isVisible={isModalVisible}
             onAccept={handleAccept}
@@ -394,6 +396,7 @@ export default function App() {
             onClose={() => setModalVisible(false)}
             setModalVisible={setModalVisible}
             timer={timer}
+            stops={notificationData?.stops}
           />
         </NavigationContainer>
       </Provider>
@@ -409,3 +412,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
 });
+
+
+
+
+
+
+
+
+
+

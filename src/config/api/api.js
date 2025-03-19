@@ -48,6 +48,7 @@ import {
   updateDriverLocationurl,
   updatefcmurl,
   updateOrder,
+  updateorderstopurl,
   updateotppurl,
   updateWorkStatusurl,
   userorderstatsurl,
@@ -168,6 +169,10 @@ export const hitUpdateDriverLocationApi = param => {
 export const hitGetLiveOrderApi = param => {
   return apiPost(getliveorderdataurl, param);
 };
+export const hitupdateorderstopApi = param => {
+  return apiPost(updateorderstopurl, param);
+};
+
 export const hitUpdateFcmApi = param => {
   return apiPost(updatefcmurl, param);
 };

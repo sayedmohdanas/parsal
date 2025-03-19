@@ -40,24 +40,26 @@ const OrderInfo = ({ route }) => {
 
   const handleScreenshotAndShare = async () => {
     try {
-        const uri = await captureRef(viewRef, {
-            format: 'png',
-            quality: 0.8,
-        });
-        await Share.open({
-            url: uri,
-            title: 'Order Details',
-            message: 'Here are the details of my order.',
-        });
-        ToastAndroid.show('Screenshot shared successfully!', ToastAndroid.SHORT);
+      const uri = await captureRef(viewRef, {
+        format: 'png',
+        quality: 0.8,
+      });
+      await Share.open({
+        url: uri,
+        title: 'Order Details',
+        message: 'Here are the details of my order.',
+      });
+      ToastAndroid.show('Screenshot shared successfully!', ToastAndroid.SHORT);
     } catch (error) {
-        console.error('Error capturing and sharing screenshot:', error);
-        ToastAndroid.show('Failed to share screenshot.', ToastAndroid.SHORT);
+      console.error('Error capturing and sharing screenshot:', error);
+      ToastAndroid.show('Failed to share screenshot.', ToastAndroid.SHORT);
     }
-};
-  
-  // console.log('orderdetails=======>>anas==>>>',orderDetails);
-
+  };
+  const stopLocation = {
+    latitude: 26.8500,
+    longitude: 80.9400
+    // console.log('orderdetails=======>>anas==>>>',orderDetails);
+  }
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -85,17 +87,17 @@ const OrderInfo = ({ route }) => {
   const origin = {
     latitude: orderDetails?.pickup_lat
       ? Number(orderDetails?.pickup_lat)
-      : 26.8535, 
+      : 26.8535,
     longitude: orderDetails?.pickup_long
       ? Number(orderDetails?.pickup_long)
-      : 80.9462, 
+      : 80.9462,
   };
 
   const destination = {
     latitude: orderDetails?.drop_lat ? Number(orderDetails?.drop_lat) : 26.85,
     longitude: orderDetails?.drop_long
       ? Number(orderDetails?.drop_long)
-      : 80.9462, 
+      : 80.9462,
   };
 
 
@@ -128,8 +130,8 @@ const OrderInfo = ({ route }) => {
         longitude: (minLng + maxLng) / 2,
       };
 
-      const latSpan = maxLat - minLat + 0.02; 
-      const lngSpan = maxLng - minLng + 0.02; 
+      const latSpan = maxLat - minLat + 0.02;
+      const lngSpan = maxLng - minLng + 0.02;
 
       mapRef.current.animateToRegion(
         {
@@ -138,168 +140,184 @@ const OrderInfo = ({ route }) => {
           latitudeDelta: latSpan,
           longitudeDelta: lngSpan,
         },
-        1000, 
+        1000,
       );
     };
 
     fitToMarkers();
   }, [orderDetails]);
+  console.log(orderDetails?.stops);
+  
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Loading loading={loading} />
       <HeaderBackButton
-          headerText={'Order Details'}
-          onPress={() => navigation.goBack('')}
-          rightButton={AppImages.shareIcon}
-          onButtonPress={handleScreenshotAndShare}
-        />
+        headerText={'Order Details'}
+        onPress={() => navigation.goBack('')}
+        rightButton={AppImages.shareIcon}
+        onButtonPress={handleScreenshotAndShare}
+      />
       <ViewShot
-                ref={viewRef}
-                options={{ fileName: 'OrderDetails', format: 'jpg', quality: 0.9 }}
-                style={{ flex: 1 }}
-            >
-      <View style={[styles.section1]}>
-       
-      
-        <MapView
-          ref={mapRef} 
-          customMapStyle={custommapstyle}
-          style={{ flex: 1 }}
-          initialRegion={{
-            latitude: origin?.latitude,
-            longitude: origin?.longitude,
-            latitudeDelta: 0.1, 
-            longitudeDelta: 0.1,
-          }}
-          zoomEnabled={true}
-          scrollEnabled={true}
-        >
-          <Polyline
-            coordinates={[
-              { latitude: origin?.latitude, longitude: origin?.longitude }, 
-              {
-                latitude: destination?.latitude,
-                longitude: destination?.longitude,
-              }, 
-            ]}
-            strokeColor={Colors.black}
-            strokeWidth={4} 
-            lineDashPattern={[10, 5]} 
-          />
-          <Marker coordinate={origin} title="Pick-up Location">
-            <Image
-              source={
-                orderDetails?.vehicle_cat_type_id == 1&& AppImages.Bike||
-                orderDetails?.vehicle_cat_type_id == 2&& AppImages.Bike||
-                orderDetails?.vehicle_cat_type_id == 3&& AppImages.AutoImg||          
-                orderDetails?.vehicle_cat_type_id == 4&& AppImages.TruckImg
-                
+        ref={viewRef}
+        options={{ fileName: 'OrderDetails', format: 'jpg', quality: 0.9 }}
+        style={{ flex: 1 }}
+      >
+        <View style={[styles.section1]}>
+
+
+          <MapView
+            ref={mapRef}
+            customMapStyle={custommapstyle}
+            style={{ flex: 1 }}
+            initialRegion={{
+              latitude: origin?.latitude,
+              longitude: origin?.longitude,
+              latitudeDelta: 0.1,
+              longitudeDelta: 0.1,
+            }}
+            zoomEnabled={true}
+            scrollEnabled={true}
+          >
+            {/* <Polyline
+              coordinates={[
+                { latitude: origin?.latitude, longitude: origin?.longitude },
+                {
+                  latitude: destination?.latitude,
+                  longitude: destination?.longitude,
+                },
+              ]} */}
+              <Polyline
+    coordinates={[
+      { latitude: origin?.latitude, longitude: origin?.longitude }, 
+      { latitude: stopLocation?.latitude, longitude: stopLocation?.longitude }, // Stop first
+      { latitude: destination?.latitude, longitude: destination?.longitude }, // Then final destination
+    ]}
+              strokeColor={Colors.black}
+              strokeWidth={4}
+              lineDashPattern={[10, 5]}
+            />
+            <Marker coordinate={origin} title="Pick-up Location">
+              <Image
+                source={
+                  orderDetails?.vehicle_cat_type_id == 1 && AppImages.Bike ||
+                  orderDetails?.vehicle_cat_type_id == 2 && AppImages.Bike ||
+                  orderDetails?.vehicle_cat_type_id == 3 && AppImages.AutoImg ||
+                  orderDetails?.vehicle_cat_type_id == 4 && AppImages.TruckImg
+
                 }
-              resizeMode="contain"
-              style={{ height: responsiveHeight(35), width: responsiveWidth(35) }}
-            />
-          </Marker>
-          <Marker coordinate={destination} title="Drop-off Location">
-            <Image
-              source={AppImages.location}
-              resizeMode="contain"
-              style={{ height: responsiveHeight(20), width: responsiveWidth(20) }}
-            />
-          </Marker>
-        </MapView>
-      </View>
-      <View style={[styles.section2]}>
-        {orderDetails ? (
-          <>
-            <View style={[styles.dateContainer]}>
-              <View>
-                <View style={{ flexDirection: 'row' }}>
+                resizeMode="contain"
+                style={{ height: responsiveHeight(35), width: responsiveWidth(35) }}
+              />
+            </Marker>
+            <Marker coordinate={destination} title="Drop-off Location">
+              <Image
+                source={AppImages.location}
+                resizeMode="contain"
+                style={{ height: responsiveHeight(20), width: responsiveWidth(20) }}
+              />
+            </Marker>
+            <Marker coordinate={stopLocation} title="Stop Location ">
+              <Image
+                source={AppImages.location}
+                resizeMode="contain"
+                tintColor={Colors.brandBlue}
+                style={{ height: responsiveHeight(20), width: responsiveWidth(20) }}
+              />
+            </Marker>
+          </MapView>
+        </View>
+        <View style={[styles.section2]}>
+          {orderDetails ? (
+            <>
+              <View style={[styles.dateContainer]}>
+                <View>
+                  <View style={{ flexDirection: 'row' }}>
 
-                  <Text style={{ color: 'black', fontWeight: '600', fontSize: responsiveFontSize(16) }}>{`# ${order_id} | `}</Text>
-                  <Text style={{ color: 'black', fontWeight: '600', fontSize: responsiveFontSize(14) }}>{orderDetails?.goods?.name}</Text>
+                    <Text style={{ color: 'black', fontWeight: '600', fontSize: responsiveFontSize(16) }}>{`# ${order_id} | `}</Text>
+                    <Text style={{ color: 'black', fontWeight: '600', fontSize: responsiveFontSize(14) }}>{orderDetails?.goods?.name}</Text>
+                  </View>
+
+                  <View style={{ flexDirection: 'row' }}>
+                    <Text style={{ color: Colors.grey, fontWeight: '500' }}>{formatDate(orderDetails?.order_date)}</Text>
+
+
+                  </View>
                 </View>
-
-                <View style={{ flexDirection: 'row' }}>
-                  <Text style={{ color: Colors.grey, fontWeight: '500' }}>{formatDate(orderDetails?.order_date)}</Text>
-
-
-                </View>
-              </View>
-              <View style={{ alignItems: 'flex-end' }}>
-                <Text
-                  style={{
-
-                    color: 'black',
-                    fontSize: FontSizes.semiLarge,
-                    fontWeight: Fonts.medium,
-
-
-                  }}>
-                  {`₹ ${(
-                    parseFloat(
-                      orderDetails.transactions?.find(
-                        t => t.pay_head_name === 'TotalFare',
-                      )?.amount,
-                    ) || 0
-                  ).toFixed(2)}`}
-                </Text>
-                <Text
-                  style={{
-                    color: orderStatusColor,
-                    marginLeft: responsiveWidth(10),
-                  }}>
-                  {orderStatusText}
-                </Text>
-              </View>
-            </View>
-            <Line marginH={16} />
-            <View style={[styles.selectionPicDrop]}>
-              <View style={[styles.timelineContainer]}>
-                <View style={styles.greenCircle}></View>
-                <View style={styles.line}></View>
-                <View
-                  style={{
-                    height: responsiveHeight(10),
-                    width: responsiveHeight(10),
-                    borderWidth: 0.5,
-                    borderColor: 'grey',
-                    borderRadius: 10,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <View style={styles.redCircle}></View>
-                </View>
-              </View>
-              <View style={[styles.textInputContainers]}>
-                <View style={styles.pickUpStyle}>
+                <View style={{ alignItems: 'flex-end' }}>
                   <Text
-                    numberOfLines={2}
-                    ellipsizeMode="tail"
                     style={{
-                      color: Colors.black,
-                      fontSize: responsiveFontSize(14),
-                      marginLeft: responsiveWidth(10),
+
+                      color: 'black',
+                      fontSize: FontSizes.semiLarge,
+                      fontWeight: Fonts.medium,
+
+
                     }}>
-                    {orderDetails.pickup_address}
+                    {`₹ ${(
+                      parseFloat(
+                        orderDetails.transactions?.find(
+                          t => t.pay_head_name === 'TotalFare',
+                        )?.amount,
+                      ) || 0
+                    ).toFixed(2)}`}
                   </Text>
-                </View>
-                <View style={styles.pickUpStyle}>
                   <Text
-                    numberOfLines={2}
-                    ellipsizeMode="tail"
                     style={{
-                      color: Colors.black,
-                      fontSize: responsiveFontSize(14),
+                      color: orderStatusColor,
                       marginLeft: responsiveWidth(10),
                     }}>
-                    {orderDetails?.drop_address}
+                    {orderStatusText}
                   </Text>
                 </View>
               </View>
-            </View>
-            <Line marginH={16} />
-            <View style={[styles.dateContainer]}>
-              {/* <FlatList
+              <Line marginH={16} />
+              <View style={[styles.selectionPicDrop]}>
+                <View style={[styles.timelineContainer]}>
+                  <View style={styles.greenCircle}></View>
+                  <View style={styles.line}></View>
+                  <View
+                    style={{
+                      height: responsiveHeight(10),
+                      width: responsiveHeight(10),
+                      borderWidth: 0.5,
+                      borderColor: 'grey',
+                      borderRadius: 10,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}>
+                    <View style={styles.redCircle}></View>
+                  </View>
+                </View>
+                <View style={[styles.textInputContainers]}>
+                  <View style={styles.pickUpStyle}>
+                    <Text
+                      numberOfLines={2}
+                      ellipsizeMode="tail"
+                      style={{
+                        color: Colors.black,
+                        fontSize: responsiveFontSize(14),
+                        marginLeft: responsiveWidth(10),
+                      }}>
+                      {orderDetails.pickup_address}
+                    </Text>
+                  </View>
+                  <View style={styles.pickUpStyle}>
+                    <Text
+                      numberOfLines={2}
+                      ellipsizeMode="tail"
+                      style={{
+                        color: Colors.black,
+                        fontSize: responsiveFontSize(14),
+                        marginLeft: responsiveWidth(10),
+                      }}>
+                      {orderDetails?.drop_address}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+              <Line marginH={16} />
+              <View style={[styles.dateContainer]}>
+                {/* <FlatList
                 data={orderDetails?.transactions}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item, index }) => (
@@ -324,56 +342,56 @@ const OrderInfo = ({ route }) => {
                   </View>
                 )}
               /> */}
-              <FlatList
-                data={orderDetails?.transactions}
-                keyExtractor={(item, index) => index.toString()}
-                showsVerticalScrollIndicator={false}
-                
-                renderItem={({ item, index }) => (
-                  <View>
-                    {/* Render the line only for the last item */}
-                    {index === orderDetails?.transactions?.length - 1 && <Line marginH={0} />}
+                <FlatList
+                  data={orderDetails?.transactions}
+                  keyExtractor={(item, index) => index.toString()}
+                  showsVerticalScrollIndicator={false}
 
-                    {/* Main row content */}
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        padding: 1, // Optional: For spacing
-                      }}
-                    >
-                      <Text
+                  renderItem={({ item, index }) => (
+                    <View>
+                      {/* Render the line only for the last item */}
+                      {index === orderDetails?.transactions?.length - 1 && <Line marginH={0} />}
+
+                      {/* Main row content */}
+                      <View
                         style={{
-                          color:  'black',
-                          fontWeight: index === orderDetails?.transactions?.length - 1 ? '700' : '400',
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          padding: 1, // Optional: For spacing
                         }}
                       >
-                        {item.pay_head_name}
-                      </Text>
+                        <Text
+                          style={{
+                            color: 'black',
+                            fontWeight: index === orderDetails?.transactions?.length - 1 ? '700' : '400',
+                          }}
+                        >
+                          {item.pay_head_name}
+                        </Text>
 
-                      <Text style={{ color: 'black',fontWeight:index === orderDetails?.transactions?.length - 1 ? '700' : '400',fontSize:index === orderDetails?.transactions?.length - 1 ? FontSizes.semiLarge : FontSizes.medium }}>
-                        {` ${parseFloat(item.amount).toFixed(2)}`}
-                      </Text>
+                        <Text style={{ color: 'black', fontWeight: index === orderDetails?.transactions?.length - 1 ? '700' : '400', fontSize: index === orderDetails?.transactions?.length - 1 ? FontSizes.semiLarge : FontSizes.medium }}>
+                          {` ${parseFloat(item.amount).toFixed(2)}`}
+                        </Text>
+                      </View>
                     </View>
-                  </View>
-                )}
-              contentContainerStyle={{ paddingBottom: responsiveHeight(230) }} // Optional: Prevent clipping of last item
+                  )}
+                  contentContainerStyle={{ paddingBottom: responsiveHeight(230) }} // Optional: Prevent clipping of last item
+                />
+
+              </View>
+            </>
+          ) : (
+            <View
+              style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <Image
+                source={AppImages.emptyImage}
+                style={styles.emptyboxStyle}
+                resizeMode="contain"
               />
- 
+              <Text>No data available for this order ID</Text>
             </View>
-          </>
-        ) : (
-          <View
-            style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Image
-              source={AppImages.emptyImage}
-              style={styles.emptyboxStyle}
-              resizeMode="contain"
-            />
-            <Text>No data available for this order ID</Text>
-          </View>
-        )}
-      </View>
+          )}
+        </View>
       </ViewShot>
     </SafeAreaView>
   );
@@ -409,8 +427,8 @@ const styles = StyleSheet.create({
   textInputContainers: {
     flex: 9,
   },
-  shareButton:{
-    color:'red'
+  shareButton: {
+    color: 'red'
   },
   greenCircle: {
     height: responsiveHeight(10),

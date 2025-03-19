@@ -6,8 +6,8 @@
 // export const socketUrl = `http://192.168.29.244:4000/`;
 
 
-// export const API_BASE_URL = 'http://52.66.236.213:9292/';
-// export const socketUrl = `http://52.66.236.213:4000/`;
+export const API_BASE_URL = 'http://52.66.236.213:9292/';
+export const socketUrl = `http://52.66.236.213:4000/`;
 
 
 
@@ -16,12 +16,10 @@
 // export const API_BASE_URL = 'http://52.66.236.213:9000/';
 // export const socketUrl = `http://52.66.236.213:4100/`;
 
+// 
 
-
-export const API_BASE_URL ='http://192.168.29.46:9292/'
-//  'http://192.168.29.237:5000/';
-export const socketUrl ='http://192.168.29.46:4000/'
-//  `http://192.168.29.237:4000/`;
+// export const API_BASE_URL = 'http://192.168.29.46:9292/';
+// export const socketUrl = `http://192.168.29.46:4000/`;
 // //
 const getEndpoint = text => {
   return API_BASE_URL + text;
@@ -61,6 +59,7 @@ export const getOrderDetail = getEndpoint('orders/get-order-details');
 export const cancelOrderurl = getEndpoint('orders/cancel-order');
 // export const driverEaring =getEndpoint('orders/cancel-order');
 export const driverEaringurl = getEndpoint('orders/driver-payments');
+export const updateorderstopurl = getEndpoint('orders/update-order-stop');
 export const updateDriverDistanceurl = getEndpoint(
   'users/update-driver-distance',
 );

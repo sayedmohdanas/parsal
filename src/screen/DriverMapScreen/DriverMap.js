@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   AppState,
 } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Polyline } from 'react-native-maps';
 import AppImages from '../../common/AppImages';
 import BackgroundTimer from 'react-native-background-timer';
 import {
@@ -24,7 +24,7 @@ import {
   useIsFocused,
   useNavigation,
 } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import database from '@react-native-firebase/database';
 import Colors from '../../common/Colors';
 import {
@@ -34,9 +34,16 @@ import {
 } from '../../common/metrices';
 import DriverArriveCard from '../DriverEarning/DriverArriveCard';
 import DestinationSection from './DestinationSection';
-import { hitUpdateDriverLocationApi } from '../../config/api/api';
+import { hitEndOrderApi, hitUpdateDriverLocationApi, hitupdateorderstopApi } from '../../config/api/api';
 import NextOrder from '../../components/CustomNotificationModal/NextOrder';
 import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
+
+import DeliveryModal from './DeliveryComponent';
+import { setOrderData } from '../../redux/HitApis/HitApiSlice';
+import { socketUrl } from '../../config/url';
+import { io } from 'socket.io-client';
+
+
 const AnimatedMarker = Animated.createAnimatedComponent(Marker);
 
 const getCenterOffsetForAnchor = (anchor, markerWidth, markerHeight) => ({
@@ -58,7 +65,7 @@ const DriverMapScreen = ({ route }) => {
   const [distanceTraveled, setDistanceTraveled] = useState(0);
   const [lastPosition, setLastPosition] = useState(null);
   const [appState, setAppState] = useState(AppState.currentState);
-  const {orderData, update_order, nextOrderData} = useSelector(
+  const { orderData, update_order, nextOrderData } = useSelector(
     state => state?.parsalPartner,
   );
   let timerId = null;
@@ -219,27 +226,48 @@ const DriverMapScreen = ({ route }) => {
     longitude: Number(latLOng?.longitude) || 0,
     heading: Number(latLOng?.heading) || 0,
   };
+  const nextStop = (orderData?.newOrder?.stops || orderData?.stops)
+    ?.filter(stop => !stop?.is_completed)
+    ?.reduce((minStop, stop) =>
+      minStop && minStop.stop_sequence < stop.stop_sequence ? minStop : stop,
+      null
+    );
+  // console.log(nextStop);
+  // console.log("order_stops",order_stops);
+  
+
+  const order_stops = orderData?.newOrder?.stops || orderData?.stops || [];
+  const stops = (orderData?.newOrder?.stops || orderData?.stops) || [];
+
+  const pendingStops = stops.filter(stop => !stop?.is_completed);
+
+  // const nextStop = pendingStops.reduce((minStop, stop) =>
+  //   minStop && minStop.stop_sequence < stop.stop_sequence ? minStop : stop,
+  //   null
+  // );
+
+  const isLastStop = pendingStops.length === 1;
+
+  // console.log({ nextStop, isLastStop });
+
+  const nextStopIndex = nextStop ? order_stops?.findIndex(stop => stop.id == nextStop.id) : 0;
+  const laststopIndex = nextStop ? order_stops?.findIndex(stop => stop.id == nextStop.id) : -1;
+  const [selectedStopIndex, setSelectedStopIndex] = useState(nextStopIndex);
   const destination = {
-    latitude: update_order?.is_arrived_pickup
-      ? Number(orderData?.drop_lat) ||
-      Number(orderData?.newOrder?.drop_lat) ||
-      0
-      : Number(orderData?.pickup_lat) ||
+    latitude: update_order?.is_arrived_pickup == 0 || update_order?.is_arrived_pickup == null
+      ? Number(orderData?.pickup_lat) ||
       Number(orderData?.newOrder?.pickup_lat) ||
-      0,
-    longitude: update_order?.is_arrived_pickup
-      ? Number(orderData?.drop_long) ||
-      Number(orderData?.newOrder?.drop_long) ||
       0
-      : Number(orderData?.pickup_long) ||
+      : Number(order_stops?.[selectedStopIndex]?.stop_lat) ||
+      0,
+    longitude: update_order?.is_arrived_pickup == 0 || update_order?.is_arrived_pickup == null
+      ? Number(orderData?.pickup_long) ||
       Number(orderData?.newOrder?.pickup_long) ||
+      0
+      : Number(order_stops?.[selectedStopIndex]?.stop_lng) ||
       0,
   };
-  const hazratganjCoordinates = {
-    latitude: 26.8564,
-    longitude: 80.9457
-  };
-  console.log('hazratganjCoordinates=================>>>>>', hazratganjCoordinates)
+
   const [reached, setReached] = useState(false);
 
   useEffect(() => {
@@ -392,6 +420,147 @@ const DriverMapScreen = ({ route }) => {
   //   return () => clearTimeout(timeoutId); // Cleanup timeout on component unmount or latLOng change
   // }, [latLOng]);
 
+
+
+
+
+  // console.log("Next Stop Index:", nextStopIndex);
+  // console.log("Is Last Stop:", isLastStop);
+
+
+  const routeCoordinates = [
+    origin,
+    destination,
+    ...order_stops?.map((item) => ({
+      latitude: Number(item.stop_lat),
+      longitude: Number(item.stop_lng),
+    }))
+  ];
+
+  const formattedStops = order_stops?.map((item) => ({
+    latitude: Number(item.stop_lat),
+    longitude: Number(item.stop_lng),
+  }));
+
+  // Create polyline segments to break at each stop
+  const polylineSegments = [
+    [origin, destination],
+    [destination, formattedStops[0]],
+    [formattedStops[0], formattedStops[1]],
+    [formattedStops[1], formattedStops[2]],
+  ];
+  const [stop_modal, setstop_modal] = useState(false)
+  const stop_distance = calculateDistance(origin, destination);
+  useEffect(() => {
+    if (
+      update_order?.is_arrived_pickup == 1
+    ) {
+
+      if (stop_distance <= 100 && order_stops?.length > 1) {
+        setstop_modal(true);
+      } else {
+        setstop_modal(false);
+      }
+    }
+  }, [stop_distance]);
+
+  const dispatch = useDispatch()
+  const updateStopCompletion = (stopId) => {
+    const updatedStops = (orderData?.stops || orderData?.newOrder?.stops || []).map(stop =>
+      stop.id === stopId ? { ...stop, is_completed: true } : stop
+    );
+    dispatch(setOrderData({
+      ...orderData,
+      stops: updatedStops,
+      newOrder: orderData?.newOrder
+        ? { ...orderData.newOrder, stops: updatedStops } // Ensure newOrder.stops is also updated
+        : orderData?.newOrder
+    }));
+  };
+  const store_data = useSelector(state => state);
+  const driver_details = useSelector(
+    state => state?.parsalPartner?.logindriverdetails,
+  );
+  const sendDummyDataToFirebase = async (data, message, type) => {
+    try {
+      const notificationPayload = {
+        order_id: data?.id,
+        driver_id: data?.driver_id,
+        customer_id: data?.cust_id,
+        message: message || 'This is a dummy notification.',
+        timestamp: new Date().toISOString(),
+        type: type || 1, // Assuming '1' is the type for a rating request
+        stopId: type == 5 && nextStop?.id,
+        order: type == 5 && JSON.stringify(orderData?.newOrder) || JSON.stringify(orderData)
+      };
+      // Define the path to send the data
+      const customerPath = `customers/${data?.cust_id}/notifications`;
+      // Send the data to Firebase
+      await database().ref(customerPath).push(notificationPayload);
+
+      console.log('Dummy data sent successfully!');
+    } catch (error) {
+      console.error('Error sending dummy data to Firebase:', error);
+    }
+  };
+  // console.log("nextStop",nextStop);
+
+  const socketRef = useRef()
+  useEffect(() => {
+    socketRef.current = io(socketUrl); // Initialize socket
+    const socket = socketRef.current;
+
+    socket.on('connect', () => {
+      console.log('Connected to socket server');
+    });
+
+    socket.emit('registerUser', {
+      userId: orderData?.newOrder?.driver_id || orderData?.driver_id,
+      role: 'driver',
+    });
+
+    return () => {
+      if (socket) {
+        socket.disconnect();
+        console.log('Socket disconnected');
+      }
+    };
+  }, [socketUrl, orderData]);
+  const handleEndTrip = async () => {
+    const currentTime = new Date().toLocaleTimeString('en-GB', {
+      hour12: false,
+    });
+    const param = {
+      orderId: orderData?.newOrder?.id || orderData?.id,
+      delivered_at: currentTime,
+      partner_id:
+        store_data?.parsalPartner?.loginuserdetails?.partner_id ||
+        store_data?.parsalPartner?.loginuserdetails?.id,
+      vehicle_type_id: driver_details?.vehicle_type_id,
+    };
+    hitEndOrderApi(param)
+      .then(res => {
+        if (res) {
+          // if (socketRef.current) {
+            socketRef.current.emit('end_trip', {
+              userId: orderData?.newOrder?.cust_id || orderData?.cust_id,
+              order_id: orderData?.newOrder?.id || orderData?.id,
+            });
+          sendDummyDataToFirebase(
+            orderData?.newOrder || orderData,
+            'Order Ended',
+            2,
+          );
+          navigation.navigate('AmountCollected');
+          // } else {
+          //   console.log('Socket is not connected');
+          // }
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
   return (
     <View style={styles.container}>
       {isLoading && (
@@ -455,13 +624,7 @@ const DriverMapScreen = ({ route }) => {
             />
           </AnimatedMarker>
         ) : null}
-       <Marker coordinate={hazratganjCoordinates}>
-          <Image
-            source={AppImages.location}
-            style={{ width: responsiveWidth(37), height: responsiveHeight(37) }}
-            resizeMode="contain"
-          />
-        </Marker>
+
         <Marker coordinate={destination}>
           <Image
             source={AppImages.location}
@@ -469,6 +632,17 @@ const DriverMapScreen = ({ route }) => {
             resizeMode="contain"
           />
         </Marker>
+        {/* {order_stops?.map((item, index) => (
+          <Polyline
+            key={index} // Ensure unique key for each Polyline
+            coordinates={[
+              { latitude: Number(item?.stop_lat), longitude: Number(item?.stop_lng) }
+            ]}
+            strokeColor="black"
+            strokeWidth={4}
+            lineDashPattern={[10, 5]} // Dashed Line
+          />
+        ))} */}
 
         {origin.latitude &&
           origin.longitude &&
@@ -490,10 +664,13 @@ const DriverMapScreen = ({ route }) => {
             }}
           />
         ) : null}
+
       </MapView>
       <View style={styles.cardContainer}>
         {update_order?.is_arrived_pickup ? (
-          <DestinationSection details={update_order} />
+          <DestinationSection details={update_order} selectedStopIndexes={selectedStopIndex} onStopIndexChange={(e) => {
+            setSelectedStopIndex(e)
+          }} />
         ) : (
           <DriverArriveCard
             nextId={nextOrderData?.newOrder?.id || nextOrderData?.id}
@@ -508,6 +685,41 @@ const DriverMapScreen = ({ route }) => {
         isVisible={nextordermodal}
         setnextordermodal={setnextordermodal}
       />
+      <DeliveryModal visible={stop_modal} onClose={() => {
+        setstop_modal(false)
+      }} onDelivered={() => {
+        // updateStopCompletion(nextStop?.id)
+        // sendDummyDataToFirebase(
+        //   orderData?.newOrder || orderData,
+        //   'Stop Reached',
+        //   5,
+        // );
+        const param = {
+          stop_id: order_stops?.[selectedStopIndex]?.id,
+          is_complete: true
+        }
+        hitupdateorderstopApi(param).then((res) => {
+          if (res) {
+            updateStopCompletion(nextStop?.id)
+            setstop_modal(false)
+            if (isLastStop) {
+              handleEndTrip()
+              return
+            } else {
+              sendDummyDataToFirebase(
+                orderData?.newOrder || orderData,
+                'Stop Reached',
+                5,
+              );
+              setSelectedStopIndex(selectedStopIndex + 1)
+              return
+            }
+          }
+        }).catch((err) => {
+          console.error(err);
+        })
+
+      }} address={nextStop?.stop_address} />
     </View>
   );
 };

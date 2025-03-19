@@ -1,7 +1,7 @@
-import React, {useCallback, useEffect, useLayoutEffect, useState} from 'react';
-import {View, Text, StyleSheet, SafeAreaView, Image} from 'react-native';
-import MapView, {Marker} from 'react-native-maps';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, Image } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import Colors from '../../common/Colors';
 import CustomHeader from './components/CustomHeader';
 import Loading from '../../components/Loading/Loading';
@@ -28,13 +28,14 @@ import BottomNav from '../../../navigation/BottomNav';
 import {
   setOrderData,
   setOwner,
+  setStops,
   setlivetripmenu,
   setloginuserdetails,
   setnextOrderData,
   setupdate_order,
   setwalletBalance,
 } from '../../redux/HitApis/HitApiSlice';
-import {useDispatch} from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 const DriverDashboard = () => {
   const dispatch = useDispatch();
@@ -55,8 +56,8 @@ const DriverDashboard = () => {
   useEffect(() => {
     const fetchDriverLocations = async () => {
       try {
-        const {latitude, longitude, heading} = await GetDriverCurrentLocation();
-        setDriverLocation({latitude, longitude, heading});
+        const { latitude, longitude, heading } = await GetDriverCurrentLocation();
+        setDriverLocation({ latitude, longitude, heading });
       } catch (error) {
         console.error('Error fetching driver location: ', error);
       } finally {
@@ -91,7 +92,7 @@ const DriverDashboard = () => {
             ? parsedUser?.payload?.driver_id
             : 0,
       };
-      const res = await hitgetDriverTodaysEarningApi(param);      
+      const res = await hitgetDriverTodaysEarningApi(param);
       if (res?.success == false) {
         setdriver_todays_earning([]);
       } else {
@@ -107,6 +108,15 @@ const DriverDashboard = () => {
       get_data();
     }, []),
   );
+  const checkOrderCompletion = (ongoingOrder) => {
+    if (!ongoingOrder || ongoingOrder.length === 0) return;
+
+    const order = ongoingOrder[0];
+
+    const allStopsCompleted = order?.stops?.every(stop => stop.is_completed);
+
+    return allStopsCompleted;
+  };
   const get_user_details = async () => {
     const user = await AsyncStorage.getItem('user');
     const parsed_user = JSON.parse(user);
@@ -114,13 +124,12 @@ const DriverDashboard = () => {
     // setparsed_data(parsed_user);
     if (parsed_user?.payload?.owner_type == 0) {
       dispatch(setOwner(0));
-      hitGetDriverDetails({ids: [parsed_user?.payload?.driver_id]})
+      hitGetDriverDetails({ ids: [parsed_user?.payload?.driver_id] })
         .then(res => {
           dispatch(setloginuserdetails(res?.drivers[0]));
-          const param = {driver_id: parsed_user?.payload?.driver_id};
+          const param = { driver_id: parsed_user?.payload?.driver_id };
           hitGetWalletBalanceApi(param)
             .then(res => {
-              
               dispatch(setwalletBalance(res));
             })
             .catch(err => {
@@ -138,15 +147,21 @@ const DriverDashboard = () => {
               } else {
                 // setshow_live(true);
                 dispatch(setlivetripmenu(true));
-                const {order_otp, ...restOrderData} =
+                const { order_otp, ...restOrderData } =
                   res?.ongoingOrder[0] || {};
-                const modifiedOrderData = {...restOrderData, otp: order_otp};
+                const modifiedOrderData = { ...restOrderData, otp: order_otp };
                 dispatch(setOrderData(modifiedOrderData));
                 if (res?.ongoingOrder[0]?.is_arrived_pickup) {
-                  if (modifiedOrderData?.delivered_at) {
-                    dispatch(setupdate_order(modifiedOrderData));
+                  
+                  if (checkOrderCompletion(res?.ongoingOrder)) {
+                    dispatch(setupdate_order(res?.ongoingOrder));
                     navigation.navigate('AmountCollected');
-                  } else {
+                  }
+                  // if (modifiedOrderData?.delivered_at) {
+                  //   dispatch(setupdate_order(modifiedOrderData));
+                  //   navigation.navigate('AmountCollected');
+                  // }
+                  else {
                     dispatch(setupdate_order(modifiedOrderData));
                     navigation.navigate('DriverMap');
                     return;
@@ -156,7 +171,7 @@ const DriverDashboard = () => {
                   return;
                 }
                 if (res?.ongoingOrder?.length > 1) {
-                  const {order_otp, ...restOrderData} =
+                  const { order_otp, ...restOrderData } =
                     res?.ongoingOrder[1] || {};
                   const modifiedOrderData = {
                     ...restOrderData,
@@ -182,7 +197,7 @@ const DriverDashboard = () => {
           // setuser_details(res?.partner);
           dispatch(setloginuserdetails(res?.partner));
           if (parsed_user?.payload?.owner_type == 2) {
-            const param = {driver_id: parsed_user?.payload?.driver_id};
+            const param = { driver_id: parsed_user?.payload?.driver_id };
             hitGetWalletBalanceApi(param)
               .then(res => {
                 dispatch(setwalletBalance(res));
@@ -203,9 +218,9 @@ const DriverDashboard = () => {
                 } else {
                   // setshow_live(true);
                   dispatch(setlivetripmenu(true));
-                  const {order_otp, ...restOrderData} =
+                  const { order_otp, ...restOrderData } =
                     res?.ongoingOrder[0] || {};
-                  const modifiedOrderData = {...restOrderData, otp: order_otp};
+                  const modifiedOrderData = { ...restOrderData, otp: order_otp };
                   dispatch(setOrderData(modifiedOrderData));
                   if (res?.ongoingOrder[0]?.is_arrived_pickup) {
                     if (modifiedOrderData?.delivered_at) {
@@ -221,7 +236,7 @@ const DriverDashboard = () => {
                     return;
                   }
                   if (res?.ongoingOrder?.length > 1) {
-                    const {order_otp, ...restOrderData} =
+                    const { order_otp, ...restOrderData } =
                       res?.ongoingOrder[1] || {};
                     const modifiedOrderData = {
                       ...restOrderData,
@@ -248,6 +263,8 @@ const DriverDashboard = () => {
       get_user_details();
     }, []),
   );
+
+  
   return (
     <SafeAreaView style={styles.container}>
       {loading ? (
@@ -270,8 +287,8 @@ const DriverDashboard = () => {
                   latitude: driverLocation?.latitude,
                   longitude: driverLocation?.longitude,
                 }}
-                // rotation={driverLocation?.heading} // Apply heading to rotate the marker
-                // anchor={{x: 0.5, y: 0.5}} // Center the marker
+              // rotation={driverLocation?.heading} // Apply heading to rotate the marker
+              // anchor={{x: 0.5, y: 0.5}} // Center the marker
               >
                 <Image
                   source={AppImages.Bike}
@@ -313,8 +330,8 @@ const DriverDashboard = () => {
                     ₹
                     {!isNaN(driver_todays_earning?.todaysTotalAmount)
                       ? Math.round(
-                          driver_todays_earning?.todaysTotalAmount,
-                        ).toFixed(2)
+                        driver_todays_earning?.todaysTotalAmount,
+                      ).toFixed(2)
                       : '0'}
                   </Text>
                 </View>

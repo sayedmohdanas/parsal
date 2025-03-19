@@ -1,5 +1,5 @@
 // CustomNotificationModal.js
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,30 +10,28 @@ import {
   Image,
 } from 'react-native';
 import Colors from '../../common/Colors';
-import {hitlPaceOrder, hitUpdateOrderOtpApi} from '../../config/api/api';
-import {useNavigation} from '@react-navigation/native';
+import { hitlPaceOrder, hitUpdateOrderOtpApi } from '../../config/api/api';
+import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useDispatch, useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   setDriverId,
   setOrderData,
+  setStops,
   setlivetripmenu,
   setnextOrderData,
   setupdate_order,
 } from '../../redux/HitApis/HitApiSlice';
-import {io} from 'socket.io-client';
+import { io } from 'socket.io-client';
 import {
   generateNumericOTP,
   GetDriverCurrentLocation,
 } from '../../common/CommonFunction';
-import {placeOrder, socketUrl} from '../../config/url';
+import { placeOrder, socketUrl } from '../../config/url';
 import BorderLine from '../../common/BorderLine.';
 import AppImages from '../../common/AppImages';
 import Loading from '../Loading/Loading';
 import * as Progress from 'react-native-progress';
-// import { AnimatedCircularProgress } from 'react-native-circular-progress';
-// import Svg from 'react-native-svg';
-
 import {
   responsiveFontSize,
   responsiveHeight,
@@ -75,7 +73,8 @@ const NotificationModal = ({
   receiver_phone,
   tips,
   good_type,
-  service_city
+  service_city,
+  stops
 }) => {
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
@@ -83,7 +82,7 @@ const NotificationModal = ({
   const order_date = new Date();
   const goods_quantity = 1;
   const pay_mode = 'cash';
-  const payment_status = 'pending';
+  const payment_status = '0';
   const store_data = useSelector(state => state?.parsalPartner);
 
   useEffect(() => {
@@ -123,15 +122,15 @@ const NotificationModal = ({
       }
     };
   }, [isVisible, driverId]); // Add driverId as dependency if it's dynamic
+  // console.log("stops", JSON.parse(stops));
 
   const handleAccept = async () => {
     const user = await AsyncStorage.getItem('user');
     const parsedUser = JSON.parse(user);
-    console.log('parsedUser', parsedUser);
     try {
       // Show loading
       setLoading(true);
-      const {latitude, longitude} = await GetDriverCurrentLocation();
+      const { latitude, longitude } = await GetDriverCurrentLocation();
 
       // Create payload
       const payload = {
@@ -161,8 +160,10 @@ const NotificationModal = ({
         receiver_name,
         tips: parseFloat(tips),
         good_type,
-        service_city
+        service_city,
+        stops: JSON.parse(stops)
       };
+      console.log("payload", payload);
 
       // Pass the payload into the API call
       const res = await hitlPaceOrder(payload); // Your API call function
@@ -286,6 +287,7 @@ const NotificationModal = ({
   // useEffect(() => {
   //   setIsEnabled(user_details?.working_status == 0 ? false : true);
   // }, [user_details, dispatch]);
+
   return (
     <>
       <Modal
@@ -314,7 +316,7 @@ const NotificationModal = ({
               <BorderLine margin={10} thickness={0.5} />
             </View>
 
-            <View style={{alignSelf: 'center'}}>
+            <View style={{ alignSelf: 'center' }}>
               <CircularProgressComponent
                 timer={timer}
                 setModalVisible={setModalVisible}
@@ -361,8 +363,8 @@ const NotificationModal = ({
                     </View>
                   </View>
                 )}
-                <View style={{marginLeft: responsiveWidth(5)}}>
-                  <Text style={[styles.addressText, {marginVertical: 0}]}>
+                <View style={{ marginLeft: responsiveWidth(5) }}>
+                  <Text style={[styles.addressText, { marginVertical: 0 }]}>
                     {pickup_address}
                   </Text>
                   <Text style={styles.addressText}>{drop_address}</Text>
@@ -380,12 +382,12 @@ const NotificationModal = ({
               <TouchableOpacity
                 style={styles.roundButton}
                 onPress={handleAccept}>
-                <Text style={[styles.buttonText, {color: Colors.white}]}>
+                <Text style={[styles.buttonText, { color: Colors.white }]}>
                   Accept
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.rejectButton} onPress={onReject}>
-                <Text style={[styles.buttonText, {color: Colors.grey}]}>
+                <Text style={[styles.buttonText, { color: Colors.grey }]}>
                   Reject
                 </Text>
               </TouchableOpacity>
@@ -406,7 +408,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     // backgroundColor: 'green',
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 1,

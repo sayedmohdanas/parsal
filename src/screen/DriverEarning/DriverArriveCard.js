@@ -182,7 +182,7 @@ const DriverArriveCard = ({trip, isReachedPickup, nextId}) => {
         // // Send notification to the customer using Firebase
         // console.log('notificationPayload', notificationPayload);
         // const customerPath = `customers/${payload.order_id}/notifications`;
-        // await database.ref(customerPath).push(notificationPayload);
+        // await database.ref(customerPath).push(notificationPayload);        
         sendDummyDataToFirebase(
           orderData?.newOrder || orderData,
           'Order Pickup',
@@ -270,6 +270,7 @@ const DriverArriveCard = ({trip, isReachedPickup, nextId}) => {
       .then(res => {
         if (res) {
           setshowotp(preve => !preve);
+
           setIsArrived(true);
         }
       })
