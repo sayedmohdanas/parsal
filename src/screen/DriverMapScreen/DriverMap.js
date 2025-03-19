@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   AppState,
 } from 'react-native';
-import MapView, {Marker} from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import AppImages from '../../common/AppImages';
 import BackgroundTimer from 'react-native-background-timer';
 import {
@@ -24,7 +24,7 @@ import {
   useIsFocused,
   useNavigation,
 } from '@react-navigation/native';
-import {useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
 import database from '@react-native-firebase/database';
 import Colors from '../../common/Colors';
 import {
@@ -34,7 +34,7 @@ import {
 } from '../../common/metrices';
 import DriverArriveCard from '../DriverEarning/DriverArriveCard';
 import DestinationSection from './DestinationSection';
-import {hitUpdateDriverLocationApi} from '../../config/api/api';
+import { hitUpdateDriverLocationApi } from '../../config/api/api';
 import NextOrder from '../../components/CustomNotificationModal/NextOrder';
 import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
 const AnimatedMarker = Animated.createAnimatedComponent(Marker);
@@ -46,13 +46,13 @@ const getCenterOffsetForAnchor = (anchor, markerWidth, markerHeight) => ({
 
 const MARKER_WIDTH = 50;
 const MARKER_HEIGHT = 70;
-const ANCHOR = {x: 0.5, y: 1 - 10 / MARKER_HEIGHT};
+const ANCHOR = { x: 0.5, y: 1 - 10 / MARKER_HEIGHT };
 const CENTEROFFSET = getCenterOffsetForAnchor(
   ANCHOR,
   MARKER_WIDTH,
   MARKER_HEIGHT,
 );
-const DriverMapScreen = ({route}) => {
+const DriverMapScreen = ({ route }) => {
   const navigation = useNavigation();
   const [heading, setHeading] = useState(0);
   const [distanceTraveled, setDistanceTraveled] = useState(0);
@@ -110,7 +110,7 @@ const DriverMapScreen = ({route}) => {
       longitude: parseFloat(coordinate.longitude.toFixed(5)),
     };
     Animated.timing(markerPosition, {
-      toValue: {x: roundedCoordinate.longitude, y: roundedCoordinate.latitude},
+      toValue: { x: roundedCoordinate.longitude, y: roundedCoordinate.latitude },
       duration,
       easing: Easing.linear,
       useNativeDriver: false,
@@ -132,14 +132,14 @@ const DriverMapScreen = ({route}) => {
     let intervalId;
     const fetchLocation = async () => {
       try {
-        const {latitude, longitude, heading} = await GetDriverCurrentLocation();
-        const currentPosition = {latitude, longitude};
+        const { latitude, longitude, heading } = await GetDriverCurrentLocation();
+        const currentPosition = { latitude, longitude };
         if (calculateDistance(origin, destination) < 50) {
           successToast('Success', 'You Reached the Destination!');
           clearInterval(intervalId);
           return;
         }
-        setLatLong({latitude, longitude, heading});
+        setLatLong({ latitude, longitude, heading });
         setLastPosition(currentPosition);
         if (latitude && longitude) {
           database().ref(`/drivers/${orderId}/location`).set({
@@ -153,10 +153,10 @@ const DriverMapScreen = ({route}) => {
           update_order?.is_arrived_pickup &&
           calculateDistance(origin, destination) > 50
         ) {
-          const newCoordinate = {latitude, longitude};
+          const newCoordinate = { latitude, longitude };
           updatePosition(newCoordinate);
         }
-        const newCoordinate = {latitude, longitude, heading};
+        const newCoordinate = { latitude, longitude, heading };
 
         animateMarkerToCoordinate(newCoordinate, 1000);
         rotateMarker(heading);
@@ -192,8 +192,8 @@ const DriverMapScreen = ({route}) => {
       }
     } else if (nextAppState === 'background') {
       timerIdRef.current = BackgroundTimer.setInterval(async () => {
-        const {latitude, longitude, heading} = await GetDriverCurrentLocation();
-        const newCoordinate = {latitude, longitude};
+        const { latitude, longitude, heading } = await GetDriverCurrentLocation();
+        const newCoordinate = { latitude, longitude };
         database().ref(`/drivers/${orderId}/location`).set({
           latitude,
           longitude,
@@ -222,19 +222,24 @@ const DriverMapScreen = ({route}) => {
   const destination = {
     latitude: update_order?.is_arrived_pickup
       ? Number(orderData?.drop_lat) ||
-        Number(orderData?.newOrder?.drop_lat) ||
-        0
+      Number(orderData?.newOrder?.drop_lat) ||
+      0
       : Number(orderData?.pickup_lat) ||
-        Number(orderData?.newOrder?.pickup_lat) ||
-        0,
+      Number(orderData?.newOrder?.pickup_lat) ||
+      0,
     longitude: update_order?.is_arrived_pickup
       ? Number(orderData?.drop_long) ||
-        Number(orderData?.newOrder?.drop_long) ||
-        0
+      Number(orderData?.newOrder?.drop_long) ||
+      0
       : Number(orderData?.pickup_long) ||
-        Number(orderData?.newOrder?.pickup_long) ||
-        0,
+      Number(orderData?.newOrder?.pickup_long) ||
+      0,
   };
+  const hazratganjCoordinates = {
+    latitude: 26.8564,
+    longitude: 80.9457
+  };
+  console.log('hazratganjCoordinates=================>>>>>', hazratganjCoordinates)
   const [reached, setReached] = useState(false);
 
   useEffect(() => {
@@ -327,7 +332,7 @@ const DriverMapScreen = ({route}) => {
             }}>
             <Image
               source={AppImages.radar}
-              style={{height: responsiveWidth(16), width: responsiveWidth(22)}}
+              style={{ height: responsiveWidth(16), width: responsiveWidth(22) }}
               resizeMode="contain"
             />
             <Text
@@ -445,23 +450,30 @@ const DriverMapScreen = ({route}) => {
             }}>
             <Image
               source={AppImages.bike2}
-              style={{width: responsiveWidth(37), height: responsiveHeight(37)}}
+              style={{ width: responsiveWidth(37), height: responsiveHeight(37) }}
               resizeMode="contain"
             />
           </AnimatedMarker>
         ) : null}
-
-        <Marker coordinate={destination}>
+       <Marker coordinate={hazratganjCoordinates}>
           <Image
             source={AppImages.location}
-            style={{width: responsiveWidth(37), height: responsiveHeight(37)}}
+            style={{ width: responsiveWidth(37), height: responsiveHeight(37) }}
             resizeMode="contain"
           />
         </Marker>
+        <Marker coordinate={destination}>
+          <Image
+            source={AppImages.location}
+            style={{ width: responsiveWidth(37), height: responsiveHeight(37) }}
+            resizeMode="contain"
+          />
+        </Marker>
+
         {origin.latitude &&
-        origin.longitude &&
-        destination.latitude &&
-        destination.longitude ? (
+          origin.longitude &&
+          destination.latitude &&
+          destination.longitude ? (
           <MapViewDirections
             origin={{
               latitude: latLOng?.latitude,
@@ -472,7 +484,7 @@ const DriverMapScreen = ({route}) => {
             strokeWidth={4}
             strokeColor={Colors.black}
             tracksViewChanges={false} // Prevent unnecessary renders
-            onReady={result => {}}
+            onReady={result => { }}
             onError={errorMessage => {
               console.log('MapViewDirections error: ', errorMessage);
             }}

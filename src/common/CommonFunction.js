@@ -6,6 +6,7 @@ import {Alert, Linking, PermissionsAndroid, Platform} from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import {API_BASE_URL} from '../config/url';
 import AppImages from './AppImages';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 export const IMAGE_FOLDER = 'partners_img/';
 // export function setItem(key, data) {
 //     data = JSON.stringify(data);
@@ -266,7 +267,23 @@ export const formatVehicleNumber = number => {
 //   }
 // }
 
+//Force logout
+export const clearCustomerId = async () => {
+  try {
+      await AsyncStorage.removeItem("user");
+      console.log("customerId cleared from AsyncStorage");
+  } catch (error) {
+      console.error("Error clearing customerId:", error);
+  }
+};
+
+
+
+
 // Function to request location permission
+
+
+
 
 export async function requestLocationPermission() {
   try {

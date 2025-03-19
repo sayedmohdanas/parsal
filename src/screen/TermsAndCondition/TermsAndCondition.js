@@ -30,15 +30,15 @@ const TermsAndCondition = ({ route }) => {
   const [loading, setloading] = useState(true);
   useEffect(() => {
     const fetchTerms = async () => {
-      const params = { id: id };
+      const params = { id: [id]};
 
       try {
         const res = await hitReviewTermsAndCondition(params);
-
-        // Simulate a longer loading time by adding a timeout
         setTimeout(() => {
-          if (res?.data?.content) {
-            const formattedTerms = res.data.content.replace(/\n/g, ''); 
+          if (res?.data?.length > 0) {
+            const content = res.data[0].content; // Get the content field from the first item
+            const formattedTerms = content.replace(/\n/g, ''); //
+
             setTerms(formattedTerms);
           } else {
             console.error('No content found in response.');

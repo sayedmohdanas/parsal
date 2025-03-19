@@ -42,6 +42,7 @@ const OrderScreen = () => {
   const fetchData = async () => {
     setloader(true);
     const user = await AsyncStorage.getItem('user');
+   
     const parsed_user = JSON.parse(user);
     const request = {
       id:
@@ -61,6 +62,8 @@ const OrderScreen = () => {
         setloader(false);
       })
       .catch(err => {
+        console.log('erorrr====>>>dtetele',err);
+        
         setloader(false);
       })
       .finally(() => {

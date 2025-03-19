@@ -23,6 +23,8 @@ export default AppImages = {
   arrowDown: require('../assets/images/arrow-down.png'),
   ParsalPlusImg: require('../assets/images/parsalPlusImg.png'),
   truck: require('../assets/images/truck.png'),
+  TruckImg: require('../assets/images/TruckImg.png'),
+  AutoImg: require('../assets/images/AutoImg.png'),
   Bike: require('../assets/images/bike.png'),
   Auto: require('../assets/images/Auto.png'),
   PackerMover: require('../assets/images/packerAndMovers.png'),

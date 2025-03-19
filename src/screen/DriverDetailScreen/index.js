@@ -315,7 +315,7 @@ const DriverDetailScreen = ({route}) => {
       console.error(error);
     }
   };
-  const isEnabled = name && driverNumber && licenseUploaded;
+  const isEnabled = name && driverNumber && licenseUploaded && driverdl;
 
   return (
     <>
@@ -458,7 +458,7 @@ const DriverDetailScreen = ({route}) => {
               isRequired={true}
               // type="number"
               // maxLength={10}
-              editable={!isChecked ? true : false}
+              // editable={!isChecked ? true : false}
             />
             <Heading text=" Upload The Following" isRequired={true} />
             <ImagePicker

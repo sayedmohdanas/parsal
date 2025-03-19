@@ -1,5 +1,6 @@
 import axios from 'axios';
-
+import { DeviceEventEmitter } from 'react-native';
+import { clearCustomerId } from '../common/CommonFunction';
 export async function apiReq(
   endPoint,
   data,
@@ -7,7 +8,7 @@ export async function apiReq(
   headers,
   requestOptions = {},
 ) {
-  return new Promise(async (res, rej) => {
+  return new Promise(async (res, rej) => { 
     // const getTokenHeader = await getHeaders();
     headers = {
       // ...getTokenHeader,
@@ -31,20 +32,27 @@ export async function apiReq(
         return res(data);
       })
       .catch(error => {
-        console.log('In utils.js in catch, Err =>', error.message, error)
-        if (error && error.response && error.response.status === 401) {
-          // clearUserData();
-        }
-        if (error && error.response && error.response.data) {
-          if (!error.response.data.message) {
-            return rej({
-              ...error.response.data,
-              msg: error.response.data.message || 'Network Error',
-            });
+        console.log('Error Response:', error.response?.data?.status); // Log the actual response
+      //   if (error.response?.data?.status) {
+      //     AsyncStorage.setItem("check-user", JSON.stringify(-1));
+      // }
+      
+        console.log('Error Status:', error.response?.status); // Log the status code
+        if (error.response) {
+          if (error.response.status === 401) {
+            // navigation.navigate(-1)
+            // console.log(
+            //   'Unauthorized - Clearing User Data',
+            //   error.response.data,
+            // );
+            // clearUserData();
+            clearCustomerId()
+            DeviceEventEmitter.emit("forceLogout");
+          } else if (error.response.status === 500) {
+            console.log('Server Error - Token Expired', error.response.data);
           }
-          return rej(error.response.data);
         } else {
-          return rej({ message: 'Network Error', msg: 'Network Error' });
+          console.log('Unexpected Error:', error.message);
         }
       });
   });

@@ -17,8 +17,7 @@ const NotificationListener = ({children}) => {
           parsedUser?.payload?.owner_type === 0 ||
           parsedUser?.payload?.owner_type === 2
         ) {
-          const driverId = parsedUser?.payload?.driver_id; // Replace with the correct path to driver ID
-
+          const driverId = parsedUser?.payload?.driver_id;
           if (!driverId) {
             console.error('Driver ID not found in AsyncStorage');
             return;

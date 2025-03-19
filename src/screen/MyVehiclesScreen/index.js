@@ -243,7 +243,6 @@ import {useNavigation} from '@react-navigation/native';
 import AppImages from '../../common/AppImages';
 import {successToast} from '../../common/CommonFunction';
 import VehicleVerificationCard from './VehicleVerification';
-
 const MyVehiclesScreen = ({route}) => {
   const dispatch = useDispatch();
   const vehicleData = useSelector(state => state?.parsalPartner?.MyVehicle);
@@ -252,7 +251,6 @@ const MyVehiclesScreen = ({route}) => {
   const vehicleCount = vehicleData?.length;
   const [loading, setLoading] = useState(false);
   const [verifyVisibleCard, setVerifyVisibleCard] = useState(false);
-
   const refreshData = async () => {
     try {
       const partnerIds = await AsyncStorage.getItem('partner_id');
@@ -429,7 +427,6 @@ const MyVehiclesScreen = ({route}) => {
         )}
       </View>
       {/* < VehicleVerificationCard/> */}
-
       <Modal
         animationType="slide"
         transparent={true}
@@ -459,7 +456,6 @@ const MyVehiclesScreen = ({route}) => {
     </>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -925,7 +925,7 @@ const AccountScreen = () => {
           console.log(err);
         })
         .finally(() => {
-          setIsLoading(false); // Example: Ensure to properly call the function
+          setIsLoading(false);
         });
     } else {
       hitGetPartner({
@@ -934,7 +934,7 @@ const AccountScreen = () => {
         .then(res => {
           setuser_details(res?.partner);
           dispatch(setloginuserdetails(res?.partner));
-          setIsLoading(false); // Set loading to false when data is fetched
+          setIsLoading(false); 
           setwalletBalance(res?.partner?.totalWalletBalance);
           if (
             parsed_user?.payload?.owner_type == 2 ||

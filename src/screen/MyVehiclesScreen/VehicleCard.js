@@ -1,5 +1,5 @@
 // VehicleCard.js
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,11 +11,14 @@ import {
   TouchableHighlight,
 } from 'react-native';
 import Colors from '../../common/Colors';
-import {useNavigation} from '@react-navigation/native';
-import {formatVehicleNumber} from '../../common/CommonFunction';
+import { useNavigation } from '@react-navigation/native';
+import { formatVehicleNumber } from '../../common/CommonFunction';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useDispatch} from 'react-redux';
-import {getDriverDetails, setDriverId} from '../../redux/HitApis/HitApiSlice';
+import { useDispatch } from 'react-redux';
+import { getDriverDetails, setDriverId } from '../../redux/HitApis/HitApiSlice';
+import AppImages from '../../common/AppImages';
+import { responsiveHeight, responsiveWidth } from '../../common/metrices';
+import { Spacing } from '../../common/Theme';
 
 const VehicleCard = ({
   vehicle,
@@ -29,7 +32,7 @@ const VehicleCard = ({
   const dispatch = useDispatch();
   const hasDriver = !!vehicle?.driver?.driver_name; // Check if driver_name exists and convert to a boolean
   const error_data = vehicle?.documents?.filter(item => item?.status == 2);
-  const driver_error_data = vehicle?.driver?.isApproved_driving_license == 2;  
+  const driver_error_data = vehicle?.driver?.isApproved_driving_license == 2;
   const partner_error_data = partnerData?.documents?.filter(
     item => item?.status == 2,
   );
@@ -39,9 +42,9 @@ const VehicleCard = ({
     driverVehicleStatus: vehicle?.driver?.driver_vehicle_status,
   };
   const isAllStatusesTrue =
-  vehicleStatusData.vehicleStatus === 1 &&
-  vehicleStatusData.mDriverStatus === 1 &&
-  vehicleStatusData.driverVehicleStatus === 1;
+    vehicleStatusData.vehicleStatus === 1 &&
+    vehicleStatusData.mDriverStatus === 1 &&
+    vehicleStatusData.driverVehicleStatus === 1;
 
   
 
@@ -67,10 +70,10 @@ const VehicleCard = ({
           driver_error_data
         ) {
           setVerifyVisibleCard(true);
-          setselected_vehicle({vehicle: vehicle, partner_data: partnerData});
+          setselected_vehicle({ vehicle: vehicle, partner_data: partnerData });
           return;
         }
-        navigation.navigate('UpdateDriver', {vehicle: {...vehicle}});
+        navigation.navigate('UpdateDriver', { vehicle: { ...vehicle } });
       } else {
         console.log('Vehicle data is undefined or null');
       }
@@ -89,7 +92,23 @@ const VehicleCard = ({
     <TouchableHighlight underlayColor={'none'} onPress={handleDriverDetails}>
       <View style={styles.card}>
         <View style={styles.topSection}>
+          <View style={{flexDirection:'row'}}>
+          <View style={{marginRight:Spacing.small}}>
+          <Image
+              source={
+                vehicle?.vehicle_type_id == 1&& AppImages.Bike||
+                vehicle?.vehicle_type_id == 2&& AppImages.Bike||
+                vehicle?.vehicle_type_id == 3&& AppImages.AutoImg||          
+                vehicle?.vehicle_type_id == 4&& AppImages.TruckImg
+                
+                }
+              resizeMode="contain"
+              style={{ height: responsiveHeight(35), width: responsiveWidth(35) }}
+            />
+
+          </View>
           <View style={styles.leftSection}>
+
             <Text style={styles.vehicleNumber}>
               {formatVehicleNumber(vehicle?.vehicle_number) || 'N/A'}
             </Text>
@@ -97,8 +116,8 @@ const VehicleCard = ({
               <Text style={styles.name}>
                 {vehicle?.driver?.driver_name
                   ? `${vehicle.driver.driver_name
-                      .charAt(0)
-                      .toUpperCase()}${vehicle.driver.driver_name.slice(1)},`
+                    .charAt(0)
+                    .toUpperCase()}${vehicle.driver.driver_name.slice(1)},`
                   : 'No Driver Assigned'}
               </Text>
 
@@ -107,17 +126,18 @@ const VehicleCard = ({
               </Text>
             </View>
           </View>
+          </View>
           {hasDriver ? (
             error_data?.length > 0 ||
-            partner_error_data?.length > 0 ||
-            driver_error_data ? (
+              partner_error_data?.length > 0 ||
+              driver_error_data ? (
               <View style={styles.errorSection}>
                 <Text style={styles.errorText}>ERROR</Text>
               </View>
             ) : (
-              <View style={[styles.rightSection,{backgroundColor:isAllStatusesTrue?'green':'#FFAE42'}]}>
-                
-                <Text style={styles.status}>{isAllStatusesTrue?'Verified':'Verifying'}</Text>
+              <View style={[styles.rightSection, { backgroundColor: isAllStatusesTrue ? 'green' : '#FFAE42' }]}>
+
+                <Text style={styles.status}>{isAllStatusesTrue ? 'Verified' : 'Verifying'}</Text>
               </View>
             )
           ) : (
@@ -147,20 +167,12 @@ const VehicleCard = ({
 
 const styles = StyleSheet.create({
   errorSection: {
-    // backgroundColor: 'rgba(255, 0, 0, 0.1)',
-    // padding: 10,
-    // borderRadius: 5,
-    // alignItems: 'center',
-    // marginVertical: 10,
+  
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 25,
     paddingHorizontal: 10,
-    // paddingVertical:4,
     backgroundColor: 'rgba(255, 0, 0, 0.1)',
-
-    // height: 24,
-    // marginTop: 5,
     marginVertical: 10,
   },
   errorText: {
@@ -169,11 +181,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   card: {
-    // position: 'relative',
-    // padding: 16,
     borderRadius: 5,
-    // borderWidth: 1,
-    // shadowColor: '#000',
     margin: 16,
     marginVertical: 7,
     backgroundColor: 'white',
@@ -183,10 +191,8 @@ const styles = StyleSheet.create({
   topSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    // marginBottom: 40,
     flex: 1,
     padding: 16,
-    // backgroundColor:'aqua'
   },
   leftSection: {
     justifyContent: 'center',
@@ -216,54 +222,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 25,
     paddingHorizontal: 10,
-    // paddingVertical:4,
     backgroundColor: '#FFAE42',
-    // height: 24,
-    // marginTop: 5,
     marginVertical: 10,
-    // paddingHorizontal:10
   },
   addDriver: {
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
     paddingHorizontal: 10,
-    // paddingVertical:4,
     backgroundColor: Colors.brandBlue,
-    // height: 24,
-    // marginTop: 5,
     marginVertical: 10,
-    // paddingHorizontal:10
   },
   status: {
     fontSize: 12,
-    // fontWeight: '400',
     color: 'white',
     textAlign: 'center',
   },
   bottomSection: {
-    // position: 'absolute', // Absolute positioning
-    // bottom: 0, // Aligns to the bottom of the card
-    // left: 0,
-    // right: 0,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: Colors.brandBlue, // Optional: background color for bottomSection
-    paddingHorizontal: 16, // Optional: horizontal padding for content
+    backgroundColor: Colors.brandBlue,
+    paddingHorizontal: 16,
     paddingVertical: 10,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
-    borderBottomWidth: 0.2, // Optional: vertical padding for content
+    borderBottomWidth: 0.2,
   },
   linkText: {
     fontSize: 12,
-    color: '#FFFFFF', // Link color
-    // textDecorationLine: 'underline', // Underline text to look like a link
-  },
+    color: '#FFFFFF', 
+    },
   image: {
-    width: 20, // Adjust size as needed
-    height: 20,
+    width: responsiveWidth(20), 
+    height:responsiveHeight(20),
   },
 });
 

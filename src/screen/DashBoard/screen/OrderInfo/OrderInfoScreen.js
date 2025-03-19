@@ -85,17 +85,17 @@ const OrderInfo = ({ route }) => {
   const origin = {
     latitude: orderDetails?.pickup_lat
       ? Number(orderDetails?.pickup_lat)
-      : 26.8535, // Aminabad Latitude
+      : 26.8535, 
     longitude: orderDetails?.pickup_long
       ? Number(orderDetails?.pickup_long)
-      : 80.9462, // Aminabad Longitude
+      : 80.9462, 
   };
 
   const destination = {
-    latitude: orderDetails?.drop_lat ? Number(orderDetails?.drop_lat) : 26.85, // Hazratganj Latitude
+    latitude: orderDetails?.drop_lat ? Number(orderDetails?.drop_lat) : 26.85,
     longitude: orderDetails?.drop_long
       ? Number(orderDetails?.drop_long)
-      : 80.9462, // Hazratganj Longitude
+      : 80.9462, 
   };
 
 
@@ -190,9 +190,9 @@ const OrderInfo = ({ route }) => {
             <Image
               source={
                 orderDetails?.vehicle_cat_type_id == 1&& AppImages.Bike||
-              orderDetails?.vehicle_cat_type_id == 2&& AppImages.Bike||
-                orderDetails?.vehicle_cat_type_id == 3&& AppImages.Auto||          
-                orderDetails?.vehicle_cat_type_id == 4&& AppImages.four_wheels
+                orderDetails?.vehicle_cat_type_id == 2&& AppImages.Bike||
+                orderDetails?.vehicle_cat_type_id == 3&& AppImages.AutoImg||          
+                orderDetails?.vehicle_cat_type_id == 4&& AppImages.TruckImg
                 
                 }
               resizeMode="contain"

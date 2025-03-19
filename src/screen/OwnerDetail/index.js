@@ -30,33 +30,104 @@ const OwnerDetailScreen = ({navigation, route}) => {
   const [partnerDocs, setPartnerDocs] = useState([]);
 
 
-useEffect(()=>{
-  const fetchPartnerDocs = async () => {
-    try {
-      const response = await hitGetDoctypes({ type: 1 });
- 
-      if (response?.success) {
-        setPartnerDocs(response.data);  
- 
-       
+  useEffect(() => {
+    const fetchPartnerDocs = async () => {
+      try {
+        const response = await hitGetDoctypes({ type: 1 });
+        console.log('partnerDocs====>>>', response.data);
+
+        if (response?.success) {
+          // Add an `uploaded` property to track image uploads
+          const updatedDocs = response.data.map((doc) => ({
+            ...doc,
+            uploaded: null,
+          }));
+          setPartnerDocs(updatedDocs);
+        }
+      } catch (error) {
+        console.error('Error fetching partner docs:', error);
       }
-    } catch (error) {
-      console.error('Error fetching vehicle docs:', error);
-    }
-  };
-  fetchPartnerDocs()
-  console.log('partnerDocs====>>>',partnerDocs)
-},[])
+    };
+    fetchPartnerDocs();
+  }, []);
 
 
   
+  // const handleSubmit = async () => {
+  //   if (name && aadharCardUploaded && panCardUploaded && selfieUploaded) {
+  //     const payload = {
+  //       partnerId: partner_id,
+  //       partner_name: name,
+  //       // email: email,
+  //       email: email.replaceAll(' ', '')?.toLocaleLowerCase(),
+  //       phone: generateRandomPhoneNumber(),
+  //       address: '123, Main Street, Springfield',
+  //       admin_remark: 'I am a new partner with id 3',
+  //       fcm_token: await getMessaging().getToken(),
+  //       profile_pic: [
+  //         {
+  //           img_name: 'profile.png',
+  //           img_src: selfieUploaded?.base64 || '',
+  //         },
+  //       ],
+  //       partner_docs: [
+  //         {
+  //           doc_id: '1',
+  //           img_name: 'aadhar.png',
+  //           img_src: aadharCardUploaded?.base64 || '',
+  //         },
+  //         {
+  //           doc_id: '2', 
+  //           img_name: 'pan.png',
+  //           img_src: panCardUploaded?.base64 || '',
+  //         },
+  //       ],
+  //       status: 0,
+  //     };
+
+  //     try {
+  //       const resultAction = await dispatch(createPartner(payload));
+  //       const partnerId = JSON.parse(resultAction?.meta?.arg?.partnerId);
+  //       if (createPartner.fulfilled.match(resultAction)) {
+  //         let owner_type = 1;
+  //         let user = {
+  //           payload: {
+  //             owner_type: 1,
+  //             partner_id: partnerId,
+  //           },
+  //         };
+
+  //         successToast('Submitted', 'Your details have been submitted.');
+  //         await AsyncStorage.setItem('partner_id', String(partnerId));
+  //         await dispatch(setParentId(partnerId));
+  //         await AsyncStorage.setItem('user', JSON.stringify(user));
+  //         await AsyncStorage.setItem('owner_type', JSON.stringify(owner_type));
+  //         navigation.replace('MyVehicles', {
+  //           login_user: 0,
+  //         });
+  //         successToast('Submitted', 'Your details have been submitted.');
+  //         // navigation.navigate('VehicleDetail');
+  //       } else {
+  //         errorToast('Not Created', 'Something went wrong.');
+  //       }
+  //     } catch (error) {
+  //       Alert.alert('Error', 'An unexpected error occurred.');
+  //       console.error('error', error);
+  //     }
+  //   } else {
+  //     Alert.alert(
+  //       'Error',
+  //       'Please fill out all fields and upload all documents.',
+  //     );
+  //   }
+  // };
   const handleSubmit = async () => {
-    if (name && aadharCardUploaded && panCardUploaded && selfieUploaded) {
+    if (name && selfieUploaded && partnerDocs.every((doc) => doc.id === 3 || doc.uploaded)) {
+      ;
       const payload = {
         partnerId: partner_id,
         partner_name: name,
-        // email: email,
-        email: email.replaceAll(' ', '')?.toLocaleLowerCase(),
+        email: email.replaceAll(' ', '')?.toLowerCase(),
         phone: generateRandomPhoneNumber(),
         address: '123, Main Street, Springfield',
         admin_remark: 'I am a new partner with id 3',
@@ -67,18 +138,11 @@ useEffect(()=>{
             img_src: selfieUploaded?.base64 || '',
           },
         ],
-        partner_docs: [
-          {
-            doc_id: '1',
-            img_name: 'aadhar.png',
-            img_src: aadharCardUploaded?.base64 || '',
-          },
-          {
-            doc_id: '2', 
-            img_name: 'pan.png',
-            img_src: panCardUploaded?.base64 || '',
-          },
-        ],
+        partner_docs: partnerDocs.map((doc) => ({
+          doc_id: String(doc.id),
+          img_name: `${doc.doc_name.toLowerCase().replace(' ', '_')}.png`,
+          img_src: doc.uploaded?.base64 || '',
+        })),
         status: 0,
       };
 
@@ -86,8 +150,8 @@ useEffect(()=>{
         const resultAction = await dispatch(createPartner(payload));
         const partnerId = JSON.parse(resultAction?.meta?.arg?.partnerId);
         if (createPartner.fulfilled.match(resultAction)) {
-          let owner_type = 1;
-          let user = {
+          const owner_type = 1;
+          const user = {
             payload: {
               owner_type: 1,
               partner_id: partnerId,
@@ -102,8 +166,6 @@ useEffect(()=>{
           navigation.replace('MyVehicles', {
             login_user: 0,
           });
-          successToast('Submitted', 'Your details have been submitted.');
-          // navigation.navigate('VehicleDetail');
         } else {
           errorToast('Not Created', 'Something went wrong.');
         }
@@ -112,16 +174,31 @@ useEffect(()=>{
         console.error('error', error);
       }
     } else {
-      Alert.alert(
-        'Error',
-        'Please fill out all fields and upload all documents.',
-      );
+      Alert.alert('Error', 'Please fill out all fields and upload all documents.');
     }
   };
-
+  const renderImagePickers = () =>
+    partnerDocs
+      .filter((doc) => doc.id !== 3) 
+      .map((doc, index) => ( 
+        <ImagePicker
+          key={index}
+          labelText={`Upload ${doc.doc_name}`}
+          uploaded={doc.uploaded}
+          onImagePick={(image) => {
+            const updatedDocs = [...partnerDocs];
+            updatedDocs[index].uploaded = image;
+            setPartnerDocs(updatedDocs);
+          }}
+          useCamera={false}
+        />
+      ));
+  
+  // const isEnabled = name && selfieUploaded && partnerDocs.every((doc) => doc.uploaded);
   const isEnabled =
-    name && aadharCardUploaded && panCardUploaded && selfieUploaded;
-
+  name &&
+  selfieUploaded &&
+  partnerDocs.every((doc) => doc.id === 3 || doc.uploaded);
   return (
     <>
       <HeaderBackButton
@@ -143,19 +220,9 @@ useEffect(()=>{
           <Text style={styles.headinglabel}>
             Upload the following<Text style={styles.redAsterisk}>*</Text>
           </Text>
-          <ImagePicker
-            labelText="Owner Aadhar Card"
-            uploaded={aadharCardUploaded}
-            onImagePick={setAadharCardUploaded}
-            useCamera={false}
-          />
 
-          <ImagePicker
-            labelText="Owner PAN Card"
-            uploaded={panCardUploaded}
-            onImagePick={setPanCardUploaded}
-            useCamera={false}
-          />
+          {renderImagePickers()}
+          {/* {renderImagePickers()} */}
 
           <ImagePicker
             labelText="Owner Selfie"
@@ -175,6 +242,7 @@ useEffect(()=>{
     </>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

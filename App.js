@@ -20,6 +20,8 @@ import {LogBox} from 'react-native';
 LogBox.ignoreLogs(['new NativeEventEmitter']);
 import {Provider as PaperProvider} from 'react-native-paper';
 import NotificationListener from './NotificationListener';
+import AppStateHandler from './AppStateHandler';
+import AuthChecker from './src/Auth/AuthChecker';
 export default function App() {
   const [isModalVisible, setModalVisible] = useState(false);
   const [notificationData, setNotificationData] = useState({
@@ -56,14 +58,15 @@ export default function App() {
       databaseURL: 'https://parsal-4c318-default-rtdb.firebaseio.com/',
     });
   } else {
-    firebase.app(); // if already initialized, use the existing one
+    firebase.app(); 
+    // if already initialized, use the existing one
   }
 
   const requestUserPermission = async () => {
     const authStatus = await messaging().requestPermission();
     return (
       authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-      authStatus === messaging.AuthorizationStatus.PROVISIONAL
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL  
     );
   };
   const updateFcmTokenInDB = async token => {
@@ -352,10 +355,12 @@ export default function App() {
   return (
     <PaperProvider>
       <Provider store={store}>
-        {/* <NotificationListener /> */}
+        <NotificationListener />
         <NavigationContainer>
+        <AppStateHandler/>
           <StackNavigator />
           <Toast />
+          <AuthChecker/>
           <NotificationModal
             isVisible={isModalVisible}
             onAccept={handleAccept}

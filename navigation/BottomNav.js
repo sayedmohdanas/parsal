@@ -260,7 +260,7 @@ const BottomNav = props => {
             <TouchableOpacity
               style={styles.header_center}
               onPress={() => {
-                if (orderData || nextOrderData || update_order) {
+                if ((orderData || nextOrderData || update_order) && parse_data?.payload?.owner_type !== 1) {
                   if (update_order?.delivered_at) {
                     navigation.navigate('AmountCollected');
                   } else {
@@ -274,10 +274,10 @@ const BottomNav = props => {
                 {props.order ? (
                   <>
                     <View style={{position: 'relative'}}>
-                      {orderData && (
+                      {orderData && parse_data?.payload?.owner_type !=  1 &&  (
                         <TouchableOpacity
                           onPress={() => {
-                            if (orderData || nextOrderData || update_order) {
+                            if ((orderData || nextOrderData || update_order) && parse_data?.payload?.owner_type !== 1) {
                               navigation.navigate('DriverMap');
                             } else {
                               navigation.navigate('TripScreen');
@@ -307,26 +307,27 @@ const BottomNav = props => {
                   </>
                 ) : (
                   <View style={{position: 'relative'}}>
-                    {orderData && (
-                      <TouchableOpacity
-                        onPress={() => {
-                          if (orderData || nextOrderData || update_order) {
-                            navigation.navigate('DriverMap');
-                          } else {
-                            navigation.navigate('TripScreen');
-                          }
-                        }}
-                        style={{
-                          position: 'absolute',
-                          height: 8,
-                          width: 8,
-                          borderRadius: 5,
-                          backgroundColor: 'red',
-                          zIndex: 1000,
-                          right: 0,
-                        }}
-                      />
-                    )}
+                 {orderData && parse_data?.payload?.owner_type !=  1 && (
+                        <TouchableOpacity
+                          onPress={() => {
+                            // if (orderData || nextOrderData || update_order && parse_data?.payload?.owner_type !=  1) {
+                              if ((orderData || nextOrderData || update_order) && parse_data?.payload?.owner_type !== 1) {
+                              navigation.navigate('DriverMap');
+                            } else {
+                              navigation.navigate('TripScreen');
+                            }
+                          }}
+                          style={{
+                            position: 'absolute',
+                            height: 8,
+                            width: 8,
+                            borderRadius: 5,
+                            backgroundColor: 'red',
+                            zIndex: 1000,
+                            right: 0,
+                          }}
+                        />
+                      )}
                     <Image
                       source={AppImages.OrderIcon}
                       resizeMode={'contain'}
@@ -451,20 +452,15 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     marginHorizontal: responsiveWidth(16),
     borderRadius: 40,
-    // elevation: 7,
-    // shadowColor: Colors.black,
-    // iOS Shadow
-    shadowColor: '#000', // Shadow color
-    shadowOffset: {width: 0, height: 2}, // Shadow offset
-    shadowOpacity: 1, // Shadow opacity to match your color's alpha
-    shadowRadius: 20, // Shadow radius
-    // Android Shadow
-    elevation: 12, // Elevation controls shadow on Android
+    shadowColor: '#000', 
+    shadowOffset: {width: 0, height: 2}, 
+    shadowOpacity: 1, 
+    shadowRadius: 20, 
+    elevation: 12, 
   },
   menu_txt: {
     fontSize: responsiveFontSize(11),
     color: '#000000',
-    // fontFamily: Font.txt_normal
   },
   row: {
     flex: 1,

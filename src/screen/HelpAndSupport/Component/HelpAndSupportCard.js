@@ -6,11 +6,12 @@ import { FontSizes } from '../../../common/Theme'
 import Colors from '../../../common/Colors'
 
 const HelpAndSupportCard = ({ topic, status, description, createdAt, onPress,ticketId }) => {
-
+ console.log('status======>>>>',status);
+ 
     const statusInfo = {
-        text: status === 1 ? "Open" : "Closed",
-        textColor: status === 1 ? '#567D40' : '#7D4040',
-        backgroundColor: status === 1 ? '#E5F6E6' : '#F6E5E5',
+        text: status === 0 ? "Open" : "Closed",
+        textColor: status === 0 ? '#567D40' : '#7D4040',
+        backgroundColor: status === 0 ? '#E5F6E6' : '#F6E5E5',
     }
 
     return (

@@ -209,12 +209,12 @@ const UpdateDriver = ({route}) => {
             }}>
             <Image
               source={
-                vehicle?.vehicle_type_id == 1&& AppImages.two_wheels||
-                vehicle?.vehicle_type_id == 2&& AppImages.two_wheels||
-                vehicle?.vehicle_type_id == 3&& AppImages.three_wheels||
-                vehicle?.vehicle_type_id == 4&& AppImages.four_wheels
+                vehicle?.vehicle_type_id == 1&& AppImages.Bike||
+                vehicle?.vehicle_type_id == 2&& AppImages.Bike||
+                vehicle?.vehicle_type_id == 3&& AppImages.AutoImg||
+                vehicle?.vehicle_type_id == 4&& AppImages.TruckImg
               }
-              tintColor={Colors.brandBlue}
+              // tintColor={Colors.brandBlue}
               resizeMethod='contain'
               style={[
                 styles.actionIcon,

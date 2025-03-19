@@ -91,6 +91,7 @@ const AddHelpAndSupport = () => {
     
   }, [isTicketSubmitted]);
 
+
   const handleSubmit = async () => {
     try {
       const user = await AsyncStorage.getItem('user');
@@ -106,12 +107,7 @@ const AddHelpAndSupport = () => {
             ? parsed_user?.payload?.partner_id
             : parsed_user?.payload?.driver_id,
         user_type: parsed_user?.payload?.owner_type == 1 ? 3 : 2,
-        support_pic: postImages && [
-          {
-            img_name: imgName,
-            img_src: `data:image/png;base64,${postImages}`,
-          },
-        ],
+        support_pic: imagesarray64
       };
       const response = await hitHelpAndSupport(payload);
       if (response.success) {
@@ -136,7 +132,15 @@ const AddHelpAndSupport = () => {
     }
   };
   const [imagesarray, setimagesarray] = useState([]);
+  const [imagesarray64, setimagesarray64] = useState([]);
+
+
+
+  
+
+
   const handleImagePicker = () => {
+    
     ImagePicker.openPicker({
       // multiple: true,
       width: 300,
@@ -158,6 +162,18 @@ const AddHelpAndSupport = () => {
           path: imagePaths,
         };
         setimagesarray([...imagesarray, imageObject]);
+
+
+
+  const randomString = Math.random().toString(36).substring(2, 10); // Generates a random string of 8 characters
+  const timestamp = Date.now(); // Gets the current timestamp
+  const imgName = `screenshot_${randomString}_${timestamp}.png`; // Example: screenshot_a1b2c3d4_1629292929292.png
+  const image = {
+      img_name: imgName,
+      img_src: 'data:image/jpeg;base64,' + postImages
+  }
+  setimagesarray64([...imagesarray64, image])
+
       })
       .catch(error => {
         console.log('Error picking images:', error);

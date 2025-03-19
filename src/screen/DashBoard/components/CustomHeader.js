@@ -540,7 +540,9 @@ const CustomHeader = ({
           />
         )}
 
-        {check_owner !== 1 && !not_show ? (
+        {/* {check_owner !== 1 && !not_show ? ( */}
+          {check_owner !== 1 && !not_show && screenName !== 'My Vehicles' ? (
+
           <View
             style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <TouchableOpacity onPress={toggleOnlineStatus} style={{ paddingHorizontal: responsiveWidth(10), paddingVertical: responsiveHeight(8) }}>

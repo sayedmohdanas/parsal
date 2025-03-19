@@ -17,9 +17,9 @@ import {
   hitUpdateDriverLocation,
   hitUpdateOrder,
 } from '../../config/api/api';
-import {io} from 'socket.io-client';
-import {useNavigation} from '@react-navigation/native';
-import {socketUrl} from '../../config/url';
+import { io } from 'socket.io-client';
+import { useNavigation } from '@react-navigation/native';
+import { socketUrl } from '../../config/url';
 import Loading from '../../components/Loading/Loading';
 import {
   responsiveFontSize,
@@ -28,6 +28,8 @@ import {
 } from '../../common/metrices';
 import SlideButton from 'rn-slide-button';
 import database from '@react-native-firebase/database';
+import { Spacing } from '../../common/Theme';
+import DeliveryComponent from '../../components/DeliveryComponent/DeliveryComponent';
 
 const sendDummyDataToFirebase = async (data, message, type) => {
   try {
@@ -40,10 +42,8 @@ const sendDummyDataToFirebase = async (data, message, type) => {
       timestamp: new Date().toISOString(),
       type: type || 1, // Assuming '1' is the type for a rating request
     };
-
     // Define the path to send the data
     const customerPath = `customers/${data?.cust_id}/notifications`;
-    console.log('customer path=>', customerPath)
     // Send the data to Firebase
     await database().ref(customerPath).push(notificationPayload);
 
@@ -52,7 +52,7 @@ const sendDummyDataToFirebase = async (data, message, type) => {
     console.error('Error sending dummy data to Firebase:', error);
   }
 };
-const DestinationSection = ({details}) => {
+const DestinationSection = ({ details }) => {
   const [isSlid, setIsSlid] = useState(false);
 
   const navigation = useNavigation();
@@ -72,23 +72,27 @@ const DestinationSection = ({details}) => {
     }
   };
   const orderData = useSelector(state => state?.parsalPartner?.orderData || {});
-
+  const socketRef = useRef()
   useEffect(() => {
-    socket = io(socketUrl);
+    socketRef.current = io(socketUrl); // Initialize socket
+    const socket = socketRef.current;
+
     socket.on('connect', () => {
       console.log('Connected to socket server');
     });
+
     socket.emit('registerUser', {
       userId: orderData?.newOrder?.driver_id || orderData?.driver_id,
       role: 'driver',
     });
+
     return () => {
       if (socket) {
-        // socket.disconnect();
+        socket.disconnect();
         console.log('Socket disconnected');
       }
     };
-  }, []);
+  }, [socketUrl, orderData]);
   const store_data = useSelector(state => state);
   const driver_details = useSelector(
     state => state?.parsalPartner?.logindriverdetails,
@@ -108,49 +112,133 @@ const DestinationSection = ({details}) => {
     hitEndOrderApi(param)
       .then(res => {
         if (res) {
-          socket.emit('end_trip', {
-            userId: orderData?.newOrder?.cust_id || orderData?.cust_id,
-            order_id: orderData?.newOrder?.id || orderData?.id,
-          });
-          sendDummyDataToFirebase(
-            orderData?.newOrder || orderData,
-            'Order Ended',
-            2,
-          );
-          navigation.navigate('AmountCollected');
+          // socket.emit('end_trip', {
+          //   userId: orderData?.newOrder?.cust_id || orderData?.cust_id,
+          //   order_id: orderData?.newOrder?.id || orderData?.id,
+          // });
+          // sendDummyDataToFirebase(
+          //   orderData?.newOrder || orderData,
+          //   'Order Ended',
+          //   2,
+          // );
+          // navigation.navigate('AmountCollected');
+          if (socketRef.current && socketRef.current.connected) {
+            socketRef.current.emit('end_trip', {
+              userId: orderData?.newOrder?.cust_id || orderData?.cust_id,
+              order_id: orderData?.newOrder?.id || orderData?.id,
+            });
+            sendDummyDataToFirebase(
+              orderData?.newOrder || orderData,
+              'Order Ended',
+              2,
+            );
+            navigation.navigate('AmountCollected');
+          } else {
+            console.log('Socket is not connected');
+          }
         }
       })
       .catch(err => {
         console.log(err);
       });
   };
+  const [selectedStopIndex, setSelectedStopIndex] = useState(null);
+  const stops = [
+    { label: 'Stop 1', dropAddress: '123 Main St, City, Country' },
+    { label: 'Stop 2', dropAddress: '456 Elm St, City, Country' },
+    { label: 'Stop 3', dropAddress: '789 Oak St, City, Country' }
+  ];
 
   return (
     <>
+    
       <View style={styles.profileContainer}>
-        <View style={{flex: 1, margin: 4}}>
-          <View style={{marginLeft: responsiveWidth(14)}}>
+      {/* <View>
+      <View>
+      <Text style={{color:'red' ,textAlign:'center',fontSize:responsiveFontSize(16),fontWeight:"600"}}>I'm Arrived</Text>
+       <Image  style={{position:'absolute',right:4,top:0,height:responsiveHeight(15),width:responsiveWidth(15)}} source={AppImages.crossIcon}/>
+      </View>
+         <View style={{ marginLeft: responsiveWidth(14), }}>
             <Text
               style={{
                 color: '#000000',
                 fontWeight: '500',
                 fontSize: responsiveFontSize(16),
-                fontWeight: '600',
+                marginTop: responsiveHeight(6),
+              }}>
+              Stop 1
+            </Text>
+          </View>
+        <View
+          style={{
+            width: '100%',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            marginBottom: responsiveHeight(10),
+            marginTop: Spacing.small,
+          }}>
+          <View style={{ flex: 1, flexDirection: 'row', paddingHorizontal: responsiveWidth(20) }}>
+            <Text
+              style={{
+                color: Colors.black,
+                fontSize: responsiveFontSize(14),
+                fontWeight: '400',
+                lineHeight: 16.96,
+              }}>
+              {address}{' '}
+            </Text>
+          </View>
+
+        </View> 
+    </View> */}
+    <DeliveryComponent/>
+        {/* <View style={{ flex: 1, margin: 4, }}>
+          <View style={{ flex: 1, }}>
+
+            <View style={styles.addressContainer}>
+              {selectedStopIndex !== null ? (
+                <Text style={styles.addressText}>
+                  {stops[selectedStopIndex].dropAddress}
+                </Text>
+              ) : (
+                <Text style={styles.addressText}>Please select a stop</Text>
+              )}
+            </View>
+
+            <View style={styles.buttonsContainer}>
+              {stops.map((stop, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.stopButton}
+                  onPress={() => setSelectedStopIndex(index)}
+                >
+                  <Text style={styles.stopText}>{stop.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+          <View style={{ marginLeft: responsiveWidth(14), }}>
+            <Text
+              style={{
+                color: '#000000',
+                fontWeight: '500',
+                fontSize: responsiveFontSize(16),
                 marginTop: responsiveHeight(8),
               }}>
               LOCATION
             </Text>
           </View>
-        </View>
+        </View> */}
 
         <View
           style={{
             width: '100%',
             flexDirection: 'row',
             justifyContent: 'space-between',
-            marginBottom: 15,
+            marginBottom: responsiveHeight(10),
+            marginTop: Spacing.small,
           }}>
-          <View style={{flex: 1, flexDirection: 'row', paddingHorizontal: 20}}>
+          <View style={{ flex: 1, flexDirection: 'row', paddingHorizontal: responsiveWidth(20) }}>
             <Text
               style={{
                 color: Colors.black,
@@ -169,7 +257,7 @@ const DestinationSection = ({details}) => {
               justifyContent: 'center',
             }}>
             <BorderLine orientation={'vertical'} thickness={1} />
-            <View style={{marginLeft: responsiveWidth(3)}}>
+            <View style={{ marginLeft: responsiveWidth(3) }}>
               <TouchableOpacity
                 onPress={() =>
                   handleOpenMap(
@@ -177,7 +265,7 @@ const DestinationSection = ({details}) => {
                     details?.drop_long || 80.928795,
                   )
                 }
-                style={{flexDirection: 'row', alignItems: 'center'}}>
+                style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Image
                   source={AppImages.navigatationIcon}
                   style={{
@@ -201,17 +289,14 @@ const DestinationSection = ({details}) => {
             </View>
           </View>
         </View>
-        {/* </View> */}
 
-        {/* Bottom Section */}
-        <View style={styles.bottomSection}>
+        {/* <View style={styles.bottomSection}>
           <SlideButton
             title="End Trip"
-            titleStyle={{color: Colors.white}}
+            titleStyle={{ color: Colors.white }}
             thumbStyle={{
-              backgroundColor: '#EB5757', // Change the thumb color
+              backgroundColor: '#EB5757',
               height: 50,
-              // paddingLeft: 20,
               width: 70,
               borderRadius: 30,
             }}
@@ -219,11 +304,11 @@ const DestinationSection = ({details}) => {
               handleEndTrip();
               // navigation.navigate('AmountCollected');
             }}
-            containerStyle={{backgroundColor: isSlid ? 'red' : '#232323'}} // Set the background color here
+            containerStyle={{ backgroundColor: isSlid ? 'red' : '#232323' }} // Set the background color here
             // onSlideComplete={handleSlideComplete} // Callback when sliding is complete
-            underlayStyle={{backgroundColor: '#F77B7B'}}
+            underlayStyle={{ backgroundColor: '#F77B7B' }}
           />
-        </View>
+        </View> */}
       </View>
       <Loading loading={loading} />
     </>
@@ -238,7 +323,7 @@ const styles = StyleSheet.create({
     marginBottom: responsiveHeight(1),
     elevation: 8,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
@@ -249,7 +334,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 15,
     marginTop: 3,
     marginBottom: 3,
-    // backgroundColor:'red'
   },
   button: {
     backgroundColor: Colors.brandBlue,
@@ -394,13 +478,41 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     height: 40,
     width: 40,
-    paddingVertical: 0, // Remove vertical padding
-    paddingHorizontal: 0, // Remove horizontal padding,
+    paddingVertical: 0, 
+    paddingHorizontal: 0, 
     borderBottomWidth: 1,
   },
   inputCell: {
     borderBottomWidth: 1,
     borderColor: Colors.textInputBorderColor,
+  },
+  stopButton: {
+    backgroundColor: Colors.brandBlue,
+    padding: Spacing.small,
+    marginHorizontal: 5,
+    borderRadius: 5,
+    flex: 1,
+    alignItems: 'center'
+  },
+  stopText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold'
+  },
+  addressContainer: {
+    marginBottom: 20,
+    borderColor: 'gray',
+    borderRadius: 5,
+    alignItems: 'center'
+  },
+  addressText: {
+    fontSize: responsiveFontSize(16),
+    fontWeight: '600',
+    color: '#333'
+  },
+  buttonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between'
   },
 });
 
