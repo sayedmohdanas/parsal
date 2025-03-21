@@ -55,11 +55,9 @@ const OrderInfo = ({ route }) => {
       ToastAndroid.show('Failed to share screenshot.', ToastAndroid.SHORT);
     }
   };
-  const stopLocation = {
-    latitude: 26.8500,
-    longitude: 80.9400
-    // console.log('orderdetails=======>>anas==>>>',orderDetails);
-  }
+
+  // console.log('orderdetails=======>>anas==>>>',orderDetails);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -146,8 +144,8 @@ const OrderInfo = ({ route }) => {
 
     fitToMarkers();
   }, [orderDetails]);
-  console.log(orderDetails?.stops);
-  
+  // console.log("orderDetails", orderDetails?.stops);
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Loading loading={loading} />
@@ -185,17 +183,11 @@ const OrderInfo = ({ route }) => {
                   latitude: destination?.latitude,
                   longitude: destination?.longitude,
                 },
-              ]} */}
-              <Polyline
-    coordinates={[
-      { latitude: origin?.latitude, longitude: origin?.longitude }, 
-      { latitude: stopLocation?.latitude, longitude: stopLocation?.longitude }, // Stop first
-      { latitude: destination?.latitude, longitude: destination?.longitude }, // Then final destination
-    ]}
+              ]}
               strokeColor={Colors.black}
               strokeWidth={4}
               lineDashPattern={[10, 5]}
-            />
+            /> */}
             <Marker coordinate={origin} title="Pick-up Location">
               <Image
                 source={
@@ -209,21 +201,37 @@ const OrderInfo = ({ route }) => {
                 style={{ height: responsiveHeight(35), width: responsiveWidth(35) }}
               />
             </Marker>
-            <Marker coordinate={destination} title="Drop-off Location">
-              <Image
-                source={AppImages.location}
-                resizeMode="contain"
-                style={{ height: responsiveHeight(20), width: responsiveWidth(20) }}
-              />
-            </Marker>
-            <Marker coordinate={stopLocation} title="Stop Location ">
-              <Image
-                source={AppImages.location}
-                resizeMode="contain"
-                tintColor={Colors.brandBlue}
-                style={{ height: responsiveHeight(20), width: responsiveWidth(20) }}
-              />
-            </Marker>
+            {/* <Marker coordinate={destination} title="Drop-off Location">
+            <Image
+              source={AppImages.location}
+              resizeMode="contain"
+              style={{ height: responsiveHeight(20), width: responsiveWidth(20) }}
+            />
+          </Marker> */}
+            {orderDetails?.stops?.map((item) => {
+              return <Marker coordinate={{ latitude: item.stop_lat, longitude: item.stop_long }} title={item?.stop_address}>
+                <Image
+                  source={AppImages.location}
+                  resizeMode="contain"
+                  style={{ height: responsiveHeight(20), width: responsiveWidth(20) }}
+                />
+              </Marker>
+            })}
+            <Polyline
+              coordinates={[
+                origin ? { latitude: origin.latitude, longitude: origin.longitude } : null, // Driver location
+                ...(orderDetails?.stops?.map((stop) => ({
+                  latitude: stop.stop_lat, // Ensure correct key
+                  longitude: stop.stop_long,
+                })) || []), // Fallback to empty array if stops is undefined
+              ].filter(Boolean)} // Remove null values
+              strokeWidth={4}
+              strokeColor="black"
+              lineDashPattern={[10, 5]} // Dashed effect (10px dash, 5px gap)
+            />
+
+
+
           </MapView>
         </View>
         <View style={[styles.section2]}>

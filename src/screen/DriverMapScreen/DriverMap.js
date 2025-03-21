@@ -233,8 +233,6 @@ const DriverMapScreen = ({ route }) => {
       null
     );
   // console.log(nextStop);
-  // console.log("order_stops",order_stops);
-  
 
   const order_stops = orderData?.newOrder?.stops || orderData?.stops || [];
   const stops = (orderData?.newOrder?.stops || orderData?.stops) || [];
@@ -250,7 +248,7 @@ const DriverMapScreen = ({ route }) => {
 
   // console.log({ nextStop, isLastStop });
 
-  const nextStopIndex = nextStop ? order_stops?.findIndex(stop => stop.id == nextStop.id) : 0;
+  const nextStopIndex = nextStop ? order_stops?.findIndex(stop => stop.id == nextStop.id) : -1;
   const laststopIndex = nextStop ? order_stops?.findIndex(stop => stop.id == nextStop.id) : -1;
   const [selectedStopIndex, setSelectedStopIndex] = useState(nextStopIndex);
   const destination = {
@@ -541,7 +539,7 @@ const DriverMapScreen = ({ route }) => {
     hitEndOrderApi(param)
       .then(res => {
         if (res) {
-          // if (socketRef.current) {
+          if (socketRef.current) {
             socketRef.current.emit('end_trip', {
               userId: orderData?.newOrder?.cust_id || orderData?.cust_id,
               order_id: orderData?.newOrder?.id || orderData?.id,
@@ -552,9 +550,9 @@ const DriverMapScreen = ({ route }) => {
             2,
           );
           navigation.navigate('AmountCollected');
-          // } else {
-          //   console.log('Socket is not connected');
-          // }
+          } else {
+            console.log('Socket is not connected');
+          }
         }
       })
       .catch(err => {

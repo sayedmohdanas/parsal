@@ -412,13 +412,3 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
 });
-
-
-
-
-
-
-
-
-
-

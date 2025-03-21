@@ -209,48 +209,94 @@ const DriverDashboard = () => {
               user_id: parsed_user?.payload?.driver_id,
               type: 'driver',
             };
+            // hitGetLiveOrderApi(parameter)
+            //   .then(res => {
+            //     if (res?.ongoingOrder?.length == 0) {
+            //       // setshow_live(false);
+            //       dispatch(setlivetripmenu(false));
+            //       return;
+            //     } else {
+            //       // setshow_live(true);
+            //       dispatch(setlivetripmenu(true));
+            //       const { order_otp, ...restOrderData } =
+            //         res?.ongoingOrder[0] || {};
+            //       const modifiedOrderData = { ...restOrderData, otp: order_otp };
+            //       dispatch(setOrderData(modifiedOrderData));
+            //       if (res?.ongoingOrder[0]?.is_arrived_pickup) {
+            //         if (modifiedOrderData?.delivered_at) {
+            //           dispatch(setupdate_order(modifiedOrderData));
+            //           navigation.navigate('AmountCollected');
+            //         } else {
+            //           dispatch(setupdate_order(modifiedOrderData));
+            //           navigation.navigate('DriverMap');
+            //           return;
+            //         }
+            //       } else {
+            //         navigation.navigate('DriverMap');
+            //         return;
+            //       }
+            //       if (res?.ongoingOrder?.length > 1) {
+            //         const { order_otp, ...restOrderData } =
+            //           res?.ongoingOrder[1] || {};
+            //         const modifiedOrderData = {
+            //           ...restOrderData,
+            //           otp: order_otp,
+            //         };
+            //         dispatch(setnextOrderData(modifiedOrderData));
+            //         navigation.navigate('DriverMap');
+            //         return;
+            //       }
+            //     }
+            //   })
+            //   .catch(err => {
+            //     console.error(err);
+            //   });
             hitGetLiveOrderApi(parameter)
-              .then(res => {
-                if (res?.ongoingOrder?.length == 0) {
-                  // setshow_live(false);
-                  dispatch(setlivetripmenu(false));
-                  return;
+            .then(res => {
+              if (res?.ongoingOrder.length == 0) {
+                // setshow_live(false);
+                dispatch(setlivetripmenu(false));
+              } else {
+                // setshow_live(true);
+                dispatch(setlivetripmenu(true));
+                const { order_otp, ...restOrderData } =
+                  res?.ongoingOrder[0] || {};
+                const modifiedOrderData = { ...restOrderData, otp: order_otp };
+                dispatch(setOrderData(modifiedOrderData));
+                if (res?.ongoingOrder[0]?.is_arrived_pickup) {
+                  
+                  if (checkOrderCompletion(res?.ongoingOrder)) {
+                    dispatch(setupdate_order(res?.ongoingOrder));
+                    navigation.navigate('AmountCollected');
+                  }
+                  // if (modifiedOrderData?.delivered_at) {
+                  //   dispatch(setupdate_order(modifiedOrderData));
+                  //   navigation.navigate('AmountCollected');
+                  // }
+                  else {
+                    dispatch(setupdate_order(modifiedOrderData));
+                    navigation.navigate('DriverMap');
+                    return;
+                  }
                 } else {
-                  // setshow_live(true);
-                  dispatch(setlivetripmenu(true));
-                  const { order_otp, ...restOrderData } =
-                    res?.ongoingOrder[0] || {};
-                  const modifiedOrderData = { ...restOrderData, otp: order_otp };
-                  dispatch(setOrderData(modifiedOrderData));
-                  if (res?.ongoingOrder[0]?.is_arrived_pickup) {
-                    if (modifiedOrderData?.delivered_at) {
-                      dispatch(setupdate_order(modifiedOrderData));
-                      navigation.navigate('AmountCollected');
-                    } else {
-                      dispatch(setupdate_order(modifiedOrderData));
-                      navigation.navigate('DriverMap');
-                      return;
-                    }
-                  } else {
-                    navigation.navigate('DriverMap');
-                    return;
-                  }
-                  if (res?.ongoingOrder?.length > 1) {
-                    const { order_otp, ...restOrderData } =
-                      res?.ongoingOrder[1] || {};
-                    const modifiedOrderData = {
-                      ...restOrderData,
-                      otp: order_otp,
-                    };
-                    dispatch(setnextOrderData(modifiedOrderData));
-                    navigation.navigate('DriverMap');
-                    return;
-                  }
+                  navigation.navigate('DriverMap');
+                  return;
                 }
-              })
-              .catch(err => {
-                console.error(err);
-              });
+                if (res?.ongoingOrder?.length > 1) {
+                  const { order_otp, ...restOrderData } =
+                    res?.ongoingOrder[1] || {};
+                  const modifiedOrderData = {
+                    ...restOrderData,
+                    otp: order_otp,
+                  };
+                  dispatch(setnextOrderData(modifiedOrderData));
+                  navigation.navigate('DriverMap');
+                }
+              }
+            })
+            .catch(err => {
+              console.error(err);
+            });
           }
         })
         .catch(err => {

@@ -1,5 +1,5 @@
 // CustomNotificationModal.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -74,7 +74,10 @@ const NotificationModal = ({
   tips,
   good_type,
   service_city,
-  stops
+  stops,
+  stops_length,
+  last_stop_address,
+  order_type
 }) => {
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
@@ -84,59 +87,71 @@ const NotificationModal = ({
   const pay_mode = 'cash';
   const payment_status = '0';
   const store_data = useSelector(state => state?.parsalPartner);
+  const socketRef = useRef(null); // Use ref to persist socket instance
 
   useEffect(() => {
     const initializeSocket = async () => {
       try {
-        const user = await AsyncStorage.getItem('user');
-        const parsedUser = JSON.parse(user);
-        const user_data = parsedUser?.payload?.driver_id;
-        socket = io(socketUrl); // Replace with your actual socket server URL
-        socket.emit('registerUser', {
-          userId: driverId || user_data,
-          role: 'driver',
-        });
-        // On successful connection
-        socket.on('connect', () => {
-          console.log('Connected to socket server');
-        });
-        // Listen for order_accepted event
-        socket.on('order_accepted', data => {
-          console.log('Order accepted status received:', data);
-          setModalVisible(false); // Close the modal
-        });
+        if (!socketRef.current) { // Prevent multiple connections
+          const user = await AsyncStorage.getItem('user');
+          const parsedUser = JSON.parse(user);
+          const user_data = parsedUser?.payload?.driver_id;
+
+          socketRef.current = io(socketUrl, {
+            transports: ['websocket'], // Ensuring WebSocket connection
+            reconnection: true, // Enable automatic reconnection
+            reconnectionAttempts: 5, // Number of reconnection attempts
+            reconnectionDelay: 3000, // Delay between attempts
+          });
+
+          socketRef.current.on('connect', () => {
+            console.log('Connected to socket server');
+            socketRef.current.emit('registerUser', {
+              userId: driverId || user_data,
+              role: 'driver',
+            });
+          });
+
+          socketRef.current.on('order_accepted', data => {
+            console.log('Order accepted status received:', data);
+            setModalVisible(false);
+          });
+
+          socketRef.current.on('disconnect', () => {
+            console.log('Socket disconnected');
+          });
+        }
       } catch (error) {
         console.error('Error initializing socket:', error);
       }
     };
 
     if (isVisible) {
-      initializeSocket(); // Call the async function inside useEffect
+      initializeSocket();
     }
 
-    // Cleanup function to disconnect the socket when the component unmounts
     return () => {
-      if (socket) {
-        socket.disconnect();
-        console.log('Socket disconnected');
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null; // Reset socketRef on cleanup
       }
     };
-  }, [isVisible, driverId]); // Add driverId as dependency if it's dynamic
-  // console.log("stops", JSON.parse(stops));
+  }, [isVisible, driverId]);
 
+  // Handle order acceptance
   const handleAccept = async () => {
-    const user = await AsyncStorage.getItem('user');
-    const parsedUser = JSON.parse(user);
     try {
-      // Show loading
       setLoading(true);
+
+      const user = await AsyncStorage.getItem('user');
+      const parsedUser = JSON.parse(user);
+
       const { latitude, longitude } = await GetDriverCurrentLocation();
 
-      // Create payload
       const payload = {
         pickup_address,
         drop_address,
-        vehicle_type_id: vehicle_type_id,
+        vehicle_type_id,
         drop_lat,
         drop_long,
         pickup_lat,
@@ -154,49 +169,49 @@ const NotificationModal = ({
         partner_id: parsedUser?.payload?.partner_id,
         request_id,
         insured,
-        loading_unloading: loading_unloading,
+        loading_unloading,
         charity,
         receiver_phone,
         receiver_name,
         tips: parseFloat(tips),
         good_type,
         service_city,
-        stops: JSON.parse(stops)
+        stops: JSON.parse(stops),
+        order_type: Number(order_type),
       };
-      console.log("payload", payload);
 
-      // Pass the payload into the API call
-      const res = await hitlPaceOrder(payload); // Your API call function
+      console.log('Payload:', payload);
+
+      // Call API
+      const res = await hitlPaceOrder(payload);
+      console.log('API Response:', res);
 
       if (res) {
-        // Assuming `onAccept` is a callback for successful orders
         onAccept(res);
 
-        // Emit the socket event after a successful API call
-        if (socket && socket.connected) {
+        // Emit socket event only if connected
+        if (socketRef.current && socketRef.current.connected) {
           const resWithOTP = {
             ...res,
             otp: generateNumericOTP(4),
             custName: cust_name,
             custMobile: cust_mobile,
-            vehicle_type_id: vehicle_type_id,
+            vehicle_type_id,
           };
-          // Emit 'driver_accept' event and send the data
-          socket.emit('driver_accept', resWithOTP, acknowledgment => {
+
+          socketRef.current.emit('driver_accept', resWithOTP, acknowledgment => {
             console.log('Data sent, acknowledgment:', acknowledgment);
           });
+
+          // Update order OTP
           const param = {
             order_id: resWithOTP?.newOrder?.id,
             order_otp: resWithOTP?.otp?.toString(),
           };
-          hitUpdateOrderOtpApi(param)
-            .then(res => {
-              console.log(res);
-            })
-            .catch(err => {
-              console.error(err);
-            });
-          if (store_data?.orderData == null) {
+          await hitUpdateOrderOtpApi(param);
+
+          // Handle navigation & state updates
+          if (!store_data?.orderData) {
             dispatch(setlivetripmenu(true));
             dispatch(setOrderData(resWithOTP));
             if (store_data?.update_order?.is_arrived_pickup) {
@@ -208,27 +223,170 @@ const NotificationModal = ({
               drop_lat: payload.drop_lat,
               drop_long: payload.drop_long,
             });
-            return;
           } else {
             dispatch(setlivetripmenu(true));
             dispatch(setnextOrderData(resWithOTP));
-            return;
           }
         } else {
           console.error('Socket is not connected.');
         }
       } else {
         Alert.alert('Error', 'Failed to accept order. Please try again.');
-        console.error('API Error:', res);
       }
     } catch (error) {
-      Alert.alert('Error', 'There was an issue processing your request.');
       console.error('Error hitting API:', error);
+      Alert.alert('Error', 'There was an issue processing your request.');
     } finally {
-      // Hide loading
       setLoading(false);
     }
   };
+
+  // useEffect(() => {
+  //   const initializeSocket = async () => {
+  //     try {
+  //       const user = await AsyncStorage.getItem('user');
+  //       const parsedUser = JSON.parse(user);
+  //       const user_data = parsedUser?.payload?.driver_id;
+  //       socket = io(socketUrl); // Replace with your actual socket server URL
+  //       socket.emit('registerUser', {
+  //         userId: driverId || user_data,
+  //         role: 'driver',
+  //       });
+  //       // On successful connection
+  //       socket.on('connect', () => {
+  //         console.log('Connected to socket server');
+  //       });
+  //       // Listen for order_accepted event
+  //       socket.on('order_accepted', data => {
+  //         console.log('Order accepted status received:', data);
+  //         setModalVisible(false); // Close the modal
+  //       });
+  //     } catch (error) {
+  //       console.error('Error initializing socket:', error);
+  //     }
+  //   };
+
+  //   if (isVisible) {
+  //     initializeSocket(); // Call the async function inside useEffect
+  //   }
+
+  //   // Cleanup function to disconnect the socket when the component unmounts
+  //   return () => {
+  //     if (socket) {
+  //       socket.disconnect();
+  //       console.log('Socket disconnected');
+  //     }
+  //   };
+  // }, [isVisible, driverId]); // Add driverId as dependency if it's dynamic
+  // // console.log("stops", JSON.parse(stops));
+
+  // const handleAccept = async () => {
+  //   const user = await AsyncStorage.getItem('user');
+  //   const parsedUser = JSON.parse(user);
+  //   try {
+  //     // Show loading
+  //     setLoading(true);
+  //     const { latitude, longitude } = await GetDriverCurrentLocation();
+
+
+  //     // Create payload
+  //     const payload = {
+  //       pickup_address,
+  //       drop_address,
+  //       vehicle_type_id: vehicle_type_id,
+  //       drop_lat,
+  //       drop_long,
+  //       pickup_lat,
+  //       pickup_long,
+  //       driver_lat: latitude,
+  //       driver_long: longitude,
+  //       vehicle_id: parseInt(vehicle_id),
+  //       cust_id: Number(cust_id),
+  //       driver_id: driverId,
+  //       goods_type_id,
+  //       order_date,
+  //       goods_quantity,
+  //       pay_mode,
+  //       payment_status,
+  //       partner_id: parsedUser?.payload?.partner_id,
+  //       request_id,
+  //       insured,
+  //       loading_unloading: loading_unloading,
+  //       charity,
+  //       receiver_phone,
+  //       receiver_name,
+  //       tips: parseFloat(tips),
+  //       good_type,
+  //       service_city,
+  //       stops: JSON.parse(stops),
+  //       order_type: Number(order_type)
+  //     };
+  //     console.log("payload",payload);
+
+  //     // Pass the payload into the API call
+  //     const res = await hitlPaceOrder(payload); // Your API call function
+  //     console.log("res", res);
+  //     if (res) {
+  //       // Assuming `onAccept` is a callback for successful orders
+  //       onAccept(res);
+
+  //       // Emit the socket event after a successful API call
+  //       if (socket && socket.connected) {
+  //         const resWithOTP = {
+  //           ...res,
+  //           otp: generateNumericOTP(4),
+  //           custName: cust_name,
+  //           custMobile: cust_mobile,
+  //           vehicle_type_id: vehicle_type_id,
+  //         };
+  //         // Emit 'driver_accept' event and send the data
+  //         socket.emit('driver_accept', resWithOTP, acknowledgment => {
+  //           console.log('Data sent, acknowledgment:', acknowledgment);
+  //         });
+  //         const param = {
+  //           order_id: resWithOTP?.newOrder?.id,
+  //           order_otp: resWithOTP?.otp?.toString(),
+  //         };
+  //         hitUpdateOrderOtpApi(param)
+  //           .then(res => {
+  //             console.log(res);
+  //           })
+  //           .catch(err => {
+  //             console.error(err);
+  //           });
+  //         if (store_data?.orderData == null) {
+  //           dispatch(setlivetripmenu(true));
+  //           dispatch(setOrderData(resWithOTP));
+  //           if (store_data?.update_order?.is_arrived_pickup) {
+  //             dispatch(setupdate_order(res?.newOrder));
+  //           }
+  //           navigation.navigate('DriverMap', {
+  //             picklat: payload.pickup_lat,
+  //             pickLong: payload.pickup_long,
+  //             drop_lat: payload.drop_lat,
+  //             drop_long: payload.drop_long,
+  //           });
+  //           return;
+  //         } else {
+  //           dispatch(setlivetripmenu(true));
+  //           dispatch(setnextOrderData(resWithOTP));
+  //           return;
+  //         }
+  //       } else {
+  //         console.error('Socket is not connected.');
+  //       }
+  //     } else {
+  //       Alert.alert('Error', 'Failed to accept order. Please try again.');
+  //       console.error('API Error:', res);
+  //     }
+  //   } catch (error) {
+  //     Alert.alert('Error', 'There was an issue processing your request.');
+  //     console.error('Error hitting API:', error);
+  //   } finally {
+  //     // Hide loading
+  //     setLoading(false);
+  //   }
+  // };
   // const [user_details, setuser_details] = useState([]);
   // const get_user_details = async () => {
   //   const user = await AsyncStorage.getItem('user');
@@ -358,17 +516,38 @@ const NotificationModal = ({
                   <View style={[styles.timelineContainer]}>
                     <View style={styles.greenCircle}></View>
                     <View style={styles.line}></View>
+
+
+                    {Number(stops_length) > 0 && <View style={styles.stopNumberContainer}>
+                      <Text style={styles.stopNumberText}>{stops_length}</Text>
+                    </View>
+                    }
+
+
                     <View style={styles.redCircle}>
                       <View style={styles.blackCircle}></View>
                     </View>
                   </View>
                 )}
+
                 <View style={{ marginLeft: responsiveWidth(5) }}>
-                  <Text style={[styles.addressText, { marginVertical: 0 }]}>
+                  <Text
+                    style={[styles.addressText, { marginVertical: 0 }]}
+                    numberOfLines={2}
+                    ellipsizeMode="tail"
+                  >
                     {pickup_address}
                   </Text>
-                  <Text style={styles.addressText}>{drop_address}</Text>
+                  <Text
+                    style={styles.addressText}
+                    numberOfLines={2}
+                    ellipsizeMode="tail"
+                  >
+                    {last_stop_address !== '-' ? last_stop_address : drop_address}
+                  </Text>
+
                 </View>
+
               </View>
             </View>
 
@@ -573,6 +752,23 @@ const styles = StyleSheet.create({
     height: responsiveHeight(50),
     marginVertical: 1,
     borderStyle: 'dashed',
+  },
+  stopNumberContainer: {
+    position: 'absolute',
+    top: 25, // Adjust to center vertically
+    left: '50%',
+    transform: [{ translateX: -10 }],
+    width: 20,
+    height: 20,
+    backgroundColor: 'blue',
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stopNumberText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
 });
 

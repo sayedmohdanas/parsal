@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { DeviceEventEmitter } from 'react-native';
 import { clearCustomerId } from '../common/CommonFunction';
