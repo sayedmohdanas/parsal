@@ -179,6 +179,7 @@ const AmountCollectScreen = () => {
             );
             dispatch(setupdate_order(null));
             dispatch(setnextOrderData(null));
+            dispatch(setSelectedDriverRedux(0))
             navigation.goBack('');
           } else {
             socket.emit('complete_transaction_by_user', {

@@ -1,21 +1,21 @@
-import {Alert, Image, StyleSheet, Text, TextInput, View} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import { Alert, Image, StyleSheet, Text, TextInput, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import AppImages from '../../common/AppImages';
 import Colors from '../../common/Colors';
 import CustomButton from '../../components/CustomButton/CustomButton';
-import {errorToast, getItem, successToast} from '../../common/CommonFunction';
-import {useDispatch, useSelector} from 'react-redux';
+import { errorToast, getItem, successToast } from '../../common/CommonFunction';
+import { useDispatch, useSelector } from 'react-redux';
 import Loading from '../../components/Loading/Loading';
 import CheckBox from 'react-native-check-box';
-import {loginPartner} from '../../redux/HitApis/HitApiSlice';
+import { loginPartner } from '../../redux/HitApis/HitApiSlice';
 import flagImages from './FlagImages';
 import {
   responsiveFontSize,
   responsiveHeight,
   responsiveWidth,
 } from '../../common/metrices';
-import {getMessaging} from '@react-native-firebase/messaging';
-const LoginScreen = ({navigation, route}) => {
+import { getMessaging } from '@react-native-firebase/messaging';
+const LoginScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const user = useSelector(state => state.parsal_store?.user);
   const status = useSelector(state => state?.parsalPartner?.status);
@@ -53,49 +53,59 @@ const LoginScreen = ({navigation, route}) => {
       // const response = await dispatch(loginPartner(request));
       // console.log('Response:', response);
       dispatch(loginPartner(request))
-      .then((response) => {
-        console.log('Response:', response);
-    
-        if (response.meta.requestStatus === 'fulfilled') {
-          // Ensure payload and payload.payload are defined
-          if (!response.payload || !response.payload.payload) {
-            successToast('Success', `OTP has been sent successfully to ${number}`);
-            navigation.replace('Otp', { number });
-            return;
-          }
-    
-          const { owner_type, m_driver_status, driving_vehicle_status } = response.payload.payload;
-    
-          // Case: New user (owner_type is undefined)
-          if (owner_type === undefined) {
-            console.log('New user detected: owner_type is undefined');
-            successToast('Success', `OTP has been sent successfully to ${number}`);
-            navigation.replace('Otp', { number });
-            return;
-          }
-    
-          // Case: Existing user
-          if (owner_type === 0) {
-            if (m_driver_status === 1 && driving_vehicle_status === 1) {
-              console.log('Conditions met: m_driver_status and driving_vehicle_status are 1');
+        .then((response) => {
+          console.log('Response:', response);
+
+          if (response.meta.requestStatus === 'fulfilled') {
+            // Ensure payload and payload.payload are defined
+            if (!response.payload || !response.payload.payload) {
+              successToast('Success', `OTP has been sent successfully to ${number}`);
               navigation.replace('Otp', { number });
+              return;
+            }
+
+            const { owner_type, m_driver_status, driving_vehicle_status, partner_status } = response.payload.payload;
+
+            // Case: New user (owner_type is undefined)
+            if (owner_type === undefined) {
+              console.log('New user detected: owner_type is undefined');
+              successToast('Success', `OTP has been sent successfully to ${number}`);
+              navigation.replace('Otp', { number });
+              return;
+            }
+            console.log(partner_status);
+
+            // Case: Existing user
+            if (owner_type === 0) {
+              if (m_driver_status === 1 && driving_vehicle_status === 1) {
+                if (partner_status == 1) {
+                  errorToast('Action Required', 'Partner is deactivated');
+                  return
+                }
+                console.log('Conditions met: m_driver_status and driving_vehicle_status are 1');
+                navigation.replace('Otp', { number });
+              } else {
+                errorToast('Action Required', 'Driver is either not found or deactivated');
+              }
             } else {
-              errorToast('Issue!!', 'Please complete your profile to proceed.');
+              if (partner_status == 1) {
+                successToast('Success', `OTP has been sent successfully to ${number}`);
+                navigation.replace('Otp', { number });
+              } else {
+                errorToast('Action Required', 'Partner is either not found or deactivated');
+
+              }
             }
           } else {
-            successToast('Success', `OTP has been sent successfully to ${number}`);
-            navigation.replace('Otp', { number });
+            console.log('Request not fulfilled:', response.meta.requestStatus);
+            errorToast('Error', 'Unable to send OTP. Please try again.');
           }
-        } else {
-          console.log('Request not fulfilled:', response.meta.requestStatus);
-          errorToast('Error', 'Unable to send OTP. Please try again.');
-        }
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-        errorToast('Error', 'An unexpected error occurred. Please try again.');
-      });
-    
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+          errorToast('Error', 'An unexpected error occurred. Please try again.');
+        });
+
 
       if (status === 'failed') {
         errorToast('Issue!!', error || 'Something went wrong');
@@ -163,14 +173,14 @@ const LoginScreen = ({navigation, route}) => {
               />
             </View>
           </View>
-          <View style={{justifyContent: 'center', alignItems: 'center'}}>
-            <View style={{alignSelf: 'flex-start'}}>
+          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ alignSelf: 'flex-start' }}>
               <Text style={styles.inputLabel}>Mobile Number</Text>
             </View>
             <View style={[styles.numberInputContainer]}>
-              <View style={{marginLeft: 5}}>
+              <View style={{ marginLeft: 5 }}>
                 <Text
-                  style={{color: Colors.black, fontSize: 15, fontWeight: 600}}>
+                  style={{ color: Colors.black, fontSize: 15, fontWeight: 600 }}>
                   +91
                 </Text>
               </View>
@@ -188,7 +198,7 @@ const LoginScreen = ({navigation, route}) => {
               </View>
             </View>
             {/* Add label above the TextInput */}
-            <View style={{width: '92%', marginBottom: responsiveHeight(16)}}>
+            <View style={{ width: '92%', marginBottom: responsiveHeight(16) }}>
               <View style={styles.checkboxContainer}>
                 <CheckBox
                   style={styles.checkbox}

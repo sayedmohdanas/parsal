@@ -49,7 +49,8 @@ export default function App() {
     receiver_phone: '',
     tips: '',
     service_city: '',
-    stops: []
+    stops: [],
+    last_stop_address:''
   });
   const [timer, setTimer] = useState(15); // Timer state
   // Initialize Firebase with Realtime Database URL
@@ -133,7 +134,8 @@ export default function App() {
       receiver_phone = '',
       tips = '',
       service_city = '',
-      stops = []
+      stops = [],
+      last_stop_address = ''
     } = data || {};
     // Update the notification data state
     setNotificationData({
@@ -163,7 +165,8 @@ export default function App() {
       receiver_phone,
       tips,
       service_city,
-      stops
+      stops,
+      last_stop_address
     });
     setModalVisible(true);
     // setTimer(15);
@@ -397,6 +400,7 @@ export default function App() {
             setModalVisible={setModalVisible}
             timer={timer}
             stops={notificationData?.stops}
+            last_stop_address={notificationData?.last_stop_address}
           />
         </NavigationContainer>
       </Provider>
