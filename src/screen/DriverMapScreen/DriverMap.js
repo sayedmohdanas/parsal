@@ -544,12 +544,12 @@ const DriverMapScreen = ({ route }) => {
               userId: orderData?.newOrder?.cust_id || orderData?.cust_id,
               order_id: orderData?.newOrder?.id || orderData?.id,
             });
-          sendDummyDataToFirebase(
-            orderData?.newOrder || orderData,
-            'Order Ended',
-            2,
-          );
-          navigation.navigate('AmountCollected');
+            sendDummyDataToFirebase(
+              orderData?.newOrder || orderData,
+              'Order Ended',
+              2,
+            );
+            navigation.navigate('AmountCollected');
           } else {
             console.log('Socket is not connected');
           }
@@ -623,7 +623,18 @@ const DriverMapScreen = ({ route }) => {
           </AnimatedMarker>
         ) : null}
 
-        <Marker coordinate={destination}>
+        <Marker onPress={() => {
+          if (
+            update_order?.is_arrived_pickup == 1
+          ) {
+
+            if (stop_distance <= 100 && order_stops?.length > 1) {
+              setstop_modal(true);
+            } else {
+              setstop_modal(false);
+            }
+          }
+        }} coordinate={destination}>
           <Image
             source={AppImages.location}
             style={{ width: responsiveWidth(37), height: responsiveHeight(37) }}
@@ -683,15 +694,11 @@ const DriverMapScreen = ({ route }) => {
         isVisible={nextordermodal}
         setnextordermodal={setnextordermodal}
       />
-      <DeliveryModal visible={stop_modal} onClose={() => {
+      <DeliveryModal visible={stop_modal} onCancel={() => {
+        setstop_modal(false)
+      }} onClose={() => {
         setstop_modal(false)
       }} onDelivered={() => {
-        // updateStopCompletion(nextStop?.id)
-        // sendDummyDataToFirebase(
-        //   orderData?.newOrder || orderData,
-        //   'Stop Reached',
-        //   5,
-        // );
         const param = {
           stop_id: order_stops?.[selectedStopIndex]?.id,
           is_complete: true

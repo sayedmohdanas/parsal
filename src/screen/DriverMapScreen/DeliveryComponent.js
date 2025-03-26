@@ -11,7 +11,6 @@ const DeliveryModal = ({ visible, address, onDelivered, onCancel, onClose }) => 
       visible={visible}
       transparent
       animationType="slide"
-      onRequestClose={onClose}
     >
       <View style={styles.modalBackground}>
         <View style={styles.modalContainer}>
@@ -19,12 +18,12 @@ const DeliveryModal = ({ visible, address, onDelivered, onCancel, onClose }) => 
           <View style={styles.topSection}>
             <View style={styles.arrivedContainer}>
               <Text style={styles.arrivedText}>I'm Arrived</Text>
-              <TouchableOpacity onPress={onClose}>
-                <Image 
-                  style={styles.crossIcon}
-                  source={AppImages.crossIcon}
-                />
-              </TouchableOpacity>
+              <TouchableOpacity onPress={onCancel} style={styles.crossButton}>
+    <Image 
+      style={styles.crossIcon}
+      source={AppImages.crossIcon}
+    />
+  </TouchableOpacity>
             </View>
             <View style={styles.stopLabelContainer}>
               <Text style={styles.stopLabel}>Stop 1</Text>
@@ -78,13 +77,17 @@ const styles = StyleSheet.create({
     fontSize: responsiveFontSize(16),
     fontWeight: '600'
   },
-  crossIcon: {
+  crossButton: {
     position: 'absolute',
-    right: -155,
-    top: -20,
+    right: 0,  // Adjust as needed
+    top: 0,     // Adjust as needed
+    padding: 10, // Ensures the touch area is large enough
+  },
+  crossIcon: {
     height: responsiveHeight(15),
     width: responsiveWidth(15)
   },
+  
   stopLabelContainer: {
     marginLeft: responsiveWidth(14),
     marginTop: responsiveHeight(6)

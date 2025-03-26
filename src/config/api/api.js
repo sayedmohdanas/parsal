@@ -20,6 +20,7 @@ import {
   getAllCities,
   getallvehicletypeurl,
   getBankAccount,
+  getCheckUserStatusurl,
   getDoctypes,
   getDriverDetails,
   getDriverTodaysEarningurl,
@@ -235,4 +236,7 @@ export const hitgetDriverTodaysEarningApi = param => {
 };
 export const hitUpdateDocsApi = param => {
   return apiPost(updatedocsurl, param);
+};
+export const hitCheckUserStatusApi = param => {
+  return apiPost(getCheckUserStatusurl, param);
 };

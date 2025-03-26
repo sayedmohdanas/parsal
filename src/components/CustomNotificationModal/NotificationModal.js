@@ -96,27 +96,31 @@ const NotificationModal = ({
           const user = await AsyncStorage.getItem('user');
           const parsedUser = JSON.parse(user);
           const user_data = parsedUser?.payload?.driver_id;
-
+  
           socketRef.current = io(socketUrl, {
             transports: ['websocket'], // Ensuring WebSocket connection
             reconnection: true, // Enable automatic reconnection
             reconnectionAttempts: 5, // Number of reconnection attempts
             reconnectionDelay: 3000, // Delay between attempts
           });
-
-          socketRef.current.on('connect', () => {
+  
+          // Ensure the socket is connected before emitting
+          socketRef.current.once('connect', () => {
             console.log('Connected to socket server');
-            socketRef.current.emit('registerUser', {
-              userId: driverId || user_data,
-              role: 'driver',
-            });
+  
+            if (socketRef.current) {
+              socketRef.current.emit('registerUser', {
+                userId: driverId || user_data,
+                role: 'driver',
+              });
+            }
           });
-
+  
           socketRef.current.on('order_accepted', data => {
             console.log('Order accepted status received:', data);
             setModalVisible(false);
           });
-
+  
           socketRef.current.on('disconnect', () => {
             console.log('Socket disconnected');
           });
@@ -125,11 +129,11 @@ const NotificationModal = ({
         console.error('Error initializing socket:', error);
       }
     };
-
+  
     if (isVisible) {
       initializeSocket();
     }
-
+  
     return () => {
       if (socketRef.current) {
         socketRef.current.disconnect();
@@ -137,6 +141,7 @@ const NotificationModal = ({
       }
     };
   }, [isVisible, driverId]);
+  
 
   // Handle order acceptance
   const handleAccept = async () => {
