@@ -6,10 +6,10 @@ import { useDispatch } from "react-redux";
 import { setStatusPending } from "../../redux/HitApis/HitApisSlice";
 import { errorToast } from "../common/CommonFunction";
 const AuthChecker = () => {
-    const navigation = useNavigation();
+  const navigation = useNavigation();
     const dispatch = useDispatch()
     useEffect(() => {
-        const checkAuth = async () => {
+  const checkAuth = async () => {
      const user = await AsyncStorage.getItem("user");
 
             console.log('user============>>>>>>',user);
@@ -25,14 +25,14 @@ const AuthChecker = () => {
                 });
             }
         };
-        checkAuth();
+      checkAuth();
         const unsubscribe = navigation.addListener("focus", checkAuth);
         const eventListener = DeviceEventEmitter.addListener("forceLogout", checkAuth);
-        return () => {
+    return () => {
             unsubscribe();
-            eventListener.remove();
-        };
+      eventListener.remove();
+    };
     }, [navigation]);
-    return null;
+  return null;
 };
 export default AuthChecker;
