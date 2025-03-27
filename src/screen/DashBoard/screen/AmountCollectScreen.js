@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableHighlight, Alert } from 'react-native';
 import {
   responsiveHeight,
   responsiveFontSize,
@@ -9,6 +9,7 @@ import Colors from '../../../common/Colors';
 import ArriveButton from '../components/ArriveButton';
 import { useDispatch, useSelector } from 'react-redux';
 import {
+  hitcheckpaymentstatusApi,
   hitCreateTransaction,
   hitGetOrderFareDetail,
 } from '../../../config/api/api';
@@ -25,6 +26,8 @@ import {
 } from '../../../redux/HitApis/HitApiSlice';
 import HeaderBackButton from '../../../components/HeaderBackButton/HeaderBackButton';
 import database from '@react-native-firebase/database';
+import { Spacing } from '../../../common/Theme';
+import AppImages from '../../../common/AppImages';
 
 const sendDummyDataToFirebase = async (data, message, type) => {
   try {
@@ -44,7 +47,7 @@ const sendDummyDataToFirebase = async (data, message, type) => {
     // Send the data to Firebase
     await database().ref(customerPath).push(notificationPayload);
 
-    console.log('Dummy data sent successfully!');
+    console.log('NOtification data sent successfully!');
   } catch (error) {
     console.error('Error sending dummy data to Firebase:', error);
   }
@@ -150,69 +153,136 @@ const AmountCollectScreen = () => {
       //   });
     });
   }, []);
-  const Complete_Order = () => {
-    const param = {
-      orderId: orderData?.newOrder?.id || orderData?.id,
-      online: 0,
-      cash: Math.round(Total_Fare[0]?.amount),
-      wallet: 0,
-      pay_mode: 0,
-    };
-    hitCreateTransaction(param)
-      .then(res => {
-        if (res) {
-          if (nextOrderData) {
-            socket.emit('complete_transaction_by_user', {
-              userId: orderData?.newOrder?.cust_id || orderData?.cust_id,
-            });
-            dispatch(setOrderData(nextOrderData));
-            dispatch(
-              setSelectedDriverRedux({
-                driver_id:
-                  orderData?.newOrder?.driver_id || orderData?.driver_id,
-              }),
-            );
-            sendDummyDataToFirebase(
-              orderData?.newOrder || orderData,
-              'Casch Collected',
-              4,
-            );
-            dispatch(setupdate_order(null));
-            dispatch(setnextOrderData(null));
-            dispatch(setSelectedDriverRedux(0))
-            navigation.goBack('');
-          } else {
-            socket.emit('complete_transaction_by_user', {
-              userId: orderData?.newOrder?.cust_id || orderData?.cust_id,
-            });
-            dispatch(
-              setSelectedDriverRedux({
-                driver_id:
-                  orderData?.newOrder?.driver_id || orderData?.driver_id,
-              }),
-            );
-            sendDummyDataToFirebase(
-              orderData?.newOrder || orderData,
-              'Casch Collected',
-              4,
-            );
-            dispatch(setOrderData(null));
-            dispatch(setupdate_order(null));
-            dispatch(setlivetripmenu(false));
-            navigation.navigate('Earning');
-          }
+  const handleRefresh=()=>{
+    const parameter = {
+      id: orderData?.newOrder?.id || orderData?.id,
+    }
+    hitcheckpaymentstatusApi(parameter).then((res) => {
+      if(res?.order?.payment_status==1){
+        if (nextOrderData) {
+          dispatch(setOrderData(nextOrderData));
+          dispatch(setupdate_order(null));
+          dispatch(setnextOrderData(null));
+          dispatch(
+            setSelectedDriverRedux({
+              driver_id: orderData?.newOrder?.driver_id || orderData?.driver_id,
+            }),
+          );
+          navigation.goBack('');
+        } else {
+          dispatch(setOrderData(null));
+          dispatch(setupdate_order(null));
+          dispatch(setlivetripmenu(false));
+          dispatch(
+            setSelectedDriverRedux({
+              driver_id: orderData?.newOrder?.driver_id || orderData?.driver_id,
+            }),
+          );
+
+          navigation.navigate('Earning');
         }
-      })
-      .catch(err => {
-        console.error(err);
-      });
+      }
+    })
+  }
+  const Complete_Order = () => {
+    const parameter = {
+      id: orderData?.newOrder?.id || orderData?.id,
+    }
+    hitcheckpaymentstatusApi(parameter).then((res) => {
+      if(res?.order?.payment_status==1){
+        if (nextOrderData) {
+          dispatch(setOrderData(nextOrderData));
+          dispatch(setupdate_order(null));
+          dispatch(setnextOrderData(null));
+          dispatch(
+            setSelectedDriverRedux({
+              driver_id: orderData?.newOrder?.driver_id || orderData?.driver_id,
+            }),
+          );
+          navigation.goBack('');
+        } else {
+          dispatch(setOrderData(null));
+          dispatch(setupdate_order(null));
+          dispatch(setlivetripmenu(false));
+          dispatch(
+            setSelectedDriverRedux({
+              driver_id: orderData?.newOrder?.driver_id || orderData?.driver_id,
+            }),
+          );
+
+          navigation.navigate('Earning');
+        }
+      }else{
+        const param = {
+          orderId: orderData?.newOrder?.id || orderData?.id,
+          online: 0,
+          cash: Math.round(Total_Fare[0]?.amount),
+          wallet: 0,
+          pay_mode: 0,
+        };
+        hitCreateTransaction(param)
+          .then(res => {
+            if (res) {
+              if (nextOrderData) {
+                socket.emit('complete_transaction_by_user', {
+                  userId: orderData?.newOrder?.cust_id || orderData?.cust_id,
+                });
+                dispatch(setOrderData(nextOrderData));
+                dispatch(
+                  setSelectedDriverRedux({
+                    driver_id:
+                      orderData?.newOrder?.driver_id || orderData?.driver_id,
+                  }),
+                );
+                sendDummyDataToFirebase(
+                  orderData?.newOrder || orderData,
+                  'Casch Collected',
+                  4,
+                );
+                dispatch(setupdate_order(null));
+                dispatch(setnextOrderData(null));
+                navigation.goBack('');
+              } else {
+                socket.emit('complete_transaction_by_user', {
+                  userId: orderData?.newOrder?.cust_id || orderData?.cust_id,
+                });
+                dispatch(
+                  setSelectedDriverRedux({
+                    driver_id:
+                      orderData?.newOrder?.driver_id || orderData?.driver_id,
+                  }),
+                );
+                sendDummyDataToFirebase(
+                  orderData?.newOrder || orderData,
+                  'Casch Collected',
+                  4,
+                );
+                dispatch(setOrderData(null));
+                dispatch(setupdate_order(null));
+                dispatch(setlivetripmenu(false));
+                navigation.navigate('Earning');
+              }
+            }
+          })
+          .catch(err => {
+            console.error(err);
+          });
+      }
+    })
+
+
   };
   const Total_Fare = order_fare_details?.filter(
     item => parseInt(item?.pay_head_id) === 0,
   );
   return (
     <>
-      <HeaderBackButton headerText={'Cash Collected'} />
+      <HeaderBackButton
+      headerText={'Cash Collectedss'}
+        onPress={() => navigation.goBack('')}
+        rightButton={AppImages.Refresh_Icon}
+        onButtonPress={handleRefresh}
+      />
       <View style={styles.container}>
         <View style={styles.upperHalf}>
 
@@ -235,6 +305,20 @@ const AmountCollectScreen = () => {
         </View>
 
         <View style={styles.lowerHalf}>
+          {/* <TouchableHighlight
+            onPress={handleRefresh}
+            underlayColor="#DDDDDD"
+            style={{
+              paddingVertical: 8,
+              paddingHorizontal: 20,
+              backgroundColor: "#007BFF",
+              borderRadius: 5,
+              marginBottom:Spacing.small
+            }}
+          >
+            <Text style={{ color: "white", fontSize: 14 }}>Refresh</Text>
+          </TouchableHighlight> */}
+
           <ArriveButton
             onPress={Complete_Order}
             buttonText={'Cash Collected'}

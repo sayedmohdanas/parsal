@@ -33,9 +33,10 @@ import {
   setnextOrderData,
   setupdate_order,
 } from '../../redux/HitApis/HitApiSlice';
-import {successToast} from '../../common/CommonFunction';
+import {errorToast, successToast} from '../../common/CommonFunction';
 import Loading from '../../components/Loading/Loading';
 import database from '@react-native-firebase/database';
+import CancelRideModal from '../../components/CancelRideModal/CancelRideModal';
 const sendDummyDataToFirebase = async (data, message, type) => {
   try {
     // Prepare your dummy data payload
@@ -81,7 +82,14 @@ const DriverArriveCard = ({trip, isReachedPickup, nextId}) => {
   const handleSlideComplete = () => {
     setIsSlid(true);
   };
-  // Memoized function to avoid re-creating due to re-renders
+  const [selectedReason, setSelectedReason] = useState(''); // Store the selected reason
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const showModal = () => setModalVisible(true);
+  const hideModal = () => {
+    setModalVisible(false);
+    setSelectedReason(''); // Reset reason when modal is closed
+  };  // Memoized function to avoid re-creating due to re-renders
   const getOrderStatus = useCallback(
     (orderData, orderId) => {
       const orderDataId = orderData?.newOrder?.id || orderData?.id;
@@ -112,6 +120,8 @@ const DriverArriveCard = ({trip, isReachedPickup, nextId}) => {
       console.error('Connection error:', error);
     });
     const handleOrderCancel = data => {
+      ////// toast
+      errorToast('Ride Cancelled', 'The customer has cancelled the ride.');
       const {orderId} = data;
       const canceledOrderStatus = getOrderStatus(orderData, orderId);
 
@@ -194,74 +204,119 @@ const DriverArriveCard = ({trip, isReachedPickup, nextId}) => {
       }
     } catch (error) {}
   };
+  // const handleCancelRequest = async () => {
+  //   try {
+  //     setLoadig(true);
+  //     Alert.alert(
+  //       'Cancel Order',
+  //       'Are you sure you want to cancel this order?',
+  //       [
+  //         {
+  //           text: 'No', // Do nothing on "No"
+  //           onPress: () => console.log('Cancel Pressed'),
+  //           style: 'cancel',
+  //         },
+  //         {
+  //           text: 'Yes',
+  //           onPress: async () => {
+  //             // Handle the order cancellation logic here
+  //             successToast('Successfull', 'Order Cancel');
+  //             dispatch(setupdate_order(null));
+  //             const param = {
+  //               order_id: orderData?.newOrder?.id || orderData?.id,
+  //             };
+  //             const res = await hitCancelOrder(param);
+
+  //             if (res) {
+  //               socket.emit('cancel_order', {
+  //                 userId: orderData?.newOrder?.cust_id || orderData?.cust_id,
+  //                 orderId: 'order789',
+  //                 role: 'driver',
+  //                 reason: selectedReason
+  //               });
+  //               if (nextOrderData) {
+  //                 dispatch(setOrderData(nextOrderData));
+  //                 dispatch(setupdate_order(null));
+  //                 dispatch(setnextOrderData(null));
+  //                 sendDummyDataToFirebase(
+  //                   orderData?.newOrder|| orderData,
+  //                   'Order Cancel',
+  //                   3,
+  //                 );
+
+  //                 return;
+  //               }
+            
+  //               sendDummyDataToFirebase(
+  //                 orderData?.newOrder || orderData,
+  //                 'Order Cancel',
+  //                 3,
+  //               );
+  //               setshowotp(false);
+  //               dispatch(setlivetripmenu(false));
+  //               dispatch(setOrderData(null));
+  //               dispatch(setupdate_order(null));
+  //               navigation.goBack('');
+  //             }
+
+  //             // Call API to cancel the order or update state
+  //           },
+  //         },
+  //       ],
+  //       {cancelable: false}, // Prevent closing the alert by tapping outside
+  //     );
+  //   } catch (error) {
+  //     Alert.alert('Error', 'Something wwent wrong');
+  //     console.error(error);
+  //   } finally {
+  //     setLoadig(false);
+  //   }
+  // };
+  
   const handleCancelRequest = async () => {
     try {
-      setLoadig(true);
-      Alert.alert(
-        'Cancel Order',
-        'Are you sure you want to cancel this order?',
-        [
-          {
-            text: 'No', // Do nothing on "No"
-            onPress: () => console.log('Cancel Pressed'),
-            style: 'cancel',
-          },
-          {
-            text: 'Yes',
-            onPress: async () => {
-              // Handle the order cancellation logic here
-              successToast('Successfull', 'Order Cancel');
-              dispatch(setupdate_order(null));
-              const param = {
-                order_id: orderData?.newOrder?.id || orderData?.id,
-              };
-              const res = await hitCancelOrder(param);
+        setLoadig(true);
+        // Show success toast before making API call
+        successToast('Successful', 'Order Cancel');
+        dispatch(setupdate_order(null));
 
-              if (res) {
-                socket.emit('cancel_order', {
-                  userId: orderData?.newOrder?.cust_id || orderData?.cust_id,
-                  orderId: 'order789',
-                  role: 'driver',
-                  reason: 'Customer requested cancellation',
-                });
-                if (nextOrderData) {
-                  dispatch(setOrderData(nextOrderData));
-                  dispatch(setupdate_order(null));
-                  dispatch(setnextOrderData(null));
-                  sendDummyDataToFirebase(
-                    orderData?.newOrder|| orderData,
-                    'Order Cancel',
-                    3,
-                  );
+        const param = {
+            order_id: orderData?.newOrder?.id || orderData?.id,
+        };
+        const res = await hitCancelOrder(param);
 
-                  return;
-                }
-            
-                sendDummyDataToFirebase(
-                  orderData?.newOrder || orderData,
-                  'Order Cancel',
-                  3,
-                );
-                setshowotp(false);
-                dispatch(setlivetripmenu(false));
-                dispatch(setOrderData(null));
+        if (res) {
+            socket.emit('cancel_order', {
+                userId: orderData?.newOrder?.cust_id || orderData?.cust_id,
+                orderId: 'order789',
+                role: 'driver',
+                reason: selectedReason
+            });
+
+            if (nextOrderData) {
+                dispatch(setOrderData(nextOrderData));
                 dispatch(setupdate_order(null));
-                navigation.goBack('');
-              }
+                dispatch(setnextOrderData(null));
+                sendDummyDataToFirebase(orderData?.newOrder || orderData, 'Order Cancel', 3);
+                return;
+            }
 
-              // Call API to cancel the order or update state
-            },
-          },
-        ],
-        {cancelable: false}, // Prevent closing the alert by tapping outside
-      );
+            sendDummyDataToFirebase(orderData?.newOrder || orderData, 'Order Cancel', 3);
+            setshowotp(false);
+            dispatch(setlivetripmenu(false));
+            dispatch(setOrderData(null));
+            dispatch(setupdate_order(null));
+            navigation.goBack('');
+        }
     } catch (error) {
-      Alert.alert('Error', 'Something wwent wrong');
-      console.error(error);
+        console.error(error);
+        Alert.alert('Error', 'Something went wrong');
     } finally {
-      setLoadig(false);
+        setLoadig(false);
     }
-  };
+};
+
+  
   const onArrived = () => {
     const param = {
       order_id: orderData?.newOrder?.id || orderData?.id,
@@ -297,7 +352,8 @@ const DriverArriveCard = ({trip, isReachedPickup, nextId}) => {
           <Text style={styles.buttonText}>{'Chat'}</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={handleCancelRequest}
+          onPress={showModal}
+          
           style={styles.chatButton}>
           <Image
             source={AppImages.crossIcon}
@@ -307,7 +363,13 @@ const DriverArriveCard = ({trip, isReachedPickup, nextId}) => {
           <Text style={styles.buttonText}>{'Cancel'}</Text>
         </TouchableOpacity>
       </View>
-
+      <CancelRideModal 
+        visible={modalVisible} 
+        hideModal={hideModal} 
+        selectedReason={selectedReason}
+        setSelectedReason={setSelectedReason}
+        handleCancelOrder={handleCancelRequest} 
+      />
       {showotp && (
         <View style={styles.otpInputContainer}>
           <TextInput

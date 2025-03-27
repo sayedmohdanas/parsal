@@ -6,6 +6,7 @@ import {
   addVehicle,
   assignPartnerDriverToVehicleurl,
   cancelOrderurl,
+  checkpaymentstatusurl,
   checkreqstatusurl,
   createPartner,
   createtransactionurl,
@@ -240,3 +241,7 @@ export const hitUpdateDocsApi = param => {
 export const hitCheckUserStatusApi = param => {
   return apiPost(getCheckUserStatusurl, param);
 };
+export const hitcheckpaymentstatusApi = param => {
+  
+  return apiPost(checkpaymentstatusurl, param);
+}

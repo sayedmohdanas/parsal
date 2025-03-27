@@ -126,6 +126,7 @@ export default AppImages = {
   compliant: require('../assets/images/compliant.png'),
   webinar: require('../assets/images/webinar.png'),
   live: require('../assets/images/live.png'),
+  Refresh_Icon: require('../assets/images/Refresh_Icon.png'),
   dash: require('../assets/images/dashboard_2.png'),
   help: require('../assets/images/customer-service.png'),
   addSupport: require('../assets/images/add.png'),

@@ -1,5 +1,5 @@
-import React, {useCallback, useEffect, useState} from 'react';
-import {createStackNavigator} from '@react-navigation/stack';
+import React, { useCallback, useEffect, useState } from 'react';
+import { createStackNavigator } from '@react-navigation/stack';
 import LoginScreen from '../src/screen/LoginScreen';
 import OtpScreen from '../src/screen/OtpScreen';
 import OwnerDetailScreen from '../src/screen/OwnerDetail';
@@ -26,7 +26,7 @@ import AddCashScreen from '../src/screen/DashBoard/screen/Wallet/AddCachScreen';
 import HelpAndSupportChat from '../src/screen/DashBoard/screen/HelpAndSupport/HelpAndSupportChat';
 import HelpAndSupportMain from '../src/screen/HelpAndSupport/HelpAndSupportMain';
 import AddHelpAndSupport from '../src/screen/HelpAndSupport/AddHelpAndSupport';
-import {useDispatch} from 'react-redux';
+import { useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Loading from '../src/components/Loading/Loading';
 import AccountScreen from '../src/screen/AccountScreen/AccountScreen';
@@ -57,6 +57,13 @@ const StackNavigator = () => {
   const navigation = useNavigation();
   const [initialRoute, setInitialRoute] = useState(null);
   const [loading, setLoading] = useState(true);
+
+
+
+
+
+
+
 
   useEffect(() => {
     const checkUserStatus = async () => {

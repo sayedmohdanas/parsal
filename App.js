@@ -360,8 +360,8 @@ export default function App() {
   return (
     <PaperProvider>
       <Provider store={store}>
-        <NotificationListener />
         <NavigationContainer>
+        <NotificationListener />
           <AppStateHandler />
           <StackNavigator />
           <Toast />

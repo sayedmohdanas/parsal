@@ -249,7 +249,6 @@ const DriverMapScreen = ({ route }) => {
   // console.log({ nextStop, isLastStop });
 
   const nextStopIndex = nextStop ? order_stops?.findIndex(stop => stop.id == nextStop.id) : -1;
-  const laststopIndex = nextStop ? order_stops?.findIndex(stop => stop.id == nextStop.id) : -1;
   const [selectedStopIndex, setSelectedStopIndex] = useState(nextStopIndex);
   const destination = {
     latitude: update_order?.is_arrived_pickup == 0 || update_order?.is_arrived_pickup == null

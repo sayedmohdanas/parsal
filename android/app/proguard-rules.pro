@@ -1,10 +1,21 @@
-# Add project specific ProGuard rules here.
-# By default, the flags in this file are appended to flags specified
-# in /usr/local/Cellar/android-sdk/24.3.3/tools/proguard/proguard-android.txt
-# You can edit the include path and order by changing the proguardFiles
-# directive in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# Keep all React Native classes
+-keep class com.facebook.react.** { *; }
+-keep class com.swmansion.** { *; }
+-keep class com.airbnb.android.react.maps.** { *; }
 
-# Add any project specific keep options here:
+# Keep all serialized classes
+-keepclassmembers class * implements java.io.Serializable { *; }
+
+# Keep annotated methods (if using libraries that require it)
+-keep @interface com.facebook.react.bridge.ReactMethod
+-keep @interface com.facebook.react.bridge.ReactModule
+-keep @interface com.facebook.react.bridge.ReactPackage
+
+# Keep Razorpay SDK classes
+-keep class com.razorpay.** { *; }
+
+# Keep all annotated members
+-keep @interface proguard.annotation.KeepClassMembers
+-keepclassmembers class * {
+    @proguard.annotation.KeepClassMembers *;
+}
