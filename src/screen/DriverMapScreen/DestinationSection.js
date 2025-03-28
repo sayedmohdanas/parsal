@@ -528,7 +528,7 @@ const DestinationSection = ({ details, onStopIndexChange, selectedStopIndexes })
       partner_id:
         store_data?.parsalPartner?.loginuserdetails?.partner_id ||
         store_data?.parsalPartner?.loginuserdetails?.id,
-      vehicle_type_id: driver_details?.vehicle_type_id,
+      vehicle_type_id: driver_details?.vehicle_type_id || '4',
     };
     hitEndOrderApi(param)
       .then(res => {

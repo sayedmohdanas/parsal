@@ -1,17 +1,13 @@
 import React from 'react';
-import { Modal, View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { Modal, View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import Colors from '../../common/Colors';
 import AppImages from '../../common/AppImages';
 import { Spacing } from '../../common/Theme';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from '../../common/metrices';
 
-const DeliveryModal = ({ visible, address, onDelivered, onCancel, onClose }) => {
+const DeliveryModal = ({ visible, address, onDelivered, onCancel, onClose, deliver_modal_loader }) => {
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-    >
+    <Modal visible={visible} transparent animationType="slide">
       <View style={styles.modalBackground}>
         <View style={styles.modalContainer}>
           {/* Top Section */}
@@ -19,14 +15,11 @@ const DeliveryModal = ({ visible, address, onDelivered, onCancel, onClose }) => 
             <View style={styles.arrivedContainer}>
               <Text style={styles.arrivedText}>I'm Arrived</Text>
               <TouchableOpacity onPress={onCancel} style={styles.crossButton}>
-    <Image 
-      style={styles.crossIcon}
-      source={AppImages.crossIcon}
-    />
-  </TouchableOpacity>
+                <Image style={styles.crossIcon} source={AppImages.crossIcon} />
+              </TouchableOpacity>
             </View>
             <View style={styles.stopLabelContainer}>
-              <Text style={styles.stopLabel}>Stop 1</Text>
+              <Text style={styles.stopLabel}>Stop</Text>
             </View>
             <View style={styles.addressRow}>
               <View style={styles.addressContainer}>
@@ -37,8 +30,11 @@ const DeliveryModal = ({ visible, address, onDelivered, onCancel, onClose }) => 
 
           {/* Bottom Section with Delivered Here and Cancel Buttons */}
           <View style={styles.bottomSection}>
-            <TouchableOpacity style={styles.deliveredButton} onPress={onDelivered}>
-              <Text style={styles.buttonText}>Delivered Here</Text>
+            <TouchableOpacity style={styles.deliveredButton} onPress={onDelivered} disabled={deliver_modal_loader}>
+              <View style={styles.buttonContent}>
+                <Text style={styles.buttonText}>Delivered Here</Text>
+                {deliver_modal_loader && <ActivityIndicator size="small" color="#fff" style={styles.loader} />}
+              </View>
             </TouchableOpacity>
             <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
               <Text style={styles.buttonText}>Cancel</Text>
@@ -49,6 +45,10 @@ const DeliveryModal = ({ visible, address, onDelivered, onCancel, onClose }) => 
     </Modal>
   );
 };
+
+// Add this style to your styles object
+
+
 
 const styles = StyleSheet.create({
   modalBackground: {
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     height: responsiveHeight(15),
     width: responsiveWidth(15)
   },
-  
+
   stopLabelContainer: {
     marginLeft: responsiveWidth(14),
     marginTop: responsiveHeight(6)
@@ -128,6 +128,14 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: responsiveWidth(5),
     alignItems: 'center'
+  },
+  buttonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  loader: {
+    marginLeft: 10, // Adjust spacing between text and loader
   },
   cancelButton: {
     backgroundColor: Colors.red || 'red',

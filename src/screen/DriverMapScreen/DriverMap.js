@@ -8,6 +8,7 @@ import {
   Easing,
   ActivityIndicator,
   AppState,
+  Alert,
 } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import AppImages from '../../common/AppImages';
@@ -249,6 +250,21 @@ const DriverMapScreen = ({ route }) => {
   // console.log({ nextStop, isLastStop });
 
   const nextStopIndex = nextStop ? order_stops?.findIndex(stop => stop.id == nextStop.id) : -1;
+  const current_destination = {
+    latitude: update_order?.is_arrived_pickup == 0 || update_order?.is_arrived_pickup == null
+      ? Number(orderData?.pickup_lat) ||
+      Number(orderData?.newOrder?.pickup_lat) ||
+      0
+      : Number(order_stops?.[nextStopIndex]?.stop_lat) ||
+      0,
+    longitude: update_order?.is_arrived_pickup == 0 || update_order?.is_arrived_pickup == null
+      ? Number(orderData?.pickup_long) ||
+      Number(orderData?.newOrder?.pickup_long) ||
+      0
+      : Number(order_stops?.[nextStopIndex]?.stop_lng) ||
+      0,
+  };
+
   const [selectedStopIndex, setSelectedStopIndex] = useState(nextStopIndex);
   const destination = {
     latitude: update_order?.is_arrived_pickup == 0 || update_order?.is_arrived_pickup == null
@@ -401,53 +417,11 @@ const DriverMapScreen = ({ route }) => {
   }, [nextOrderData, nextordermodal]);
 
 
-  // useEffect(() => {
-  //   let timeoutId;
-
-  //   // Update smoothedOrigin with a delay
-  //   if (latLOng) {
-  //     timeoutId = setTimeout(() => {
-  //       setSmoothedOrigin({
-  //         latitude: latLOng.latitude,
-  //         longitude: latLOng.longitude,
-  //       });
-  //     }, 500); // Adjust delay as needed
-  //   }
-
-  //   return () => clearTimeout(timeoutId); // Cleanup timeout on component unmount or latLOng change
-  // }, [latLOng]);
 
 
 
-
-
-  // console.log("Next Stop Index:", nextStopIndex);
-  // console.log("Is Last Stop:", isLastStop);
-
-
-  const routeCoordinates = [
-    origin,
-    destination,
-    ...order_stops?.map((item) => ({
-      latitude: Number(item.stop_lat),
-      longitude: Number(item.stop_lng),
-    }))
-  ];
-
-  const formattedStops = order_stops?.map((item) => ({
-    latitude: Number(item.stop_lat),
-    longitude: Number(item.stop_lng),
-  }));
-
-  // Create polyline segments to break at each stop
-  const polylineSegments = [
-    [origin, destination],
-    [destination, formattedStops[0]],
-    [formattedStops[0], formattedStops[1]],
-    [formattedStops[1], formattedStops[2]],
-  ];
   const [stop_modal, setstop_modal] = useState(false)
-  const stop_distance = calculateDistance(origin, destination);
+  const stop_distance = calculateDistance(origin, current_destination);
   useEffect(() => {
     if (
       update_order?.is_arrived_pickup == 1
@@ -478,6 +452,7 @@ const DriverMapScreen = ({ route }) => {
   const driver_details = useSelector(
     state => state?.parsalPartner?.logindriverdetails,
   );
+
   const sendDummyDataToFirebase = async (data, message, type) => {
     try {
       const notificationPayload = {
@@ -487,19 +462,27 @@ const DriverMapScreen = ({ route }) => {
         message: message || 'This is a dummy notification.',
         timestamp: new Date().toISOString(),
         type: type || 1, // Assuming '1' is the type for a rating request
-        stopId: type == 5 && nextStop?.id,
-        order: type == 5 && JSON.stringify(orderData?.newOrder) || JSON.stringify(orderData)
+        stopId: type == 5 ? nextStop?.id : null,
+        order: type == 5 && JSON.stringify(orderData?.newOrder) || JSON.stringify(orderData),
       };
-      // Define the path to send the data
-      const customerPath = `customers/${data?.cust_id}/notifications`;
-      // Send the data to Firebase
-      await database().ref(customerPath).push(notificationPayload);
 
-      console.log('Dummy data sent successfully!');
+      console.log("notificationPayload", notificationPayload);
+
+      const customerPath = `customers/${data?.cust_id}/notifications`;
+      console.log("customerPath", customerPath);
+
+      await database().ref(customerPath).push(notificationPayload).then((res) => {
+        console.log("res", res);
+        console.log('🔥 Dummy data sent successfully to:', customerPath);
+      }).catch((err) => {
+        console.error("Firebase Data error", err);
+      })
+
     } catch (error) {
-      console.error('Error sending dummy data to Firebase:', error);
+      console.error('❌ Error sending dummy data to Firebase:', error.message);
     }
   };
+
   // console.log("nextStop",nextStop);
 
   const socketRef = useRef()
@@ -533,7 +516,7 @@ const DriverMapScreen = ({ route }) => {
       partner_id:
         store_data?.parsalPartner?.loginuserdetails?.partner_id ||
         store_data?.parsalPartner?.loginuserdetails?.id,
-      vehicle_type_id: driver_details?.vehicle_type_id,
+      vehicle_type_id: driver_details?.vehicle_type_id || '4',
     };
     hitEndOrderApi(param)
       .then(res => {
@@ -558,6 +541,8 @@ const DriverMapScreen = ({ route }) => {
         console.log(err);
       });
   };
+  const [deliver_modal_loader, setdeliver_modal_loader] = useState(false)
+
   return (
     <View style={styles.container}>
       {isLoading && (
@@ -693,37 +678,41 @@ const DriverMapScreen = ({ route }) => {
         isVisible={nextordermodal}
         setnextordermodal={setnextordermodal}
       />
-      <DeliveryModal visible={stop_modal} onCancel={() => {
-        setstop_modal(false)
-      }} onClose={() => {
-        setstop_modal(false)
-      }} onDelivered={() => {
-        const param = {
-          stop_id: order_stops?.[selectedStopIndex]?.id,
-          is_complete: true
-        }
-        hitupdateorderstopApi(param).then((res) => {
-          if (res) {
-            updateStopCompletion(nextStop?.id)
-            setstop_modal(false)
-            if (isLastStop) {
-              handleEndTrip()
-              return
-            } else {
-              sendDummyDataToFirebase(
-                orderData?.newOrder || orderData,
-                'Stop Reached',
-                5,
-              );
-              setSelectedStopIndex(selectedStopIndex + 1)
-              return
-            }
+      <DeliveryModal
+        deliver_modal_loader={deliver_modal_loader}
+        visible={stop_modal} onCancel={() => {
+          setstop_modal(false)
+        }} onClose={() => {
+          setstop_modal(false)
+        }} onDelivered={() => {
+          setdeliver_modal_loader(true)
+          const param = {
+            stop_id: order_stops?.[selectedStopIndex]?.id,
+            is_complete: true
           }
-        }).catch((err) => {
-          console.error(err);
-        })
+          hitupdateorderstopApi(param).then((res) => {
+            if (res) {
+              setdeliver_modal_loader(false)
+              updateStopCompletion(nextStop?.id)
+              setstop_modal(false)
+              if (isLastStop) {
+                handleEndTrip()
+                return
+              } else {
+                sendDummyDataToFirebase(
+                  orderData?.newOrder || orderData,
+                  'Stop Reached',
+                  5,
+                );
+                setSelectedStopIndex(selectedStopIndex + 1)
+                return
+              }
+            }
+          }).catch((err) => {
+            console.error(err);
+          })
 
-      }} address={nextStop?.stop_address} />
+        }} address={nextStop?.stop_address} />
     </View>
   );
 };

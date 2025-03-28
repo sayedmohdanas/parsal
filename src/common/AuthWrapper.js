@@ -55,7 +55,7 @@ const AuthWrapper = ({ children }) => {
       <Modal visible={showModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Account Disabled</Text>
+            <Text style={styles.modalTitle}>Account Suspended</Text>
             <Text style={styles.modalMessage}>Your account has been disabled. Please contact support for assistance</Text>
             <TouchableOpacity onPress={handleLogout} style={styles.okButton}>
               <Text style={styles.okButtonText}>OK</Text>
