@@ -274,11 +274,11 @@ const AmountCollectScreen = () => {
   };
   const Total_Fare = order_fare_details?.filter(
     item => parseInt(item?.pay_head_id) === 0,
-  );
+  ); 
   return (
     <>
       <HeaderBackButton
-      headerText={'Cash Collectedss'}
+      headerText={'Amount Collect'}
         onPress={() => navigation.goBack('')}
         rightButton={AppImages.Refresh_Icon}
         onButtonPress={handleRefresh}
@@ -374,7 +374,6 @@ const styles = StyleSheet.create({
 });
 
 export default AmountCollectScreen;
-
 
 
 

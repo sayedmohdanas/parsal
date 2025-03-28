@@ -152,9 +152,7 @@ const NotificationListener = ({ children }) => {
   const { orderData } = useSelector(state => state?.parsalPartner);
   const nextOrderData = useSelector(state => state?.parsalPartner?.nextOrderData);
   const nextId = nextOrderData?.newOrder?.id || nextOrderData?.id;
-
   const nextIdRef = useRef(nextId);
-
   useEffect(() => {
     nextIdRef.current = nextId; // Keep ref updated
   }, [nextId]);
@@ -177,7 +175,6 @@ const NotificationListener = ({ children }) => {
 
           notificationRef.on('child_added', snapshot => {
             const newNotification = snapshot.val();
-            console.log("New Notification:", newNotification);
             showNotificationPopup(newNotification);
 
             // Remove the notification from Firebase after processing it
@@ -202,11 +199,8 @@ const NotificationListener = ({ children }) => {
 
   const getOrderStatus = (orderId) => {
     if (!orderId) return null;
-    console.log("orderData", orderData);
     const orderDataId = orderData?.newOrder?.id ?? orderData?.id;
-    console.log("orderDataId", orderDataId);
     const nextOrderDataId = nextIdRef.current;
-
     if (orderDataId === orderId) return { status: 'first', matchedOrderId: orderDataId };
     if (nextOrderDataId === orderId) return { status: 'next', matchedOrderId: nextOrderDataId };
 
@@ -223,14 +217,7 @@ const NotificationListener = ({ children }) => {
       handleOrderCancel(notification);
     }
     else if (notification.type == 1) {
-      Alert.alert(
-        'Rating Request',
-        'Your trip has ended. Please rate your experience.',
-        [
-          { text: 'Rate Now', onPress: () => console.log('Navigate to rating screen...') },
-          { text: 'Cancel' }
-        ]
-      );
+    
     }
   };
   const showToast = (body, title) => {
@@ -265,7 +252,6 @@ const NotificationListener = ({ children }) => {
 
 
     // if (!canceledOrderStatus) return;
-
     if (canceledOrderStatus?.status === 'first') {
       showToast("Cancel", "Order Cancel")
       if (nextOrderData) {
