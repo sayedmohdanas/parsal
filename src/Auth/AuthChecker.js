@@ -10,7 +10,7 @@ const AuthChecker = () => {
     const dispatch = useDispatch()
     useEffect(() => {
         const checkAuth = async () => {
-     const user = await AsyncStorage.getItem("user");
+     const user = await AsyncStorage.getItem("user");            
 
             console.log('user============>>>>>>',user);
             
@@ -18,7 +18,7 @@ const AuthChecker = () => {
         if (!user) {
                 console.log("Navigating to EnterNumberScreen due to missing customerId");
                 // dispatch(setStatusPending())
-                errorToast('Error', 'Invalid Request');
+                // errorToast('Error', 'Invalid Request');
                 navigation.reset({
                     index: 0,
                     routes: [{ name: "Login" }],

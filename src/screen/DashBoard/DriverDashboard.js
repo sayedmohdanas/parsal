@@ -57,6 +57,10 @@ const DriverDashboard = () => {
     const fetchDriverLocations = async () => {
       try {
         const { latitude, longitude, heading } = await GetDriverCurrentLocation();
+        // console.log(latitude);
+        // console.log(longitude);
+        
+        
         setDriverLocation({ latitude, longitude, heading });
       } catch (error) {
         console.error('Error fetching driver location: ', error);
@@ -312,6 +316,7 @@ const DriverDashboard = () => {
 
   
   return (
+    <>
     <SafeAreaView style={styles.container}>
       {loading ? (
         <Loading loading={loading} /> // my custom loading component
@@ -341,7 +346,6 @@ const DriverDashboard = () => {
                   style={{
                     width: responsiveWidth(37),
                     height: responsiveHeight(37),
-                    // transform: [{rotate: `${driverLocation?.heading}deg`}], // Rotate the bike image
                   }}
                   resizeMode="contain"
                 />
@@ -405,6 +409,7 @@ const DriverDashboard = () => {
         <BottomNav Trip={true} />
       </View>
     </SafeAreaView>
+    </>
   );
 };
 

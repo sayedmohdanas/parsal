@@ -50,7 +50,9 @@ export default function App() {
     tips: '',
     service_city: '',
     stops: [],
-    last_stop_address:''
+    stops_length: '',
+    last_stop_address: '',
+    order_type: '',
   });
   const [timer, setTimer] = useState(15); // Timer state
   // Initialize Firebase with Realtime Database URL
@@ -135,7 +137,10 @@ export default function App() {
       tips = '',
       service_city = '',
       stops = [],
-      last_stop_address = ''
+      stops_length = '',
+      last_stop_address = '',
+      order_type = ''
+
     } = data || {};
     // Update the notification data state
     setNotificationData({
@@ -166,7 +171,9 @@ export default function App() {
       tips,
       service_city,
       stops,
-      last_stop_address
+      stops_length,
+      last_stop_address,
+      order_type
     });
     setModalVisible(true);
     // setTimer(15);
@@ -200,6 +207,7 @@ export default function App() {
     const user = await get_user_data();
 
     if (user?.payload?.driver_id == remoteMessage?.data?.driverId)
+
       try {
         const sentTime = remoteMessage.sentTime;
         const currentTime = Date.now();
@@ -239,7 +247,13 @@ export default function App() {
         console.error('Error handling notification with time check:', error);
       }
   };
-
+  const showToast = (body, title) => {
+    Toast.show({
+      type: 'success', // 'success' | 'error' | 'info'
+      text1: body,
+      text2: title,
+    });
+  };
   useEffect(() => {
     const initialize = async () => {
       try {
@@ -255,6 +269,13 @@ export default function App() {
     initialize();
 
     const handleUserNotification = async remoteMessage => {
+      const { data, notification } = remoteMessage;
+      console.log(remoteMessage);
+      
+      if (remoteMessage && Object.keys(data).length === 0) {
+        showToast(notification?.title, notification?.body);
+      }
+
       try {
         const user = await get_user_data();
         if (user?.payload?.driver_id == remoteMessage?.data?.driverId)
@@ -361,7 +382,7 @@ export default function App() {
     <PaperProvider>
       <Provider store={store}>
         <NavigationContainer>
-        <NotificationListener />
+          <NotificationListener />
           <AppStateHandler />
           <StackNavigator />
           <Toast />
@@ -400,7 +421,9 @@ export default function App() {
             setModalVisible={setModalVisible}
             timer={timer}
             stops={notificationData?.stops}
+            stops_length={notificationData?.stops_length}
             last_stop_address={notificationData?.last_stop_address}
+            order_type={notificationData?.order_type}
           />
         </NavigationContainer>
       </Provider>

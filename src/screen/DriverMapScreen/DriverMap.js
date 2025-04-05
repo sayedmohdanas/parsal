@@ -112,24 +112,32 @@ const DriverMapScreen = ({ route }) => {
 
   const markerPosition = useRef(new Animated.ValueXY()).current;
   const rotationValue = useRef(new Animated.Value(0)).current;
-  const animateMarkerToCoordinate = (coordinate, duration = 1000) => {
-    const roundedCoordinate = {
-      latitude: parseFloat(coordinate.latitude.toFixed(5)),
-      longitude: parseFloat(coordinate.longitude.toFixed(5)),
+  const animateMarkerToCoordinate = (newCoordinate, duration = 3000) => {
+    const lastCoordinate = {
+      latitude: markerPosition.y.__getValue(),
+      longitude: markerPosition.x.__getValue(),
     };
-    Animated.timing(markerPosition, {
-      toValue: { x: roundedCoordinate.longitude, y: roundedCoordinate.latitude },
-      duration,
-      easing: Easing.linear,
-      useNativeDriver: false,
-    }).start();
+
+    const distance = calculateDistance(lastCoordinate, newCoordinate);
+
+    // Ensure marker moves only when distance > 5 meters
+    if (distance > 5) {
+      markerPosition.stopAnimation();
+      Animated.timing(markerPosition, {
+        toValue: { x: newCoordinate.longitude, y: newCoordinate.latitude },
+        duration: duration, // 3 seconds transition
+        easing: Easing.linear,
+        useNativeDriver: false,
+      }).start();
+    }
   };
+
 
   const rotateMarker = newHeading => {
     Animated.timing(rotationValue, {
       toValue: newHeading,
-      duration: 500,
-      easing: Easing.linear,
+      duration: 1000,
+      // easing: Easing.linear,
       useNativeDriver: false,
     }).start();
     setHeading(newHeading);
@@ -166,8 +174,13 @@ const DriverMapScreen = ({ route }) => {
         }
         const newCoordinate = { latitude, longitude, heading };
 
-        animateMarkerToCoordinate(newCoordinate, 1000);
-        rotateMarker(heading);
+        // Move only if distance > 5 meters
+        if (calculateDistance({ latitude: markerPosition.y.__getValue(), longitude: markerPosition.x.__getValue() }, newCoordinate) > 5) {
+          animateMarkerToCoordinate(newCoordinate, 3000);
+          rotateMarker(heading);
+        }
+
+
       } catch (error) {
         console.error('Error fetching location:', error);
       }
@@ -175,7 +188,7 @@ const DriverMapScreen = ({ route }) => {
 
     if (isFocused) {
       fetchLocation();
-      intervalId = setInterval(fetchLocation, 1000);
+      intervalId = setInterval(fetchLocation, 3000);
     }
     const appStateListener = AppState.addEventListener(
       'change',
@@ -218,7 +231,7 @@ const DriverMapScreen = ({ route }) => {
         if (calculateDistance(origin, destination) < 50) {
           successToast('Success', 'You reached the destination!');
         }
-      }, 1000);
+      }, 3000);
     }
     setAppState(nextAppState);
   };
@@ -588,7 +601,6 @@ const DriverMapScreen = ({ route }) => {
             anchor={ANCHOR}
             centerOffset={CENTEROFFSET}
             flat={true}
-            // tracksViewChanges={false}
             style={{
               transform: [
                 {
@@ -605,6 +617,7 @@ const DriverMapScreen = ({ route }) => {
               resizeMode="contain"
             />
           </AnimatedMarker>
+
         ) : null}
 
         <Marker onPress={() => {

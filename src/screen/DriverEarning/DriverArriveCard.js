@@ -275,46 +275,46 @@ const DriverArriveCard = ({trip, isReachedPickup, nextId}) => {
   
   const handleCancelRequest = async () => {
     try {
-        setLoadig(true);
+      setLoadig(true);
         // Show success toast before making API call
         successToast('Successful', 'Order Cancel');
-        dispatch(setupdate_order(null));
+              dispatch(setupdate_order(null));
 
-        const param = {
-            order_id: orderData?.newOrder?.id || orderData?.id,
-        };
-        const res = await hitCancelOrder(param);
+              const param = {
+                order_id: orderData?.newOrder?.id || orderData?.id,
+              };
+              const res = await hitCancelOrder(param);
 
-        if (res) {
-            socket.emit('cancel_order', {
-                userId: orderData?.newOrder?.cust_id || orderData?.cust_id,
-                orderId: 'order789',
-                role: 'driver',
+              if (res) {
+                socket.emit('cancel_order', {
+                  userId: orderData?.newOrder?.cust_id || orderData?.cust_id,
+                  orderId: 'order789',
+                  role: 'driver',
                 reason: selectedReason
-            });
+                });
 
-            if (nextOrderData) {
-                dispatch(setOrderData(nextOrderData));
-                dispatch(setupdate_order(null));
-                dispatch(setnextOrderData(null));
+                if (nextOrderData) {
+                  dispatch(setOrderData(nextOrderData));
+                  dispatch(setupdate_order(null));
+                  dispatch(setnextOrderData(null));
                 sendDummyDataToFirebase(orderData?.newOrder || orderData, 'Order Cancel', 3);
-                return;
-            }
-
+                  return;
+                }
+            
             sendDummyDataToFirebase(orderData?.newOrder || orderData, 'Order Cancel', 3);
-            setshowotp(false);
-            dispatch(setlivetripmenu(false));
-            dispatch(setOrderData(null));
-            dispatch(setupdate_order(null));
-            navigation.goBack('');
-        }
+                setshowotp(false);
+                dispatch(setlivetripmenu(false));
+                dispatch(setOrderData(null));
+                dispatch(setupdate_order(null));
+                navigation.goBack('');
+              }
     } catch (error) {
-        console.error(error);
+      console.error(error);
         Alert.alert('Error', 'Something went wrong');
     } finally {
-        setLoadig(false);
+      setLoadig(false);
     }
-};
+  };
 
   
   const onArrived = () => {

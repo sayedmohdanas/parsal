@@ -1149,15 +1149,7 @@ const Earning = () => {
   const transformedData = useMemo(() => {
     return transformDriverData(driver_todays_earning);
   }, [driver_todays_earning, selectedRange]);
-  console.log(
-    'check_data?.individualPaidAmounts?.length',
-    check_data?.individualPaidAmounts?.length,
-  );
-  console.log(
-    'driverData?.totalPaidAmount',
-    driverData?.individualPaidAmounts?.length,
-  );
-
+ 
   return (
     <>
       <SafeAreaView style={{flex: 1, backgroundColor: Colors.homeBackground}}>

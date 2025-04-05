@@ -88,7 +88,7 @@ const LoginScreen = ({ navigation, route }) => {
                 errorToast('Action Required', 'Driver is either not found or deactivated');
               }
             } else {
-              if (partner_status == 1) {
+              if (partner_status !=3 || partner_status !=2) {
                 successToast('Success', `OTP has been sent successfully to ${number}`);
                 navigation.replace('Otp', { number });
               } else {

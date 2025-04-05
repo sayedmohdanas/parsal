@@ -87,42 +87,45 @@ const NotificationModal = ({
   const pay_mode = 'cash';
   const payment_status = '0';
   const store_data = useSelector(state => state?.parsalPartner);
-  const socketRef = useRef(null); // Use ref to persist socket instance
+  // const socketRef = useRef(null); // Use ref to persist socket instance
+
+  const socketRef = useRef(null);
 
   useEffect(() => {
     const initializeSocket = async () => {
       try {
-        if (!socketRef.current) { // Prevent multiple connections
+        if (!socketRef.current) {
           const user = await AsyncStorage.getItem('user');
           const parsedUser = JSON.parse(user);
           const user_data = parsedUser?.payload?.driver_id;
   
           socketRef.current = io(socketUrl, {
-            transports: ['websocket'], // Ensuring WebSocket connection
-            reconnection: true, // Enable automatic reconnection
-            reconnectionAttempts: 5, // Number of reconnection attempts
-            reconnectionDelay: 3000, // Delay between attempts
+            transports: ['websocket'],
+            reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 3000,
           });
   
-          // Ensure the socket is connected before emitting
           socketRef.current.once('connect', () => {
             console.log('Connected to socket server');
   
-            if (socketRef.current) {
-              socketRef.current.emit('registerUser', {
-                userId: driverId || user_data,
-                role: 'driver',
-              });
-            }
+            socketRef.current.emit('registerUser', {
+              userId: driverId || user_data,
+              role: 'driver',
+            });
           });
   
           socketRef.current.on('order_accepted', data => {
             console.log('Order accepted status received:', data);
-            setModalVisible(false);
+            setModalVisible(false); // This could trigger unmount
           });
   
-          socketRef.current.on('disconnect', () => {
-            console.log('Socket disconnected');
+          socketRef.current.on('disconnect', reason => {
+            console.log('Socket disconnected. Reason:', reason);
+          });
+  
+          socketRef.current.on('connect_error', error => {
+            console.log('Socket connection error:', error);
           });
         }
       } catch (error) {
@@ -130,20 +133,71 @@ const NotificationModal = ({
       }
     };
   
-    if (isVisible) {
-      initializeSocket();
-    }
+    initializeSocket();
   
+    // Only disconnect on full component unmount
     return () => {
       if (socketRef.current) {
         socketRef.current.disconnect();
-        socketRef.current = null; // Reset socketRef on cleanup
+        socketRef.current = null;
       }
     };
-  }, [isVisible, driverId]);
-  
+  }, []); 
 
   // Handle order acceptance
+  
+  // useEffect(() => {
+  //   const initializeSocket = async () => {
+  //     try {
+  //       if (!socketRef.current) { // Prevent multiple connections
+  //         const user = await AsyncStorage.getItem('user');
+  //         const parsedUser = JSON.parse(user);
+  //         const user_data = parsedUser?.payload?.driver_id;
+  
+  //         socketRef.current = io(socketUrl, {
+  //           transports: ['websocket'],
+  //           reconnection: true,
+  //           reconnectionAttempts: 5,
+  //           reconnectionDelay: 3000,
+  //         });
+  
+  //         socketRef.current.once('connect', () => {
+  //           console.log('Connected to socket server');
+  //           socketRef.current?.emit('registerUser', {
+  //             userId: driverId || user_data,
+  //             role: 'driver',
+  //           });
+  //         });
+  
+  //         socketRef.current.on('order_accepted', data => {
+  //           console.log('Order accepted status received:', data);
+  //           setModalVisible(false);
+  //         });
+  
+  //         socketRef.current.on('disconnect', () => {
+  //           console.log('Socket disconnected, attempting to reconnect...');
+  //         });
+  
+  //         socketRef.current.on('connect_error', (error) => {
+  //           console.error('Socket connection error:', error);
+  //         });
+  //       }
+  //     } catch (error) {
+  //       console.error('Error initializing socket:', error);
+  //     }
+  //   };
+  
+  //   initializeSocket();
+  
+  //   return () => {
+  //     if (socketRef.current) {
+  //       console.log('Cleaning up socket connection');
+  //       socketRef.current.disconnect();
+  //       socketRef.current = null;
+  //     }
+  //   };
+  // }, [driverId]); // ✅ Removed `isVisible` dependency
+  
   const handleAccept = async () => {
     try {
       setLoading(true);
@@ -195,7 +249,9 @@ const NotificationModal = ({
         onAccept(res);
 
         // Emit socket event only if connected
+        
         if (socketRef.current && socketRef.current.connected) {
+          console.log('Reconnecting socket before emitting...');
           const resWithOTP = {
             ...res,
             otp: generateNumericOTP(4),

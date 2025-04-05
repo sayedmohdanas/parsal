@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from "react";
-import { Modal, View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Modal, View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { hitCheckUserStatusApi } from "../config/api/api";
@@ -14,21 +14,22 @@ const AuthWrapper = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       const user = await AsyncStorage.getItem("user");
-      const parsedUser = JSON.parse(user);
+        const parsedUser = JSON.parse(user);    
 
       if (!parsedUser) return;
 
-      const params = {
-        type: parsedUser?.payload?.owner_type == 0 ? 0 : 1,
+            const params = {
+                type: parsedUser?.payload?.owner_type == 0 ? 0 : 1,
         user_id:
           parsedUser?.payload?.owner_type == 0
             ? parsedUser?.payload?.driver_id
             : parsedUser?.payload?.partner_id,
       };
-
+            
       const response = await hitCheckUserStatusApi(params);
-
-      if (response?.user_status !== 1) {
+     console.log('user--------status---',response?.user_status);
+     
+      if (response?.user_status == 3 || response?.user_status == 2||parsedUser?.payload?.owner_type == 0 &&response?.user_status == 0) {
         setShowModal(true);
       }
     };
@@ -40,7 +41,7 @@ const AuthWrapper = ({ children }) => {
   }, [navigation]);
 
   const handleLogout = async () => {
-    
+
     await AsyncStorage.removeItem("user");
     setShowModal(false);
     navigation.reset({
