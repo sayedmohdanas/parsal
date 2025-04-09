@@ -27,6 +27,7 @@ import {
   responsiveWidth,
 } from '../../common/metrices';
 import DriverInformation from '../../screen/DashBoard/components/DriverInformation';
+import CancelRideModal from '../CancelRideModal/CancelRideModal';
 let socket;
 const NextOrder = ({isVisible, driverId, onClose, setnextordermodal}) => {
   const dispatch = useDispatch();
@@ -63,64 +64,106 @@ const NextOrder = ({isVisible, driverId, onClose, setnextordermodal}) => {
     return () => {
       if (socket) {
         socket.disconnect();
-        console.log('Socket disconnected');
+        console.log('Socket disconnected'); 
       }
     };
   }, [isVisible, driverId]); // Add driverId as dependency if it's dynamic
 
   const {nextOrderData, orderData} = useSelector(state => state?.parsalPartner);
   const [loading, setLoadig] = useState(false);
-  const handleCancelRequest = async () => {
-    try {
-      setLoadig(true);
-      Alert.alert(
-        'Cancel Order',
-        'Are you sure you want to cancel this order?',
-        [
-          {
-            text: 'No', // Do nothing on "No"
-            onPress: () => console.log('Cancel Pressed'),
-            style: 'cancel',
-          },
-          {
-            text: 'Yes',
-            onPress: async () => {
-              // Handle the order cancellation logic here
-              const param = {
-                order_id: nextOrderData?.id || nextOrderData?.newOrder?.id,
-              };
-              const res = await hitCancelOrder(param);
-              if (res) {
-                socket.emit('cancel_order', {
-                  userId: nextOrderData.cust_id || nextOrderData?.newOrder?.cust_id,
-                  orderId:  nextOrderData?.id || nextOrderData?.newOrder?.id,
-                  role: 'driver',
-                  reason: 'Customer requested cancellation',
-                });
-                setnextordermodal(false);
-                dispatch(setnextOrderData(null));
-                successToast('Successfull', 'Order Cancel');
-              }
+  const [modalVisible, setModalVisible] = useState(false);
+const [selectedReason, setSelectedReason] = useState('');
+const handleCancelRequest = () => {
+  
+  setModalVisible(true); // Open the modal
+  setnextordermodal(false);
 
-              // Call API to cancel the order or update state
-            },
-          },
-        ],
-        {cancelable: false}, // Prevent closing the alert by tapping outside
-      );
-    } catch (error) {
-      Alert.alert('Error', 'Something wwent wrong');
-      console.error(error);
-    } finally {
-      setLoadig(false);
+  console.log('modalVisible========>>>>>>>>>',modalVisible);
+};
+const confirmCancelOrder = async () => {
+  try {
+    // r
+    setLoadig(true);
+    
+    const param = {
+      order_id: nextOrderData?.id || nextOrderData?.newOrder?.id,
+    };
+
+    const res = await hitCancelOrder(param);
+    
+    if (res) {
+      socket.emit('cancel_order', {
+        userId: nextOrderData.cust_id || nextOrderData?.newOrder?.cust_id,
+        orderId: nextOrderData?.id || nextOrderData?.newOrder?.id,
+        role: 'driver',
+        reason: selectedReason || 'Customer requested cancellation',
+      });
+
+      setnextordermodal(false);
+      dispatch(setnextOrderData(null));
+      successToast('Successful', 'Order Cancelled');
     }
-  };
+
+  } catch (error) {
+    Alert.alert('Error', 'Something went wrong');
+    console.error(error);
+  } finally {
+    setModalVisible(false); // Close the modal
+    setLoadig(false);
+  }
+};
+
+  // const handleCancelRequest = async () => {
+  //   try {
+  //     setLoadig(true);
+  //     Alert.alert(
+  //       'Cancel Order',
+  //       'Are you sure you want to cancel this order?',
+  //       [
+  //         {
+  //           text: 'No', // Do nothing on "No"
+  //           onPress: () => console.log('Cancel Pressed'),
+  //           style: 'cancel',
+  //         },
+  //         {
+  //           text: 'Yes',
+  //           onPress: async () => {
+  //             // Handle the order cancellation logic here
+  //             const param = {
+  //               order_id: nextOrderData?.id || nextOrderData?.newOrder?.id,
+  //             };
+  //             const res = await hitCancelOrder(param);
+  //             if (res) {
+  //               socket.emit('cancel_order', {
+  //                 userId: nextOrderData.cust_id || nextOrderData?.newOrder?.cust_id,
+  //                 orderId:  nextOrderData?.id || nextOrderData?.newOrder?.id,
+  //                 role: 'driver',
+  //                 reason: 'Customer requested cancellation',
+  //               });
+  //               setnextordermodal(false);
+  //               dispatch(setnextOrderData(null));
+  //               successToast('Successfull', 'Order Cancel');
+  //             }
+
+  //             // Call API to cancel the order or update state
+  //           },
+  //         },
+  //       ],
+  //       {cancelable: false}, // Prevent closing the alert by tapping outside
+  //     );
+  //   } catch (error) {
+  //     Alert.alert('Error', 'Something wwent wrong');
+  //     console.error(error);
+  //   } finally {
+  //     setLoadig(false);
+  //   }
+  // };
   // console.log('===>', nextOrderData);
   return (
     <>
       <Modal
         transparent={true}
-        visible={isVisible}
+        visible={ isVisible}
         animationType="slide"
         onRequestClose={onClose}>
         <View style={styles.modalBackground}>
@@ -281,6 +324,13 @@ const NextOrder = ({isVisible, driverId, onClose, setnextordermodal}) => {
           </View>
         </View>
       </Modal>
+      <CancelRideModal 
+  visible={modalVisible} 
+  hideModal={() => setModalVisible(false)}
+  selectedReason={selectedReason}
+  setSelectedReason={setSelectedReason}
+  handleCancelOrder={confirmCancelOrder}
+/>
       <Loading loading={loading} />
     </>
   );

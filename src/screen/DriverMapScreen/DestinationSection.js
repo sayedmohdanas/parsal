@@ -639,7 +639,19 @@ const DestinationSection = ({ details, onStopIndexChange, selectedStopIndexes })
               }}>
               LOCATION
             </Text>
+            {/* <TouchableOpacity
+                      // onPress={showModal}
+                      
+                      style={styles.chatButton}>
+                      <Image
+                        source={AppImages.crossIcon}
+                        style={styles.crossIcon}
+                        resizeMode="contain"
+                      />
+                      <Text style={styles.buttonTextCancel}>{'Cancel'}</Text>
+                    </TouchableOpacity> */}
           </View>
+         
         </View>
 
         <View
@@ -701,6 +713,7 @@ const DestinationSection = ({ details, onStopIndexChange, selectedStopIndexes })
                 Navigate Now
               </Text>
             </View>
+            
           </View>
         </View>
 
@@ -766,6 +779,33 @@ const styles = StyleSheet.create({
     // marginRight: 10,
     color: 'black',
     marginLeft: 25,
+  },
+  chatButtonContainer: {
+    flexDirection: 'row',
+    marginTop: responsiveHeight(2),
+    paddingHorizontal: responsiveHeight(15),
+    justifyContent: 'center',
+    gap: 10,
+  },
+  chatButton: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    // backgroundColor: '#F8F8F8',
+    width: '44%',
+    borderRadius: 4,
+    // marginTop: responsiveHeight(6),
+    // paddingHorizontal: responsiveWidth(10),
+    // paddingVertical: responsiveHeight(6),
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    // elevation: 0.5,
+  },
+  crossIcon: {
+    width: responsiveWidth(10),
+    height: responsiveHeight(10),
   },
   otpInput: {
     borderWidth: 1,
@@ -844,6 +884,13 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     marginHorizontal: 5,
     gap: 10,
+  },
+  buttonTextCancel: {
+    fontSize: responsiveFontSize(12),
+    fontWeight: '400',
+    lineHeight: 14.52,
+    color: '#000000',
+    marginLeft: responsiveWidth(5),
   },
   actionButton: {
     backgroundColor: Colors.white,

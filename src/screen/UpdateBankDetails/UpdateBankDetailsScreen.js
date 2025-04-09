@@ -33,9 +33,14 @@ const UpdateBankDetailsScreen = ({ navigation }) => {
         partner_id: partnerId,
         ifsc_code: ifscCode,
         account_no: accountNumber,
+        document_pic:[{
+          img_name: 'bankDocument.png',
+          img_src: bankDocument?.base64 || '', // base64 string already prefixed
+        },]
+
       };
       const response = await hitAddBankAccount(payload);
-      if (response.success) {
+      if (response?.success) {
         successToast('successfully!', 'Bank details added successfully!');
         setAccountNumber('');
         setIfscCode('');

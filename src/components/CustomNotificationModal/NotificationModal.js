@@ -39,6 +39,8 @@ import {
 } from '../../common/metrices';
 import Line from '../Line/Line';
 import CircularProgressComponent from './CircularProgress';
+import database from '@react-native-firebase/database';
+
 let socket;
 const NotificationModal = ({
   setModalVisible,
@@ -87,9 +89,37 @@ const NotificationModal = ({
   const pay_mode = 'cash';
   const payment_status = '0';
   const store_data = useSelector(state => state?.parsalPartner);
-  // const socketRef = useRef(null); // Use ref to persist socket instance
-
   const socketRef = useRef(null);
+
+
+  const sendDummyDataToFirebase = async (data, message, type) => {
+    console.log('data====>', data)
+    try {
+      // Prepare your dummy data payload
+      const notificationPayload = {
+        order_id: data?.newOrder?.id,
+        driver_id: data?.newOrder?.driver_id,
+        customer_id: data?.newOrder?.cust_id,
+        message: message || 'This is a dummy notification.',
+        timestamp: new Date().toISOString(),
+        type: type || 1, // Assuming '1' is the type for a rating request
+        order_data: data
+      };
+      console.log('notificationPayload', notificationPayload);
+      // Define the path to send the data
+      const customerPath = `customers/${data?.newOrder?.cust_id}/notifications`;
+      
+      console.log('customer path=>', customerPath);
+      // Send the data to Firebase
+      await database().ref(customerPath).push(notificationPayload);
+
+      console.log('NOtification data sent successfully!');
+    } catch (error) {
+      console.error('Error sending dummy data to Firebase:', error);
+    }
+  };
+
+
 
   useEffect(() => {
     const initializeSocket = async () => {
@@ -98,32 +128,32 @@ const NotificationModal = ({
           const user = await AsyncStorage.getItem('user');
           const parsedUser = JSON.parse(user);
           const user_data = parsedUser?.payload?.driver_id;
-  
+
           socketRef.current = io(socketUrl, {
             transports: ['websocket'],
             reconnection: true,
             reconnectionAttempts: 5,
             reconnectionDelay: 3000,
           });
-  
+
           socketRef.current.once('connect', () => {
             console.log('Connected to socket server');
-  
+
             socketRef.current.emit('registerUser', {
               userId: driverId || user_data,
               role: 'driver',
             });
           });
-  
+
           socketRef.current.on('order_accepted', data => {
             console.log('Order accepted status received:', data);
             setModalVisible(false); // This could trigger unmount
           });
-  
+
           socketRef.current.on('disconnect', reason => {
             console.log('Socket disconnected. Reason:', reason);
           });
-  
+
           socketRef.current.on('connect_error', error => {
             console.log('Socket connection error:', error);
           });
@@ -132,9 +162,9 @@ const NotificationModal = ({
         console.error('Error initializing socket:', error);
       }
     };
-  
+
     initializeSocket();
-  
+
     // Only disconnect on full component unmount
     return () => {
       if (socketRef.current) {
@@ -142,62 +172,9 @@ const NotificationModal = ({
         socketRef.current = null;
       }
     };
-  }, []); 
+  }, []); // <- only on mount
 
-  // Handle order acceptance
-  
-  // useEffect(() => {
-  //   const initializeSocket = async () => {
-  //     try {
-  //       if (!socketRef.current) { // Prevent multiple connections
-  //         const user = await AsyncStorage.getItem('user');
-  //         const parsedUser = JSON.parse(user);
-  //         const user_data = parsedUser?.payload?.driver_id;
-  
-  //         socketRef.current = io(socketUrl, {
-  //           transports: ['websocket'],
-  //           reconnection: true,
-  //           reconnectionAttempts: 5,
-  //           reconnectionDelay: 3000,
-  //         });
-  
-  //         socketRef.current.once('connect', () => {
-  //           console.log('Connected to socket server');
-  //           socketRef.current?.emit('registerUser', {
-  //             userId: driverId || user_data,
-  //             role: 'driver',
-  //           });
-  //         });
-  
-  //         socketRef.current.on('order_accepted', data => {
-  //           console.log('Order accepted status received:', data);
-  //           setModalVisible(false);
-  //         });
-  
-  //         socketRef.current.on('disconnect', () => {
-  //           console.log('Socket disconnected, attempting to reconnect...');
-  //         });
-  
-  //         socketRef.current.on('connect_error', (error) => {
-  //           console.error('Socket connection error:', error);
-  //         });
-  //       }
-  //     } catch (error) {
-  //       console.error('Error initializing socket:', error);
-  //     }
-  //   };
-  
-  //   initializeSocket();
-  
-  //   return () => {
-  //     if (socketRef.current) {
-  //       console.log('Cleaning up socket connection');
-  //       socketRef.current.disconnect();
-  //       socketRef.current = null;
-  //     }
-  //   };
-  // }, [driverId]); // ✅ Removed `isVisible` dependency
-  
+
   const handleAccept = async () => {
     try {
       setLoading(true);
@@ -249,7 +226,7 @@ const NotificationModal = ({
         onAccept(res);
 
         // Emit socket event only if connected
-        
+
         if (socketRef.current && socketRef.current.connected) {
           console.log('Reconnecting socket before emitting...');
           const resWithOTP = {
@@ -259,6 +236,8 @@ const NotificationModal = ({
             custMobile: cust_mobile,
             vehicle_type_id,
           };
+
+        await  sendDummyDataToFirebase(resWithOTP, 'dummy data to firebase', 6)
 
           socketRef.current.emit('driver_accept', resWithOTP, acknowledgment => {
             console.log('Data sent, acknowledgment:', acknowledgment);
@@ -301,211 +280,6 @@ const NotificationModal = ({
       setLoading(false);
     }
   };
-
-  // useEffect(() => {
-  //   const initializeSocket = async () => {
-  //     try {
-  //       const user = await AsyncStorage.getItem('user');
-  //       const parsedUser = JSON.parse(user);
-  //       const user_data = parsedUser?.payload?.driver_id;
-  //       socket = io(socketUrl); // Replace with your actual socket server URL
-  //       socket.emit('registerUser', {
-  //         userId: driverId || user_data,
-  //         role: 'driver',
-  //       });
-  //       // On successful connection
-  //       socket.on('connect', () => {
-  //         console.log('Connected to socket server');
-  //       });
-  //       // Listen for order_accepted event
-  //       socket.on('order_accepted', data => {
-  //         console.log('Order accepted status received:', data);
-  //         setModalVisible(false); // Close the modal
-  //       });
-  //     } catch (error) {
-  //       console.error('Error initializing socket:', error);
-  //     }
-  //   };
-
-  //   if (isVisible) {
-  //     initializeSocket(); // Call the async function inside useEffect
-  //   }
-
-  //   // Cleanup function to disconnect the socket when the component unmounts
-  //   return () => {
-  //     if (socket) {
-  //       socket.disconnect();
-  //       console.log('Socket disconnected');
-  //     }
-  //   };
-  // }, [isVisible, driverId]); // Add driverId as dependency if it's dynamic
-  // // console.log("stops", JSON.parse(stops));
-
-  // const handleAccept = async () => {
-  //   const user = await AsyncStorage.getItem('user');
-  //   const parsedUser = JSON.parse(user);
-  //   try {
-  //     // Show loading
-  //     setLoading(true);
-  //     const { latitude, longitude } = await GetDriverCurrentLocation();
-
-
-  //     // Create payload
-  //     const payload = {
-  //       pickup_address,
-  //       drop_address,
-  //       vehicle_type_id: vehicle_type_id,
-  //       drop_lat,
-  //       drop_long,
-  //       pickup_lat,
-  //       pickup_long,
-  //       driver_lat: latitude,
-  //       driver_long: longitude,
-  //       vehicle_id: parseInt(vehicle_id),
-  //       cust_id: Number(cust_id),
-  //       driver_id: driverId,
-  //       goods_type_id,
-  //       order_date,
-  //       goods_quantity,
-  //       pay_mode,
-  //       payment_status,
-  //       partner_id: parsedUser?.payload?.partner_id,
-  //       request_id,
-  //       insured,
-  //       loading_unloading: loading_unloading,
-  //       charity,
-  //       receiver_phone,
-  //       receiver_name,
-  //       tips: parseFloat(tips),
-  //       good_type,
-  //       service_city,
-  //       stops: JSON.parse(stops),
-  //       order_type: Number(order_type)
-  //     };
-  //     console.log("payload",payload);
-
-  //     // Pass the payload into the API call
-  //     const res = await hitlPaceOrder(payload); // Your API call function
-  //     console.log("res", res);
-  //     if (res) {
-  //       // Assuming `onAccept` is a callback for successful orders
-  //       onAccept(res);
-
-  //       // Emit the socket event after a successful API call
-  //       if (socket && socket.connected) {
-  //         const resWithOTP = {
-  //           ...res,
-  //           otp: generateNumericOTP(4),
-  //           custName: cust_name,
-  //           custMobile: cust_mobile,
-  //           vehicle_type_id: vehicle_type_id,
-  //         };
-  //         // Emit 'driver_accept' event and send the data
-  //         socket.emit('driver_accept', resWithOTP, acknowledgment => {
-  //           console.log('Data sent, acknowledgment:', acknowledgment);
-  //         });
-  //         const param = {
-  //           order_id: resWithOTP?.newOrder?.id,
-  //           order_otp: resWithOTP?.otp?.toString(),
-  //         };
-  //         hitUpdateOrderOtpApi(param)
-  //           .then(res => {
-  //             console.log(res);
-  //           })
-  //           .catch(err => {
-  //             console.error(err);
-  //           });
-  //         if (store_data?.orderData == null) {
-  //           dispatch(setlivetripmenu(true));
-  //           dispatch(setOrderData(resWithOTP));
-  //           if (store_data?.update_order?.is_arrived_pickup) {
-  //             dispatch(setupdate_order(res?.newOrder));
-  //           }
-  //           navigation.navigate('DriverMap', {
-  //             picklat: payload.pickup_lat,
-  //             pickLong: payload.pickup_long,
-  //             drop_lat: payload.drop_lat,
-  //             drop_long: payload.drop_long,
-  //           });
-  //           return;
-  //         } else {
-  //           dispatch(setlivetripmenu(true));
-  //           dispatch(setnextOrderData(resWithOTP));
-  //           return;
-  //         }
-  //       } else {
-  //         console.error('Socket is not connected.');
-  //       }
-  //     } else {
-  //       Alert.alert('Error', 'Failed to accept order. Please try again.');
-  //       console.error('API Error:', res);
-  //     }
-  //   } catch (error) {
-  //     Alert.alert('Error', 'There was an issue processing your request.');
-  //     console.error('Error hitting API:', error);
-  //   } finally {
-  //     // Hide loading
-  //     setLoading(false);
-  //   }
-  // };
-  // const [user_details, setuser_details] = useState([]);
-  // const get_user_details = async () => {
-  //   const user = await AsyncStorage.getItem('user');
-  //   const parsed_user = JSON.parse(user);
-  //   if (parsed_user?.payload?.owner_type == 0) {
-  //     hitGetDriverDetails({ids: [parsed_user?.payload?.driver_id]})
-  //       .then(res => {
-  //         setuser_details(res?.drivers[0]);
-  //       })
-  //       .catch(err => {
-  //         console.log(err);
-  //       });
-  //   } else {
-  //     hitGetPartner({
-  //       partner_id: parsed_user?.payload?.partner_id,
-  //     })
-  //       .then(res => {
-  //         let userDetails = res?.partner;
-
-  //         if (parsed_user?.payload?.owner_type == 2) {
-  //           hitGetDriverDetails({ids: [parsed_user?.payload?.driver_id]})
-  //             .then(driverRes => {
-  //               const driverDetails = driverRes?.drivers[0];
-  //               if (driverDetails) {
-  //                 // Add the working_status object to the user details
-  //                 userDetails = {
-  //                   ...userDetails,
-  //                   working_status: driverDetails.working_status,
-  //                   vehicle_type_id: driverDetails?.vehicle_type_id,
-  //                 };
-  //               }
-  //               // Update user details with the new object
-
-  //               setuser_details(userDetails);
-  //             })
-  //             .catch(err => {
-  //               console.log(err);
-  //             });
-  //         } else {
-  //           // If owner_type is not 2, just set the partner details
-  //           setuser_details(userDetails);
-  //         }
-  //       })
-  //       .catch(err => {
-  //         console.error(err);
-  //       });
-  //   }
-  // };
-  // useEffect(() => {
-  //   get_user_details();
-  // }, [isEnabled, dispatch]);
-  // const [isEnabled, setIsEnabled] = useState(
-  //   user_details?.working_status == 0 ? false : true,
-  // );
-  // // Update isEnabled whenever user_details changes
-  // useEffect(() => {
-  //   setIsEnabled(user_details?.working_status == 0 ? false : true);
-  // }, [user_details, dispatch]);
 
   return (
     <>

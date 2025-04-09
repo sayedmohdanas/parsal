@@ -146,6 +146,142 @@ import Toast from 'react-native-toast-message';
 // };
 
 // export default NotificationListener;
+
+
+
+
+// const NotificationListener = ({ children }) => {
+//   const dispatch = useDispatch();
+//   const navigation = useNavigation();
+//   const { orderData } = useSelector(state => state?.parsalPartner);
+//   const nextOrderData = useSelector(state => state?.parsalPartner?.nextOrderData);
+//   const nextId = nextOrderData?.newOrder?.id || nextOrderData?.id;
+//   const nextIdRef = useRef(nextId);
+//   useEffect(() => {
+//     nextIdRef.current = nextId; // Keep ref updated
+//   }, [nextId]);
+
+//   useEffect(() => {
+//     let notificationRef = null;
+
+//     const setupListener = async () => {
+//       try {
+//         const user = await AsyncStorage.getItem('user');
+//         const parsedUser = user ? JSON.parse(user) : null;
+
+//         if (!parsedUser?.payload) return;
+
+//         const { owner_type, driver_id } = parsedUser.payload;
+
+//         if ((owner_type === 0 || owner_type === 2) && driver_id) {
+//           const driverPath = `driver/${driver_id}/notifications`;
+//           notificationRef = database().ref(driverPath);
+
+//           notificationRef.on('child_added', snapshot => {
+//             const newNotification = snapshot.val();
+//             showNotificationPopup(newNotification);
+
+//             // Remove the notification from Firebase after processing it
+//             snapshot.ref.remove()
+//               .then(() => console.log("Notification removed from Firebase"))
+//               .catch(error => console.error("Error removing notification:", error));
+//           });
+//         }
+//       } catch (error) {
+//         console.error('Error setting up notification listener:', error);
+//       }
+//     };
+
+//     setupListener();
+
+//     return () => {
+//       if (notificationRef) {
+//         notificationRef.off('child_added');
+//       }
+//     };
+//   }, []);
+
+//   const getOrderStatus = (orderId) => {
+//     if (!orderId) return null;
+//     const orderDataId = orderData?.newOrder?.id ?? orderData?.id;
+//     const nextOrderDataId = nextIdRef.current;
+//     if (orderDataId === orderId) return { status: 'first', matchedOrderId: orderDataId };
+//     if (nextOrderDataId === orderId) return { status: 'next', matchedOrderId: nextOrderDataId };
+
+//     return null;
+//   };
+
+//   const showNotificationPopup = (notification) => {
+//     if (!notification) return;
+
+//     if (notification.type == 4) {
+//       handleCompletedTrip();
+//     }
+//     else if (notification.type == 3) {
+//       handleOrderCancel(notification);
+//     }
+//     else if (notification.type == 1) {
+    
+//     }
+//   };
+//   const showToast = (body, title) => {
+//     Toast.show({
+//       type: 'success', // 'success' | 'error' | 'info'
+//       text1: body,
+//       text2: title,
+//     });
+//   };
+//   const handleCompletedTrip = () => {
+//     if (nextOrderData) {
+//       showToast("Alert", "Payment Successfull");
+//       dispatch(setOrderData(nextOrderData));
+//       dispatch(setupdate_order(null));
+//       dispatch(setnextOrderData(null));
+//       dispatch(setSelectedDriverRedux({ driver_id: orderData?.newOrder?.driver_id || orderData?.driver_id }));
+//       navigation.goBack();
+//     } else {
+//       showToast("Alert", "Payment Successfull");
+//       dispatch(setOrderData(null));
+//       dispatch(setupdate_order(null));
+//       dispatch(setlivetripmenu(false));
+//       dispatch(setSelectedDriverRedux({ driver_id: orderData?.newOrder?.driver_id || orderData?.driver_id }));
+//       navigation.navigate('Earning');
+//     }
+//   };
+
+//   const handleOrderCancel = (notification) => {
+//     const { order_id } = notification;
+//     const canceledOrderStatus = getOrderStatus(order_id);
+
+
+
+//     // if (!canceledOrderStatus) return;
+//     if (canceledOrderStatus?.status === 'first') {
+//       showToast("Cancel", "Order Cancel")
+//       if (nextOrderData) {
+//         dispatch(setOrderData(nextOrderData));
+//         dispatch(setupdate_order(null));
+//         dispatch(setnextOrderData(null));
+//       } else {
+//         dispatch(setOrderData(null));
+//         dispatch(setupdate_order(null));
+//         dispatch(setlivetripmenu(false));
+//         navigation.navigate('OrderScreen');
+//       }
+//     } else if (canceledOrderStatus?.status === 'next') {
+//       dispatch(setnextOrderData(null));
+//     } else {
+//       dispatch(setOrderData(null));
+//       dispatch(setupdate_order(null));
+//       dispatch(setlivetripmenu(false));
+//       navigation.navigate('OrderScreen');
+//     }
+//   };
+
+//   return <>{children}</>;
+// };
+
+
 const NotificationListener = ({ children }) => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -153,6 +289,7 @@ const NotificationListener = ({ children }) => {
   const nextOrderData = useSelector(state => state?.parsalPartner?.nextOrderData);
   const nextId = nextOrderData?.newOrder?.id || nextOrderData?.id;
   const nextIdRef = useRef(nextId);
+
   useEffect(() => {
     nextIdRef.current = nextId; // Keep ref updated
   }, [nextId]);
@@ -173,14 +310,17 @@ const NotificationListener = ({ children }) => {
           const driverPath = `driver/${driver_id}/notifications`;
           notificationRef = database().ref(driverPath);
 
-          notificationRef.on('child_added', snapshot => {
+          notificationRef.on('child_added', async snapshot => {
             const newNotification = snapshot.val();
-            showNotificationPopup(newNotification);
 
-            // Remove the notification from Firebase after processing it
-            snapshot.ref.remove()
-              .then(() => console.log("Notification removed from Firebase"))
-              .catch(error => console.error("Error removing notification:", error));
+            // Immediately remove the notification before processing
+            try {
+              await snapshot.ref.remove();
+              console.log("Notification removed from Firebase");
+              showNotificationPopup(newNotification);
+            } catch (removeErr) {
+              console.error("Error removing notification:", removeErr);
+            }
           });
         }
       } catch (error) {
@@ -210,33 +350,39 @@ const NotificationListener = ({ children }) => {
   const showNotificationPopup = (notification) => {
     if (!notification) return;
 
-    if (notification.type == 4) {
-      handleCompletedTrip();
-    }
-    else if (notification.type == 3) {
-      handleOrderCancel(notification);
-    }
-    else if (notification.type == 1) {
-    
+    switch (notification.type) {
+      case 4:
+        handleCompletedTrip();
+        break;
+      case 3:
+        handleOrderCancel(notification);
+        break;
+      case 1:
+        // handle new ride if needed
+        break;
+      default:
+        console.warn("Unhandled notification type:", notification.type);
     }
   };
+
   const showToast = (body, title) => {
     Toast.show({
-      type: 'success', // 'success' | 'error' | 'info'
+      type: 'success',
       text1: body,
       text2: title,
     });
   };
+
   const handleCompletedTrip = () => {
+    showToast("Alert", "Payment Successful");
+
     if (nextOrderData) {
-      showToast("Alert", "Payment Successfull");
       dispatch(setOrderData(nextOrderData));
       dispatch(setupdate_order(null));
       dispatch(setnextOrderData(null));
       dispatch(setSelectedDriverRedux({ driver_id: orderData?.newOrder?.driver_id || orderData?.driver_id }));
       navigation.goBack();
     } else {
-      showToast("Alert", "Payment Successfull");
       dispatch(setOrderData(null));
       dispatch(setupdate_order(null));
       dispatch(setlivetripmenu(false));
@@ -249,11 +395,9 @@ const NotificationListener = ({ children }) => {
     const { order_id } = notification;
     const canceledOrderStatus = getOrderStatus(order_id);
 
+    showToast("Cancel", "Order Cancelled");
 
-
-    // if (!canceledOrderStatus) return;
     if (canceledOrderStatus?.status === 'first') {
-      showToast("Cancel", "Order Cancel")
       if (nextOrderData) {
         dispatch(setOrderData(nextOrderData));
         dispatch(setupdate_order(null));
@@ -276,6 +420,5 @@ const NotificationListener = ({ children }) => {
 
   return <>{children}</>;
 };
-
-
+  
 export default NotificationListener;

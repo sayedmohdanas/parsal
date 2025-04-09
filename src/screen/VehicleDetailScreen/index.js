@@ -67,21 +67,25 @@ const VehicleDetailScreen = ({ route }) => {
   const [selectedCity, setSelectedCity] = useState(
     UpdatedVehicleData?.operational_city || 'Lucknow',
   );
+  const fuelTypeMap = {
+    0: 'Petrol',
+    1: 'Diesel',
+    2: 'CNG',
+    3: 'Electric',
+  };
   const [selectedFuelType, setSelectedFuelType] = useState(
-    UpdatedVehicleData?.fuel_type === 2
-      ? 'Petrol'
-      : UpdatedVehicleData?.fuel_type === 1
-        ? 'EV'
-        : 0,
+    fuelTypeMap[UpdatedVehicleData?.fuel_type] || ''
   );
+  
+  // const [selectedFuelType, setSelectedFuelType] = useState( UpdatedVehicleData?.fuel_type === 2 ? 'Petrol' : UpdatedVehicleData?.fuel_type === 1  ? 'EV' : 0,);
   const [selectedVehicleModel, setSelectedVehicleModel] = useState(
     UpdatedVehicleData?.vehicle_model || 'Toyota Corolla',
   );
   const [selectedVehicleColor, setSelectedVehicleColor] = useState(
-    UpdatedVehicleData?.vehicle_color || 'Blue',
+    UpdatedVehicleData?.vehicle_color || '',
   );
   const [selectedVehicleName, setSelectedVehicleName] = useState(
-    UpdatedVehicleData?.vehicle_name || 'Corolla',
+    UpdatedVehicleData?.vehicle_name || '',
   );
   const [selectedVehicleCapacity, setSelectedVehicleCapacity] = useState(
     UpdatedVehicleData?.vehicle_capacity || 5,
@@ -95,32 +99,12 @@ const VehicleDetailScreen = ({ route }) => {
 
       if (response?.success) {
         setVehicleDocs(response.data);
-
-        // Initialize uploadedDocs state dynamically
-        // const initialDocs = {};
-        // response?.data?.forEach(doc => {
-        //   initialDocs[doc.id] = UpdatedVehicleData?.[`${doc?.doc_name.toLowerCase()}_image`] || '';
-        // });
-        // initialDocs[4] = { base64: rcUploaded };
-        // initialDocs[5] = { base64: insuranceUploaded };
-        // initialDocs[10] = { base64: pollutionUploaded };
-        // initialDocs[9] = { base64: fitnessUploaded };
-        // console.log('initialDocs=====>>>>>', initialDocs)
-        // setUploadedDocs(initialDocs);
       }
     } catch (error) {
       console.error('Error fetching vehicle docs:', error);
     }
   };
-  // useEffect(() => {
-  //   setUploadedDocs(prev => ({
-  //     ...prev,
-  //     4: { base64: rcUploaded },
-  //     5: { base64: insuranceUploaded },
-  //     10: { base64: pollutionUploaded },
-  //     9: { base64: fitnessUploaded },
-  //   }));
-  // }, [rcUploaded, insuranceUploaded, pollutionUploaded, fitnessUploaded]);
+
 
   const dispatch = useDispatch();
 
@@ -153,52 +137,26 @@ const VehicleDetailScreen = ({ route }) => {
         vehicle_model: selectedVehicleModel,
         status: 0,
         vehicle_color: selectedVehicleColor,
+        // fuel_type:
+        //   selectedFuelType === 'Petrol'
+        //     ? 2
+        //     : selectedFuelType === 'EV'
+        //       ? 1
+        //       : null,
         fuel_type:
-          selectedFuelType === 'Petrol'
-            ? 2
-            : selectedFuelType === 'EV'
-              ? 1
-              : null,
+  Object.keys(fuelTypeMap).find(key => fuelTypeMap[key] === selectedFuelType) ?? null,
+
         vehicle_name: selectedVehicleName,
         vehicle_capacity: selectedVehicleCapacity || 5,
         operational_city: selectedCity ? selectedCity : 'london',
-        // vehicle_docs: [
-        //   {
-        //     partner_id: partnerId,
-        //     doc_id: 3,
-        //     img_name: `${vehicleNumber}_rc.png`,
-        //     img_src: rcUploaded?.base64 || '-',
-        //   },
-        //   {
-        //     partner_id: partnerId,
-        //     doc_id: 5,
-        //     img_name: `${vehicleNumber}_insurance.png`,
-        //     img_src: insuranceUploaded?.base64 || '-',
-        //   },
-        //   {
-        //     partner_id: partnerId,
-        //     doc_id: 10,
-        //     img_name: `${vehicleNumber}_pollution.png`,
-        //     img_src: pollutionUploaded?.base64 || '-',
-        //   },
-        //   {
-        //     partner_id: partnerId,
-        //     doc_id: 9,
-        //     img_name: `${vehicleNumber}_fitness.png`,
-        //     img_src: fitnessUploaded?.base64 || '-',
-        //   },
-        // ],
-        vehicle_docs:uploadData
-        //  vehicleDocs.map(doc => ({
-        //   partner_id: partnerId,
-        //   doc_id: doc.id,
-        //   img_name: `${vehicleNumber}_${doc.doc_name.toLowerCase()}.png`,
-        //   img_src: uploadedDocs[doc.id]?.base64 || '-',
-        // })),
+        mg_src: pollutionUploaded?.base64 || '-',
+
+        vehicle_docs: uploadData
+
 
       };
       // console.log(uploadData);
-      
+
       hitEditParnterVehicle(payload)
         .then(res => {
           if (res?.status) {
@@ -222,42 +180,19 @@ const VehicleDetailScreen = ({ route }) => {
         vehicle_color: selectedVehicleColor,
         status: 0,
 
+        // fuel_type:
+        //   selectedFuelType === 'Petrol'
+        //     ? 2
+        //     : selectedFuelType === 'EV'
+        //       ? 1
+        //       : null,
         fuel_type:
-          selectedFuelType === 'Petrol'
-            ? 2
-            : selectedFuelType === 'EV'
-              ? 1
-              : null,
+  Object.keys(fuelTypeMap).find(key => fuelTypeMap[key] === selectedFuelType) ?? null,
+
         vehicle_name: selectedVehicleName,
         vehicle_capacity: selectedVehicleCapacity || 5,
         operational_city: selectedCity ? selectedCity : 'london',
-        // vehicle_docs: [
-        //   {
-        //     partner_id: partnerId,
-        //     doc_id: 4,
-        //     img_name: `${vehicleNumber}_rc.png`,
-        //     img_src: '-'
-        //     // rcUploaded?.base64 || '',
-        //   },
-        //   {
-        //     partner_id: partnerId,
-        //     doc_id: 5,
-        //     img_name: `${vehicleNumber}_insurance.png`,
-        //     img_src: '-'
-        //   },
-        //   {
-        //     partner_id: partnerId,
-        //     doc_id: 10,
-        //     img_name: `${vehicleNumber}_pollution.png`,
-        //     img_src: '-'
-        //   },
-        // {
-        //   partner_id: partnerId,
-        //   doc_id: 9,
-        //   img_name: `${vehicleNumber}_fitness.png`,
-        //   img_src: '-'
-        // },
-        // ],
+
         vehicle_docs: uploadData,
       };
 
@@ -269,8 +204,11 @@ const VehicleDetailScreen = ({ route }) => {
         payload.vehicle_model
       ) {
         try {
-
+        console.log('anas=======log===>>',payload);
+        
           const resultAction = await dispatch(addVehicle(payload));
+          console.log('resultAction=======log===>>',resultAction);
+
           // if (resultAction.meta.requestStatus === 'fulfilled') {
           if (addVehicle.fulfilled.match(resultAction)) {
             // Alert.alert('Submitted');
@@ -364,9 +302,9 @@ const VehicleDetailScreen = ({ route }) => {
       const selected = vehicle_sub_cat[0]?.list?.find(
         item => item?.vehicle_cat_name === UpdatedVehicleData?.vehicle_cat_name,
       );
-      setselected_vehicle(selected?.id || 1); // Set to the found id or default to 1
+      setselected_vehicle(selected?.id || 1);
     } else {
-      setselected_vehicle(1); // Reset to default if no match
+      setselected_vehicle(1);
     }
   }, [UpdatedVehicleData, vehicle_sub_cat]);
   const isEnabled = UpdatedVehicleData
@@ -379,34 +317,14 @@ const VehicleDetailScreen = ({ route }) => {
       if (doc) {
         initialDocs[doc.doc_id] = {
           img_name: doc.doc_pic,
-          img_src: `path/to/images/${doc.doc_pic}`, // Adjust the path as per your backend setup
+          img_src: `path/to/images/${doc.doc_pic}`,
         };
       }
     });
-    
+
     setUploadedDocs(initialDocs);
   }, [UpdatedVehicleData?.documents]);
-  // const handleImagePick = (docId, image) => {
-  //   const doc = vehicleDocs.find(d => d.id == docId);
-  //   const imgName = `${vehicleNumber}_${doc.doc_name.toLowerCase()}.png`;
-  //   // Extract the necessary data from the image
-  //   const { base64, uri } = image;
-  //   setUploadedDocs((prevState) => ({
-  //     ...prevState,
-  //     [docId]: {
-  //       partner_id: partnerId,
-  //       doc_id: docId,
-  //       img_name: imgName,
-  //       img_src: base64 || uri, // Store base64 if available, otherwise store the uri
-  //     },
-  //   }));
-  //   setuploadData([...uploadData, {
-  //     partner_id: partnerId,
-  //     doc_id: docId,
-  //     img_name: imgName,
-  //     img_src: base64 || uri, // Store base64 if available, otherwise store the uri
-  //   }])
-  // };
+
   const handleImagePick = (docId, image) => {
     const doc = vehicleDocs.find((d) => d.id === docId);
     const imgName = `${vehicleNumber}_${doc.doc_name.toLowerCase()}.png`;
@@ -453,6 +371,7 @@ const VehicleDetailScreen = ({ route }) => {
       <View style={styles.container}>
         <ScrollView style={styles.formContainer}>
           {/* <Heading text="Add RC Details" isRequired={false} /> */}
+       <View  >
 
           <CustomTextInput
             value={vehicleNumber}
@@ -462,33 +381,8 @@ const VehicleDetailScreen = ({ route }) => {
             isRequired={true}
             autoCapitalize="characters"
           />
+       </View>
 
-          {/* <ImagePicker
-            labelText="Vehicle RC"
-            uploaded={rcUploaded}
-            onImagePick={setRcUploaded}
-            useCamera={false}
-          />
-             <ImagePicker
-            labelText="Insurance"
-            uploaded={insuranceUploaded}
-            onImagePick={setInsuranceUploaded}
-            useCamera={false}
-          />
-            <ImagePicker
-            labelText="Pollution"
-            uploaded={pollutionUploaded}
-            onImagePick={setPollutionUploaded}
-            useCamera={false}
-          />
-
-           <ImagePicker
-            labelText="Fintness"
-            uploaded={fitnessUploaded}
-            onImagePick={setFitnessUploaded}
-            useCamera={false}
-            required={false}
-          /> */}
           {vehicleDocs.map((doc) => (
             <ImagePicker
               key={doc.id}
@@ -506,7 +400,44 @@ const VehicleDetailScreen = ({ route }) => {
               selectedCity={selectedCity}
               onSelect={setSelectedCity}
             />
+
           </View>
+
+          <CustomTextInput
+            value={selectedVehicleName}
+            onChangeText={setSelectedVehicleName}
+            placeholder="Vehicle Name"
+            label="Vehicle Name"
+            isRequired={true}
+          />
+               {/* <View style={{ flexDirection: 'row', gap: 8 }}>
+  <View style={{ flex: 1 }}>
+    <CustomTextInput
+      value={vehicleNumber}
+      onChangeText={setVehicleNumber}
+      placeholder="Vehicle Number"
+      label="Vehicle Number"
+      isRequired={true}
+      autoCapitalize="characters"
+    />
+  </View>
+
+  <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+    <Dropdown
+      style={{ height: 45, borderBottomColor: 'black', padding: 8 }}
+      placeholderStyle={{ fontSize: 16, color: 'black' }}
+      selectedTextStyle={{ fontSize: 16, color: 'black' }}
+      inputSearchStyle={{ height: 40, fontSize: 16, color: 'black' }}
+      data={colorOptions}
+      labelField="label"
+      valueField="value"
+      placeholder="Color"
+      value={selectedColor}
+      onChange={(item) => setSelectedColor(item.value)}
+    />
+  </View>
+</View> */}
+
           <Heading text="Select Vehicle Type" isRequired={false} />
           <VehicleTypeSelector
             options={all_vehicle_type}
@@ -542,89 +473,9 @@ const VehicleDetailScreen = ({ route }) => {
                   </>
                 );
               })}
+
           </View>
-          {/* {showVehicleOptions ? (
-            <VehicleTypeSelector
-              options={vehicleOptions}
-              selectedOption={
-                selectedVehicleType ? selectedVehicleType.value : null
-              }
-              onSelect={handleVehicleSelect}
-            />
-          ) : (
-            selectedVehicleType && (
-              <View>
-                <View style={styles.fullWidthCard}>
-                  <Image
-                    source={selectedVehicleType.image}
-                    style={styles.fullWidthImage}
-                    resizeMode="contain"
-                  />
-                  <Text style={styles.vehicleLabel}>
-                    {selectedVehicleType.label}
-                  </Text>
-                  <TouchableOpacity onPress={handleOptionEdit}>
-                    <View style={{padding: 3}}>
-                      <Image source={AppImages.editPen} />
-                    </View>
-                  </TouchableOpacity>
-                </View>
 
-                <Heading
-                  text="Select the vehicle body type"
-                  isRequired={false}
-                />
-                {showVehicleBodyType ? (
-                  <View style={styles.bodyTypeCardFullWidth}>
-                    {bodyTypeOptions.map(option => (
-                      <TouchableOpacity
-                        key={option.value}
-                        style={[
-                          styles.bodyTypeCard,
-                          selectedBodyType?.value === option.value &&
-                            styles.selectedBodyTypeCard,
-                        ]}
-                        onPress={() => handleBodyTypeSelect(option.value)}>
-                        <Image
-                          source={option.image}
-                          resizeMode="contain"
-                          style={styles.fullWidthImage}
-                        />
-                        <Text style={styles.vehicleLabelBodyType}>
-                          {option.label}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                ) : (
-                  selectedBodyType && (
-                    <>
-                      <View>
-                        <View style={styles.fullWidthCard}>
-                          <Image
-                            source={selectedBodyType.image}
-                            style={styles.fullWidthImage}
-                            resizeMode="contain"
-                          />
-                          <Text style={styles.vehicleLabel}>
-                            {selectedBodyType.label}
-                          </Text>
-                          {showEditOption && (
-                            <TouchableOpacity onPress={handleBodyTypeEdit}>
-                              <View style={{padding: 3}}>
-                                <Image source={AppImages.editPen} />
-                              </View>
-                            </TouchableOpacity>
-                          )}
-                        </View>
-                      </View>
-
-                    </>
-                  )
-                )}
-              </View>
-            )
-          )} */}
           {vehicle_sub_cat[0]?.list?.length > 0 && (
             <View>
               <Heading text="Select the vehicle fuel type" isRequired={false} />
@@ -656,8 +507,8 @@ const VehicleDetailScreen = ({ route }) => {
           )}
         </ScrollView>
         <SubmitCard onPress={handleSubmit} isEnabled={isEnabled} />
-        {/* <PageButtons nextScreenName={'MyVehicles'} /> */}
       </View>
+
       <SelectVehicleFuel
         isVisible={isVisible}
         setIsVisible={setIsVisible}
@@ -671,11 +522,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: responsiveWidth(15),
+    paddingBottom:responsiveHeight(55),
     backgroundColor: Colors.homeBackground,
   },
   selected_vehicle: { borderWidth: 1, borderColor: Colors.brandBlue },
   formContainer: {
-    // flex: 1,
     paddingBottom: responsiveHeight(100),
   },
   cityDripDownCard: {
@@ -684,7 +535,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    // borderWidth: 0.2,
     marginBottom: responsiveHeight(8),
   },
   selectFuel: {
@@ -693,7 +543,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    // backgroundColor: 'white',
     backgroundColor: Colors.white,
     marginBottom: responsiveHeight(90),
   },
@@ -701,8 +550,6 @@ const styles = StyleSheet.create({
     paddingVertical: responsiveHeight(20),
     padding: 6,
     borderRadius: 5,
-    // alignItems: 'center',
-    // flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     flex: 1,
@@ -713,7 +560,6 @@ const styles = StyleSheet.create({
   fullWidthImage: {
     width: responsiveFontSize(30),
     height: responsiveFontSize(30),
-    // resizeMode: 'contain',
     marginLeft: 8,
   },
   vehicleLabel: {
@@ -746,7 +592,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
   },
   selectedBodyTypeCard: {
-    // backgroundColor: 'red',
   },
   editButton: {
     fontSize: FontSizes.semiLarge,

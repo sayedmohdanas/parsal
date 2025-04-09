@@ -47,6 +47,7 @@ const sendDummyDataToFirebase = async (data, message, type) => {
       message: message || 'This is a dummy notification.',
       timestamp: new Date().toISOString(),
       type: type || 1, // Assuming '1' is the type for a rating request
+      order_data:data
     };
 
     // Define the path to send the data

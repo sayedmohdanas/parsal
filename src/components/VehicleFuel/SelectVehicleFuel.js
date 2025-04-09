@@ -10,9 +10,12 @@ import { responsiveFontSize, responsiveHeight, responsiveWidth } from '../../com
 
 
 const data = [
-  { label: 'EV', value: 'EV' },
   { label: 'Petrol', value: 'Petrol' },
+  { label: 'Diesel', value: 'Diesel' },
+  { label: 'CNG', value: 'CNG' },
+  { label: 'Electric', value: 'Electric' },
 ];
+
 
 const SelectVehicleFuel = ({ isVisible, setIsVisible, setSelectedFuelType }) => {
   const [selectedOption, setSelectedOption] = useState(null);
