@@ -9,6 +9,7 @@ import messaging from '@react-native-firebase/messaging';
 import NotificationModal from './src/components/CustomNotificationModal/NotificationModal';
 import firebase from '@react-native-firebase/app';
 import {
+  errorToast,
   requestLocationPermission,
   requestNotificationPermission,
 } from './src/common/CommonFunction';
@@ -22,6 +23,8 @@ import { Provider as PaperProvider } from 'react-native-paper';
 import NotificationListener from './NotificationListener';
 import AppStateHandler from './AppStateHandler';
 import AuthChecker from './src/Auth/AuthChecker';
+import NetInfo from '@react-native-community/netinfo';
+import NoInternet from './NoInternet';
 export default function App() {
   const [isModalVisible, setModalVisible] = useState(false);
   const [notificationData, setNotificationData] = useState({
@@ -271,7 +274,7 @@ export default function App() {
     const handleUserNotification = async remoteMessage => {
       const { data, notification } = remoteMessage;
       console.log(remoteMessage);
-      
+
       if (remoteMessage && Object.keys(data).length === 0) {
         showToast(notification?.title, notification?.body);
       }
@@ -378,13 +381,36 @@ export default function App() {
     return () =>
       BackHandler.removeEventListener('hardwareBackPress', backAction);
   }, []);
+  const [isConnected, setIsConnected] = useState(true);
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener(state => {
+      if (!state.isConnected) {
+        // Alert.alert(
+        //   'No Internet Connection',
+        //   'Please check your internet connection.',
+        //   [{ text: 'OK' }],
+        //   { cancelable: false }
+        // );
+        setIsConnected(state.isConnected);
+        errorToast('No Internet Connection', 'Please check your internet connection.');
+      }
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
   return (
     <PaperProvider>
       <Provider store={store}>
         <NavigationContainer>
           <NotificationListener />
           <AppStateHandler />
-          <StackNavigator />
+          {!isConnected ? (
+            <NoInternet />  // Render this when there's no internet
+          ) : (
+            <StackNavigator />
+          )
+          }
           <Toast />
           <AuthChecker />
           <NotificationModal
