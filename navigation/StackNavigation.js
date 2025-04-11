@@ -40,6 +40,7 @@ import StopsMap from '../src/screen/DriverMapScreen/StopsMap';
 import database from '@react-native-firebase/database'; // Correct import
 import AuthWrapper from '../src/common/AuthWrapper';
 import NotificationListener from '../NotificationListener';
+import LedgerDetails from '../src/screen/DashBoard/screen/LedgerDetails';
 const Stack = createStackNavigator();
 
 // const StackNavigator = () => {
@@ -475,6 +476,8 @@ const StackNavigator = () => {
       <Stack.Screen name="UpdateDriver" component={UpdateDriver} />
       <Stack.Screen name="ProfileDetail" component={ProfileDetail} />
       <Stack.Screen name="Ledger" component={LedgerScreen} />
+      <Stack.Screen name="LedgerDetail" component={LedgerDetails} />
+
       {/* Main Screens */}
       <Stack.Screen name="Notification" component={Notification} />
       {/* <Stack.Screen
@@ -483,12 +486,13 @@ const StackNavigator = () => {
         options={{headerShown: false}}
       /> */}
       <Stack.Screen name="MyVehicles">
-        {() => (
+        {({ route, navigation }) => (
           <AuthWrapper>
-            <MyVehiclesScreen />
+            <MyVehiclesScreen route={route} navigation={navigation} />
           </AuthWrapper>
         )}
       </Stack.Screen>
+
       {/* <Stack.Screen
         name="DriverDashboard"
         component={DriverDashboard}
@@ -522,16 +526,17 @@ const StackNavigator = () => {
         )}
       </Stack.Screen>
       <Stack.Screen name="DriverMap">
-        {() => (
+        {({ route, navigation }) => (
           <NotificationListener>
-            <DriverMapScreen />
+            <DriverMapScreen route={route} navigation={navigation} />
           </NotificationListener>
         )}
       </Stack.Screen>
-      <Stack.Screen name="AmountCollected" >
-        {() => (
+
+      <Stack.Screen name="AmountCollected">
+        {({ route, navigation }) => (
           <NotificationListener>
-            <AmountCollectScreen />
+            <AmountCollectScreen route={route} navigation={navigation} />
           </NotificationListener>
         )}
       </Stack.Screen>
