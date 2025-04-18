@@ -28,8 +28,45 @@ import {
 } from '../../common/metrices';
 import DriverInformation from '../../screen/DashBoard/components/DriverInformation';
 import CancelRideModal from '../CancelRideModal/CancelRideModal';
+import database from '@react-native-firebase/database';
+
 let socket;
 const NextOrder = ({isVisible, driverId, onClose, setnextordermodal}) => {
+  const sendDummyDataToFirebase = async (data, message, type) => {
+    // console.log('nextOrder-cancel===>>  data==>',data, 'message===>',message,'type====>', type,);
+    
+    try {
+      // Prepare your dummy data payload
+      const notificationPayload = {
+        order_id: data?.id,
+        driver_id: data?.driver_id,
+        customer_id: data?.cust_id,
+        message: message || 'This is a dummy notification.',
+        timestamp: new Date().toISOString(),
+        type: type || 1, // Assuming '1' is the type for a rating request
+      };
+      // Define the path to send the data
+      const customerPath = `customers/${data?.cust_id}/notifications`;
+      // console.log('cstmr==path==>',customerPath);
+      
+      // Send the data to Firebase
+      // await database().ref(customerPath).push(notificationPayload);
+      await database()
+      .ref(customerPath)
+      .push(notificationPayload)
+      .then(() => {
+        console.log('Dummy data sent successfully via .then()!');
+      })
+      .catch(error => {
+        console.error('Error inside .then():', error);
+      });
+  
+  
+      console.log('Dummy data sent successfully!');
+    } catch (error) {
+      console.error('Error sending dummy data to Firebase:', error);
+    }
+  };
   const dispatch = useDispatch();
   useEffect(() => {
     const initializeSocket = async () => {
@@ -83,7 +120,7 @@ const handleCancelRequest = () => {
 const confirmCancelOrder = async () => {
   try {
     // r
-    setLoadig(true);
+    setLoadig(true); 
     
     const param = {
       order_id: nextOrderData?.id || nextOrderData?.newOrder?.id,
@@ -100,7 +137,10 @@ const confirmCancelOrder = async () => {
       });
 
       setnextordermodal(false);
+      sendDummyDataToFirebase(nextOrderData?.newOrder || nextOrderData, 'Order Cancel', 3);
       dispatch(setnextOrderData(null));
+
+      // navigation.navigate('AmountCollected');
       successToast('Successful', 'Order Cancelled');
     }
 

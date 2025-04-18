@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -18,10 +18,10 @@ import {
 import DriverInformation from '../DashBoard/components/DriverInformation';
 import ArriveButton from '../DashBoard/components/ArriveButton';
 import SlideButton from 'rn-slide-button';
-import {socketUrl} from '../../config/url';
-import {io} from 'socket.io-client';
-import {useDispatch, useSelector} from 'react-redux';
-import {useNavigation} from '@react-navigation/native';
+import { socketUrl } from '../../config/url';
+import { io } from 'socket.io-client';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
 import {
   hitCancelOrder,
   hitDriverArrivedApi,
@@ -33,7 +33,7 @@ import {
   setnextOrderData,
   setupdate_order,
 } from '../../redux/HitApis/HitApiSlice';
-import {errorToast, successToast} from '../../common/CommonFunction';
+import { errorToast, successToast } from '../../common/CommonFunction';
 import Loading from '../../components/Loading/Loading';
 import database from '@react-native-firebase/database';
 import CancelRideModal from '../../components/CancelRideModal/CancelRideModal';
@@ -47,7 +47,7 @@ const sendDummyDataToFirebase = async (data, message, type) => {
       message: message || 'This is a dummy notification.',
       timestamp: new Date().toISOString(),
       type: type || 1, // Assuming '1' is the type for a rating request
-      order_data:data
+      order_data: data
     };
 
     // Define the path to send the data
@@ -62,7 +62,7 @@ const sendDummyDataToFirebase = async (data, message, type) => {
     console.error('Error sending dummy data to Firebase:', error);
   }
 };
-const DriverArriveCard = ({trip, isReachedPickup, nextId}) => {
+const DriverArriveCard = ({ trip, isReachedPickup, nextId }) => {
   const [isArrived, setIsArrived] = useState(false);
   const [isSlid, setIsSlid] = useState(false);
   const navigation = useNavigation();
@@ -96,9 +96,9 @@ const DriverArriveCard = ({trip, isReachedPickup, nextId}) => {
       const orderDataId = orderData?.newOrder?.id || orderData?.id;
       const nextOrderDataId = nextIdRef.current;
       if (orderDataId === orderId) {
-        return {status: 'first', matchedOrderId: orderDataId};
+        return { status: 'first', matchedOrderId: orderDataId };
       } else if (nextOrderDataId === orderId) {
-        return {status: 'next', matchedOrderId: nextOrderDataId};
+        return { status: 'next', matchedOrderId: nextOrderDataId };
       } else {
         return null; // No match found
       }
@@ -123,11 +123,11 @@ const DriverArriveCard = ({trip, isReachedPickup, nextId}) => {
     const handleOrderCancel = data => {
       ////// toast
       errorToast('Ride Cancelled', 'The customer has cancelled the ride.');
-      const {orderId} = data;
+      const { orderId } = data;
       const canceledOrderStatus = getOrderStatus(orderData, orderId);
 
       if (canceledOrderStatus) {
-        const {status} = canceledOrderStatus;
+        const { status } = canceledOrderStatus;
         if (status === 'first') {
           if (nextOrderData) {
             dispatch(setOrderData(nextOrderData));
@@ -203,7 +203,7 @@ const DriverArriveCard = ({trip, isReachedPickup, nextId}) => {
           console.log('Data sent, acknowledgment:', acknowledgment);
         });
       }
-    } catch (error) {}
+    } catch (error) { }
   };
   // const handleCancelRequest = async () => {
   //   try {
@@ -247,7 +247,7 @@ const DriverArriveCard = ({trip, isReachedPickup, nextId}) => {
 
   //                 return;
   //               }
-            
+
   //               sendDummyDataToFirebase(
   //                 orderData?.newOrder || orderData,
   //                 'Order Cancel',
@@ -273,51 +273,51 @@ const DriverArriveCard = ({trip, isReachedPickup, nextId}) => {
   //     setLoadig(false);
   //   }
   // };
-  
+
   const handleCancelRequest = async () => {
     try {
       setLoadig(true);
-        // Show success toast before making API call
-        successToast('Successful', 'Order Cancel');
-              dispatch(setupdate_order(null));
+      // Show success toast before making API call
+      successToast('Successful', 'Order Cancel');
+      dispatch(setupdate_order(null));
 
-              const param = {
-                order_id: orderData?.newOrder?.id || orderData?.id,
-              };
-              const res = await hitCancelOrder(param);
+      const param = {
+        order_id: orderData?.newOrder?.id || orderData?.id,
+      };
+      const res = await hitCancelOrder(param);
 
-              if (res) {
-                socket.emit('cancel_order', {
-                  userId: orderData?.newOrder?.cust_id || orderData?.cust_id,
-                  orderId: 'order789',
-                  role: 'driver',
-                reason: selectedReason
-                });
+      if (res) {
+        socket.emit('cancel_order', {
+          userId: orderData?.newOrder?.cust_id || orderData?.cust_id,
+          orderId: 'order789',
+          role: 'driver',
+          reason: selectedReason
+        });
 
-                if (nextOrderData) {
-                  dispatch(setOrderData(nextOrderData));
-                  dispatch(setupdate_order(null));
-                  dispatch(setnextOrderData(null));
-                sendDummyDataToFirebase(orderData?.newOrder || orderData, 'Order Cancel', 3);
-                  return;
-                }
-            
-            sendDummyDataToFirebase(orderData?.newOrder || orderData, 'Order Cancel', 3);
-                setshowotp(false);
-                dispatch(setlivetripmenu(false));
-                dispatch(setOrderData(null));
-                dispatch(setupdate_order(null));
-                navigation.goBack('');
-              }
+        if (nextOrderData) {
+          dispatch(setOrderData(nextOrderData));
+          dispatch(setupdate_order(null));
+          dispatch(setnextOrderData(null));
+          sendDummyDataToFirebase(orderData?.newOrder || orderData, 'Order Cancel', 3);
+          return;
+        }
+
+        sendDummyDataToFirebase(orderData?.newOrder || orderData, 'Order Cancel', 3);
+        setshowotp(false);
+        dispatch(setlivetripmenu(false));
+        dispatch(setOrderData(null));
+        dispatch(setupdate_order(null));
+        navigation.goBack('');
+      }
     } catch (error) {
       console.error(error);
-        Alert.alert('Error', 'Something went wrong');
+      Alert.alert('Error', 'Something went wrong');
     } finally {
       setLoadig(false);
     }
   };
 
-  
+
   const onArrived = () => {
     const param = {
       order_id: orderData?.newOrder?.id || orderData?.id,
@@ -338,12 +338,11 @@ const DriverArriveCard = ({trip, isReachedPickup, nextId}) => {
     <View style={styles.container}>
       <DriverInformation />
 
-      <View style={styles.chatButtonContainer}>
+      {/* <View style={styles.chatButtonContainer}>
         <TouchableOpacity
           style={styles.chatButton}
           onPress={() => {
-            // Navigate to the Chat screen or handle chat functionality here
-            // navigation.navigate('Chat'); // Replace 'ChatScreen' with your actual chat screen name
+            
           }}>
           <Image
             source={AppImages.messageIcon}
@@ -363,42 +362,72 @@ const DriverArriveCard = ({trip, isReachedPickup, nextId}) => {
           />
           <Text style={styles.buttonText}>{'Cancel'}</Text>
         </TouchableOpacity>
-      </View>
-      <CancelRideModal 
-        visible={modalVisible} 
-        hideModal={hideModal} 
+      </View> */}
+      <CancelRideModal
+        visible={modalVisible}
+        hideModal={hideModal}
         selectedReason={selectedReason}
         setSelectedReason={setSelectedReason}
-        handleCancelOrder={handleCancelRequest} 
+        handleCancelOrder={handleCancelRequest}
       />
       {showotp && (
-        <View style={styles.otpInputContainer}>
-          <TextInput
-            placeholder="Enter OTP"
-            style={styles.otpInput}
-            placeholderTextColor={'#D1D1D1'}
-            keyboardType="decimal-pad"
-            onChangeText={e => {
-              setOtp(e);
-            }}
-            maxLength={4}
-          />
-          <Image
-            source={
-              orderData?.otp == otp ? AppImages.checked : AppImages.pickedIcon
-            }
-            style={styles.otpIcon}
-            resizeMode="contain"
-          />
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <View style={styles.otpInputContainer}>
+            <TextInput
+              placeholder="Enter OTP"
+              style={styles.otpInput}
+              placeholderTextColor={'#D1D1D1'}
+              keyboardType="decimal-pad"
+              onChangeText={e => {
+                setOtp(e);
+              }}
+              maxLength={4}
+            />
+
+            <Image
+              source={
+                orderData?.otp == otp ? AppImages.checked : AppImages.pickedIcon
+              }
+              style={styles.otpIcon}
+              resizeMode="contain"
+            />
+          </View>
+          <TouchableOpacity
+            onPress={showModal}
+            style={{marginRight:responsiveWidth(12),marginTop:responsiveHeight(10)}}
+          >
+
+            <Image
+              source={AppImages.cancelImage}
+              style={styles.icon}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
         </View>
       )}
       <View style={styles.itemContainer}>
         {!isArrived ? (
-          <ArriveButton
-            onPress={onArrived}
-            buttonText={'Arrive'}
-            disabled={!isReachedPickup}
-          />
+          <View style={{ flexDirection: 'row', alignItems: 'center', }}>
+
+
+            <ArriveButton
+              onPress={onArrived}
+              buttonText={'Arrive'}
+              disabled={!isReachedPickup}
+
+            />
+            <TouchableOpacity
+              onPress={showModal}
+
+            >
+
+              <Image
+                source={AppImages.cancelImage}
+                style={styles.icon}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+          </View>
         ) : (
           <View style={styles.slideButtonContainer}>
             <SlideButton
@@ -408,11 +437,13 @@ const DriverArriveCard = ({trip, isReachedPickup, nextId}) => {
               }}
               titleStyle={styles.slideButtonTitle}
               thumbStyle={styles.slideButtonThumb}
-              containerStyle={{backgroundColor: isSlid ? 'red' : '#232323'}}
+              containerStyle={{ backgroundColor: isSlid ? 'red' : '#232323' }}
               onSlideComplete={handleSlideComplete}
               underlayStyle={styles.slideButtonUnderlay}
               disabled={orderData?.otp == otp ? false : true}
             />
+
+
           </View>
         )}
       </View>
@@ -429,7 +460,7 @@ const styles = StyleSheet.create({
     marginBottom: responsiveHeight(1),
     elevation: 1,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
@@ -451,7 +482,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: responsiveWidth(10),
     paddingVertical: responsiveHeight(6),
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     // elevation: 0.5,
@@ -465,6 +496,7 @@ const styles = StyleSheet.create({
   },
   otpInputContainer: {
     borderWidth: 1,
+    flex: 1,
     borderColor: '#D8D8D8',
     marginHorizontal: responsiveWidth(25),
     borderRadius: 10,
@@ -512,8 +544,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#90EE90',
   },
   icon: {
-    width: responsiveWidth(18),
-    height: responsiveHeight(18),
+    width: responsiveWidth(30),
+    height: responsiveHeight(30),
+    marginLeft: responsiveWidth(4)
   },
   crossIcon: {
     width: responsiveWidth(10),

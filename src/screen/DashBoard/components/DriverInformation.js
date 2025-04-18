@@ -103,7 +103,9 @@ const styles = StyleSheet.create({
     width: responsiveWidth(30),
     height: responsiveWidth(30),
     borderRadius: responsiveWidth(6),
-    marginRight: responsiveWidth(3),
+    marginRight: responsiveWidth(-4),
+    // marginLeft:responsiveWidth()
+
   },
   callDetail: {
     flexDirection: 'row',

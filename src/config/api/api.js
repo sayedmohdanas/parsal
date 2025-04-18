@@ -16,6 +16,7 @@ import {
   driverarriveurl,
   driverEaring,
   driverEaringurl,
+  editBankDetails,
   editpartnervehicleurl,
   endtripurl,
   getAllCities,
@@ -25,6 +26,7 @@ import {
   getDoctypes,
   getDriverDetails,
   getDriverTodaysEarningurl,
+  getDriverTransactionsById,
   getLedger,
   getliveorderdataurl,
   getNotification,
@@ -50,6 +52,7 @@ import {
   updateDriverLocationurl,
   updatefcmurl,
   updateOrder,
+  updateOrderDistanceurl,
   updateorderstopurl,
   updateotppurl,
   updateWorkStatusurl,
@@ -118,7 +121,9 @@ export const hitCancelOrder = param => {
 export const hitGetOrderDetails = param => {
   return apiPost(getOrderDetail, param);
 };
-
+export const hitupdateorderDistanceApi = param => {
+  return apiPost(updateOrderDistanceurl, param);
+};
 
 
 export const hitGetAllCities = param => {
@@ -131,6 +136,10 @@ export const hitAddBankAccount = param => {
 };
 export const hitGetBankAccount = param => {
   return apiPost(getBankAccount, param);
+};
+export const hiteEditBankAccount = param => {
+  console.log("payload-from-edit-bank",param)
+  return apiPost(editBankDetails, param);
 };
 export const hitDriverEarning = param => {
   return apiPost(driverEaringurl, param);
@@ -209,6 +218,10 @@ export const hitEndOrderApi = param => {
 };
 export const hitDriverArrivedApi = param => {
   return apiPost(driverarriveurl, param);
+};
+export const hitGetDriverTransactionsById = param => {
+  
+  return apiPost(getDriverTransactionsById, param);
 };
 
 export const hitOrderListApi = param => {

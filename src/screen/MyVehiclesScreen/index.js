@@ -212,250 +212,250 @@
 // });
 
 // export default MyVehiclesScreen;
-
-import React, {useEffect, useState} from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Alert,
-  StyleSheet,
-  Modal,
-} from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
-import {
-  setLogout,
-  setMyVehicleData,
-  setParentId,
-} from '../../redux/HitApis/HitApiSlice';
-import Loading from '../../components/Loading/Loading';
-import VehicleList from './VehicleList';
-import {hitMyVehicle} from '../../config/api/api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import Colors from '../../common/Colors';
-import {
-  responsiveFontSize,
-  responsiveHeight,
-  responsiveWidth,
-} from '../../common/metrices';
-import CustomHeader from '../DashBoard/components/CustomHeader';
-import {useNavigation} from '@react-navigation/native';
-import AppImages from '../../common/AppImages';
-import {successToast} from '../../common/CommonFunction';
-import VehicleVerificationCard from './VehicleVerification';
-const MyVehiclesScreen = ({route}) => {
-  const dispatch = useDispatch();
-  const vehicleData = useSelector(state => state?.parsalPartner?.MyVehicle);
-  const [logoutModalVisible, setLogoutModalVisible] = useState(false);
-  const navigation = useNavigation();
-  const vehicleCount = vehicleData?.length;
-  const [loading, setLoading] = useState(false);
-  const [verifyVisibleCard, setVerifyVisibleCard] = useState(false);
-  const refreshData = async () => {
-    try {
-      const partnerIds = await AsyncStorage.getItem('partner_id');
-      const partnerId = JSON.parse(partnerIds);
-      await dispatch(setParentId(partnerId));
-      hitMyVehicle({partnerId: partnerId})
-        .then(res => {
-          dispatch(setMyVehicleData(res));
-        })
-        .catch(err => {
-          dispatch(setMyVehicleData([]));
-          console.error(err);
-        });
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  // Use focus effect to call refreshData when screen gains focus
-  useEffect(() => {
-    const unsubscribeFocus = navigation.addListener('focus', () => {
-      refreshData();
-    });
-    return () => {
-      unsubscribeFocus();
-    };
-  }, []);
-  // Handle card press
-  const handleCardPress = vehicleId => {
-    navigation.navigate('DriverDetail', {
-      v_id: vehicleId,
-      vehicle_num: vehicleData?.vehicles?.filter(
-        item => item?.id == vehicleId,
-      )[0]?.vehicle_number,
-      onUpdate: refreshData,
-    });
-  };
-  const handleAddBankPress = () => {
-    navigation.navigate('UpdateBankDetails');
-  };
-  const onPress = () => {
-    Alert.alert('Pay Fees Button Pressed');
-  };
-  useEffect(() => {
-    refreshData();
-  }, []);
-  const handleLogout = async () => {
-    try {
-      await AsyncStorage.removeItem('partner_id');
-      await AsyncStorage.removeItem('partner_name');
-      await AsyncStorage.removeItem('user');
-      dispatch(setLogout());
-      successToast(
-        'Logged out successfully',
-        'You will be redirected to login.',
-      );
-      navigation.replace('Login');
-    } catch (error) {
-      console.error(error);
-      errorToast('Logout Failed', 'An error occurred during logout.');
-    }
-  };
-  function isAnyVehicleAssignedToDriver(vehicles) {
-    if (vehicles) return vehicles?.some(vehicle => vehicle.driver_id !== null);
-  }
-  const [selected_vehicle, setselected_vehicle] = useState();
-  return (
-    <>
-      <View style={{height: responsiveHeight(60)}}>
-        <CustomHeader
-          leftimage={
-            route?.params?.login_user
-              ? AppImages.previous
-              : AppImages.logoutImage
-          }
-          rotate={!route?.params?.login_user}
-          screenName={'My Vehicles'}
-          not_show={route?.params?.login_user ? true : false}
-          onPress={() => {
-            if (route?.params?.login_user) {
-              navigation.navigate('Setting');
-            } else {
-              setLogoutModalVisible(prev => !prev);
-            }
-          }}
-        />
-      </View>
-      <View style={styles.container}>
-        {loading ? (
-          <Loading loading={loading} />
-        ) : (
-          <>
-            <VehicleList
-              vehicleData={vehicleData?.vehicles}
-              partnerData={vehicleData?.partner}
-              handleCardPress={handleCardPress}
-              setVerifyVisibleCard={setVerifyVisibleCard}
-              setselected_vehicle={setselected_vehicle}
-              selected_vehicle={selected_vehicle}
-            />
-          </>
-        )}
-        <View style={styles.stickyButtonContainer}>
-          {isAnyVehicleAssignedToDriver(vehicleData?.vehicles) && (
-            <View
-              style={{
-                backgroundColor: Colors.brandBlue,
-                marginBottom: responsiveHeight(10),
-                paddingVertical: responsiveHeight(6),
-                flexDirection: 'row',
-              }}>
-              <Text
-                style={{
-                  marginLeft: responsiveWidth(16),
-                  textDecorationLine: 'underline',
-                  marginRight: 6,
-                  color: 'white',
-                }}
-                onPress={handleAddBankPress}>
-                ADD Bank Account
-              </Text>
-              <Text style={{color: 'white'}}>➙</Text>
-            </View>
-          )}
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              paddingVertical: 10,
-              paddingHorizontal: 16,
-            }}>
-            <TouchableOpacity
-              style={styles.anotherVehicleButton}
-              onPress={() => navigation.navigate('VehicleDetail')}>
-              <Text style={styles.anotherVehicleText}>+</Text>
-              <Text style={styles.anotherVehicleText}>Add Vehicle</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.button,
-                {backgroundColor: vehicleCount > 0 ? '#3D40D1' : '#d3d3d3'},
-              ]}
-              onPress={onPress}
-              disabled={vehicleCount === 0}>
-              <Text style={styles.buttonText}>Pay Fees</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-        {verifyVisibleCard && (
-          <VehicleVerificationCard
-            reject_Data={[
-              ...(selected_vehicle?.vehicle?.documents
-                ?.filter(item => item?.status == 2)
-                ?.map(doc => ({...doc, docType: 'vehicle'})) || []),
-              ...(selected_vehicle?.partner_data?.documents
-                ?.filter(item => item?.status == 2)
-                ?.map(doc => ({...doc, docType: 'partner'})) || []),
-              ...(selected_vehicle?.vehicle?.driver
-                ?.isApproved_driving_license == 2
-                ? [
-                    {
-                      doc_name: 'Driving License',
-                      doc_pic: selected_vehicle?.driver?.driving_license_pic,
-                      docType: 'driver',
-                      id: 3,
-                    },
-                  ]
-                : []),
-            ]}
-            selected_vehicle={selected_vehicle}
-            verifyVisibleCard={verifyVisibleCard}
-            setVerifyVisibleCard={setVerifyVisibleCard}
-            refreshData={refreshData}
-          />
-        )}
-      </View>
-      {/* < VehicleVerificationCard/> */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={logoutModalVisible}
-        onRequestClose={() => setLogoutModalVisible(false)}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalText}>
-              Are you sure you want to logout?
-            </Text>
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                onPress={() => setLogoutModalVisible(false)}
-                style={styles.modalButton}>
-                <Text style={styles.modalButtonText}>No</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => handleLogout()}
-                style={styles.modalButton}>
-                <Text style={styles.modalButtonText}>Yes</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-      {/* < VehicleVerificationCard/> */}
-    </>
-  );
-};
+//---------------------------------------------------------
+// import React, {useEffect, useState} from 'react';
+// import {
+//   View,
+//   Text,
+//   TouchableOpacity,
+//   Alert,
+//   StyleSheet,
+//   Modal,
+// } from 'react-native';
+// import {useDispatch, useSelector} from 'react-redux';
+// import {
+//   setLogout,
+//   setMyVehicleData,
+//   setParentId,
+// } from '../../redux/HitApis/HitApiSlice';
+// import Loading from '../../components/Loading/Loading';
+// import VehicleList from './VehicleList';
+// import {hitMyVehicle} from '../../config/api/api';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
+// import Colors from '../../common/Colors';
+// import {
+//   responsiveFontSize,
+//   responsiveHeight,
+//   responsiveWidth,
+// } from '../../common/metrices';
+// import CustomHeader from '../DashBoard/components/CustomHeader';
+// import {useNavigation} from '@react-navigation/native';
+// import AppImages from '../../common/AppImages';
+// import {successToast} from '../../common/CommonFunction';
+// import VehicleVerificationCard from './VehicleVerification';
+// const MyVehiclesScreen = ({route}) => {
+//   const dispatch = useDispatch();
+//   const vehicleData = useSelector(state => state?.parsalPartner?.MyVehicle);
+//   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
+//   const navigation = useNavigation();
+//   const vehicleCount = vehicleData?.length;
+//   const [loading, setLoading] = useState(false);
+//   const [verifyVisibleCard, setVerifyVisibleCard] = useState(false);
+//   const refreshData = async () => {
+//     try {
+//       const partnerIds = await AsyncStorage.getItem('partner_id');
+//       const partnerId = JSON.parse(partnerIds);
+//       await dispatch(setParentId(partnerId));
+//       hitMyVehicle({partnerId: partnerId})
+//         .then(res => {
+//           dispatch(setMyVehicleData(res));
+//         })
+//         .catch(err => {
+//           dispatch(setMyVehicleData([]));
+//           console.error(err);
+//         });
+//     } catch (error) {
+//       console.log(error);
+//     }
+//   };
+//   // Use focus effect to call refreshData when screen gains focus
+//   useEffect(() => {
+//     const unsubscribeFocus = navigation.addListener('focus', () => {
+//       refreshData();
+//     });
+//     return () => {
+//       unsubscribeFocus();
+//     };
+//   }, []);
+//   // Handle card press
+//   const handleCardPress = vehicleId => {
+//     navigation.navigate('DriverDetail', {
+//       v_id: vehicleId,
+//       vehicle_num: vehicleData?.vehicles?.filter(
+//         item => item?.id == vehicleId,
+//       )[0]?.vehicle_number,
+//       onUpdate: refreshData,
+//     });
+//   };
+//   const handleAddBankPress = () => {
+//     navigation.navigate('UpdateBankDetails');
+//   };
+//   const onPress = () => {
+//     Alert.alert('Pay Fees Button Pressed');
+//   };
+//   useEffect(() => {
+//     refreshData();
+//   }, []);
+//   const handleLogout = async () => {
+//     try {
+//       await AsyncStorage.removeItem('partner_id');
+//       await AsyncStorage.removeItem('partner_name');
+//       await AsyncStorage.removeItem('user');
+//       dispatch(setLogout());
+//       successToast(
+//         'Logged out successfully',
+//         'You will be redirected to login.',
+//       );
+//       navigation.replace('Login');
+//     } catch (error) {
+//       console.error(error);
+//       errorToast('Logout Failed', 'An error occurred during logout.');
+//     }
+//   };
+//   function isAnyVehicleAssignedToDriver(vehicles) {
+//     if (vehicles) return vehicles?.some(vehicle => vehicle.driver_id !== null);
+//   }
+//   const [selected_vehicle, setselected_vehicle] = useState();
+//   return (
+//     <>
+//       <View style={{height: responsiveHeight(60)}}>
+//         <CustomHeader
+//           leftimage={
+//             route?.params?.login_user
+//               ? AppImages.previous
+//               : AppImages.logoutImage
+//           }
+//           rotate={!route?.params?.login_user}
+//           screenName={'My Vehicles'}
+//           not_show={route?.params?.login_user ? true : false}
+//           onPress={() => {
+//             if (route?.params?.login_user) {
+//               navigation.navigate('Setting');
+//             } else {
+//               setLogoutModalVisible(prev => !prev);
+//             }
+//           }}
+//         />
+//       </View>
+//       <View style={styles.container}>
+//         {loading ? (
+//           <Loading loading={loading} />
+//         ) : (
+//           <>
+//             <VehicleList
+//               vehicleData={vehicleData?.vehicles}
+//               partnerData={vehicleData?.partner}
+//               handleCardPress={handleCardPress}
+//               setVerifyVisibleCard={setVerifyVisibleCard}
+//               setselected_vehicle={setselected_vehicle}
+//               selected_vehicle={selected_vehicle}
+//             />
+//           </>
+//         )}
+//         <View style={styles.stickyButtonContainer}>
+//           {isAnyVehicleAssignedToDriver(vehicleData?.vehicles) && (
+//             <View
+//               style={{
+//                 backgroundColor: Colors.brandBlue,
+//                 marginBottom: responsiveHeight(10),
+//                 paddingVertical: responsiveHeight(6),
+//                 flexDirection: 'row',
+//               }}>
+//               <Text
+//                 style={{
+//                   marginLeft: responsiveWidth(16),
+//                   textDecorationLine: 'underline',
+//                   marginRight: 6,
+//                   color: 'white',
+//                 }}
+//                 onPress={handleAddBankPress}>
+//                 ADD Bank Account
+//               </Text>
+//               <Text style={{color: 'white'}}>➙</Text>
+//             </View>
+//           )}
+//           <View
+//             style={{
+//               flexDirection: 'row',
+//               justifyContent: 'space-between',
+//               paddingVertical: 10,
+//               paddingHorizontal: 16,
+//             }}>
+//             <TouchableOpacity
+//               style={styles.anotherVehicleButton}
+//               onPress={() => navigation.navigate('VehicleDetail')}>
+//               <Text style={styles.anotherVehicleText}>+</Text>
+//               <Text style={styles.anotherVehicleText}>Add Vehicle</Text>
+//             </TouchableOpacity>
+//             <TouchableOpacity
+//               style={[
+//                 styles.button,
+//                 {backgroundColor: vehicleCount > 0 ? '#3D40D1' : '#d3d3d3'},
+//               ]}
+//               onPress={onPress}
+//               disabled={vehicleCount === 0}>
+//               <Text style={styles.buttonText}>Pay Fees</Text>
+//             </TouchableOpacity>
+//           </View>
+//         </View>
+//         {verifyVisibleCard && (
+//           <VehicleVerificationCard
+//             reject_Data={[
+//               ...(selected_vehicle?.vehicle?.documents
+//                 ?.filter(item => item?.status == 2)
+//                 ?.map(doc => ({...doc, docType: 'vehicle'})) || []),
+//               ...(selected_vehicle?.partner_data?.documents
+//                 ?.filter(item => item?.status == 2)
+//                 ?.map(doc => ({...doc, docType: 'partner'})) || []),
+//               ...(selected_vehicle?.vehicle?.driver
+//                 ?.isApproved_driving_license == 2
+//                 ? [
+//                     {
+//                       doc_name: 'Driving License',
+//                       doc_pic: selected_vehicle?.driver?.driving_license_pic,
+//                       docType: 'driver',
+//                       id: 3,
+//                     },
+//                   ]
+//                 : []),
+//             ]}
+//             selected_vehicle={selected_vehicle}
+//             verifyVisibleCard={verifyVisibleCard}
+//             setVerifyVisibleCard={setVerifyVisibleCard}
+//             refreshData={refreshData}
+//           />
+//         )}
+//       </View>
+//       {/* < VehicleVerificationCard/> */}
+//       <Modal
+//         animationType="slide"
+//         transparent={true}
+//         visible={logoutModalVisible}
+//         onRequestClose={() => setLogoutModalVisible(false)}>
+//         <View style={styles.modalContainer}>
+//           <View style={styles.modalContent}>
+//             <Text style={styles.modalText}>
+//               Are you sure you want to logout?
+//             </Text>
+//             <View style={styles.modalButtons}>
+//               <TouchableOpacity
+//                 onPress={() => setLogoutModalVisible(false)}
+//                 style={styles.modalButton}>
+//                 <Text style={styles.modalButtonText}>No</Text>
+//               </TouchableOpacity>
+//               <TouchableOpacity
+//                 onPress={() => handleLogout()}
+//                 style={styles.modalButton}>
+//                 <Text style={styles.modalButtonText}>Yes</Text>
+//               </TouchableOpacity>
+//             </View>
+//           </View>
+//         </View>
+//       </Modal>
+//       {/* < VehicleVerificationCard/> */}
+//     </>
+//   );
+// };
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -538,5 +538,270 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  StyleSheet,
+  Modal,
+} from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  partner_bank_account_number,
+  setLogout,
+  setMyVehicleData,
+  setParentId,
+  setPartner_bank_account_number,
+  setPartner_bank_details,
+} from '../../redux/HitApis/HitApiSlice';
+import Loading from '../../components/Loading/Loading';
+import VehicleList from './VehicleList';
+import { hitGetBankAccount, hitMyVehicle } from '../../config/api/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Colors from '../../common/Colors';
+import {
+  responsiveFontSize,
+  responsiveHeight,
+  responsiveWidth,
+} from '../../common/metrices';
+import CustomHeader from '../DashBoard/components/CustomHeader';
+import { useNavigation } from '@react-navigation/native';
+import AppImages from '../../common/AppImages';
+import { successToast } from '../../common/CommonFunction';
+import VehicleVerificationCard from './VehicleVerification';
+const MyVehiclesScreen = ({ route }) => {
+  const dispatch = useDispatch();
+  const partner_bank_details = useSelector(
+    state => state?.parsalPartner?.partner_bank_details
+  );
+  const vehicleData = useSelector(state => state?.parsalPartner?.MyVehicle);
+  const [logoutModalVisible, setLogoutModalVisible] = useState(false);
+  const navigation = useNavigation();
+  const vehicleCount = vehicleData?.length;
+  const [loading, setLoading] = useState(false);
+  const [verifyVisibleCard, setVerifyVisibleCard] = useState(false);
+  const refreshData = async () => {
+    try {
+      const partnerIds = await AsyncStorage.getItem('partner_id');
+      const partnerId = JSON.parse(partnerIds);
+      await dispatch(setParentId(partnerId));
+      hitMyVehicle({ partnerId: partnerId })
+        .then(res => {
+          dispatch(setMyVehicleData(res));
+        })
+        .catch(err => {
+          dispatch(setMyVehicleData([]));
+          console.error(err);
+        });
+      hitGetBankAccount({ partner_id: partnerId })
+        .then(res => {
+          console.log('res---from--bank', res);
+          dispatch(setPartner_bank_details(res.data)); // <- sending only the data
+        })
+        .catch(err => {
+          console.error('eorror===>>', err);
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    console.log('partner_bank_details ===>>>', partner_bank_details);
+  }, [partner_bank_details]);
+  // Use focus effect to call refreshData when screen gains focus
+  useEffect(() => {
+    const unsubscribeFocus = navigation.addListener('focus', () => {
+      refreshData();
+    });
+    return () => {
+      unsubscribeFocus();
+    };
+  }, []);
+  // Handle card press
+  const handleCardPress = vehicleId => {
+    navigation.navigate('DriverDetail', {
+      v_id: vehicleId,
+      vehicle_num: vehicleData?.vehicles?.filter(
+        item => item?.id == vehicleId,
+      )[0]?.vehicle_number,
+      onUpdate: refreshData,
+    });
+  };
+  // const handleAddBankPress = () => {
+  //   navigation.navigate('UpdateBankDetails');
+  // };
+  const handleAddBankPress = (bankData) => {
+    navigation.navigate('UpdateBankDetails', {
+      bankData, // will be undefined if null, or the object if available
+    });
+  };
+  const onPress = () => {
+    Alert.alert('Pay Fees Button Pressed');
+  };
+  useEffect(() => {
+    refreshData();
+  }, []);
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('partner_id');
+      await AsyncStorage.removeItem('partner_name');
+      await AsyncStorage.removeItem('user');
+      dispatch(setLogout());
+      successToast(
+        'Logged out successfully',
+        'You will be redirected to login.',
+      );
+      navigation.replace('Login');
+    } catch (error) {
+      console.error(error);
+      errorToast('Logout Failed', 'An error occurred during logout.');
+    }
+  };
+  function isAnyVehicleAssignedToDriver(vehicles) {
+    if (vehicles) return vehicles?.some(vehicle => vehicle.driver_id !== null);
+  }
+  const [selected_vehicle, setselected_vehicle] = useState();
+  return (
+    <>
+      <View style={{ height: responsiveHeight(60) }}>
+        <CustomHeader
+          leftimage={
+            route?.params?.login_user
+              ? AppImages.previous
+              : AppImages.logoutImage
+          }
+          rotate={!route?.params?.login_user}
+          screenName={'My Vehicles'}
+          not_show={route?.params?.login_user ? true : false}
+          onPress={() => {
+            if (route?.params?.login_user) {
+              navigation.navigate('Setting');
+            } else {
+              setLogoutModalVisible(prev => !prev);
+            }
+          }}
+        />
+      </View>
+      <View style={styles.container}>
+        {loading ? (
+          <Loading loading={loading} />
+        ) : (
+          <>
+            <VehicleList
+              vehicleData={vehicleData?.vehicles}
+              partnerData={vehicleData?.partner}
+              handleCardPress={handleCardPress}
+              setVerifyVisibleCard={setVerifyVisibleCard}
+              setselected_vehicle={setselected_vehicle}
+              selected_vehicle={selected_vehicle}
+            />
+          </>
+        )}
+        <View style={styles.stickyButtonContainer}>
+          {isAnyVehicleAssignedToDriver(vehicleData?.vehicles) && (
+            <View
+              style={{
+                backgroundColor: Colors.brandBlue,
+                marginBottom: responsiveHeight(10),
+                paddingVertical: responsiveHeight(6),
+                flexDirection: 'row',
+              }}>
+              <Text
+                style={{
+                  marginLeft: responsiveWidth(16),
+                  textDecorationLine: 'underline',
+                  marginRight: 6,
+                  color: 'white',
+                }}
+                onPress={() => handleAddBankPress(partner_bank_details)}
+              >
+                {partner_bank_details ? 'Edit Bank Details' : 'ADD Bank Account'}
+              </Text>
+              <Text style={{ color: 'white' }}>➙</Text>
+            </View>
+          )}
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              paddingVertical: 10,
+              paddingHorizontal: 16,
+            }}>
+            <TouchableOpacity
+              style={styles.anotherVehicleButton}
+              onPress={() => navigation.navigate('VehicleDetail')}>
+              <Text style={styles.anotherVehicleText}>+</Text>
+              <Text style={styles.anotherVehicleText}>Add Vehicle</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.button,
+                { backgroundColor: vehicleCount > 0 ? '#3D40D1' : '#D3D3D3' },
+              ]}
+              onPress={onPress}
+              disabled={vehicleCount === 0}>
+              <Text style={styles.buttonText}>Pay Fees</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        {verifyVisibleCard && (
+          <VehicleVerificationCard
+            reject_Data={[
+              ...(selected_vehicle?.vehicle?.documents
+                ?.filter(item => item?.status == 2)
+                ?.map(doc => ({ ...doc, docType: 'vehicle' })) || []),
+              ...(selected_vehicle?.partner_data?.documents
+                ?.filter(item => item?.status == 2)
+                ?.map(doc => ({ ...doc, docType: 'partner' })) || []),
+              ...(selected_vehicle?.vehicle?.driver
+                ?.isApproved_driving_license == 2
+                ? [
+                  {
+                    doc_name: 'Driving License',
+                    doc_pic: selected_vehicle?.driver?.driving_license_pic,
+                    docType: 'driver',
+                    id: 3,
+                  },
+                ]
+                : []),
+            ]}
+            selected_vehicle={selected_vehicle}
+            verifyVisibleCard={verifyVisibleCard}
+            setVerifyVisibleCard={setVerifyVisibleCard}
+            refreshData={refreshData}
+          />
+        )}
+      </View>
+      {/* < VehicleVerificationCard/> */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={logoutModalVisible}
+        onRequestClose={() => setLogoutModalVisible(false)}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>
+              Are you sure you want to logout?
+            </Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                onPress={() => setLogoutModalVisible(false)}
+                style={styles.modalButton}>
+                <Text style={styles.modalButtonText}>No</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => handleLogout()}
+                style={styles.modalButton}>
+                <Text style={styles.modalButtonText}>Yes</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+      {/* < VehicleVerificationCard/> */}
+    </>
+  );
+}
 export default MyVehiclesScreen;

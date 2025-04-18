@@ -475,7 +475,9 @@ const sendDummyDataToFirebase = async (data, message, type) => {
 };
 const DestinationSection = ({ details, onStopIndexChange, selectedStopIndexes }) => {
   const [isSlid, setIsSlid] = useState(false);
-
+  const { current_ride_travel_distance } = useSelector(
+    state => state?.parsalPartner,
+  );
   const navigation = useNavigation();
   const [loading, setLoadig] = useState(false);
   const [address, setAddress] = useState(details?.drop_address || 'N/A');
@@ -529,6 +531,7 @@ const DestinationSection = ({ details, onStopIndexChange, selectedStopIndexes })
         store_data?.parsalPartner?.loginuserdetails?.partner_id ||
         store_data?.parsalPartner?.loginuserdetails?.id,
       vehicle_type_id: driver_details?.vehicle_type_id || '4',
+      distance: current_ride_travel_distance
     };
     hitEndOrderApi(param)
       .then(res => {
@@ -651,7 +654,7 @@ const DestinationSection = ({ details, onStopIndexChange, selectedStopIndexes })
                       <Text style={styles.buttonTextCancel}>{'Cancel'}</Text>
                     </TouchableOpacity> */}
           </View>
-         
+
         </View>
 
         <View
@@ -713,7 +716,7 @@ const DestinationSection = ({ details, onStopIndexChange, selectedStopIndexes })
                 Navigate Now
               </Text>
             </View>
-            
+
           </View>
         </View>
 
@@ -798,7 +801,7 @@ const styles = StyleSheet.create({
     // paddingHorizontal: responsiveWidth(10),
     // paddingVertical: responsiveHeight(6),
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     // elevation: 0.5,

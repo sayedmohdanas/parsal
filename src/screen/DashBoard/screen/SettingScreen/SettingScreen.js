@@ -11,7 +11,7 @@ const SettingScreen = () => {
             {/* Header or Title */}
             <View >
                 <CustomHeader screenName={"Setting"}/>
-                {/* <Text style={styles.headerText}>Settings</Text> */}
+                {/* <Text style={styles.headerText}>Settings</Text> x*/}
             </View>
 
             {/* Settings Content */}

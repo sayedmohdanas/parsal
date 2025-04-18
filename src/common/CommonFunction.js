@@ -420,6 +420,7 @@ export const GetDriverCurrentLocation = () => {
   });
 };
 
+
 // Call this function to first request permission and then get the location
 export async function fetchDriverLocation() {
   const hasPermission = await requestLocationPermission();

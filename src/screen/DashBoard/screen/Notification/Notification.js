@@ -110,44 +110,40 @@ const Notification = () => {
   };
 
   const renderNotificationItem = ({item}) => {
-    // Log the item
-
     return (
       <Swipeable renderRightActions={() => renderRightActions(item.id)}>
-        <TouchableOpacity
-          style={[styles.notificationItem, {backgroundColor: Colors.white}]}
-          onPress={() => toggleReadStatus(item.id)}>
-                <View style={styles.notificationText}>
-                    <View style={{flexDirection:'row',marginTop:responsiveHeight(10) }}>
-                        <View style={{
-                            height: responsiveHeight(26),
-                            width: responsiveHeight(26),
-                            // paddingBottom:10,
-                            backgroundColor: '#EEF2FF',
-                            borderRadius: responsiveHeight(10),
-                            justifyContent: 'center',
-                            alignItems: 'center', marginHorizontal:responsiveWidth(8)
-                        }}>
-                            <Text style={{ color: 'black' }}>DE</Text>
-                        </View>
-                        <Text
-                            style={styles.description}
-                            // numberOfLines={isExpanded ? 0 : 2}
-                            // ellipsizeMode='tail'
-                        >
-                            {item.description}
-                        </Text>
-                    </View>
-                    <View style={styles.timeContainer}>
-                        <Text style={styles.time}>
-                            {timeAgo(item.timestamp)}
-                        </Text>
-                    </View>
+        <View style={{backgroundColor: Colors.white}}>
+          <TouchableOpacity
+            // style={[styles.notificationItem, {maxWidth: '75%'}]} // 👈 Add maxWidth or paddingRight
+            style={[styles.notificationItem, {paddingRight: responsiveWidth(20)}]} // Adjust to match delete button width
+
+            onPress={() => toggleReadStatus(item.id)}>
+            <View style={styles.notificationText}>
+              <View style={{flexDirection: 'row', marginTop: responsiveHeight(10)}}>
+                <View
+                  style={{
+                    height: responsiveHeight(26),
+                    width: responsiveHeight(26),
+                    backgroundColor: '#EEF2FF',
+                    borderRadius: responsiveHeight(10),
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginHorizontal: responsiveWidth(8),
+                  }}>
+                  <Text style={{color: 'black'}}>DE</Text>
                 </View>
-        </TouchableOpacity>
+                <Text style={styles.description}>{item.description}</Text>
+              </View>
+              <View style={styles.timeContainer}>
+                <Text style={styles.time}>{timeAgo(item.timestamp)}</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        </View>
       </Swipeable>
     );
   };
+  
 
   return (
     <SafeAreaView style={styles.container}>
@@ -267,11 +263,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.red,
     justifyContent: 'center',
     alignItems: 'flex-end',
-    width: '25%',
-    // borderRadius: 8,
-    // borderTopRightRadius: 8,
-    // borderBottomRightRadius: 8,
-    // paddingBottomBottom: responsiveHeight(12),
+    width: responsiveWidth(80),
+   
   },
   deleteText: {
     color: Colors.white,

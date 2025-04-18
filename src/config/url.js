@@ -13,6 +13,7 @@ export const API_BASE_URL = 'http://192.168.29.46:9292/'
 // export const API_BASE_URL = 'http://52.66.236.213:9000/';
 // export const socketUrl = `http://52.66.236.213:4100/`;
 
+
 // 
 
 // export const API_BASE_URL = 'http://192.168.29.189:5000/';
@@ -48,6 +49,7 @@ export const updateDriverDetails = getEndpoint('drivers/edit-driver-profile');
 export const deleteDriverDetails = getEndpoint(
   'drivers/delete-driver-vehicles',
 );
+export const updateOrderDistanceurl = getEndpoint('orders/update-driver-distance');
 export const getDriverDetails = getEndpoint('drivers/get-driver-details');
 export const updateWorkStatusurl = getEndpoint('drivers/update-location');
 export const placeOrder = getEndpoint('users/place-order');
@@ -112,4 +114,8 @@ export const getDriverTodaysEarningurl = getEndpoint(
 );
 export const getCheckUserStatusurl = getEndpoint(
   'generic/check-user-status',
+);
+export const editBankDetails = getEndpoint('partner/editBankDetails');
+export const getDriverTransactionsById = getEndpoint(
+  'drivers/getDriverTransactionsById',
 );

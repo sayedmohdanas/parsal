@@ -166,12 +166,12 @@ const NotificationModal = ({
     initializeSocket();
 
     // Only disconnect on full component unmount
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-        socketRef.current = null;
-      }
-    };
+    // return () => {
+    //   if (socketRef.current) {
+    //     socketRef.current.disconnect();
+    //     socketRef.current = null;
+    //   }
+    // };
   }, []); // <- only on mount
 
 
@@ -239,9 +239,9 @@ const NotificationModal = ({
 
         await  sendDummyDataToFirebase(resWithOTP, 'dummy data to firebase', 6)
 
-          socketRef.current.emit('driver_accept', resWithOTP, acknowledgment => {
-            console.log('Data sent, acknowledgment:', acknowledgment);
-          });
+          // socketRef.current.emit('driver_accept', resWithOTP, acknowledgment => {
+          //   console.log('Data sent, acknowledgment:', acknowledgment);
+          // });
 
           // Update order OTP
           const param = {

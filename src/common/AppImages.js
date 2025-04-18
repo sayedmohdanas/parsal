@@ -148,5 +148,5 @@ export default AppImages = {
   calendarIcon:require('../assets/images/calendar.png'),
   suspendedIcon:require('../assets/images/suspended.png'),
   noInternet:require('../assets/images/no-wifi.png'),
-
+  PDF_DOWNLOAD:require('../assets/images/pdf_Download.png'),
 };

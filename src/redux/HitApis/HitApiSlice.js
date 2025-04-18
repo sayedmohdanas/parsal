@@ -207,6 +207,14 @@ const initialState = {
   stops: [], // Array of all stops
   currentStopIndex: 0, // Track which stop the driver is at
   orderCompleted: false, // Mark ride completion
+  current_ride_travel_distance: 0,
+  partner_bank_details: null,
+
+
+
+
+
+
 };
 
 const HitApiSlice = createSlice({
@@ -215,6 +223,12 @@ const HitApiSlice = createSlice({
   reducers: {
     setParentId(state, action) {
       state.partnerId = action.payload;
+    },
+    setPartner_bank_details(state, action) {
+      state.partner_bank_details = action.payload;
+    },
+    setcurrent_ride_travel_distance(state, action) {
+      state.current_ride_travel_distance = action.payload;
     },
     setworking_status(state, action) {
       state.is_online = action.payload;
@@ -452,6 +466,7 @@ const HitApiSlice = createSlice({
 export const selectWorkingStatus = state => state.HitApiSlice.isEnabled;
 
 export const {
+  setcurrent_ride_travel_distance,
   setWorkingStatus,
   setParentId,
   setMyVehicleData,
@@ -469,6 +484,8 @@ export const {
   setworking_status,
   setnextOrderData,
   setSelectedDriverRedux,
+  partner_bank_details,
+  setPartner_bank_details,
   setStops, completeStop, resetStops,
 } = HitApiSlice.actions;
 

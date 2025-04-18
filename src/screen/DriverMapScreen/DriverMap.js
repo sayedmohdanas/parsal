@@ -35,12 +35,12 @@ import {
 } from '../../common/metrices';
 import DriverArriveCard from '../DriverEarning/DriverArriveCard';
 import DestinationSection from './DestinationSection';
-import { hitEndOrderApi, hitUpdateDriverLocationApi, hitupdateorderstopApi } from '../../config/api/api';
+import { hitEndOrderApi, hitUpdateDriverLocationApi, hitupdateorderDistanceApi, hitupdateorderstopApi } from '../../config/api/api';
 import NextOrder from '../../components/CustomNotificationModal/NextOrder';
 import HeaderBackButton from '../../components/HeaderBackButton/HeaderBackButton';
 
 import DeliveryModal from './DeliveryComponent';
-import { setOrderData } from '../../redux/HitApis/HitApiSlice';
+import { setcurrent_ride_travel_distance, setOrderData } from '../../redux/HitApis/HitApiSlice';
 import { socketUrl } from '../../config/url';
 import { io } from 'socket.io-client';
 
@@ -66,7 +66,8 @@ const DriverMapScreen = ({ route }) => {
   const [distanceTraveled, setDistanceTraveled] = useState(0);
   const [lastPosition, setLastPosition] = useState(null);
   const [appState, setAppState] = useState(AppState.currentState);
-  const { orderData, update_order, nextOrderData } = useSelector(
+     
+      const { orderData, update_order, nextOrderData ,current_ride_travel_distance} = useSelector(
     state => state?.parsalPartner,
   );
   let timerId = null;
@@ -85,6 +86,7 @@ const DriverMapScreen = ({ route }) => {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   };
+  const order_stops = orderData?.newOrder?.stops || orderData?.stops || [];
 
   const updatePosition = async newPosition => {
     if (lastPosition) {
@@ -94,12 +96,15 @@ const DriverMapScreen = ({ route }) => {
         order_id: orderData?.newOrder?.id || orderData?.id,
         driver_travel_distance: distance,
       };
+      dispatch(setcurrent_ride_travel_distance(distance));
+      if(order_stops?.length > 1){
       await hitUpdateDriverLocationApi(param);
       if (distance > 0.001) {
         setDistanceTraveled(prevDistance =>
           parseFloat((prevDistance + distance).toFixed(4)),
         );
       }
+    }
     }
     setLastPosition(newPosition);
   };
@@ -150,6 +155,9 @@ const DriverMapScreen = ({ route }) => {
       try {
         const { latitude, longitude, heading } = await GetDriverCurrentLocation();
         const currentPosition = { latitude, longitude };
+        // const response = await hitupdateorderDistanceApi({
+        //   order_id: orderId, lat: latitude, lng: longitude
+        // })
         if (calculateDistance(origin, destination) < 50) {
           successToast('Success', 'You Reached the Destination!');
           clearInterval(intervalId);
@@ -213,8 +221,15 @@ const DriverMapScreen = ({ route }) => {
       }
     } else if (nextAppState === 'background') {
       timerIdRef.current = BackgroundTimer.setInterval(async () => {
+
         const { latitude, longitude, heading } = await GetDriverCurrentLocation();
         const newCoordinate = { latitude, longitude };
+        // console.log('new-cordinate----->>',newCoordinate);
+        // console.log('check==>','order-id', orderId,'lat',latitude,
+        //   'long',longitude,
+        //   'heading',heading,
+        //  'time', database?.ServerValue.TIMESTAMP,);
+        
         database().ref(`/drivers/${orderId}/location`).set({
           latitude,
           longitude,
@@ -248,7 +263,6 @@ const DriverMapScreen = ({ route }) => {
     );
   // console.log(nextStop);
 
-  const order_stops = orderData?.newOrder?.stops || orderData?.stops || [];
   const stops = (orderData?.newOrder?.stops || orderData?.stops) || [];
 
   const pendingStops = stops.filter(stop => !stop?.is_completed);
@@ -530,6 +544,7 @@ const DriverMapScreen = ({ route }) => {
         store_data?.parsalPartner?.loginuserdetails?.partner_id ||
         store_data?.parsalPartner?.loginuserdetails?.id,
       vehicle_type_id: driver_details?.vehicle_type_id || '4',
+      distance: current_ride_travel_distance,
     };
     hitEndOrderApi(param)
       .then(res => {
@@ -555,6 +570,7 @@ const DriverMapScreen = ({ route }) => {
       });
   };
   const [deliver_modal_loader, setdeliver_modal_loader] = useState(false)
+  // console.log("distanceTraveled", current_ride_travel_distance);
 
   return (
     <View style={styles.container}>
@@ -701,17 +717,21 @@ const DriverMapScreen = ({ route }) => {
           setdeliver_modal_loader(true)
           const param = {
             stop_id: order_stops?.[selectedStopIndex]?.id,
-            is_complete: true
+            is_complete: true,
+            distance: current_ride_travel_distance
           }
           hitupdateorderstopApi(param).then((res) => {
             if (res) {
               setdeliver_modal_loader(false)
               updateStopCompletion(nextStop?.id)
+              setDistanceTraveled(0)
               setstop_modal(false)
               if (isLastStop) {
                 handleEndTrip()
                 return
               } else {
+      dispatch(setcurrent_ride_travel_distance(0));
+
                 sendDummyDataToFirebase(
                   orderData?.newOrder || orderData,
                   'Stop Reached',

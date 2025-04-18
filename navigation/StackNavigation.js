@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import LoginScreen from '../src/screen/LoginScreen';
 import OtpScreen from '../src/screen/OtpScreen';
@@ -26,7 +26,6 @@ import AddCashScreen from '../src/screen/DashBoard/screen/Wallet/AddCachScreen';
 import HelpAndSupportChat from '../src/screen/DashBoard/screen/HelpAndSupport/HelpAndSupportChat';
 import HelpAndSupportMain from '../src/screen/HelpAndSupport/HelpAndSupportMain';
 import AddHelpAndSupport from '../src/screen/HelpAndSupport/AddHelpAndSupport';
-import { useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Loading from '../src/components/Loading/Loading';
 import AccountScreen from '../src/screen/AccountScreen/AccountScreen';
@@ -34,307 +33,12 @@ import LedgerScreen from '../src/screen/DashBoard/screen/LedgerScreen';
 import {
   hitMyVehicle,
 } from '../src/config/api/api';
-import { useNavigation } from '@react-navigation/native';
 import OrderScreen from '../src/screen/OrderList/OrderScreen';
-import StopsMap from '../src/screen/DriverMapScreen/StopsMap';
-import database from '@react-native-firebase/database'; // Correct import
 import AuthWrapper from '../src/common/AuthWrapper';
 import NotificationListener from '../NotificationListener';
-import LedgerDetails from '../src/screen/DashBoard/screen/LedgerDetails';
+import TransactionTable from '../src/screen/DashBoard/screen/LedgerDetails';
 const Stack = createStackNavigator();
-
-// const StackNavigator = () => {
-//   const dispatch = useDispatch();
-//   const navigation = useNavigation();
-//   const [initialRoute, setInitialRoute] = useState(null);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     let notificationRef = null;
-
-//     const setupListener = async () => {
-//       try {
-//         const user = await AsyncStorage.getItem('user');
-//         const parsedUser = user ? JSON.parse(user) : null;
-
-//         if (!parsedUser?.payload) return;
-
-//         const { owner_type, driver_id } = parsedUser.payload;
-
-//         if ((owner_type === 0 || owner_type === 2) && driver_id) {
-//           const driverPath = `driver/${driver_id}/notifications`;
-//           notificationRef = database().ref(driverPath);
-
-//           notificationRef.on('child_added', snapshot => {
-//             const newNotification = snapshot.val();
-//             console.log("New Notification:", newNotification);
-//             // Remove the notification from Firebase after processing it
-//             snapshot.ref.remove()
-//               .then(() => console.log("Notification removed from Firebase"))
-//               .catch(error => console.error("Error removing notification:", error));
-//           });
-//         }
-//       } catch (error) {
-//         console.error('Error setting up notification listener:', error);
-//       }
-//     };
-
-//     setupListener();
-
-//     return () => {
-//       if (notificationRef) {
-//         notificationRef.off('child_added');
-//       }
-//     };
-//   }, []);
-//   useEffect(() => {
-//     const checkUserStatus = async () => {
-//       setLoading(true);
-//       try {
-//         const user = await AsyncStorage.getItem('user');
-//         if (!user) {
-//           setInitialRoute('Login');
-//         } else if (user.startsWith('{')) {
-//           try {
-//             const parsedUser = JSON.parse(user);
-//             const ownerType = parsedUser?.payload?.owner_type;
-//             if (ownerType === 0) {
-//               setInitialRoute('DriverDashboard');
-//             } else if (ownerType === 1) {
-//               const res = await hitMyVehicle({
-//                 partnerId: parsedUser?.payload?.partner_id,
-//               });
-//               if (res?.status === 1 && res?.vehicles) {
-//                 res.vehicles.forEach(vehicle => {
-//                   const vehicleStatus = vehicle?.vehicle_status ?? 0;
-//                   const mDriverStatus = vehicle?.driver?.m_driver_status ?? 0;
-//                   const driverVehicleStatus = vehicle?.driver?.driver_vehicle_status ?? 0;
-
-//                   console.log('vehicle_status:', vehicleStatus);
-//                   console.log('m_driver_status:', mDriverStatus);
-//                   console.log('driver_vehicle_status:', driverVehicleStatus);
-//                 });
-
-//                 const hasDriverAssigned = res.vehicles.some(vehicle => {
-//                   const vehicleStatus = vehicle?.vehicle_status ?? 0;
-//                   const mDriverStatus = vehicle?.driver?.m_driver_status ?? 0;
-//                   const driverVehicleStatus = vehicle?.driver?.driver_vehicle_status ?? 0;
-
-//                   return (
-//                     vehicleStatus == 1 &&
-//                     mDriverStatus == 1 &&
-//                     driverVehicleStatus == 1
-//                   );
-//                 });
-//                 // console.log('anas=====>>>>>>',res?.vehicles.map(vehicle => 
-//                 //   vehicle.vehicle_status ==0 ||
-//                 //   vehicle.m_driver_status == 0 ||
-//                 //   vehicle.driver_vehicle_status == 0
-//                 // ));
-
-
-//                 // res?.vehicles.some(
-//                 //   vehicle => vehicle.driver_id !== null,
-//                 // );
-
-//                 if (hasDriverAssigned) {
-//                   setInitialRoute('Trip');
-//                 } else {
-//                   setInitialRoute('MyVehicles');
-//                 }
-//               } else {
-//                 // Handle the case where `status` is not 1 or `vehicles` is missing
-//                 setInitialRoute('MyVehicles');
-//               }
-//             } else if (ownerType === 2) {
-
-//               const res = await hitMyVehicle({
-//                 partnerId: parsedUser?.payload?.partner_id,
-//               });
-//               // console.log('resres===>>',res?.vehicles)
-//               if (res?.status === 1 && res?.vehicles) {
-//                 // res.vehicles.forEach(vehicle => {
-//                 //   const vehicleStatus = vehicle.vehicle_status ?? 0;
-//                 //   const mDriverStatus = vehicle.driver?.m_driver_status ?? 0;
-//                 //   const driverVehicleStatus = vehicle.driver?.driver_vehicle_status ?? 0;
-
-//                 //   console.log('vehicle_status:', vehicleStatus);
-//                 //   console.log('m_driver_status:', mDriverStatus);
-//                 //   console.log('driver_vehicle_status:', driverVehicleStatus);
-//                 // });
-
-//                 const hasDriverAssigned = res.vehicles.some(vehicle => {
-//                   const vehicleStatus = vehicle.vehicle_status ?? 0;
-//                   const mDriverStatus = vehicle.driver?.m_driver_status ?? 0;
-//                   const driverVehicleStatus = vehicle.driver?.driver_vehicle_status ?? 0;
-
-//                   return (
-//                     vehicleStatus == 1 &&
-//                     mDriverStatus == 1 &&
-//                     driverVehicleStatus == 1
-//                   );
-//                 });
-//                 // console.log('anas=====>>>>>>',res?.vehicles.map(vehicle => 
-//                 //   vehicle.vehicle_status ==0 ||
-//                 //   vehicle.m_driver_status == 0 ||
-//                 //   vehicle.driver_vehicle_status == 0
-//                 // ));
-
-
-//                 // res?.vehicles.some(
-//                 //   vehicle => vehicle.driver_id !== null,
-//                 // );
-
-//                 if (hasDriverAssigned) {
-//                   setInitialRoute('Trip');
-//                 } else {
-//                   setInitialRoute('MyVehicles');
-//                 }
-//               }
-//             } else {
-//               setInitialRoute('Login');
-//             }
-//           } catch (jsonError) {
-//             console.error('JSON parse error:', jsonError);
-//             setInitialRoute('Login');
-//           }
-//         } else {
-//           console.log('Invalid user data format, navigating to Login');
-//           setInitialRoute('Login');
-//         }
-//       } catch (error) {
-//         console.error('Error retrieving user data:', error);
-//         setInitialRoute('Login');
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-//     checkUserStatus();
-//   }, []);
-
-//   if (loading) {
-//     return <Loading loading={loading} />;
-//   }
-
-//   return (
-//     // <Stack.Navigator initialRouteName={initialRoute}>
-//     //   <Stack.Screen name="Login" component={LoginScreen} />
-//     //   <Stack.Screen name="Otp" component={OtpScreen} />
-//     //   <Stack.Screen name="TermsCondition" component={TermsAndCondition} />
-//     //   <Stack.Screen name="OwnerDetail" component={OwnerDetailScreen} />
-//     //   <Stack.Screen name="DriverDetail" component={DriverDetailScreen} />
-//     //   <Stack.Screen name="VehicleDetail" component={VehicleDetailScreen} />
-//     //   <Stack.Screen name="UpdateDriver" component={UpdateDriver} />
-//     //   <Stack.Screen name="ProfileDetail" component={ProfileDetail} />
-//     //   <Stack.Screen name="Notification" component={Notification} />
-//     //   <Stack.Screen
-//     //     name="MyVehicles"
-//     //     component={MyVehiclesScreen}
-//     //     options={{headerShown: false}}
-//     //   />
-
-//     //   <Stack.Screen
-//     //     name="DriverDashboard"
-//     //     component={DriverDrawerNavigator} // Driver's drawer
-//     //     options={{headerShown: false}}
-//     //   />
-//     //   <Stack.Screen
-//     //     name="OwnerDashboard"
-//     //     component={OwnerDrawerNavigator} // Owner's drawer
-//     //     options={{headerShown: false}}
-//     //   />
-//     // </Stack.Navigator>
-
-
-//     <AuthWrapper>
-//       <Stack.Navigator
-//         // screenOptions={{
-//         //   headerShown: false,
-//         //   animation: 'none', // This applies a default fade animation to all screens.
-//         //   transitionSpec: {
-//         //     open: { animation: 'spring', config: { stiffness: 1000, damping: 10 } },
-//         //     close: { animation: 'timing', config: { duration: 500 } },
-//         //   },
-//         // }}
-//         screenOptions={{
-//           headerShown: false,
-//           animationEnabled: false, // Disables animations for all screens
-//         }}
-//         initialRouteName={initialRoute}>
-//         {/* Authentication and Profile Screens */}
-//         <Stack.Screen name="Login" component={LoginScreen} />
-//         <Stack.Screen name="Otp" component={OtpScreen} />
-//         <Stack.Screen name="TermsCondition" component={TermsAndCondition} />
-//         <Stack.Screen name="OwnerDetail" component={OwnerDetailScreen} />
-//         <Stack.Screen name="DriverDetail" component={DriverDetailScreen} />
-//         <Stack.Screen name="VehicleDetail" component={VehicleDetailScreen} />
-//         <Stack.Screen name="StopsMap" component={StopsMap} />
-//         <Stack.Screen name="UpdateDriver" component={UpdateDriver} />
-//         <Stack.Screen name="ProfileDetail" component={ProfileDetail} />
-//         <Stack.Screen name="Ledger" component={LedgerScreen} />
-//         {/* Main Screens */}
-//         <Stack.Screen name="Notification" component={Notification} />
-//         <Stack.Screen
-//           name="MyVehicles"
-//           component={MyVehiclesScreen}
-//           options={{ headerShown: false }}
-//         />
-//         <Stack.Screen
-//           name="DriverDashboard"
-//           component={DriverDashboard}
-//           options={{ headerShown: false }}
-//         />
-//         <Stack.Screen
-//           name="Trip"
-//           component={LiveTripScreen}
-//           options={{ headerShown: false }}
-//         />
-//         <Stack.Screen
-//           name="Earning"
-//           component={Earning}
-//           options={{ headerShown: false }}
-//         />
-//         <Stack.Screen name="DriverMap" component={DriverMapScreen} />
-//         <Stack.Screen name="AmountCollected" component={AmountCollectScreen} />
-//         <Stack.Screen
-//           name="UpdateBankDetails"
-//           component={UpdateBankDetailsScreen}
-//         />
-//         <Stack.Screen name="RideComplete" component={RideCompleteScreen} />
-//         <Stack.Screen
-//           name="Profile"
-//           component={ProfileScreen}
-//           options={{ headerShown: false }}
-//         />
-//         <Stack.Screen
-//           name="orderinfo"
-//           component={OrderInfo}
-//           options={{ headerShown: false }}
-//         />
-//         <Stack.Screen
-//           name="Chat"
-//           component={ChatScreen}
-//           options={{ headerShown: false }}
-//         />
-//         <Stack.Screen
-//           name="Wallet"
-//           component={WalletScreen}
-//           options={{ headerShown: false }}
-//         />
-//         <Stack.Screen name="AddCash" component={AddCashScreen} />
-//         <Stack.Screen name="HelpChat" component={HelpAndSupportChat} />
-//         <Stack.Screen name="TransactionHistory" component={TransactionHistory} />
-//         <Stack.Screen name="HelpAndSupport" component={HelpAndSupportMain} />
-//         <Stack.Screen name="TicketSubmission" component={AddHelpAndSupport} />
-//         <Stack.Screen name="Setting" component={AccountScreen} />
-//         <Stack.Screen name="OrderScreen" component={OrderScreen} />
-//       </Stack.Navigator>
-//     </AuthWrapper>
-//   );
-// };
 const StackNavigator = () => {
-  const dispatch = useDispatch();
-  const navigation = useNavigation();
   const [initialRoute, setInitialRoute] = useState(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
@@ -453,14 +157,6 @@ const StackNavigator = () => {
   }
   return (
     <Stack.Navigator
-      // screenOptions={{
-      //   headerShown: false,
-      //   animation: 'none', // This applies a default fade animation to all screens.
-      //   transitionSpec: {
-      //     open: { animation: 'spring', config: { stiffness: 1000, damping: 10 } },
-      //     close: { animation: 'timing', config: { duration: 500 } },
-      //   },
-      // }}
       screenOptions={{
         headerShown: false,
         animationEnabled: false, // Disables animations for all screens
@@ -476,28 +172,17 @@ const StackNavigator = () => {
       <Stack.Screen name="UpdateDriver" component={UpdateDriver} />
       <Stack.Screen name="ProfileDetail" component={ProfileDetail} />
       <Stack.Screen name="Ledger" component={LedgerScreen} />
-      <Stack.Screen name="LedgerDetail" component={LedgerDetails} />
+      <Stack.Screen name="LedgerDetail" component={TransactionTable} />
 
       {/* Main Screens */}
       <Stack.Screen name="Notification" component={Notification} />
-      {/* <Stack.Screen
-        name="MyVehicles"
-        component={MyVehiclesScreen}
-        options={{headerShown: false}}
-      /> */}
-      <Stack.Screen name="MyVehicles">
-        {({ route, navigation }) => (
+      {/* <Stack.Screen name="MyVehicles">
+        {() => (
           <AuthWrapper>
-            <MyVehiclesScreen route={route} navigation={navigation} />
+            <MyVehiclesScreen />
           </AuthWrapper>
         )}
       </Stack.Screen>
-
-      {/* <Stack.Screen
-        name="DriverDashboard"
-        component={DriverDashboard}
-        options={{headerShown: false}}
-      /> */}
       <Stack.Screen name="DriverDashboard">
         {() => (
           <AuthWrapper>
@@ -510,11 +195,6 @@ const StackNavigator = () => {
         component={LiveTripScreen}
         options={{ headerShown: false }}
       />
-      {/* <Stack.Screen
-        name="Earning"
-        component={Earning}
-        options={{headerShown: false}}
-      /> */}
       <Stack.Screen
         name="Earning"
         options={{ headerShown: false }}
@@ -526,17 +206,61 @@ const StackNavigator = () => {
         )}
       </Stack.Screen>
       <Stack.Screen name="DriverMap">
-        {({ route, navigation }) => (
+        {() => (
           <NotificationListener>
-            <DriverMapScreen route={route} navigation={navigation} />
+            <DriverMapScreen />
+          </NotificationListener>
+        )}
+      </Stack.Screen>
+      <Stack.Screen name="AmountCollected" >
+        {() => (
+          <NotificationListener>
+            <AmountCollectScreen />
+          </NotificationListener>
+        )}
+      </Stack.Screen> */}
+      <Stack.Screen name="MyVehicles">
+        {({ route, navigation }) => (
+          <AuthWrapper navigation={navigation} route={route}>
+            <MyVehiclesScreen navigation={navigation} route={route} />
+          </AuthWrapper>
+        )}
+      </Stack.Screen>
+
+      <Stack.Screen name="DriverDashboard">
+        {({ route, navigation }) => (
+          <AuthWrapper navigation={navigation} route={route}>
+            <DriverDashboard navigation={navigation} route={route} />
+          </AuthWrapper>
+        )}
+      </Stack.Screen>
+
+      <Stack.Screen
+        name="Trip"
+        component={LiveTripScreen}
+        options={{ headerShown: false }}
+      />
+
+      <Stack.Screen name="Earning" options={{ headerShown: false }}>
+        {({ route, navigation }) => (
+          <AuthWrapper navigation={navigation} route={route}>
+            <Earning navigation={navigation} route={route} />
+          </AuthWrapper>
+        )}
+      </Stack.Screen>
+
+      <Stack.Screen name="DriverMap">
+        {({ route, navigation }) => (
+          <NotificationListener navigation={navigation} route={route}>
+            <DriverMapScreen navigation={navigation} route={route} />
           </NotificationListener>
         )}
       </Stack.Screen>
 
       <Stack.Screen name="AmountCollected">
         {({ route, navigation }) => (
-          <NotificationListener>
-            <AmountCollectScreen route={route} navigation={navigation} />
+          <NotificationListener navigation={navigation} route={route}>
+            <AmountCollectScreen navigation={navigation} route={route} />
           </NotificationListener>
         )}
       </Stack.Screen>
@@ -571,7 +295,7 @@ const StackNavigator = () => {
       <Stack.Screen name="TransactionHistory" component={TransactionHistory} />
       <Stack.Screen name="HelpAndSupport" component={HelpAndSupportMain} />
       <Stack.Screen name="TicketSubmission" component={AddHelpAndSupport} />
-      <Stack.Screen name="Setting" options={{ headerShown: false }}>
+      {/* <Stack.Screen name="Setting" options={{ headerShown: false }}>
         {() => (
           <AuthWrapper>
             <AccountScreen />
@@ -584,7 +308,23 @@ const StackNavigator = () => {
             <OrderScreen />
           </AuthWrapper>
         )}
+      </Stack.Screen> */}
+      <Stack.Screen name="Setting" options={{ headerShown: false }}>
+        {({ route, navigation }) => (
+          <AuthWrapper navigation={navigation} route={route}>
+            <AccountScreen navigation={navigation} route={route} />
+          </AuthWrapper>
+        )}
       </Stack.Screen>
+
+      <Stack.Screen name="OrderScreen" options={{ headerShown: false }}>
+        {({ route, navigation }) => (
+          <AuthWrapper navigation={navigation} route={route}>
+            <OrderScreen navigation={navigation} route={route} />
+          </AuthWrapper>
+        )}
+      </Stack.Screen>
+
     </Stack.Navigator>
   );
 };
