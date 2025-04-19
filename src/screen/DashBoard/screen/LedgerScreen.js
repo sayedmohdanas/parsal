@@ -437,7 +437,8 @@ const LedgerScreen = ({ navigation }) => {
     return (
       <TouchableOpacity style={styles.itemContainer} onPress={() => navigation.navigate('LedgerDetail', {
         driver_id: item?.driver_id,
-        driver_name: item?.driver_name
+        driver_name: item?.driver_name,
+        date:dateRange
       })}>
         <View
           style={{

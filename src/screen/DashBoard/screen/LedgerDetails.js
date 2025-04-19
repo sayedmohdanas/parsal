@@ -49,7 +49,7 @@ const requestStoragePermission = async () => {
 
 
 const TransactionTable = ({ navigation, route }) => {
-    const { driver_id, driver_name } = route?.params
+    const { driver_id, driver_name,date } = route?.params
      const [dateRange, setDateRange] = useState({start: '', end: ''});
      const [headerText, setHeaderText] = useState(formatDateOnly(new Date()));
    
@@ -67,8 +67,11 @@ const TransactionTable = ({ navigation, route }) => {
         };
     }, [driver_id]);
     useEffect(()=>{
+        // console.log('d-date',date);
+        
+        setDateRange(date)
         fetchTransactions();
-    },[route?.params])
+    },[route?.params,dateRange,driver_id])
     const handleCalendar = () => {
         setIsModalVisible(!isModalVisible);
     };
@@ -106,9 +109,17 @@ const TransactionTable = ({ navigation, route }) => {
         }
     };
     const fetchTransactions = async () => {
+    
+
         try {
           setLoading(true);
-          const response = await hitGetDriverTransactionsById({ driver_id: driver_id });
+          const param = {
+            driver_id: driver_id,
+            start_date: dateRange?.startDate,
+            end_date: dateRange?.endDate,
+          };
+          console.log('param=====>>firesr-==>', param);
+          const response = await hitGetDriverTransactionsById(param);
           console.log(response);
       
           if (response?.status) {
